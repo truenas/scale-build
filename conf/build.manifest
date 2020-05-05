@@ -1,0 +1,15 @@
+{
+	"aptrepo":"",
+	"sources":[
+		{
+			"name":"debian-archive-keyring",
+			"repo":"https://github.com/truenas/debian-archive-keyring",
+			"branch":"master"
+		},
+		{
+			"name":"truenas-installer",
+			"repo":"https://github.com/truenas/truenas-installer",
+			"branch":"master"
+		}
+	]
+}
