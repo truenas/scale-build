@@ -2,6 +2,16 @@
 	"aptrepo":"",
 	"sources":[
 		{
+			"name":"py-libzfs",
+			"repo":"https://github.com/freenas/py-libzfs",
+			"branch":"master"
+		},
+		{
+			"name":"zettarepl",
+			"repo":"https://github.com/freenas/zettarepl",
+			"branch":"master"
+		},
+		{
 			"name":"debian-archive-keyring",
 			"repo":"https://github.com/truenas/debian-archive-keyring",
 			"branch":"master"
@@ -9,6 +19,16 @@
 		{
 			"name":"truenas-installer",
 			"repo":"https://github.com/truenas/truenas-installer",
+			"branch":"master"
+		},
+		{
+			"name":"py-blkid",
+			"repo":"https://github.com/truenas/py-blkid",
+			"branch":"master"
+		},
+		{
+			"name":"migrate113",
+			"repo":"https://github.com/freenas/freenas-migrate113",
 			"branch":"master"
 		}
 	]

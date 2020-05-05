@@ -2,7 +2,7 @@
 # Makefile for building: TrueOS
 #############################################################################
 
-all: packages iso
+all: checkout packages iso
 
 clean:
 	@sh scripts/build.sh clean

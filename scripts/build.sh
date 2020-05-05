@@ -38,6 +38,9 @@ preflight_check() {
 
 	if [ ! -d tmp/ ] ; then mkdir tmp ; fi
 	if [ ! -d ${PKG_DIR} ] ; then mkdir ${PKG_DIR} ; fi
+
+	# Validate MANIFEST
+	jq -r '.' ${MANIFEST} >/dev/null 2>/dev/null || exit_err "Invalid $MANIFEST"
 }
 
 make_bootstrapdir() {
@@ -55,6 +58,12 @@ make_bootstrapdir() {
 
 	# Add extra packages for builds
 	chroot ${CHROOT_BASEDIR} apt install -y build-essential dh-make devscripts fakeroot || exit_err "Failed chroot setup"
+
+	sed -i'' 's| main| main non-free contrib|g' ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed sed"
+
+	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
+
+	echo "deb file:/packages ./" >> ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed local deb repo"
 
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
@@ -74,10 +83,11 @@ del_bootstrapdir() {
 
 del_overlayfs() {
 
+	umount -f ${DPKG_OVERLAY}/packages 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/proc 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/sys 2>/dev/null
 	umount -f ${DPKG_OVERLAY} 2>/dev/null
-	rmdir ${DPKG_OVERLAY} 2>/dev/null
+	rm -rf ${DPKG_OVERLAY} 2>/dev/null
 	rm -rf ${CHROOT_OVERLAY} 2>/dev/null
 	rm -rf ${WORKDIR_OVERLAY} 2>/dev/null
 }
@@ -90,8 +100,10 @@ mk_overlayfs() {
 	mkdir -p ${WORKDIR_OVERLAY}
 	echo "mount -t overlay -o lowerdir=${CHROOT_BASEDIR},upperdir=${CHROOT_OVERLAY},workdir=${WORKDIR_OVERLAY} none ${DPKG_OVERLAY}/"
 	mount -t overlay -o lowerdir=${CHROOT_BASEDIR},upperdir=${CHROOT_OVERLAY},workdir=${WORKDIR_OVERLAY} none ${DPKG_OVERLAY}/ || exit_err "Failed overlayfs"
-	mount proc ${DPKG_OVERLAY}/proc -t proc
-	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs
+	mount proc ${DPKG_OVERLAY}/proc -t proc || "Failed mount proc"
+	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs || "Failed mount sysfs"
+	mkdir -p ${DPKG_OVERLAY}/packages || exit_err "Failed mkdir /packages"
+	mount --bind ${PKG_DIR} ${DPKG_OVERLAY}/packages || "Failed mount --bind /packages"
 }
 
 build_deb_packages() {
@@ -120,14 +132,23 @@ build_deb_packages() {
 }
 
 build_dpkg() {
+	if [ -d "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
+		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
+	fi
 	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && mk-build-deps --build-dep' || exit_err "Failed mk-build-deps"
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && apt install -y ./*.deb' || exit_err "Failed install build deps"
-	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && debuild -us -uc' || exit_err "Failed to build package"
+	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && debuild -us -uc -b' || exit_err "Failed to build package"
 
 	# Move out the resulting packages
-	mv ${DPKG_OVERLAY}/*.deb ${PKG_DIR}/
-	mv ${DPKG_OVERLAY}/*.udeb ${PKG_DIR}/
+	echo "Copying finished packages"
+
+	mv ${DPKG_OVERLAY}/*.deb ${PKG_DIR}/ 2>/dev/null
+	mv ${DPKG_OVERLAY}/*.udeb ${PKG_DIR}/ 2>/dev/null
+
+	# Update the local APT repo
+	echo "Building local APT repo Packages.gz..."
+	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
 }
 
 checkout_sources() {
