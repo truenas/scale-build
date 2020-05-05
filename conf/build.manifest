@@ -48,6 +48,17 @@
 			"name":"migrate113",
 			"repo":"https://github.com/freenas/freenas-migrate113",
 			"branch":"master"
+		},
+		{
+			"name":"truenas-webui",
+			"repo":"https://github.com/freenas/webui",
+			"prebuildcmd":"yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
+			"branch":"master"
+		},
+		{
+			"name":"truenas",
+			"repo":"https://github.com/freenas/freenas",
+			"branch":"master"
 		}
 	]
 }

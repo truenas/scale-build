@@ -139,11 +139,15 @@ build_deb_packages() {
 		mk_overlayfs
 
 		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
+		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
 			exit_cleanup "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
+		if [ "$PREBUILD" = "null" ] ; then
+			unset PREBUILD
+		fi
 		echo "Building dpkg for $NAME"
-		build_dpkg "$NAME"
+		build_dpkg "$NAME" "$PREBUILD"
 
 		del_overlayfs
 	done
@@ -156,10 +160,15 @@ build_dpkg() {
 	if [ -d "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
 		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
 	fi
+	deflags="-us -uc -b"
 	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && mk-build-deps --build-dep' || exit_err "Failed mk-build-deps"
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && apt install -y ./*.deb' || exit_err "Failed install build deps"
-	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && debuild -us -uc -b' || exit_err "Failed to build package"
+	# Check for a prebuild command
+	if [ -n "$2" ] ; then
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd /dpkg-src && $2" || exit_err "Failed to prebuild"
+	fi
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd /dpkg-src && debuild $deflags" || exit_err "Failed to build package"
 
 	# Move out the resulting packages
 	echo "Copying finished packages"
