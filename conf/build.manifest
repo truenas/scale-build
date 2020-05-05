@@ -1,5 +1,23 @@
 {
-	"aptrepo":"",
+	"apt-repos":{
+		"url":"http://apt.tn.ixsystems.com/apt-direct/debian/unstable/",
+		"distribution":"bullseye",
+		"components":"main non-free contrib",
+		"additional":[
+			{
+				"url":"http://apt.tn.ixsystems.com/apt-direct/truenas/docker/",
+				"distribution":"buster",
+				"component":"stable",
+				"key":"keys/docker.gpg"
+			},
+			{
+				"url":"http://apt.tn.ixsystems.com/apt-direct/truenas/gluster/",
+				"distribution":"bullseye",
+				"component":"main",
+				"key":"keys/gluster.gpg"
+			}
+		]
+	},
 	"sources":[
 		{
 			"name":"py-libzfs",

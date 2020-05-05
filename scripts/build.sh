@@ -52,14 +52,35 @@ make_bootstrapdir() {
 	mount -t tmpfs -o size=8G tmpfs ${TMPFS}
 
 	# Bootstrap the debian base system
-	debootstrap bullseye ${CHROOT_BASEDIR} || exit_err "Failed debootstrap"
+	apt-key add keys/truenas.gpg 2>/dev/null >/dev/null || exit_err "Failed adding truenas.gpg apt-key"
+	aptrepo=$(jq -r '."apt-repos"."url"' $MANIFEST)
+	aptdist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
+	aptcomp=$(jq -r '."apt-repos"."components"' $MANIFEST)
+	debootstrap --keyring /etc/apt/trusted.gpg bullseye ${CHROOT_BASEDIR} $aptrepo || exit_err "Failed debootstrap"
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
 
 	# Add extra packages for builds
 	chroot ${CHROOT_BASEDIR} apt install -y build-essential dh-make devscripts fakeroot || exit_err "Failed chroot setup"
 
-	sed -i'' 's| main| main non-free contrib|g' ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed sed"
+	# Save the correct repo in sources.list
+	echo "deb $aptrepo $aptdist $aptcomp" > ${CHROOT_BASEDIR}/etc/apt/sources.list
+
+	# Add additional repos
+	for k in $(jq -r '."apt-repos"."additional" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
+	do
+		apturl=$(jq -r '."apt-repos"."additional"['$k']."url"' $MANIFEST)
+		aptdist=$(jq -r '."apt-repos"."additional"['$k']."distribution"' $MANIFEST)
+		aptcomp=$(jq -r '."apt-repos"."additional"['$k']."component"' $MANIFEST)
+		aptkey=$(jq -r '."apt-repos"."additional"['$k']."key"' $MANIFEST)
+		echo "Adding additional repo: $apturl"
+		cp $aptkey ${CHROOT_BASEDIR}/apt.key || exit_err "Failed copying repo apt key"
+		chroot ${CHROOT_BASEDIR} apt-key add /apt.key || exit_err "Failed adding apt-key"
+		rm ${CHROOT_BASEDIR}/apt.key
+		echo "deb $apturl $aptdist $aptcomp" >> ${CHROOT_BASEDIR}/etc/apt/sources.list
+
+	done
+	cat ${CHROOT_BASEDIR}/etc/apt/sources.list
 
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
