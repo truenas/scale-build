@@ -10,6 +10,7 @@ DPKG_OVERLAY="./tmp/dpkg-overlay"
 WORKDIR_OVERLAY="${TMPFS}/workdir-overlay"
 PKG_DIR="./tmp/pkgdir"
 LOG_DIR="./logs"
+HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
 SOURCES="./sources"
 
@@ -43,6 +44,7 @@ preflight_check() {
 
 	if [ ! -d tmp/ ] ; then mkdir tmp ; fi
 	if [ ! -d ${PKG_DIR} ] ; then mkdir ${PKG_DIR} ; fi
+	if [ ! -d ${HASH_DIR} ] ; then mkdir -p ${HASH_DIR} ; fi
 	if [ -d ${LOG_DIR} ] ; then
 		rm -rf ${LOG_DIR}
 	fi
@@ -90,6 +92,15 @@ make_bootstrapdir() {
 
 	done
 	cat ${CHROOT_BASEDIR}/etc/apt/sources.list
+
+	BASEHASH=$(chroot ${CHROOT_BASEDIR} apt list --installed 2>/dev/null | sha256sum | awk '{print $1}')
+	if [ -e "${HASH_DIR}/.basechroot.hash" ] ; then
+		if [ "$(cat ${HASH_DIR}/.basechroot.hash)" != "$BASEHASH" ] ; then
+			echo "Upstream repository changes detected. Rebuilding all packages..."
+			rm ${HASH_DIR}/*.hash
+		fi
+	fi
+	echo "$BASEHASH" > ${HASH_DIR}/.basechroot.hash
 
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
@@ -156,8 +167,22 @@ build_deb_packages() {
 		if [ "$PREBUILD" = "null" ] ; then
 			unset PREBUILD
 		fi
+
+		# Check if we need to rebuild this package
+		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
+		if [ -e "${HASH_DIR}/${NAME}.hash" ] ; then
+			if [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
+				echo "Skipping [$NAME] - No changes detected"
+				continue
+			fi
+		fi
+
+		# Do the build now
 		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
 		build_dpkg "$NAME" "$PREBUILD" >${LOG_DIR}/packages/${NAME}.log 2>&1
+
+		# Save the build hash
+		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
 
 		del_overlayfs
 	done
