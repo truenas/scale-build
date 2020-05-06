@@ -3,14 +3,19 @@
 # Source helper functions
 . scripts/functions.sh
 
-TMPFS="tmp/tmpfs"
+TMPFS="./tmp/tmpfs"
 CHROOT_BASEDIR="${TMPFS}/chroot"
 CHROOT_OVERLAY="${TMPFS}/chroot-overlay"
-DPKG_OVERLAY="tmp/dpkg-overlay"
+DPKG_OVERLAY="./tmp/dpkg-overlay"
 WORKDIR_OVERLAY="${TMPFS}/workdir-overlay"
-PKG_DIR="tmp/pkgdir"
-MANIFEST="conf/build.manifest"
-SOURCES="sources"
+PKG_DIR="./tmp/pkgdir"
+LOG_DIR="./logs"
+MANIFEST="./conf/build.manifest"
+SOURCES="./sources"
+
+# Makes some perl scripts happy during package builds
+export LC_ALL="C"
+export LANG="C"
 
 exit_clean() {
 	del_overlayfs
@@ -38,6 +43,10 @@ preflight_check() {
 
 	if [ ! -d tmp/ ] ; then mkdir tmp ; fi
 	if [ ! -d ${PKG_DIR} ] ; then mkdir ${PKG_DIR} ; fi
+	if [ -d ${LOG_DIR} ] ; then
+		rm -rf ${LOG_DIR}
+	fi
+	mkdir -p ${LOG_DIR}
 
 	# Validate MANIFEST
 	jq -r '.' ${MANIFEST} >/dev/null 2>/dev/null || exit_err "Invalid $MANIFEST"
@@ -119,7 +128,6 @@ mk_overlayfs() {
 	mkdir -p ${CHROOT_OVERLAY}
 	mkdir -p ${DPKG_OVERLAY}
 	mkdir -p ${WORKDIR_OVERLAY}
-	echo "mount -t overlay -o lowerdir=${CHROOT_BASEDIR},upperdir=${CHROOT_OVERLAY},workdir=${WORKDIR_OVERLAY} none ${DPKG_OVERLAY}/"
 	mount -t overlay -o lowerdir=${CHROOT_BASEDIR},upperdir=${CHROOT_OVERLAY},workdir=${WORKDIR_OVERLAY} none ${DPKG_OVERLAY}/ || exit_err "Failed overlayfs"
 	mount proc ${DPKG_OVERLAY}/proc -t proc || "Failed mount proc"
 	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs || "Failed mount sysfs"
@@ -128,10 +136,12 @@ mk_overlayfs() {
 }
 
 build_deb_packages() {
-	make_bootstrapdir
+	echo "`date`: Creating debian bootstrap directory: (${LOG_DIR}/bootstrap_chroot.log)"
+	make_bootstrapdir >${LOG_DIR}/bootstrap_chroot.log 2>&1
+	if [ ! -d "${LOG_DIR}/packages" ] ; then
+		mkdir -p ${LOG_DIR}/packages
+	fi
 
-	export LC_ALL="C"
-        export LANG="C"
 
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
@@ -146,8 +156,8 @@ build_deb_packages() {
 		if [ "$PREBUILD" = "null" ] ; then
 			unset PREBUILD
 		fi
-		echo "Building dpkg for $NAME"
-		build_dpkg "$NAME" "$PREBUILD"
+		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
+		build_dpkg "$NAME" "$PREBUILD" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		del_overlayfs
 	done
@@ -162,19 +172,29 @@ build_dpkg() {
 	fi
 	deflags="-us -uc -b"
 	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
-	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && mk-build-deps --build-dep' || exit_err "Failed mk-build-deps"
-	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /dpkg-src && apt install -y ./*.deb' || exit_err "Failed install build deps"
+	if [ -e "${DPKG_OVERLAY}/dpkg-src/debian/control" ] ; then
+		subdir="/dpkg-src"
+		pkgdir="/"
+	elif [ -e "${DPKG_OVERLAY}/dpkg-src/debian/debian/control" ] ; then
+		subdir="/dpkg-src/debian"
+		pkgdir="/dpkg-src"
+	else
+		exit_err "Missing debian/control file for $1"
+	fi
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && mk-build-deps --build-dep" || exit_err "Failed mk-build-deps"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
 	# Check for a prebuild command
 	if [ -n "$2" ] ; then
-		chroot ${DPKG_OVERLAY} /bin/bash -c "cd /dpkg-src && $2" || exit_err "Failed to prebuild"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && $2" || exit_err "Failed to prebuild"
 	fi
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd /dpkg-src && debuild $deflags" || exit_err "Failed to build package"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && debuild $deflags" || exit_err "Failed to build package"
 
 	# Move out the resulting packages
 	echo "Copying finished packages"
 
-	mv ${DPKG_OVERLAY}/*.deb ${PKG_DIR}/ 2>/dev/null
-	mv ${DPKG_OVERLAY}/*.udeb ${PKG_DIR}/ 2>/dev/null
+	mv ${DPKG_OVERLAY}${pkgdir}/*.deb ${PKG_DIR}/ 2>/dev/null
+	mv ${DPKG_OVERLAY}${pkgdir}/*.udeb ${PKG_DIR}/ 2>/dev/null
 
 	# Update the local APT repo
 	echo "Building local APT repo Packages.gz..."
