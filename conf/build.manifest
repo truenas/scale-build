@@ -20,6 +20,11 @@
 	},
 	"sources":[
 		{
+			"name":"debootstrap",
+			"repo":"https://github.com/truenas/debootstrap",
+			"branch":"master"
+		},
+		{
 			"name":"py-libzfs",
 			"repo":"https://github.com/freenas/py-libzfs",
 			"branch":"master"
