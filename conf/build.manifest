@@ -55,6 +55,12 @@
 			"branch":"master"
 		},
 		{
+			"name":"scst",
+			"repo":"https://github.com/truenas/scst",
+			"prebuildcmd":"make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
+			"branch":"master"
+		},
+		{
 			"name":"truenas-webui",
 			"repo":"https://github.com/freenas/webui",
 			"prebuildcmd":"yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",

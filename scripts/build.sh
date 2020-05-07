@@ -164,7 +164,7 @@ build_deb_packages() {
 		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
 		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
-			exit_cleanup "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
+			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
 		if [ "$PREBUILD" = "null" ] ; then
 			unset PREBUILD
