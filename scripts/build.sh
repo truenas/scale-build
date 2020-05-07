@@ -174,8 +174,10 @@ build_deb_packages() {
 		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
 		if [ -e "${HASH_DIR}/${NAME}.hash" ] ; then
 			if [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
-				echo "Skipping [$NAME] - No changes detected"
-				continue
+				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
+					echo "Skipping [$NAME] - No changes detected"
+					continue
+				fi
 			fi
 		fi
 
