@@ -187,6 +187,11 @@ build_deb_packages() {
 		del_overlayfs
 	done
 
+	# Before we wipe the bootstrap directory, lets build fresh ZFS kernel modules
+	mk_overlayfs
+	build_zfs_modules
+	del_overlayfs
+
 	del_bootstrapdir
 	return 0
 }
@@ -224,6 +229,20 @@ build_dpkg() {
 	# Update the local APT repo
 	echo "Building local APT repo Packages.gz..."
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
+}
+
+build_zfs_modules() {
+
+	chroot ${DPKG_OVERLAY} apt install -y locales || exit_err "Failed apt install locales"
+	chroot ${DPKG_OVERLAY} apt install -y linux-image-amd64 || exit_err "Failed apt install linux-image-amd64"
+	chroot ${DPKG_OVERLAY} apt install -y debhelper || exit_err "Failed apt install debhelper"
+
+	# Build the .deb package now
+	cp scripts/mk-zfs-modules ${DPKG_OVERLAY}/build.sh
+	chroot ${DPKG_OVERLAY} sh /build.sh || exit_err "Failed building zfs-modules"
+
+	mv ${DPKG_OVERLAY}/*.deb ${PKG_DIR}/ 2>/dev/null
+	mv ${DPKG_OVERLAY}/*.udeb ${PKG_DIR}/ 2>/dev/null
 }
 
 checkout_sources() {
