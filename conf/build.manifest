@@ -58,7 +58,7 @@
 			"name":"scst",
 			"repo":"https://github.com/truenas/scst",
 			"prebuildcmd":"make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
-			"branch":"master"
+			"branch":"v3.4-branch"
 		},
 		{
 			"name":"truenas-webui",

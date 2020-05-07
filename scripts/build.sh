@@ -119,8 +119,9 @@ del_bootstrapdir() {
 	umount -f ${CHROOT_BASEDIR}/proc 2>/dev/null
 	umount -f ${CHROOT_BASEDIR}/sys 2>/dev/null
 	umount -f ${CHROOT_BASEDIR} 2>/dev/null
+	umount -Rf ${CHROOT_BASEDIR} 2>/dev/null
 	rmdir ${CHROOT_BASEDIR} 2>/dev/null
-	umount -f ${TMPFS} 2>/dev/null
+	umount -Rf ${TMPFS} 2>/dev/null
 	rmdir ${TMPFS} 2>/dev/null
 }
 
@@ -130,6 +131,7 @@ del_overlayfs() {
 	umount -f ${DPKG_OVERLAY}/proc 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/sys 2>/dev/null
 	umount -f ${DPKG_OVERLAY} 2>/dev/null
+	umount -Rf ${DPKG_OVERLAY} 2>/dev/null
 	rm -rf ${DPKG_OVERLAY} 2>/dev/null
 	rm -rf ${CHROOT_OVERLAY} 2>/dev/null
 	rm -rf ${WORKDIR_OVERLAY} 2>/dev/null
