@@ -98,6 +98,8 @@ make_bootstrapdir() {
 		if [ "$(cat ${HASH_DIR}/.basechroot.hash)" != "$BASEHASH" ] ; then
 			echo "Upstream repository changes detected. Rebuilding all packages..."
 			rm ${HASH_DIR}/*.hash
+			rm ${PKG_DIR}/*.deb 2>/dev/null
+			rm ${PKG_DIR}/*.udeb 2>/dev/null
 		fi
 	fi
 	echo "$BASEHASH" > ${HASH_DIR}/.basechroot.hash
@@ -188,9 +190,15 @@ build_deb_packages() {
 	done
 
 	# Before we wipe the bootstrap directory, lets build fresh ZFS kernel modules
-	mk_overlayfs
-	build_zfs_modules
-	del_overlayfs
+	ls ${PKG_DIR}/zfs-modules-*.deb >/dev/null 2>/dev/null
+	if [ $? -ne 0 ] ; then
+		mk_overlayfs
+		echo "`date`: Building package [zfs-modules] (${LOG_DIR}/packages/zfs-modules.log)"
+		build_zfs_modules >${LOG_DIR}/packages/zfs-modules.log 2>&1
+		del_overlayfs
+	else
+		echo "Skipping [zfs-modules] - No changes detected"
+	fi
 
 	del_bootstrapdir
 	return 0
