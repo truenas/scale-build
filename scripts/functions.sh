@@ -6,6 +6,8 @@ exit_err() {
 	else
 		EXIT_CODE=1
 	fi
+	del_overlayfs
+	del_bootstrapdir
 	echo "ERROR: $1" >&2
 	exit $EXIT_CODE
 }
