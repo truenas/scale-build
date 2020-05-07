@@ -18,6 +18,10 @@
 			}
 		]
 	},
+	"iso-packages": [
+		"truenas-installer",
+		"zfs-modules-5.5.0-2-amd64"
+	],
 	"sources":[
 		{
 			"name":"debootstrap",
@@ -42,7 +46,7 @@
 		{
 			"name":"truenas-installer",
 			"repo":"https://github.com/truenas/truenas-installer",
-			"branch":"master"
+			"branch":"hybrid-build"
 		},
 		{
 			"name":"py-blkid",
@@ -72,4 +76,5 @@
 			"branch":"master"
 		}
 	]
+
 }

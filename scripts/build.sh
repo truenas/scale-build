@@ -9,6 +9,7 @@ CHROOT_OVERLAY="${TMPFS}/chroot-overlay"
 DPKG_OVERLAY="./tmp/dpkg-overlay"
 WORKDIR_OVERLAY="${TMPFS}/workdir-overlay"
 PKG_DIR="./tmp/pkgdir"
+RELEASE_DIR="./tmp/release"
 LOG_DIR="./logs"
 HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
@@ -33,7 +34,7 @@ cleanup() {
 
 preflight_check() {
 	# Check for deps
-	DEPS="debootstrap jq git"
+	DEPS="debootstrap jq git xorriso grub-mkrescue mformat"
 	for i in $DEPS
 	do
 		which $i >/dev/null 2>/dev/null
@@ -58,21 +59,34 @@ make_bootstrapdir() {
 	del_overlayfs
 	del_bootstrapdir
 
-	# Setup our ramdisk, up to 2G should suffice
+	if [ -n "$1" ] ; then
+		CDBUILD=1
+		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=gnupg,grub-pc,grub-efi-amd64-bin"
+	else
+		unset CDBUILD
+	fi
+
+	# Setup our ramdisk, up to 4G should suffice
 	mkdir -p ${TMPFS}
-	mount -t tmpfs -o size=8G tmpfs ${TMPFS}
+	mount -t tmpfs -o size=4G tmpfs ${TMPFS}
 
 	# Bootstrap the debian base system
 	apt-key add keys/truenas.gpg 2>/dev/null >/dev/null || exit_err "Failed adding truenas.gpg apt-key"
 	aptrepo=$(jq -r '."apt-repos"."url"' $MANIFEST)
 	aptdist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
 	aptcomp=$(jq -r '."apt-repos"."components"' $MANIFEST)
-	debootstrap --keyring /etc/apt/trusted.gpg bullseye ${CHROOT_BASEDIR} $aptrepo || exit_err "Failed debootstrap"
+	debootstrap ${DEOPTS} --keyring /etc/apt/trusted.gpg \
+		bullseye ${CHROOT_BASEDIR} $aptrepo \
+		|| exit_err "Failed debootstrap"
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
 
-	# Add extra packages for builds
-	chroot ${CHROOT_BASEDIR} apt install -y build-essential dh-make devscripts fakeroot || exit_err "Failed chroot setup"
+	if [ -z "$CDBUILD" ] ; then
+		# Add extra packages for builds
+		chroot ${CHROOT_BASEDIR} apt install -y build-essential \
+			dh-make devscripts fakeroot \
+			|| exit_err "Failed chroot setup"
+	fi
 
 	# Save the correct repo in sources.list
 	echo "deb $aptrepo $aptdist $aptcomp" > ${CHROOT_BASEDIR}/etc/apt/sources.list
@@ -91,8 +105,23 @@ make_bootstrapdir() {
 		echo "deb $apturl $aptdist $aptcomp" >> ${CHROOT_BASEDIR}/etc/apt/sources.list
 
 	done
-	cat ${CHROOT_BASEDIR}/etc/apt/sources.list
 
+	# If not building a cd environment
+	if [ -z "$CDBUILD" ] ; then
+		check_basechroot_changed
+	fi
+
+	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
+
+	echo "deb [trusted=yes] file:/packages /" >> ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed local deb repo"
+
+	umount -f ${CHROOT_BASEDIR}/proc
+	umount -f ${CHROOT_BASEDIR}/sys
+
+	return 0
+}
+
+check_basechroot_changed() {
 	BASEHASH=$(chroot ${CHROOT_BASEDIR} apt list --installed 2>/dev/null | sha256sum | awk '{print $1}')
 	if [ -e "${HASH_DIR}/.basechroot.hash" ] ; then
 		if [ "$(cat ${HASH_DIR}/.basechroot.hash)" != "$BASEHASH" ] ; then
@@ -103,15 +132,6 @@ make_bootstrapdir() {
 		fi
 	fi
 	echo "$BASEHASH" > ${HASH_DIR}/.basechroot.hash
-
-	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
-
-	echo "deb file:/packages ./" >> ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed local deb repo"
-
-	umount -f ${CHROOT_BASEDIR}/proc
-	umount -f ${CHROOT_BASEDIR}/sys
-
-	return 0
 }
 
 del_bootstrapdir() {
@@ -144,10 +164,10 @@ mk_overlayfs() {
 	mkdir -p ${DPKG_OVERLAY}
 	mkdir -p ${WORKDIR_OVERLAY}
 	mount -t overlay -o lowerdir=${CHROOT_BASEDIR},upperdir=${CHROOT_OVERLAY},workdir=${WORKDIR_OVERLAY} none ${DPKG_OVERLAY}/ || exit_err "Failed overlayfs"
-	mount proc ${DPKG_OVERLAY}/proc -t proc || "Failed mount proc"
-	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs || "Failed mount sysfs"
+	mount proc ${DPKG_OVERLAY}/proc -t proc || exit_err "Failed mount proc"
+	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs || exit_err "Failed mount sysfs"
 	mkdir -p ${DPKG_OVERLAY}/packages || exit_err "Failed mkdir /packages"
-	mount --bind ${PKG_DIR} ${DPKG_OVERLAY}/packages || "Failed mount --bind /packages"
+	mount --bind ${PKG_DIR} ${DPKG_OVERLAY}/packages || exit_err "Failed mount --bind /packages"
 }
 
 build_deb_packages() {
@@ -279,10 +299,45 @@ checkout_sources() {
 																done
 }
 
+install_iso_packages() {
+	mount proc ${CHROOT_BASEDIR}/proc -t proc
+	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
+	mkdir -p ${CHROOT_BASEDIR}/packages
+	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
+	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
+
+	for package in $(jq -r '."iso-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
+	done
+
+	#chroot ${CHROOT_BASEDIR} /bin/bash
+	mkdir -p ${CHROOT_BASEDIR}/boot/grub
+	cp scripts/grub.cfg ${CHROOT_BASEDIR}/boot/grub/grub.cfg || exit_err "Failed copying grub.cfg"
+	umount -f ${CHROOT_BASEDIR}/packages
+	umount -f ${CHROOT_BASEDIR}/proc
+	umount -f ${CHROOT_BASEDIR}/sys
+}
+
+make_iso_file() {
+	if [ -d "${RELEASE_DIR}/release" ] ; then
+		rm -rf ${RELEASE_DIR}
+	fi
+	mkdir -p ${RELEASE_DIR}
+	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CHROOT_BASEDIR} || exit_err "Failed grub-mkrescue"
+}
+
+make_iso() {
+	make_bootstrapdir "CD"
+	install_iso_packages
+	make_iso_file
+	del_bootstrapdir
+}
+
 preflight_check
 
 case $1 in
-	iso) ;;
+	iso) make_iso ;;
 	checkout) checkout_sources ;;
 	packages) build_deb_packages ;;
 	clean) cleanup ;;
