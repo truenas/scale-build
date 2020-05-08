@@ -10,6 +10,7 @@ DPKG_OVERLAY="./tmp/dpkg-overlay"
 WORKDIR_OVERLAY="${TMPFS}/workdir-overlay"
 PKG_DIR="./tmp/pkgdir"
 RELEASE_DIR="./tmp/release"
+CD_DIR="./tmp/cdrom"
 LOG_DIR="./logs"
 HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
@@ -61,7 +62,7 @@ make_bootstrapdir() {
 
 	if [ -n "$1" ] ; then
 		CDBUILD=1
-		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=gnupg,grub-pc,grub-efi-amd64-signed"
+		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg,grub-pc,grub-efi-amd64-signed"
 	else
 		DEOPTS=""
 		unset CDBUILD
@@ -327,13 +328,40 @@ make_iso_file() {
 		rm -rf ${RELEASE_DIR}
 	fi
 
+	# Set default PW to root
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'echo -e "root\nroot" | passwd root'
+
+	# Copy the CD files
+	cp conf/cd-files/getty@.service ${CHROOT_BASEDIR}/lib/systemd/system/ || exit_err "Failed copy of getty@"
+	cp conf/cd-files/bash_profile ${CHROOT_BASEDIR}/root/.bash_profile || exit_err "Failed copy of bash_profile"
+
+	# Drop to shell for debugging
+	#chroot ${CHROOT_BASEDIR} /bin/bash
+
+	# Create the CD assembly dir
+	rm -rf ${CD_DIR}
+	mkdir -p ${CD_DIR}
+
+	# Prune away the fat
+	prune_cd_basedir
+
 	# Lets make squashfs now
 	mksquashfs ${CHROOT_BASEDIR} ./tmp/truenas.squashfs
-	mv ./tmp/truenas.squashfs ${CHROOT_BASEDIR}/
+	mkdir -p ${CD_DIR}/live
+	mv ./tmp/truenas.squashfs ${CD_DIR}/live/filesystem.squashfs
+
+	# Copy over boot and kernel before rolling CD
+	cp -r ${CHROOT_BASEDIR}/boot ${CD_DIR}/boot
+	cp -r ${CHROOT_BASEDIR}/init* ${CD_DIR}/
+	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/
 
 	mkdir -p ${RELEASE_DIR}
-	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CHROOT_BASEDIR} \
+	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
+}
+
+prune_cd_basedir() {
+	rm -rf ${CHROOT_BASEDIR}/var/cache/apt
 }
 
 make_iso() {

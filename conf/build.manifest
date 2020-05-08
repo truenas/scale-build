@@ -19,8 +19,12 @@
 		]
 	},
 	"iso-packages": [
+		"dialog",
+		"gdisk",
+		"live-boot",
 		"truenas-installer",
-		"zfs-modules-5.5.0-2-amd64"
+		"zfs-modules-5.5.0-2-amd64",
+		"zfsutils-linux"
 	],
 	"sources":[
 		{
