@@ -220,6 +220,7 @@ build_deb_packages() {
 
 		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
 		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
+		SUBDIR=$(jq -r '."sources"['$k']."subdir"' ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
 			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
@@ -240,7 +241,7 @@ build_deb_packages() {
 
 		# Do the build now
 		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
-		build_dpkg "$NAME" "$PREBUILD" >${LOG_DIR}/packages/${NAME}.log 2>&1
+		build_dpkg "$NAME" "$PREBUILD" "$SUBDIR" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Save the build hash
 		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
@@ -264,28 +265,33 @@ build_deb_packages() {
 }
 
 build_dpkg() {
-	if [ -d "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
+	if [ -e "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
 		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
 	fi
 	deflags="-us -uc -b"
-	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
-	if [ -e "${DPKG_OVERLAY}/dpkg-src/debian/control" ] ; then
-		subdir="/dpkg-src"
-		pkgdir="/"
-	elif [ -e "${DPKG_OVERLAY}/dpkg-src/debian/debian/control" ] ; then
-		subdir="/dpkg-src/debian"
-		pkgdir="/dpkg-src"
+
+	# Check if we have a valid sub directory for these sources
+	if [ -z "$3" -o "$3" = "null" ] ; then
+		subdir=""
 	else
+		subdir="/$3"
+	fi
+	srcdir="/dpkg-src$subdir"
+	pkgdir="$srcdir/../"
+
+	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
+
+	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
 		exit_err "Missing debian/control file for $1"
 	fi
 
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && mk-build-deps --build-dep" || exit_err "Failed mk-build-deps"
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && mk-build-deps --build-dep" || exit_err "Failed mk-build-deps"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
 	# Check for a prebuild command
 	if [ -n "$2" ] ; then
-		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && $2" || exit_err "Failed to prebuild"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $2" || exit_err "Failed to prebuild"
 	fi
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $subdir && debuild $deflags" || exit_err "Failed to build package"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
 
 	# Move out the resulting packages
 	echo "Copying finished packages"
