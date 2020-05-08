@@ -379,7 +379,7 @@ make_iso_file() {
 	prune_cd_basedir
 
 	# Lets make squashfs now
-	mksquashfs ${CHROOT_BASEDIR} ./tmp/truenas.squashfs
+	mksquashfs ${CHROOT_BASEDIR} ./tmp/truenas.squashfs -comp xz || exit_err "Failed squashfs"
 	mkdir -p ${CD_DIR}/live
 	mv ./tmp/truenas.squashfs ${CD_DIR}/live/filesystem.squashfs
 
