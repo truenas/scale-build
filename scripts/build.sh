@@ -358,6 +358,7 @@ make_iso_file() {
 	mkdir -p ${RELEASE_DIR}
 	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
+	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.iso > ${RELEASE_DIR}/TrueNAS-SCALE.iso.sha256 || exit_err "Failed sha256"
 }
 
 prune_cd_basedir() {
@@ -365,10 +366,14 @@ prune_cd_basedir() {
 }
 
 make_iso() {
-	make_bootstrapdir "CD"
-	install_iso_packages
-	make_iso_file
+	echo "`date`: Bootstrapping CD chroot [ISO] (${LOG_DIR}/cdrom-bootstrap.log)"
+	make_bootstrapdir "CD" >${LOG_DIR}/cdrom-bootstrap.log 2>&1
+	echo "`date`: Installing packages [ISO] (${LOG_DIR}/cdrom-packages.log)"
+	install_iso_packages >${LOG_DIR}/cdrom-packages.log 2>&1
+	echo "`date`: Creating ISO file [ISO] (${LOG_DIR}/cdrom-iso.log)"
+	make_iso_file >${LOG_DIR}/cdrom-iso.log 2>&1
 	del_bootstrapdir
+	echo "Success! CD/USB: ${RELEASE_DIR}/TrueNAS-SCALE.iso"
 }
 
 preflight_check
