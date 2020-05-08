@@ -8,6 +8,7 @@ CHROOT_BASEDIR="${TMPFS}/chroot"
 CHROOT_OVERLAY="${TMPFS}/chroot-overlay"
 DPKG_OVERLAY="./tmp/dpkg-overlay"
 WORKDIR_OVERLAY="${TMPFS}/workdir-overlay"
+CACHE_DIR="./tmp/cache"
 PKG_DIR="./tmp/pkgdir"
 RELEASE_DIR="./tmp/release"
 CD_DIR="./tmp/cdrom"
@@ -63,14 +64,22 @@ make_bootstrapdir() {
 	if [ -n "$1" ] ; then
 		CDBUILD=1
 		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg,grub-pc,grub-efi-amd64-signed"
+		CACHENAME="cdrom"
 	else
 		DEOPTS=""
+		CACHENAME="package"
 		unset CDBUILD
 	fi
 
 	# Setup our ramdisk, up to 4G should suffice
 	mkdir -p ${TMPFS}
 	mount -t tmpfs -o size=4G tmpfs ${TMPFS}
+
+	# Check if there is a cache we can restore
+	if [ -e "${CACHE_DIR}/basechroot-${CACHENAME}.squashfs" ]; then
+		restore_build_cache "${CACHENAME}"
+		return 0
+	fi
 
 	# Bootstrap the debian base system
 	apt-key --keyring /etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg add keys/truenas.gpg 2>/dev/null >/dev/null || exit_err "Failed adding truenas.gpg apt-key"
@@ -113,14 +122,38 @@ make_bootstrapdir() {
 		check_basechroot_changed
 	fi
 
+	# Update apt
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
-	echo "deb [trusted=yes] file:/packages /" >> ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed local deb repo"
+	# Put our local package up at the top of the foodchain
+	mv ${CHROOT_BASEDIR}/etc/apt/sources.list ${CHROOT_BASEDIR}/etc/apt/sources.list.prev || exit_err "mv"
+	echo "deb [trusted=yes] file:/packages /" > ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed local deb repo"
+	cat ${CHROOT_BASEDIR}/etc/apt/sources.list.prev >> ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "cat"
+	rm ${CHROOT_BASEDIR}/etc/apt/sources.list.prev
+
 
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
 
+	save_build_cache "${CACHENAME}"
+
 	return 0
+}
+
+restore_build_cache() {
+	if [ ! -d "${CHROOT_BASEDIR}" ] ; then
+		mkdir -p ${CHROOT_BASEDIR}
+	fi
+	echo "Restoring CHROOT_BASEDIR for runs..."
+	unsquashfs -f -d ${CHROOT_BASEDIR} ${CACHE_DIR}/basechroot-${1}.squashfs || exit_err "Failed unsquashfs"
+}
+
+save_build_cache() {
+	if [ ! -d "${CACHE_DIR}" ] ; then
+		mkdir -p ${CACHE_DIR}
+	fi
+	echo "Caching CHROOT_BASEDIR for future runs..."
+	mksquashfs ${CHROOT_BASEDIR} ${CACHE_DIR}/basechroot-${1}.squashfs || exit_err "Failed squashfs"
 }
 
 check_basechroot_changed() {
