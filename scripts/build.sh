@@ -61,8 +61,9 @@ make_bootstrapdir() {
 
 	if [ -n "$1" ] ; then
 		CDBUILD=1
-		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=gnupg,grub-pc,grub-efi-amd64-bin"
+		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=gnupg,grub-pc,grub-efi-amd64-signed"
 	else
+		DEOPTS=""
 		unset CDBUILD
 	fi
 
@@ -71,11 +72,11 @@ make_bootstrapdir() {
 	mount -t tmpfs -o size=4G tmpfs ${TMPFS}
 
 	# Bootstrap the debian base system
-	apt-key add keys/truenas.gpg 2>/dev/null >/dev/null || exit_err "Failed adding truenas.gpg apt-key"
+	apt-key --keyring /etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg add keys/truenas.gpg 2>/dev/null >/dev/null || exit_err "Failed adding truenas.gpg apt-key"
 	aptrepo=$(jq -r '."apt-repos"."url"' $MANIFEST)
 	aptdist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
 	aptcomp=$(jq -r '."apt-repos"."components"' $MANIFEST)
-	debootstrap ${DEOPTS} --keyring /etc/apt/trusted.gpg \
+	debootstrap ${DEOPTS} --keyring /etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg \
 		bullseye ${CHROOT_BASEDIR} $aptrepo \
 		|| exit_err "Failed debootstrap"
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
@@ -303,6 +304,8 @@ install_iso_packages() {
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
 	mkdir -p ${CHROOT_BASEDIR}/packages
+	echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
+
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
@@ -323,8 +326,14 @@ make_iso_file() {
 	if [ -d "${RELEASE_DIR}/release" ] ; then
 		rm -rf ${RELEASE_DIR}
 	fi
+
+	# Lets make squashfs now
+	mksquashfs ${CHROOT_BASEDIR} ./tmp/truenas.squashfs
+	mv ./tmp/truenas.squashfs ${CHROOT_BASEDIR}/
+
 	mkdir -p ${RELEASE_DIR}
-	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CHROOT_BASEDIR} || exit_err "Failed grub-mkrescue"
+	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CHROOT_BASEDIR} \
+		|| exit_err "Failed grub-mkrescue"
 }
 
 make_iso() {
