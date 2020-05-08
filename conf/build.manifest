@@ -1,20 +1,20 @@
 {
-	"apt-repos":{
-		"url":"http://apt.tn.ixsystems.com/apt-direct/debian/unstable/",
-		"distribution":"bullseye",
-		"components":"main non-free contrib",
-		"additional":[
+	"apt-repos": {
+		"url": "http://apt.tn.ixsystems.com/apt-direct/debian/unstable/",
+		"distribution": "bullseye",
+		"components": "main non-free contrib",
+		"additional": [
 			{
-				"url":"http://apt.tn.ixsystems.com/apt-direct/truenas/docker/",
-				"distribution":"buster",
-				"component":"stable",
-				"key":"keys/docker.gpg"
+				"url": "http://apt.tn.ixsystems.com/apt-direct/truenas/docker/",
+				"distribution": "buster",
+				"component": "stable",
+				"key": "keys/docker.gpg"
 			},
 			{
-				"url":"http://apt.tn.ixsystems.com/apt-direct/truenas/gluster/",
-				"distribution":"bullseye",
-				"component":"main",
-				"key":"keys/gluster.gpg"
+				"url": "http://apt.tn.ixsystems.com/apt-direct/truenas/gluster/",
+				"distribution": "bullseye",
+				"component": "main",
+				"key": "keys/gluster.gpg"
 			}
 		]
 	},
@@ -32,65 +32,105 @@
 		"truenas-installer",
 		"vim-tiny"
 	],
-	"sources":[
+	"sources": [
 		{
-			"name":"debootstrap",
-			"repo":"https://github.com/truenas/debootstrap",
-			"branch":"master"
+			"name": "debootstrap",
+			"repo": "https://github.com/truenas/debootstrap",
+			"branch": "master"
 		},
 		{
-			"name":"py-libzfs",
-			"repo":"https://github.com/freenas/py-libzfs",
-			"branch":"master"
+			"name": "py-libzfs",
+			"repo": "https://github.com/freenas/py-libzfs",
+			"branch": "master"
 		},
 		{
-			"name":"zettarepl",
-			"repo":"https://github.com/freenas/zettarepl",
-			"branch":"master"
+			"name": "zettarepl",
+			"repo": "https://github.com/freenas/zettarepl",
+			"branch": "master"
 		},
 		{
-			"name":"debian-archive-keyring",
-			"repo":"https://github.com/truenas/debian-archive-keyring",
-			"branch":"master"
+			"name": "debian-archive-keyring",
+			"repo": "https://github.com/truenas/debian-archive-keyring",
+			"branch": "master"
 		},
 		{
-			"name":"truenas-installer",
-			"repo":"https://github.com/truenas/truenas-installer",
-			"branch":"hybrid-build"
+			"name": "truenas-installer",
+			"repo": "https://github.com/truenas/truenas-installer",
+			"branch": "hybrid-build"
 		},
 		{
-			"name":"py-blkid",
-			"repo":"https://github.com/truenas/py-blkid",
-			"branch":"master"
+			"name": "py-blkid",
+			"repo": "https://github.com/truenas/py-blkid",
+			"branch": "master"
 		},
 		{
-			"name":"migrate113",
-			"repo":"https://github.com/freenas/freenas-migrate113",
-			"branch":"master"
+			"name": "migrate113",
+			"repo": "https://github.com/freenas/freenas-migrate113",
+			"branch": "master"
 		},
 		{
-			"name":"scst",
-			"repo":"https://github.com/truenas/scst",
-			"prebuildcmd":"make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
-			"branch":"v3.4-branch"
+			"name": "scst",
+			"repo": "https://github.com/truenas/scst",
+			"prebuildcmd": "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
+			"branch": "v3.4-branch"
 		},
 		{
-			"name":"truenas-webui",
-			"repo":"https://github.com/freenas/webui",
-			"prebuildcmd":"yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
-			"branch":"master"
+			"name": "truenas-webui",
+			"repo": "https://github.com/freenas/webui",
+			"prebuildcmd": "yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
+			"branch": "master"
 		},
 		{
-			"name":"truenas",
-			"repo":"https://github.com/freenas/freenas",
-			"branch":"master",
-			"subdir":"debian"
+			"name": "pkg-pybonjour",
+			"repo": "https://github.com/truenas/pkg-pybonjour",
+			"branch": "master"
 		},
 		{
-			"name":"truenas-files",
-			"repo":"https://github.com/freenas/freenas",
-			"branch":"master",
-			"subdir":"src/freenas"
+			"name": "pydevd",
+			"repo": "https://salsa.debian.org/python-team/modules/pydevd",
+			"branch": "master"
+                },
+		{
+			"name": "python-netsnmpagent",
+			"repo": "https://salsa.debian.org/python-team/modules/python-netsnmpagent",
+			"branch": "master"
+		},
+		{
+			"name": "aiorwlock",
+			"repo": "https://salsa.debian.org/python-team/modules/aiorwlock",
+			"branch": "master"
+		},
+		{
+			"name": "glusterclipython",
+			"repo": "https://github.com/truenas/glustercli-python",
+			"branch": "master"
+		},
+		{
+			"name": "python-asyncssh",
+			"repo": "https://salsa.debian.org/python-team/modules/python-asyncssh",
+			"branch": "master"
+		},
+		{
+			"name": "licenselib",
+			"repo": "https://github.com/freenas/licenselib",
+			"branch": "master"
+		},
+		{
+			"name": "migrate93",
+			"repo": "https://github.com/freenas/freenas-migrate93",
+			"branch": "truenas/scale"
+		},
+		{
+			"name": "truenas-files",
+			"repo": "https://github.com/freenas/freenas",
+			"branch": "master",
+			"subdir": "src/freenas"
+		},
+                {
+			"name": "truenas",
+			"repo": "https://github.com/freenas/freenas",
+			"branch": "master",
+			"subdir": "debian"
 		}
 	]
 
