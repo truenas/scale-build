@@ -135,7 +135,6 @@ check_basechroot_changed() {
 }
 
 del_bootstrapdir() {
-	echo "Removing package build chroot"
 	umount -f ${CHROOT_BASEDIR}/proc 2>/dev/null
 	umount -f ${CHROOT_BASEDIR}/sys 2>/dev/null
 	umount -f ${CHROOT_BASEDIR} 2>/dev/null
