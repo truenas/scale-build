@@ -26,6 +26,11 @@ cleanup() {
 }
 
 preflight_check() {
+
+	if [ $(id -u) != "0" ]; then
+		exit_err "Must be run as root (or using sudo)!"
+	fi
+
 	# Check for deps
 	DEPS="debootstrap jq git xorriso grub-mkrescue mformat mksquashfs"
 	for i in $DEPS

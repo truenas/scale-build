@@ -20,6 +20,8 @@
 	},
 	"base-packages": [
 		"dosfstools",
+		"grub-pc",
+		"grub-efi-amd64",
 		"zfs-modules-5.5.0-2-amd64",
 		"zfsutils-linux"
 	],
