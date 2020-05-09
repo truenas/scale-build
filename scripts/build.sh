@@ -8,6 +8,7 @@ WORKDIR_OVERLAY="${TMPFS}/workdir-overlay"
 CACHE_DIR="./tmp/cache"
 PKG_DIR="./tmp/pkgdir"
 RELEASE_DIR="./tmp/release"
+UPDATE_DIR="./tmp/update"
 CD_DIR="./tmp/cdrom"
 LOG_DIR="./logs"
 HASH_DIR="./tmp/pkghashes"
@@ -308,7 +309,7 @@ install_iso_packages() {
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
 	mkdir -p ${CHROOT_BASEDIR}/packages
-	echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
+	#echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
 
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
@@ -327,9 +328,8 @@ install_iso_packages() {
 }
 
 make_iso_file() {
-	if [ -d "${RELEASE_DIR}/release" ] ; then
-		rm -rf ${RELEASE_DIR}
-	fi
+	rm ${RELEASE_DIR}/*.iso
+	rm ${RELEASE_DIR}/*.iso.sha256
 
 	# Set default PW to root
 	chroot ${CHROOT_BASEDIR} /bin/bash -c 'echo -e "root\nroot" | passwd root'
@@ -351,12 +351,13 @@ make_iso_file() {
 	# Lets make squashfs now
 	mksquashfs ${CHROOT_BASEDIR} ./tmp/truenas.squashfs -comp xz || exit_err "Failed squashfs"
 	mkdir -p ${CD_DIR}/live
-	mv ./tmp/truenas.squashfs ${CD_DIR}/live/filesystem.squashfs
+	mv ./tmp/truenas.squashfs ${CD_DIR}/live/filesystem.squashfs || exit_err "failed mv squashfs"
 
 	# Copy over boot and kernel before rolling CD
-	cp -r ${CHROOT_BASEDIR}/boot ${CD_DIR}/boot
-	cp -r ${CHROOT_BASEDIR}/init* ${CD_DIR}/
-	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/
+	cp -r ${CHROOT_BASEDIR}/boot ${CD_DIR}/boot || exit_err "Failed copy boot"
+	cp -r ${CHROOT_BASEDIR}/init* ${CD_DIR}/ || exit_err "Failed copy initrd"
+	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/ || exit_err "Failed copy vmlinuz"
+	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
 
 	mkdir -p ${RELEASE_DIR}
 	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CD_DIR} \
@@ -368,7 +369,12 @@ prune_cd_basedir() {
 	rm -rf ${CHROOT_BASEDIR}/var/cache/apt
 }
 
-make_iso() {
+build_iso() {
+	# Check if the update / install rootfs image was created
+	if [ ! -e "${RELEASE_DIR}/TrueNAS-SCALE.update" ] ; then
+		exit_err "Missing rootfs image. Run 'make update' first."
+	fi
+
 	echo "`date`: Bootstrapping CD chroot [ISO] (${LOG_DIR}/cdrom-bootstrap.log)"
 	make_bootstrapdir "CD" >${LOG_DIR}/cdrom-bootstrap.log 2>&1
 	echo "`date`: Installing packages [ISO] (${LOG_DIR}/cdrom-packages.log)"
@@ -379,13 +385,123 @@ make_iso() {
 	echo "Success! CD/USB: ${RELEASE_DIR}/TrueNAS-SCALE.iso"
 }
 
+install_rootfs_packages() {
+	mount proc ${CHROOT_BASEDIR}/proc -t proc
+	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
+	mkdir -p ${CHROOT_BASEDIR}/packages
+
+	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
+	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
+
+	for package in $(jq -r '."base-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
+	done
+
+	#chroot ${CHROOT_BASEDIR} /bin/bash
+	umount -f ${CHROOT_BASEDIR}/packages
+	rmdir ${CHROOT_BASEDIR}/packages
+	umount -f ${CHROOT_BASEDIR}/proc
+	umount -f ${CHROOT_BASEDIR}/sys
+}
+
+build_rootfs_image() {
+	rm ${RELEASE_DIR}/*.update 2>/dev/null
+	rm ${RELEASE_DIR}/*.update.sha256 2>/dev/null
+	if [ -d "${UPDATE_DIR}" ] ; then
+		rm -rf ${UPDATE_DIR}
+	fi
+	mkdir -p ${UPDATE_DIR}
+
+	# We are going to build a nested squashfs image.
+	# Why nested? So that during update we can easily RO mount the outer image
+	# to read a MANIFEST and verify signatures of the real rootfs inner image
+	#
+	# This allows us to verify without ever extracting anything to disk
+
+	# Create the inner image
+	mksquashfs ${CHROOT_BASEDIR} ${UPDATE_DIR}/rootfs.squashfs -comp xz || exit_err "Failed squashfs"
+
+	# Build any MANIFEST information
+	build_manifest
+
+	# Sign the image (if enabled)
+	sign_manifest
+
+	# Create the outer image now
+	mksquashfs ${UPDATE_DIR} ${RELEASE_DIR}/TrueNAS-SCALE.update -noD || exit_err "Failed squashfs"
+	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.update > ${RELEASE_DIR}/TrueNAS-SCALE.update.sha256 || exit_err "Failed sha256"
+}
+
+sign_manifest() {
+	# No signing key? Don't sign the image
+	if [ -z "$SIGNING_KEY" ]; then
+		return 0
+	fi
+
+	if [ -n "$SIGNING_PASSWORD" ] ; then
+		echo "$SIGNING_PASSWORD" | gpg -ab --batch --yes --passphrase-fd 0 --default-key ${SIGNING_KEY} \
+			--output ${UPDATE_DIR}/MANIFEST.sig \
+			--sign ${UPDATE_DIR}/MANIFEST \
+			|| exit_err "failed signing MANIFEST"
+	else
+		gpg -ab --default-key ${SIGNING_KEY} \
+			--output ${UPDATE_DIR}/MANIFEST.sig \
+			--sign ${UPDATE_DIR}/MANIFEST \
+			|| exit_err "failed signing MANIFEST"
+	fi
+}
+
+build_manifest() {
+	echo "{ }" > ${UPDATE_DIR}/MANIFEST
+	# Add the date to the manifest
+	jq -r '. += {"date":"'`date +%s`'"}' \
+		${UPDATE_DIR}/MANIFEST > ${UPDATE_DIR}/MANIFEST.new || exit_err "Failed jq"
+	mv ${UPDATE_DIR}/MANIFEST.new ${UPDATE_DIR}/MANIFEST
+
+	# Create SHA512 checksum of the inner image
+	ROOTCHECKSUM=$(sha512sum ${UPDATE_DIR}/rootfs.squashfs | awk '{print $1}')
+	if [ -z "$ROOTCHECKSUM" ] ; then
+		exit_err "Failed getting rootfs checksum"
+	fi
+
+	# Save checksum to manifest
+	jq -r '. += {"checksum":"'$ROOTCHECKSUM'"}' \
+		${UPDATE_DIR}/MANIFEST > ${UPDATE_DIR}/MANIFEST.new || exit_err "Failed jq"
+	mv ${UPDATE_DIR}/MANIFEST.new ${UPDATE_DIR}/MANIFEST
+
+	# Save the version string
+	if [ -n "$TRUENAS_VERSION" ] ; then
+		VERSION="$TRUENAS_VERSION"
+	else
+		VERSION="MASTER-$(date '+%Y%m%d-%H%M%S')"
+	fi
+	jq -r '. += {"version":"'$VERSION'"}' \
+		${UPDATE_DIR}/MANIFEST > ${UPDATE_DIR}/MANIFEST.new || exit_err "Failed jq"
+	mv ${UPDATE_DIR}/MANIFEST.new ${UPDATE_DIR}/MANIFEST
+
+}
+
+build_update_image() {
+	echo "`date`: Bootstrapping TrueNAS rootfs [UPDATE] (${LOG_DIR}/rootfs-bootstrap.log)"
+	make_bootstrapdir "package" >${LOG_DIR}/rootfs-bootstrap.log 2>&1
+	echo "`date`: Installing TrueNAS rootfs packages [UPDATE] (${LOG_DIR}/rootfs-packages.log)"
+	install_rootfs_packages >${LOG_DIR}/rootfs-packages.log 2>&1
+	echo "`date`: Building TrueNAS rootfs image [UPDATE] (${LOG_DIR}/rootfs-image.log)"
+	build_rootfs_image >${LOG_DIR}/rootfs-image.log 2>&1
+	del_bootstrapdir
+	echo "Success! Update image created at: ${RELEASE_DIR}/TrueNAS-SCALE.update"
+}
+
+# Check that host has all the prereq tools installed
 preflight_check
 
 case $1 in
-	iso) make_iso ;;
 	checkout) checkout_sources ;;
-	packages) build_deb_packages ;;
 	clean) cleanup ;;
+	iso) build_iso ;;
+	packages) build_deb_packages ;;
+	update) build_update_image ;;
 	*) exit_err "Invalid build option!" ;;
 esac
 

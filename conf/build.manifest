@@ -18,6 +18,10 @@
 			}
 		]
 	},
+	"base-packages": [
+		"zfs-modules-5.5.0-2-amd64",
+		"zfsutils-linux"
+	],
 	"iso-packages": [
 		"dialog",
 		"gdisk",

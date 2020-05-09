@@ -1,14 +1,16 @@
 #############################################################################
-# Makefile for building: TrueOS
+# Makefile for building: TrueNAS SCALE
 #############################################################################
 
-all: checkout packages iso
+all: checkout packages update iso
 
 clean:
 	@sh scripts/build.sh clean
+checkout:
+	@sh scripts/build.sh checkout
 iso:
 	@sh scripts/build.sh iso
 packages:
 	@sh scripts/build.sh packages
-checkout:
-	@sh scripts/build.sh checkout
+update:
+	@sh scripts/build.sh update
