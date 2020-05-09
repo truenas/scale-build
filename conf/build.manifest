@@ -24,11 +24,10 @@
 	],
 	"iso-packages": [
 		"dialog",
-		"gdisk",
 		"live-boot",
 		"zfs-modules-5.5.0-2-amd64",
-		"zfsutils-linux",
-		"truenas-installer"
+		"truenas-installer",
+		"vim-tiny"
 	],
 	"sources":[
 		{
