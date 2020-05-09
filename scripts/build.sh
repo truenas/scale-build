@@ -439,25 +439,15 @@ sign_manifest() {
 	if [ -z "$SIGNING_KEY" ]; then
 		return 0
 	fi
-
-	if [ -n "$SIGNING_PASSWORD" ] ; then
-		echo "Using SIGNING_PASSWORD"
-		echo "$SIGNING_PASSWORD" > ./tmp/.passphrase
-		gpg -ab --batch --yes --no-use-agent --pinentry-mode loopback \
-			--passphrase-file ./tmp/.passphrase --default-key ${SIGNING_KEY} \
-			--output ${UPDATE_DIR}/MANIFEST.sig \
-			--sign ${UPDATE_DIR}/MANIFEST
-		if [ $? -ne 0 ] ; then
-			rm ./tmp/.passphrase
-			exit_err "Failed gpg signing with SIGNING_PASSWORD"
-		fi
-		rm ./tmp/.passphrase
-	else
-		gpg -ab --default-key ${SIGNING_KEY} \
-			--output ${UPDATE_DIR}/MANIFEST.sig \
-			--sign ${UPDATE_DIR}/MANIFEST \
-			|| exit_err "failed signing MANIFEST"
+	if [ -z "$SIGNING_PASSWORD" ] ; then
+		return 0
 	fi
+
+	echo "$SIGNING_PASSWORD" | gpg -ab --batch --yes --no-use-agent \
+		--pinentry-mode loopback \
+		--passphrase-fd 0 --default-key ${SIGNING_KEY} \
+		--output ${UPDATE_DIR}/MANIFEST.sig \
+		--sign ${UPDATE_DIR}/MANIFEST || exit_err "Failed gpg signing with SIGNING_PASSWORD"
 }
 
 build_manifest() {
@@ -496,7 +486,7 @@ build_update_image() {
 	echo "`date`: Installing TrueNAS rootfs packages [UPDATE] (${LOG_DIR}/rootfs-packages.log)"
 	install_rootfs_packages >${LOG_DIR}/rootfs-packages.log 2>&1
 	echo "`date`: Building TrueNAS rootfs image [UPDATE] (${LOG_DIR}/rootfs-image.log)"
-	build_rootfs_image #>${LOG_DIR}/rootfs-image.log 2>&1
+	build_rootfs_image >${LOG_DIR}/rootfs-image.log 2>&1
 	del_bootstrapdir
 	echo "`date`: Success! Update image created at: ${RELEASE_DIR}/TrueNAS-SCALE.update"
 }
