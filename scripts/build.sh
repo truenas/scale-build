@@ -226,6 +226,7 @@ build_deb_packages() {
 	fi
 
 	del_bootstrapdir
+	echo "`date`: Success! Done building packages"
 	return 0
 }
 
@@ -382,7 +383,7 @@ build_iso() {
 	echo "`date`: Creating ISO file [ISO] (${LOG_DIR}/cdrom-iso.log)"
 	make_iso_file >${LOG_DIR}/cdrom-iso.log 2>&1
 	del_bootstrapdir
-	echo "Success! CD/USB: ${RELEASE_DIR}/TrueNAS-SCALE.iso"
+	echo "`date`: Success! CD/USB: ${RELEASE_DIR}/TrueNAS-SCALE.iso"
 }
 
 install_rootfs_packages() {
@@ -497,7 +498,7 @@ build_update_image() {
 	echo "`date`: Building TrueNAS rootfs image [UPDATE] (${LOG_DIR}/rootfs-image.log)"
 	build_rootfs_image #>${LOG_DIR}/rootfs-image.log 2>&1
 	del_bootstrapdir
-	echo "Success! Update image created at: ${RELEASE_DIR}/TrueNAS-SCALE.update"
+	echo "`date`: Success! Update image created at: ${RELEASE_DIR}/TrueNAS-SCALE.update"
 }
 
 # Check that host has all the prereq tools installed
