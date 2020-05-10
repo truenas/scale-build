@@ -108,7 +108,7 @@
 		{
 			"name": "python-asyncssh",
 			"repo": "https://salsa.debian.org/python-team/modules/python-asyncssh",
-			"branch": "master"
+			"branch": "debian/master"
 		},
 		{
 			"name": "licenselib",
@@ -126,7 +126,7 @@
 			"branch": "master",
 			"subdir": "src/freenas"
 		},
-                {
+		{
 			"name": "truenas",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
