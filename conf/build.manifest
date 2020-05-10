@@ -101,11 +101,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "glusterclipython",
-			"repo": "https://github.com/truenas/glustercli-python",
-			"branch": "master"
-		},
-		{
 			"name": "python-asyncssh",
 			"repo": "https://salsa.debian.org/python-team/modules/python-asyncssh",
 			"branch": "debian/master"
