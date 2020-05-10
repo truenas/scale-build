@@ -127,10 +127,36 @@
 			"subdir": "src/freenas"
 		},
 		{
+			"name": "middlewared",
+			"repo": "https://github.com/freenas/freenas",
+			"branch": "master",
+			"subdir": "src/middlewared",
+			"dependencies": [
+				"scst",
+				"migrate113",
+				"py-libzfs",
+				"zettarepl",
+				"py-blkid",
+				"pkg-pybonjour",
+				"pydevd",
+				"python-netsnmpagent",
+				"aiorwlock",
+				"glusterclipython",
+				"python-asyncssh",
+				"licenselib",
+				"migrate93",
+				"truenas-files"
+			]
+		},
+		{
 			"name": "truenas",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
-			"subdir": "debian"
+			"subdir": "debian",
+			"dependencies": [
+				"middlewared",
+				"truenas-webui"
+			]
 		}
 	]
 }
