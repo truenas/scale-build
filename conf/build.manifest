@@ -114,6 +114,11 @@
 			"branch": "truenas/scale"
 		},
 		{
+			"name": "glustercli-python",
+			"repo": "https://github.com/truenas/glustercli-python",
+			"branch": "master"
+		},
+		{
 			"name": "truenas-files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
@@ -134,7 +139,7 @@
 				"pydevd",
 				"python-netsnmpagent",
 				"aiorwlock",
-				"glusterclipython",
+				"glustercli-python",
 				"python-asyncssh",
 				"licenselib",
 				"migrate93",
