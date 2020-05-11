@@ -34,19 +34,25 @@ make_bootstrapdir() {
 		mkdir -p ${CACHE_DIR}/apt || exit_err "Failed mkdir ${CACHE_DIR}/apt"
 	fi
 
-	if [ -n "$1" ] ; then
-		CDBUILD=1
-		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg,grub-pc,grub-efi-amd64-signed"
-		CACHENAME="cdrom"
-	else
-		DEOPTS=""
-		CACHENAME="package"
-		unset CDBUILD
-	fi
+	case $1 in
+		cd|CD)
+			CDBUILD=1
+			DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg,grub-pc,grub-efi-amd64-signed"
+			CACHENAME="cdrom"
+			;;
+		package|packages)
+			DEOPTS=""
+			CACHENAME="package"
+			unset CDBUILD
+			;;
+		*)
+			exit_err "Invalid bootstrapdir target"
+			;;
+	esac
 
 	# Setup our ramdisk, up to 4G should suffice
 	mkdir -p ${TMPFS}
-	mount -t tmpfs -o size=4G tmpfs ${TMPFS}
+	mount -t tmpfs -o size=6G tmpfs ${TMPFS}
 
 	# Check if there is a cache we can restore
 	if [ -e "${CACHE_DIR}/basechroot-${CACHENAME}.squashfs" ]; then
@@ -201,7 +207,7 @@ mk_overlayfs() {
 
 build_deb_packages() {
 	echo "`date`: Creating debian bootstrap directory: (${LOG_DIR}/bootstrap_chroot.log)"
-	make_bootstrapdir >${LOG_DIR}/bootstrap_chroot.log 2>&1
+	make_bootstrapdir "package" >${LOG_DIR}/bootstrap_chroot.log 2>&1
 	if [ ! -d "${LOG_DIR}/packages" ] ; then
 		mkdir -p ${LOG_DIR}/packages
 	fi
@@ -331,7 +337,7 @@ checkout_sources() {
 		if [ -d ${SOURCES}/${NAME} ] ; then
 			rm -r ${SOURCES}/${NAME}
 		fi
-		git clone --depth=1 -b ${BRANCH} ${REPO} ${SOURCES}/${NAME}
+		git clone --depth=1 -b ${BRANCH} ${REPO} ${SOURCES}/${NAME} || exit_err "Failed checkout of ${REPO}"
 																done
 }
 
