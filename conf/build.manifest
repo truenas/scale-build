@@ -128,7 +128,7 @@
 		{
 			"name": "middlewared",
 			"repo": "https://github.com/freenas/freenas",
-			"branch": "gluster-magic",
+			"branch": "master",
 			"subdir": "src/middlewared",
 			"dependencies": [
 				"scst",
