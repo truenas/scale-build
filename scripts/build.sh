@@ -19,12 +19,20 @@ SOURCES="./sources"
 export LC_ALL="C"
 export LANG="C"
 
+# Never go full interactive on any packages
+export DEBIAN_FRONTEND="noninteractive"
+
 # Source helper functions
 . scripts/functions.sh
 
 make_bootstrapdir() {
 	del_overlayfs
 	del_bootstrapdir
+
+	# Make sure apt cache is ready
+	if [ ! -d "${CACHE_DIR}/apt" ] ; then
+		mkdir -p ${CACHE_DIR}/apt || exit_err "Failed mkdir ${CACHE_DIR}/apt"
+	fi
 
 	if [ -n "$1" ] ; then
 		CDBUILD=1
@@ -56,6 +64,7 @@ make_bootstrapdir() {
 		|| exit_err "Failed debootstrap"
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
+	mount --bind ${CACHE_DIR}/apt ${CHROOT_BASEDIR}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
 
 	if [ -z "$CDBUILD" ] ; then
 		# Add extra packages for builds
@@ -97,6 +106,25 @@ make_bootstrapdir() {
 	rm ${CHROOT_BASEDIR}/etc/apt/sources.list.prev
 
 
+	umount -f ${CHROOT_BASEDIR}/var/cache/apt
+	umount -f ${CHROOT_BASEDIR}/proc
+	umount -f ${CHROOT_BASEDIR}/sys
+
+	# Build the ZFS module first, so we can install into base chroot
+	echo "Building ZFS Modules"
+	mk_overlayfs
+	build_zfs_modules
+	del_overlayfs
+
+	# Install the new ZFS module into the chroot
+	mount proc ${CHROOT_BASEDIR}/proc -t proc
+	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
+	mkdir ${CHROOT_BASEDIR}/packages
+	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
+	mount --bind ${CACHE_DIR}/apt ${CHROOT_BASEDIR}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
+	install_zfs_modules "${CHROOT_BASEDIR}"
+	umount -f ${CHROOT_BASEDIR}/var/cache/apt
+	umount -f ${CHROOT_BASEDIR}/packages
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
 
@@ -146,6 +174,7 @@ del_bootstrapdir() {
 
 del_overlayfs() {
 
+	umount -f ${DPKG_OVERLAY}/var/cache/apt 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/packages 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/proc 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/sys 2>/dev/null
@@ -167,6 +196,7 @@ mk_overlayfs() {
 	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs || exit_err "Failed mount sysfs"
 	mkdir -p ${DPKG_OVERLAY}/packages || exit_err "Failed mkdir /packages"
 	mount --bind ${PKG_DIR} ${DPKG_OVERLAY}/packages || exit_err "Failed mount --bind /packages"
+	mount --bind ${CACHE_DIR}/apt ${DPKG_OVERLAY}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
 }
 
 build_deb_packages() {
@@ -175,7 +205,6 @@ build_deb_packages() {
 	if [ ! -d "${LOG_DIR}/packages" ] ; then
 		mkdir -p ${LOG_DIR}/packages
 	fi
-
 
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
@@ -197,7 +226,7 @@ build_deb_packages() {
 		if [ -e "${HASH_DIR}/${NAME}.hash" ] ; then
 			if [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
 				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
-					echo "Skipping [$NAME] - No changes detected"
+					echo "`date`: Skipping [$NAME] - No changes detected"
 					continue
 				fi
 			fi
@@ -205,6 +234,7 @@ build_deb_packages() {
 
 		# Do the build now
 		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
+		#chroot ${DPKG_OVERLAY} /bin/bash
 		build_dpkg "$NAME" "$PREBUILD" "$SUBDIR" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Save the build hash
@@ -212,17 +242,6 @@ build_deb_packages() {
 
 		del_overlayfs
 	done
-
-	# Before we wipe the bootstrap directory, lets build fresh ZFS kernel modules
-	ls ${PKG_DIR}/zfs-modules-*.deb >/dev/null 2>/dev/null
-	if [ $? -ne 0 ] ; then
-		mk_overlayfs
-		echo "`date`: Building package [zfs-modules] (${LOG_DIR}/packages/zfs-modules.log)"
-		build_zfs_modules >${LOG_DIR}/packages/zfs-modules.log 2>&1
-		del_overlayfs
-	else
-		echo "Skipping [zfs-modules] - No changes detected"
-	fi
 
 	del_bootstrapdir
 	echo "`date`: Success! Done building packages"
@@ -267,6 +286,17 @@ build_dpkg() {
 	# Update the local APT repo
 	echo "Building local APT repo Packages.gz..."
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
+}
+
+install_zfs_modules() {
+	zfsmodules=$(ls ${PKG_DIR}/zfs-modules* 2>/devnull)
+	if [ -z "$zfsmodules" ] ; then
+		return
+	fi
+	zfsmodules=$(basename $zfsmodules)
+	zfsmodules=$(echo $zfsmodules | awk -F'-amd64' '{print $1}')
+	echo "Installing ZFS Modules: $zfsmodules"
+	chroot ${1} /bin/bash -c "cd /packages && apt install -y ./zfs-modules-*" || exit_err "Failed install zfs-modules"
 }
 
 build_zfs_modules() {
@@ -359,7 +389,6 @@ make_iso_file() {
 	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/ || exit_err "Failed copy vmlinuz"
 	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
 
-	mkdir -p ${RELEASE_DIR}
 	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
 	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.iso > ${RELEASE_DIR}/TrueNAS-SCALE.iso.sha256 || exit_err "Failed sha256"
@@ -412,6 +441,7 @@ build_rootfs_image() {
 		rm -rf ${UPDATE_DIR}
 	fi
 	mkdir -p ${UPDATE_DIR}
+	mkdir -p ${RELEASE_DIR}
 
 	# We are going to build a nested squashfs image.
 	# Why nested? So that during update we can easily RO mount the outer image
