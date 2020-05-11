@@ -176,6 +176,16 @@ build_deb_packages() {
 		mkdir -p ${LOG_DIR}/packages
 	fi
 
+	# Always build zfs-modules first, we will be auto-installing it into chroots later
+	ls ${PKG_DIR}/zfs-modules-*.deb >/dev/null 2>/dev/null
+	if [ $? -ne 0 ] ; then
+		mk_overlayfs
+		echo "`date`: Building package [zfs-modules] (${LOG_DIR}/packages/zfs-modules.log)"
+		build_zfs_modules >${LOG_DIR}/packages/zfs-modules.log 2>&1
+		del_overlayfs
+	else
+		echo "Skipping [zfs-modules] - No changes detected"
+	fi
 
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
@@ -205,6 +215,7 @@ build_deb_packages() {
 
 		# Do the build now
 		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
+		#chroot ${DPKG_OVERLAY} /bin/bash
 		build_dpkg "$NAME" "$PREBUILD" "$SUBDIR" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Save the build hash
@@ -212,17 +223,6 @@ build_deb_packages() {
 
 		del_overlayfs
 	done
-
-	# Before we wipe the bootstrap directory, lets build fresh ZFS kernel modules
-	ls ${PKG_DIR}/zfs-modules-*.deb >/dev/null 2>/dev/null
-	if [ $? -ne 0 ] ; then
-		mk_overlayfs
-		echo "`date`: Building package [zfs-modules] (${LOG_DIR}/packages/zfs-modules.log)"
-		build_zfs_modules >${LOG_DIR}/packages/zfs-modules.log 2>&1
-		del_overlayfs
-	else
-		echo "Skipping [zfs-modules] - No changes detected"
-	fi
 
 	del_bootstrapdir
 	echo "`date`: Success! Done building packages"
@@ -246,6 +246,9 @@ build_dpkg() {
 
 	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
 
+	# Install ZFS modules package
+	install_zfs_modules "${DPKG_OVERLAY}"
+
 	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
 		exit_err "Missing debian/control file for $1"
 	fi
@@ -267,6 +270,17 @@ build_dpkg() {
 	# Update the local APT repo
 	echo "Building local APT repo Packages.gz..."
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
+}
+
+install_zfs_modules() {
+	zfsmodules=$(ls ${PKG_DIR}/zfs-modules* 2>/devnull)
+	if [ -z "$zfsmodules" ] ; then
+		return
+	fi
+	zfsmodules=$(basename $zfsmodules)
+	zfsmodules=$(echo $zfsmodules | awk -F'-amd64' '{print $1}')
+	echo "Installing ZFS Modules: $zfsmodules"
+	chroot ${1} /bin/bash -c "cd /packages && apt install -y ./zfs-modules-*" || exit_err "Failed install zfs-modules"
 }
 
 build_zfs_modules() {
@@ -313,6 +327,9 @@ install_iso_packages() {
 
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
+
+	# Install ZFS modules package
+	install_zfs_modules "${CHROOT_BASEDIR}"
 
 	for package in $(jq -r '."iso-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
 	do
@@ -392,6 +409,9 @@ install_rootfs_packages() {
 
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
+
+	# Install ZFS modules package
+	install_zfs_modules "${CHROOT_BASEDIR}"
 
 	for package in $(jq -r '."base-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
 	do
