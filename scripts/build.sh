@@ -389,7 +389,6 @@ make_iso_file() {
 	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/ || exit_err "Failed copy vmlinuz"
 	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
 
-	mkdir -p ${RELEASE_DIR}
 	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
 	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.iso > ${RELEASE_DIR}/TrueNAS-SCALE.iso.sha256 || exit_err "Failed sha256"
@@ -442,6 +441,7 @@ build_rootfs_image() {
 		rm -rf ${UPDATE_DIR}
 	fi
 	mkdir -p ${UPDATE_DIR}
+	mkdir -p ${RELEASE_DIR}
 
 	# We are going to build a nested squashfs image.
 	# Why nested? So that during update we can easily RO mount the outer image
