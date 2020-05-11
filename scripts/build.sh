@@ -26,6 +26,11 @@ make_bootstrapdir() {
 	del_overlayfs
 	del_bootstrapdir
 
+	# Make sure apt cache is ready
+	if [ ! -d "${CACHE_DIR}/apt" ] ; then
+		mkdir -p ${CACHE_DIR}/apt || exit_err "Failed mkdir ${CACHE_DIR}/apt"
+	fi
+
 	if [ -n "$1" ] ; then
 		CDBUILD=1
 		DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg,grub-pc,grub-efi-amd64-signed"
@@ -56,6 +61,7 @@ make_bootstrapdir() {
 		|| exit_err "Failed debootstrap"
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
+	mount --bind ${CACHE_DIR}/apt ${CHROOT_BASEDIR}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
 
 	if [ -z "$CDBUILD" ] ; then
 		# Add extra packages for builds
@@ -97,6 +103,25 @@ make_bootstrapdir() {
 	rm ${CHROOT_BASEDIR}/etc/apt/sources.list.prev
 
 
+	umount -f ${CHROOT_BASEDIR}/var/cache/apt
+	umount -f ${CHROOT_BASEDIR}/proc
+	umount -f ${CHROOT_BASEDIR}/sys
+
+	# Build the ZFS module first, so we can install into base chroot
+	echo "Building ZFS Modules"
+	mk_overlayfs
+	build_zfs_modules
+	del_overlayfs
+
+	# Install the new ZFS module into the chroot
+	mount proc ${CHROOT_BASEDIR}/proc -t proc
+	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
+	mkdir ${CHROOT_BASEDIR}/packages
+	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
+	mount --bind ${CACHE_DIR}/apt ${CHROOT_BASEDIR}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
+	install_zfs_modules "${CHROOT_BASEDIR}"
+	umount -f ${CHROOT_BASEDIR}/var/cache/apt
+	umount -f ${CHROOT_BASEDIR}/packages
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
 
@@ -146,6 +171,7 @@ del_bootstrapdir() {
 
 del_overlayfs() {
 
+	umount -f ${DPKG_OVERLAY}/var/cache/apt 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/packages 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/proc 2>/dev/null
 	umount -f ${DPKG_OVERLAY}/sys 2>/dev/null
@@ -167,6 +193,7 @@ mk_overlayfs() {
 	mount sysfs ${DPKG_OVERLAY}/sys -t sysfs || exit_err "Failed mount sysfs"
 	mkdir -p ${DPKG_OVERLAY}/packages || exit_err "Failed mkdir /packages"
 	mount --bind ${PKG_DIR} ${DPKG_OVERLAY}/packages || exit_err "Failed mount --bind /packages"
+	mount --bind ${CACHE_DIR}/apt ${DPKG_OVERLAY}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
 }
 
 build_deb_packages() {
@@ -174,17 +201,6 @@ build_deb_packages() {
 	make_bootstrapdir >${LOG_DIR}/bootstrap_chroot.log 2>&1
 	if [ ! -d "${LOG_DIR}/packages" ] ; then
 		mkdir -p ${LOG_DIR}/packages
-	fi
-
-	# Always build zfs-modules first, we will be auto-installing it into chroots later
-	ls ${PKG_DIR}/zfs-modules-*.deb >/dev/null 2>/dev/null
-	if [ $? -ne 0 ] ; then
-		mk_overlayfs
-		echo "`date`: Building package [zfs-modules] (${LOG_DIR}/packages/zfs-modules.log)"
-		build_zfs_modules >${LOG_DIR}/packages/zfs-modules.log 2>&1
-		del_overlayfs
-	else
-		echo "Skipping [zfs-modules] - No changes detected"
 	fi
 
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
@@ -245,9 +261,6 @@ build_dpkg() {
 	pkgdir="$srcdir/../"
 
 	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
-
-	# Install ZFS modules package
-	install_zfs_modules "${DPKG_OVERLAY}"
 
 	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
 		exit_err "Missing debian/control file for $1"
@@ -328,9 +341,6 @@ install_iso_packages() {
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
-	# Install ZFS modules package
-	install_zfs_modules "${CHROOT_BASEDIR}"
-
 	for package in $(jq -r '."iso-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
 	do
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
@@ -409,9 +419,6 @@ install_rootfs_packages() {
 
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
-
-	# Install ZFS modules package
-	install_zfs_modules "${CHROOT_BASEDIR}"
 
 	for package in $(jq -r '."base-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
 	do
