@@ -22,7 +22,8 @@
 		"dosfstools",
 		"grub-pc",
 		"grub-efi-amd64",
-		"truenas"
+		"truenas",
+		"zfs-initramfs"
 	],
 	"iso-packages": [
 		"dialog",
