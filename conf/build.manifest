@@ -90,7 +90,7 @@
                 },
 		{
 			"name": "python-netsnmpagent",
-			"repo": "https://salsa.debian.org/python-team/modules/python-netsnmpagent",
+			"repo": "https://github.com/truenas/python-netsnmpagent",
 			"branch": "master"
 		},
 		{
