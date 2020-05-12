@@ -55,7 +55,7 @@
 		{
 			"name": "truenas-installer",
 			"repo": "https://github.com/truenas/truenas-installer",
-			"branch": "hybrid-build"
+			"branch": "master"
 		},
 		{
 			"name": "py-blkid",

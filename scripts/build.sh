@@ -238,10 +238,13 @@ build_deb_packages() {
 			fi
 		fi
 
-		# Do the build now
+
 		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
-		#chroot ${DPKG_OVERLAY} /bin/bash
-		build_dpkg "$NAME" "$PREBUILD" "$SUBDIR" >${LOG_DIR}/packages/${NAME}.log 2>&1
+		# Cleanup any packages that came before
+		clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
+
+		# Do the build now
+		build_dpkg "$NAME" "$PREBUILD" "$SUBDIR" >>${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Save the build hash
 		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
@@ -254,37 +257,69 @@ build_deb_packages() {
 	return 0
 }
 
+clean_previous_packages() {
+	if [ ! -e "${HASH_DIR}/${1}.pkglist" ]; then
+		# Nothing to do
+		return 0
+	fi
+	echo "Removing previously built packages for ${1}:"
+	while read pkg
+	do
+		echo "Removing ${pkg}"
+		rm ${PKG_DIR}/${pkg} || echo "Misssing package ${pkg}... Ignored"
+	done < ${HASH_DIR}/${1}.pkglist
+	rm ${HASH_DIR}/${1}.pkglist
+}
+
 build_dpkg() {
 	if [ -e "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
 		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
 	fi
+	name="$1"
+	prebuild="$2"
+	subarg="$3"
 	deflags="-us -uc -b"
 
 	# Check if we have a valid sub directory for these sources
-	if [ -z "$3" -o "$3" = "null" ] ; then
+	if [ -z "$subarg" -o "$subarg" = "null" ] ; then
 		subdir=""
 	else
-		subdir="/$3"
+		subdir="/$subarg"
 	fi
 	srcdir="/dpkg-src$subdir"
 	pkgdir="$srcdir/../"
 
-	cp -r ${SOURCES}/${1} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
+	cp -r ${SOURCES}/${name} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
 
 	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
-		exit_err "Missing debian/control file for $1"
+		exit_err "Missing debian/control file for $name"
 	fi
 
+	# Install all the build depends
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && mk-build-deps --build-dep" || exit_err "Failed mk-build-deps"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
 	# Check for a prebuild command
-	if [ -n "$2" ] ; then
-		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $2" || exit_err "Failed to prebuild"
+	if [ -n "$prebuild" ] ; then
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $prebuild" || exit_err "Failed to prebuild"
 	fi
+
+	# Make a programatically generated version for this build
+	DATESTAMP=$(date +%Y%m%d%H%M%S)
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && dch -b -M -v ${DATESTAMP}~truenas+1 --force-distribution --distribution bullseye-truenas-unstable 'Tagged from truenas-build'" || exit_err "Failed dch changelog"
+
+	# Build the package
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
 
 	# Move out the resulting packages
 	echo "Copying finished packages"
+
+	# Copy and record each built packages for cleanup later
+	for pkg in $(ls ${DPKG_OVERLAY}${pkgdir}/*.deb ${DPKG_OVERLAY}${pkgdir}/*.udeb)
+	do
+		basepkg=$(basename $pkg)
+		mv ${DPKG_OVERLAY}${pkgdir}/$basepkg ${PKG_DIR}/ || exit_err "Failed mv of $basepkg"
+		echo "$basepkg" >>${HASH_DIR}/${NAME}.pkglist || "Failed recording package name(s)"
+	done
 
 	mv ${DPKG_OVERLAY}${pkgdir}/*.deb ${PKG_DIR}/ 2>/dev/null
 	mv ${DPKG_OVERLAY}${pkgdir}/*.udeb ${PKG_DIR}/ 2>/dev/null
