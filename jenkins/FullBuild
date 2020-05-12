@@ -44,7 +44,6 @@ pipeline {
     }
     stage('Artifact') {
       steps {
-        sh 'cd src && make iso'
         sh 'rm -rf artifacts || true'
         sh 'mkdir -p artifacts'
         sh 'mv src/tmp/release/* artifacts/'
