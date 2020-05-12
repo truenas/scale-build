@@ -372,7 +372,20 @@ checkout_sources() {
 		if [ -d ${SOURCES}/${NAME} ] ; then
 			rm -r ${SOURCES}/${NAME}
 		fi
-		git clone --depth=1 -b ${BRANCH} ${REPO} ${SOURCES}/${NAME} || exit_err "Failed checkout of ${REPO}"
+
+		# Check if any overrides have been provided
+		unset GHOVERRIDE
+		eval "GHOVERRIDE=\$${NAME}_OVERRIDE"
+
+		if [ -n "$TRUENAS_BRANCH_OVERRIDE" ] ; then
+			GHBRANCH="$TRUENAS_BRANCH_OVERRIDE"
+		elif [ -n "$GHOVERRIDE"  ] ; then
+			GHBRANCH="$GHOVERRIDE"
+		else
+			GHBRANCH="$BRANCH"
+		fi
+
+		git clone --depth=1 -b ${GHBRANCH} ${REPO} ${SOURCES}/${NAME} || exit_err "Failed checkout of ${REPO}"
 																done
 }
 

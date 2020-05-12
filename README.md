@@ -44,3 +44,10 @@ Builds the ISO image for fresh installation.
 Cleans up all the temporary files and returns to original state.
 
 
+## Overrides
+
+It is possible using make and environment variables to override which source repos get checked out during "make checkout" phase.
+
+TRUENAS_BRANCH_OVERRIDE - Can be used to override all source repos at once
+
+<NAME>_OVERRIDE - Can override specific repos, I.E. debootstrap_OVERRIDE="master"
