@@ -10,9 +10,11 @@ Any Debian 10 or later host, or TrueNAS SCALE image itself. In addition to the h
 * jq
 * git
 * xorriso
-* grub-mkrescue
-* mformat
-* mksquashfs
+* grub-common
+* grub-efi-amd64-bin
+* grub-pc-bin
+* mtools
+* squashfs-tools
 
 
 ## Usage
