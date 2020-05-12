@@ -38,7 +38,7 @@
 			"branch": "master"
 		},
 		{
-			"name": "py-libzfs",
+			"name": "py_libzfs",
 			"repo": "https://github.com/freenas/py-libzfs",
 			"branch": "master"
 		},
@@ -48,17 +48,17 @@
 			"branch": "master"
 		},
 		{
-			"name": "debian-archive-keyring",
+			"name": "debian_archive_keyring",
 			"repo": "https://github.com/truenas/debian-archive-keyring",
 			"branch": "master"
 		},
 		{
-			"name": "truenas-installer",
+			"name": "truenas_installer",
 			"repo": "https://github.com/truenas/truenas-installer",
 			"branch": "master"
 		},
 		{
-			"name": "py-blkid",
+			"name": "py_blkid",
 			"repo": "https://github.com/truenas/py-blkid",
 			"branch": "master"
 		},
@@ -74,13 +74,13 @@
 			"branch": "v3.4-branch"
 		},
 		{
-			"name": "truenas-webui",
+			"name": "truenas_webui",
 			"repo": "https://github.com/freenas/webui",
 			"prebuildcmd": "yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
 			"branch": "master"
 		},
 		{
-			"name": "pkg-pybonjour",
+			"name": "pkg_pybonjour",
 			"repo": "https://github.com/truenas/pkg-pybonjour",
 			"branch": "master"
 		},
@@ -90,7 +90,7 @@
 			"branch": "master"
                 },
 		{
-			"name": "python-netsnmpagent",
+			"name": "python_netsnmpagent",
 			"repo": "https://github.com/truenas/python-netsnmpagent",
 			"branch": "master"
 		},
@@ -115,12 +115,12 @@
 			"branch": "truenas/scale"
 		},
 		{
-			"name": "glustercli-python",
+			"name": "glustercli_python",
 			"repo": "https://github.com/truenas/glustercli-python",
 			"branch": "master"
 		},
 		{
-			"name": "truenas-files",
+			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
 			"subdir": "src/freenas"
