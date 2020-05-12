@@ -37,6 +37,11 @@ pipeline {
         sh 'cd src && make iso'
         }
     }
+   stage('Upload') {
+      steps {
+        sh 'scp src/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+        }
+    }
     stage('Artifact') {
       steps {
         sh 'cd src && make iso'
