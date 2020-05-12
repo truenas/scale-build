@@ -1,0 +1,65 @@
+pipeline {
+  agent {
+    node {
+       label 'SCALE-Build'
+    }
+  }
+  stages {
+    stage('SCM') {
+      steps {
+        dir('src') {
+           checkout scm
+        }
+      }
+    }
+    stage('Clean') {
+      steps {
+        sh 'cd src && make clean'
+      }
+    }
+    stage('Checkout') {
+      steps {
+        sh 'cd src && make checkout'
+      }
+    }
+    stage('Packages') {
+      steps {
+        sh 'cd src && make packages'
+        }
+      }
+    }
+    stage('Update') {
+      steps {
+        sh 'cd src && make update'
+        }
+      }
+    }
+    stage('ISO') {
+      steps {
+        sh 'cd src && make iso'
+        }
+      }
+    }
+    stage('Artifact') {
+      steps {
+        sh 'cd src && make iso'
+        sh 'rm -rf artifacts || true'
+        sh 'mkdir -p artifacts'
+        sh 'mv src/tmp/release/* artifacts/'
+        }
+      }
+    }
+  }
+  post {
+    success {
+      archiveArtifacts artifacts: 'artifacts/*', fingerprint: false
+      archiveArtifacts artifacts: 'src/logs/*', fingerprint: false
+    }
+    failure {
+      archiveArtifacts artifacts: 'src/logs/*', fingerprint: false
+      mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number:
+ ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', reply
+To: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com";
+     }
+  }
+}
