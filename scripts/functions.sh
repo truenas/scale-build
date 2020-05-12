@@ -23,6 +23,7 @@ cleanup() {
 	del_bootstrapdir
 	rm -rf tmp
 	rm -rf ${SOURCES}
+	rm -rf ${LOG_DIR}
 }
 
 preflight_check() {
@@ -44,9 +45,6 @@ preflight_check() {
 	if [ ! -d tmp/ ] ; then mkdir tmp ; fi
 	if [ ! -d ${PKG_DIR} ] ; then mkdir ${PKG_DIR} ; fi
 	if [ ! -d ${HASH_DIR} ] ; then mkdir -p ${HASH_DIR} ; fi
-	if [ -d ${LOG_DIR} ] ; then
-		rm -rf ${LOG_DIR}
-	fi
 	mkdir -p ${LOG_DIR}
 
 	# Validate MANIFEST

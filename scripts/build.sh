@@ -206,11 +206,14 @@ mk_overlayfs() {
 }
 
 build_deb_packages() {
+	rm ${LOG_DIR}/bootstrap* 2>/dev/null
 	echo "`date`: Creating debian bootstrap directory: (${LOG_DIR}/bootstrap_chroot.log)"
 	make_bootstrapdir "package" >${LOG_DIR}/bootstrap_chroot.log 2>&1
+
 	if [ ! -d "${LOG_DIR}/packages" ] ; then
 		mkdir -p ${LOG_DIR}/packages
 	fi
+	rm ${LOG_DIR}/packages/* 2>/dev/null
 
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
@@ -386,7 +389,7 @@ checkout_sources() {
 		fi
 
 		git clone --depth=1 -b ${GHBRANCH} ${REPO} ${SOURCES}/${NAME} || exit_err "Failed checkout of ${REPO}"
-																done
+	done
 }
 
 install_iso_packages() {
@@ -453,6 +456,7 @@ prune_cd_basedir() {
 }
 
 build_iso() {
+	rm ${LOG_DIR}/cdrom* 2>/dev/null
 	# Check if the update / install rootfs image was created
 	if [ ! -e "${RELEASE_DIR}/TrueNAS-SCALE.update" ] ; then
 		exit_err "Missing rootfs image. Run 'make update' first."
@@ -567,6 +571,7 @@ build_manifest() {
 }
 
 build_update_image() {
+	rm ${LOG_DIR}/rootfs* 2>/dev/null
 	echo "`date`: Bootstrapping TrueNAS rootfs [UPDATE] (${LOG_DIR}/rootfs-bootstrap.log)"
 	make_bootstrapdir "package" >${LOG_DIR}/rootfs-bootstrap.log 2>&1
 	echo "`date`: Installing TrueNAS rootfs packages [UPDATE] (${LOG_DIR}/rootfs-packages.log)"
