@@ -1,17 +1,17 @@
 {
 	"apt-repos": {
-		"url": "http://apt.tn.ixsystems.com/apt-direct/debian/unstable/",
+		"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/debian/",
 		"distribution": "bullseye",
 		"components": "main non-free contrib",
 		"additional": [
 			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/truenas/docker/",
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/docker/",
 				"distribution": "buster",
 				"component": "stable",
 				"key": "keys/docker.gpg"
 			},
 			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/truenas/gluster/",
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/gluster/",
 				"distribution": "bullseye",
 				"component": "main",
 				"key": "keys/gluster.gpg"

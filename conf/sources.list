@@ -1,0 +1,5 @@
+# Default APT sources.list for TrueNAS SCALE
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/truenas/ truenas main
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/gluster/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/docker/ buster stable
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/debian/ bullseye main non-free contrib

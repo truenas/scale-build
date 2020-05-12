@@ -468,6 +468,9 @@ install_rootfs_packages() {
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
 
+	# Copy the default sources.list file
+	cp conf/sources.list ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed installing sources.list"
+
 	#chroot ${CHROOT_BASEDIR} /bin/bash
 	umount -f ${CHROOT_BASEDIR}/packages
 	rmdir ${CHROOT_BASEDIR}/packages
