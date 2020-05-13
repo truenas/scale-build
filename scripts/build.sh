@@ -433,6 +433,7 @@ checkout_sources() {
 		mkdir -p ${SOURCES}
 	fi
 
+	echo "`date`: Starting checkout of source"
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
 		#eval "CHECK=\$$k"
@@ -442,10 +443,6 @@ checkout_sources() {
 		if [ -z "$NAME" ] ; then exit_err "Invalid NAME: $NAME" ; fi
 		if [ -z "$REPO" ] ; then exit_err "Invalid REPO: $REPO" ; fi
 		if [ -z "$BRANCH" ] ; then exit_err "Invalid BRANCH: $BRANCH" ; fi
-
-		if [ -d ${SOURCES}/${NAME} ] ; then
-			rm -r ${SOURCES}/${NAME}
-		fi
 
 		# Check if any overrides have been provided
 		unset GHOVERRIDE
@@ -459,8 +456,44 @@ checkout_sources() {
 			GHBRANCH="$BRANCH"
 		fi
 
-		git clone --depth=1 -b ${GHBRANCH} ${REPO} ${SOURCES}/${NAME} || exit_err "Failed checkout of ${REPO}"
+		# Check if we can do a git pull, or need to checkout fresh
+		if [ -d ${SOURCES}/${NAME} ] ; then
+			cbranch=$(cd ${SOURCES}/${NAME} && git branch | awk '{print $2}')
+			if [ "$cbranch" != "$GHBRANCH" ] ; then
+				# Branch name changed in manifest
+				checkout_git_repo "${NAME}" "${BRANCH}" "${REPO}"
+			else
+				update_git_repo "${NAME}" "${BRANCH}" "${REPO}"	
+			fi
+		else
+			checkout_git_repo "${NAME}" "${BRANCH}" "${REPO}"
+		fi
+
 	done
+	echo "`date`: Finished checkout of source"
+}
+
+update_git_repo() {
+	NAME="$1"
+	GHBRANCH="$2"
+	REPO="$3"
+	echo "`date`: Updating git repo [${NAME}] (${LOG_DIR}/git-checkout.log)"
+	(cd ${SOURCES}/${NAME} && git reset --hard) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git reset"
+	(cd ${SOURCES}/${NAME} && git pull origin ${GHBRANCH}) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git pull"
+}
+
+checkout_git_repo() {
+	NAME="$1"
+	GHBRANCH="$2"
+	REPO="$3"
+	echo "`date`: Checking out git repo: ${REPO} [${NAME}] (${LOG_DIR}/git-checkout.log)"
+
+	# Cleanup old dir, if it exists
+	if [ -d "${SOURCES}/${NAME}" ] ; then
+		rm -r ${SOURCES}/${NAME}
+	fi
+	git clone --depth=1 -b ${GHBRANCH} ${REPO} ${SOURCES}/${NAME} \
+		>${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed checkout of ${REPO}"
 }
 
 install_iso_packages() {
