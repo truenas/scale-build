@@ -54,6 +54,9 @@ make_bootstrapdir() {
 	mkdir -p ${TMPFS}
 	mount -t tmpfs -o size=6G tmpfs ${TMPFS}
 
+	# Check if we should invalidate the base cache
+	validate_basecache "$CACHENAME"
+
 	# Check if there is a cache we can restore
 	if [ -e "${CACHE_DIR}/basechroot-${CACHENAME}.squashfs" ]; then
 		restore_build_cache "${CACHENAME}"
@@ -65,9 +68,14 @@ make_bootstrapdir() {
 	aptrepo=$(jq -r '."apt-repos"."url"' $MANIFEST)
 	aptdist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
 	aptcomp=$(jq -r '."apt-repos"."components"' $MANIFEST)
+
+	# Do the fresh bootstrap
 	debootstrap ${DEOPTS} --keyring /etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg \
 		bullseye ${CHROOT_BASEDIR} $aptrepo \
 		|| exit_err "Failed debootstrap"
+	create_basehash "$CACHENAME"
+
+	# Mount to prep build
 	mount proc ${CHROOT_BASEDIR}/proc -t proc
 	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
 	mount --bind ${CACHE_DIR}/apt ${CHROOT_BASEDIR}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
@@ -137,6 +145,69 @@ make_bootstrapdir() {
 	save_build_cache "${CACHENAME}"
 
 	return 0
+}
+
+remove_basecache() {
+	echo "Removing base chroot cache for ${1}"
+	rm ${CACHE_DIR}/basechroot-${1}.squashfs 2>/dev/null
+	rm ${CACHE_DIR}/basechroot-${1}.squashfs.hash 2>/dev/null
+}
+
+create_basehash() {
+	cache="$1"
+	get_all_repo_hash
+	echo "${ALLREPOHASH}" > ${CACHE_DIR}/basechroot-${cache}.squashfs.hash
+}
+
+get_repo_hash() {
+	wget -q -O tmp/.cachecheck ${1}/dists/${2}/Release
+	if [ $? -ne 0 ] ; then
+		rm tmp/.cachecheck 2>/dev/null
+		return 1
+	fi
+	unset REPOHASH
+	REPOHASH=$(cat tmp/.cachecheck | sha256sum | awk '{print $1}')
+	rm tmp/.cachecheck 2>/dev/null
+	export REPOHASH
+}
+
+get_all_repo_hash() {
+	# Start by validating the main APT repo
+	local repo=$(jq -r '."apt-repos"."url"' $MANIFEST)
+	local dist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
+
+	# Get the hash of remote repo, otherwise remove cache
+	get_repo_hash "${repo}" "${dist}"
+	ALLREPOHASH="${REPOHASH}"
+
+	# Get the hash of extra repos
+	for k in $(jq -r '."apt-repos"."additional" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
+	do
+		local aptrepo=$(jq -r '."apt-repos"."additional"['$k']."url"' $MANIFEST)
+		local aptdist=$(jq -r '."apt-repos"."additional"['$k']."distribution"' $MANIFEST)
+		get_repo_hash "${aptrepo}" "${aptdist}"
+		ALLREPOHASH="${ALLREPOHASH}${REPOHASH}"
+	done
+	export ALLREPOHASH
+}
+
+validate_basecache() {
+	cache="$1"
+
+	get_all_repo_hash
+
+	# No hash file? Lets remove to be safe
+	if [ ! -e "${CACHE_DIR}/basechroot-${cache}.squashfs.hash" ]; then
+		remove_basecache "${cache}"
+		return 1
+	fi
+	# Has the cache changed?
+	if [ "${ALLREPOHASH}" != "$(cat ${CACHE_DIR}/basechroot-${cache}.squashfs.hash)" ] ; then
+		echo "Upstream repo changed! Removing squashfs cache to re-create."
+		remove_basecache "${cache}"
+		return 1
+	fi
+
 }
 
 restore_build_cache() {
