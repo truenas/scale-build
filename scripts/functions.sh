@@ -42,6 +42,13 @@ preflight_check() {
 		fi
 	done
 
+	if [ ! -d "/lib/grub/x86_64-efi" ] ; then
+		exit_err "Missing installed package: grub-efi-amd64-bin"
+	fi
+	if [ ! -d "/lib/grub/i386-pc" ] ; then
+		exit_err "Missing installed package: grub-pc-bin"
+	fi
+
 	if [ ! -d tmp/ ] ; then mkdir tmp ; fi
 	if [ ! -d ${PKG_DIR} ] ; then mkdir ${PKG_DIR} ; fi
 	if [ ! -d ${HASH_DIR} ] ; then mkdir -p ${HASH_DIR} ; fi
