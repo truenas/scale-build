@@ -423,6 +423,7 @@ make_iso_file() {
 
 	# Copy the CD files
 	cp conf/cd-files/getty@.service ${CHROOT_BASEDIR}/lib/systemd/system/ || exit_err "Failed copy of getty@"
+	cp conf/cd-files/serial-getty@.service ${CHROOT_BASEDIR}/lib/systemd/system/ || exit_err "Failed copy of serial-getty@"
 	cp conf/cd-files/bash_profile ${CHROOT_BASEDIR}/root/.bash_profile || exit_err "Failed copy of bash_profile"
 
 	# Drop to shell for debugging
