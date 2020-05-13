@@ -486,7 +486,7 @@ checkout_git_repo() {
 	NAME="$1"
 	GHBRANCH="$2"
 	REPO="$3"
-	echo "`date`: Checking out git repo: ${REPO} [${NAME}] (${LOG_DIR}/git-checkout.log)"
+	echo "`date`: Checking out git repo [${NAME}] (${LOG_DIR}/git-checkout.log)"
 
 	# Cleanup old dir, if it exists
 	if [ -d "${SOURCES}/${NAME}" ] ; then
