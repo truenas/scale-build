@@ -1,0 +1,59 @@
+pipeline {
+  agent {
+    node {
+       label 'SCALE-Build'
+    }
+  }
+  environment {
+	BDIR = "/root/truenas-build"
+  }
+  stages {
+    stage('SCM') {
+      steps {
+	sh '[ -d "${env.BDIR}" ] || git clone --depth=1 https://github.com/truenas/truenas-build ${env.BDIR}'
+	sh 'cd ${env.BDIR} && git reset --hard && git pull'
+      }
+    }
+    stage('Checkout') {
+      steps {
+        sh 'cd ${env.BDIR} && make checkout'
+      }
+    }
+    stage('Packages') {
+      steps {
+        sh 'cd ${env.BDIR} && make packages'
+        }
+    }
+    stage('Update') {
+      steps {
+        sh 'cd ${env.BDIR} && make update'
+        }
+    }
+    stage('ISO') {
+      steps {
+        sh 'cd ${env.BDIR} && make iso'
+        }
+    }
+   stage('Upload') {
+      steps {
+        sh 'scp ${env.BDIR}/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+        }
+    }
+  }
+  post {
+    success {
+      sh 'rm -rf artifacts || true'
+      sh 'mkdir -p artifacts/logs'
+      sh 'mv ${env.BDIR}/tmp/release/* artifacts/'
+      sh 'cp -r ${env.BDIR}/logs/* artifacts/logs/'
+      archiveArtifacts artifacts: 'artifacts/*', fingerprint: false
+    }
+    failure {
+      sh 'rm -rf artifacts || true'
+      sh 'mkdir -p artifacts/logs'
+      sh 'cp -r ${env.BDIR}/logs/* artifacts/logs/'
+      archiveArtifacts artifacts: 'artifacts/*', fingerprint: false
+      mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com,william@ixsystems.com";
+     }
+  }
+}
