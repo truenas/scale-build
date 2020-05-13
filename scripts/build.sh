@@ -479,6 +479,7 @@ update_git_repo() {
 	REPO="$3"
 	echo "`date`: Updating git repo [${NAME}] (${LOG_DIR}/git-checkout.log)"
 	(cd ${SOURCES}/${NAME} && git reset --hard) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git reset"
+	(cd ${SOURCES}/${NAME} && git fetch --unshallow) >${LOG_DIR}/git-checkout.log 2>&1
 	(cd ${SOURCES}/${NAME} && git pull origin ${GHBRANCH}) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git pull"
 }
 
