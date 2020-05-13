@@ -23,6 +23,7 @@
 		"grub-pc",
 		"grub-efi-amd64",
 		"truenas",
+		"setserial",
 		"zfs-initramfs"
 	],
 	"iso-packages": [
