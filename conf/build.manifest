@@ -15,14 +15,25 @@
 				"distribution": "bullseye",
 				"component": "main",
 				"key": "keys/gluster.gpg"
+			},
+			{
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/kubernetes/",
+				"distribution": "kubernetes-xenial",
+				"component": "main",
+				"key": "keys/kubernetes.gpg"
 			}
 		]
 	},
 	"base-packages": [
 		"dosfstools",
+		"consul",
 		"grub-pc",
 		"grub-efi-amd64",
+		"kubeadm",
+		"kubectl",
+		"squashfs-tools",
 		"truenas",
+		"wireguard",
 		"zfs-initramfs"
 	],
 	"iso-packages": [
