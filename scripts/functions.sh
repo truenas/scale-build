@@ -42,10 +42,10 @@ preflight_check() {
 		fi
 	done
 
-	if [ ! -d "/lib/grub/x86_64-efi" ] ; then
+	if [ ! -d "/lib/grub/x86_64-efi" -a ! -d "/usr/lib/grub/x86_64-efi" ] ; then
 		exit_err "Missing installed package: grub-efi-amd64-bin"
 	fi
-	if [ ! -d "/lib/grub/i386-pc" ] ; then
+	if [ ! -d "/lib/grub/i386-pc" -a ! -d "/usr/lib/grub/i386-pc" ] ; then
 		exit_err "Missing installed package: grub-pc-bin"
 	fi
 
