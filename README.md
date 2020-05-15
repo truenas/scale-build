@@ -15,8 +15,9 @@ Any Debian 10 or later host, or TrueNAS SCALE image itself. In addition to the h
 * grub-pc-bin
 * mtools
 * squashfs-tools
+* unzip
 
-``` % sudo apt install debootstrap jq git xorriso grub-common grub-efi-amd64-bin grub-pc-bin mtools squashfs-tools ```
+``` % sudo apt install debootstrap jq git xorriso grub-common grub-efi-amd64-bin grub-pc-bin mtools squashfs-tools unzip```
 
 ## Usage
 
