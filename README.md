@@ -6,6 +6,7 @@ A build framework for TrueNAS SCALE.
 
 Any Debian 10 or later host, or TrueNAS SCALE image itself. In addition to the host, you will want to pre-install the following packages:
 
+* build-essential
 * debootstrap
 * jq
 * git
@@ -17,7 +18,7 @@ Any Debian 10 or later host, or TrueNAS SCALE image itself. In addition to the h
 * squashfs-tools
 * unzip
 
-``` % sudo apt install debootstrap jq git xorriso grub-common grub-efi-amd64-bin grub-pc-bin mtools squashfs-tools unzip```
+``` % sudo apt install build-essential debootstrap jq git xorriso grub-common grub-efi-amd64-bin grub-pc-bin mtools squashfs-tools unzip```
 
 ## Usage
 
