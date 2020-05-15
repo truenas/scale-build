@@ -559,6 +559,10 @@ make_iso_file() {
 
 prune_cd_basedir() {
 	rm -rf ${CHROOT_BASEDIR}/var/cache/apt
+	rm -rf ${CHROOT_BASEDIR}/var/lib/apt
+	rm -rf ${CHROOT_BASEDIR}/usr/share/doc
+	rm -rf ${CHROOT_BASEDIR}/usr/share/man
+	rm -rf ${CHROOT_BASEDIR}/lib/modules/*-amd64/kernel/sound
 }
 
 build_iso() {
@@ -591,6 +595,9 @@ install_rootfs_packages() {
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
 
+	# Do any custom steps for setting up the rootfs image
+	custom_rootfs_setup
+
 	# Copy the default sources.list file
 	cp conf/sources.list ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed installing sources.list"
 
@@ -599,6 +606,21 @@ install_rootfs_packages() {
 	rmdir ${CHROOT_BASEDIR}/packages
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
+}
+
+custom_rootfs_setup() {
+
+	# Any kind of custom mangling of the built rootfs image can exist here
+	#
+
+	# Install nomad binary, since no sane debian package exists yet
+	NOMADVER="0.11.1"
+	if [ ! -e "${CACHE_DIR}/nomad_${NOMADVER}.zip" ] ; then
+		wget -O ${CACHE_DIR}/nomad_${NOMADVER}.zip \
+			https://releases.hashicorp.com/nomad/${NOMADVER}/nomad_${NOMADVER}_linux_amd64.zip \
+			|| exit_err "Failed wget of nomad"
+	fi
+	unzip -d ${CHROOT_BASEDIR}/usr/bin ${CACHE_DIR}/nomad_${NOMADVER}.zip || exit_err "Failed unzip of nomad"
 }
 
 build_rootfs_image() {
