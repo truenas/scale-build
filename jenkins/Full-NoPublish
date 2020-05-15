@@ -1,7 +1,7 @@
 pipeline {
   agent {
     node {
-       label 'SCALE-Build'
+       label 'SCALE-Bench'
     }
   }
   stages {
