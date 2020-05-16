@@ -598,6 +598,9 @@ install_rootfs_packages() {
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
 
+	# Do any pruning of rootfs
+	clean_rootfs
+
 	# Copy the default sources.list file
 	cp conf/sources.list ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed installing sources.list"
 
@@ -607,6 +610,27 @@ install_rootfs_packages() {
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
 }
+
+clean_rootfs() {
+
+	# Mark both GRUB packages as essential / not auto-installed
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt install -y grub-pc-bin' \
+		|| exit_err "Failed apt install of grub-pc-bin"
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt install -y grub-efi-amd64-bin' \
+		|| exit_err "Failed apt install of grub-efi-amd64-bin"
+
+	# Remove gstreamer1.0 packages
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y gstreamer1.0-x'
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y gstreamer1.0-plugins-base'
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y gstreamer1.0-libav'
+
+	# Remove x11
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y x11-common'
+
+	# Remove any temp build depends
+	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt autoremove -y' || exit_err "Failed apt autoremove"
+}
+
 
 custom_rootfs_setup() {
 
