@@ -28,13 +28,21 @@
 		"dosfstools",
 		"consul",
 		"grub-pc",
+		"grub-pc-bin",
 		"grub-efi-amd64",
+		"grub-efi-amd64-bin",
 		"kubeadm",
 		"kubectl",
 		"squashfs-tools",
 		"truenas",
 		"wireguard",
 		"zfs-initramfs"
+	],
+	"base-prune": [
+		"gstreamer1.0-x",
+		"gstreamer1.0-plugins-base",
+		"gstreamer1.0-libav",
+		"x11-common"
 	],
 	"iso-packages": [
 		"dialog",

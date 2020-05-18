@@ -613,19 +613,11 @@ install_rootfs_packages() {
 
 clean_rootfs() {
 
-	# Mark both GRUB packages as essential / not auto-installed
-	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt install -y grub-pc-bin' \
-		|| exit_err "Failed apt install of grub-pc-bin"
-	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt install -y grub-efi-amd64-bin' \
-		|| exit_err "Failed apt install of grub-efi-amd64-bin"
-
-	# Remove gstreamer1.0 packages
-	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y gstreamer1.0-x'
-	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y gstreamer1.0-plugins-base'
-	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y gstreamer1.0-libav'
-
-	# Remove x11
-	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt remove -y x11-common'
+	# Remove packages from our build manifest
+	for package in $(jq -r '."base-prune" | values[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		chroot ${CHROOT_BASEDIR} apt remove -y $package || exit_err "Failed apt remove $package"
+	done
 
 	# Remove any temp build depends
 	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt autoremove -y' || exit_err "Failed apt autoremove"
