@@ -48,7 +48,7 @@ pipeline {
       sh 'cp -r ${BDIR}/logs/* artifacts/logs/'
       archiveArtifacts artifacts: 'artifacts/*', fingerprint: false
       archiveArtifacts artifacts: 'artifacts/**/*.log', fingerprint: false
-      archiveArtifacts artifacts: 'artifacts/logs/**/*.log', fingerprint: false
+      archiveArtifacts artifacts: 'artifacts/logs/packages/*.log', fingerprint: false
     }
     failure {
       sh 'rm -rf artifacts || true'
@@ -56,7 +56,7 @@ pipeline {
       sh 'cp -r ${BDIR}/logs/* artifacts/logs/'
       archiveArtifacts artifacts: 'artifacts/*', fingerprint: false
       archiveArtifacts artifacts: 'artifacts/**/*.log', fingerprint: false
-      archiveArtifacts artifacts: 'artifacts/logs/**/*.log', fingerprint: false
+      archiveArtifacts artifacts: 'artifacts/logs/packages/*.log', fingerprint: false
       mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com,william@ixsystems.com";
      }
   }
