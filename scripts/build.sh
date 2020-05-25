@@ -682,6 +682,7 @@ build_rootfs_image() {
 	# Create the outer image now
 	mksquashfs ${UPDATE_DIR} ${RELEASE_DIR}/TrueNAS-SCALE.update -noD || exit_err "Failed squashfs"
 	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.update > ${RELEASE_DIR}/TrueNAS-SCALE.update.sha256 || exit_err "Failed sha256"
+	python3 scripts/build_update_manifest.py "$UPDATE_DIR" "${RELEASE_DIR}/TrueNAS-SCALE.update"
 }
 
 sign_manifest() {
