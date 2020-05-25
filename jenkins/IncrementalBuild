@@ -34,9 +34,10 @@ pipeline {
         sh 'cd ${BDIR} && make iso'
         }
     }
-   stage('Upload') {
+    stage('Upload') {
       steps {
         sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-13.0-Nightlies/'
         }
     }
   }

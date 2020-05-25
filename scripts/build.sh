@@ -1,5 +1,17 @@
 #!/bin/sh
 
+if [ -n "$TRUENAS_TRAIN" ] ; then
+  TRAIN="$TRUENAS_TRAIN"
+else
+  TRAIN="TrueNAS-SCALE-MASTER"
+fi
+
+if [ -n "$TRUENAS_VERSION" ] ; then
+  VERSION="$TRUENAS_VERSION"
+else
+  VERSION="MASTER-$(date '+%Y%m%d-%H%M%S')"
+fi
+
 TMPFS="./tmp/tmpfs"
 CHROOT_BASEDIR="${TMPFS}/chroot"
 CHROOT_OVERLAY="${TMPFS}/chroot-overlay"
@@ -478,9 +490,9 @@ update_git_repo() {
 	GHBRANCH="$2"
 	REPO="$3"
 	echo "`date`: Updating git repo [${NAME}] (${LOG_DIR}/git-checkout.log)"
-	(cd ${SOURCES}/${NAME} && git reset --hard) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git reset"
 	(cd ${SOURCES}/${NAME} && git fetch --unshallow) >${LOG_DIR}/git-checkout.log 2>&1
-	(cd ${SOURCES}/${NAME} && git pull origin ${GHBRANCH}) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git pull"
+	(cd ${SOURCES}/${NAME} && git fetch origin ${GHBRANCH}) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git fetch"
+	(cd ${SOURCES}/${NAME} && git reset --hard origin/${GHBRANCH}) >${LOG_DIR}/git-checkout.log 2>&1 || exit_err "Failed git reset"
 }
 
 checkout_git_repo() {
@@ -595,6 +607,10 @@ install_rootfs_packages() {
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
 
+	echo '{"train": "'$TRAIN'", "version": "'$VERSION'"}' > ${CHROOT_BASEDIR}/data/manifest.json
+
+	python3 scripts/verify_rootfs.py "$CHROOT_BASEDIR" || exit_err "Error verifying rootfs"
+
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
 
@@ -666,6 +682,7 @@ build_rootfs_image() {
 	# Create the outer image now
 	mksquashfs ${UPDATE_DIR} ${RELEASE_DIR}/TrueNAS-SCALE.update -noD || exit_err "Failed squashfs"
 	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.update > ${RELEASE_DIR}/TrueNAS-SCALE.update.sha256 || exit_err "Failed sha256"
+	python3 scripts/build_update_manifest.py "$UPDATE_DIR" "${RELEASE_DIR}/TrueNAS-SCALE.update"
 }
 
 sign_manifest() {
@@ -685,33 +702,7 @@ sign_manifest() {
 }
 
 build_manifest() {
-	echo "{ }" > ${UPDATE_DIR}/MANIFEST
-	# Add the date to the manifest
-	jq -r '. += {"date":"'`date +%s`'"}' \
-		${UPDATE_DIR}/MANIFEST > ${UPDATE_DIR}/MANIFEST.new || exit_err "Failed jq"
-	mv ${UPDATE_DIR}/MANIFEST.new ${UPDATE_DIR}/MANIFEST
-
-	# Create SHA512 checksum of the inner image
-	ROOTCHECKSUM=$(sha512sum ${UPDATE_DIR}/rootfs.squashfs | awk '{print $1}')
-	if [ -z "$ROOTCHECKSUM" ] ; then
-		exit_err "Failed getting rootfs checksum"
-	fi
-
-	# Save checksum to manifest
-	jq -r '. += {"checksum":"'$ROOTCHECKSUM'"}' \
-		${UPDATE_DIR}/MANIFEST > ${UPDATE_DIR}/MANIFEST.new || exit_err "Failed jq"
-	mv ${UPDATE_DIR}/MANIFEST.new ${UPDATE_DIR}/MANIFEST
-
-	# Save the version string
-	if [ -n "$TRUENAS_VERSION" ] ; then
-		VERSION="$TRUENAS_VERSION"
-	else
-		VERSION="MASTER-$(date '+%Y%m%d-%H%M%S')"
-	fi
-	jq -r '. += {"version":"'$VERSION'"}' \
-		${UPDATE_DIR}/MANIFEST > ${UPDATE_DIR}/MANIFEST.new || exit_err "Failed jq"
-	mv ${UPDATE_DIR}/MANIFEST.new ${UPDATE_DIR}/MANIFEST
-
+	python3 scripts/build_manifest.py "$UPDATE_DIR" "$CHROOT_BASEDIR" "$VERSION"
 }
 
 build_update_image() {

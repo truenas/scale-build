@@ -49,6 +49,7 @@
 	],
 	"iso-packages": [
 		"dialog",
+		"jq",
 		"live-boot",
 		"truenas-installer",
 		"setserial",
