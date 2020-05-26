@@ -315,7 +315,7 @@ build_deb_packages() {
 
 		# Check if we need to rebuild this package
 		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
-		if [ -e "${HASH_DIR}/${NAME}.hash" ] ; then
+		if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
 			if [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
 				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
 					echo "`date`: Skipping [$NAME] - No changes detected"
@@ -384,6 +384,12 @@ build_dpkg() {
 	# Install all the build depends
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && mk-build-deps --build-dep" || exit_err "Failed mk-build-deps"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
+	if [ $name = truenas ] ; then
+		mkdir ${DPKG_OVERLAY}${srcdir}/data
+		echo '{"train": "'$TRAIN'", "version": "'$VERSION'"}' > ${DPKG_OVERLAY}${srcdir}/data/manifest.json
+		mkdir ${DPKG_OVERLAY}${srcdir}/etc
+		echo $VERSION > ${DPKG_OVERLAY}${srcdir}/etc/version
+	fi
 	# Check for a prebuild command
 	if [ -n "$prebuild" ] ; then
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $prebuild" || exit_err "Failed to prebuild"
@@ -606,8 +612,6 @@ install_rootfs_packages() {
 	do
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
-
-	echo '{"train": "'$TRAIN'", "version": "'$VERSION'"}' > ${CHROOT_BASEDIR}/data/manifest.json
 
 	python3 scripts/verify_rootfs.py "$CHROOT_BASEDIR" || exit_err "Error verifying rootfs"
 
