@@ -21,7 +21,26 @@
 				"distribution": "kubernetes-xenial",
 				"component": "main",
 				"key": "keys/kubernetes.gpg"
+			},
+			{
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/",
+				"distribution": "bullseye",
+				"component": "main",
+				"key": "keys/docker.gpg"
+			},
+			{
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-container/",
+				"distribution": "bullseye",
+				"component": "main",
+				"key": "keys/docker.gpg"
+			},
+			{
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-docker/",
+				"distribution": "bullseye",
+				"component": "main",
+				"key": "keys/docker.gpg"
 			}
+
 		]
 	},
 	"base-packages": [
@@ -35,6 +54,9 @@
 		"kubeadm",
 		"kubectl",
 		"nvidia-kernel-440.82",
+		"nvidia-container-toolkit",
+		"nvidia-smi",
+		"libnvidia-encode1",
 		"squashfs-tools",
 		"truenas",
 		"wireguard",

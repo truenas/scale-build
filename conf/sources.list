@@ -3,4 +3,7 @@ deb http://apt.tn.ixsystems.com/apt-direct/unstable/truenas/ truenas main
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/gluster/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/docker/ buster stable
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/kubernetes/ kubernetes-xenial main
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-container/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-docker/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/debian/ bullseye main
