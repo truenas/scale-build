@@ -166,6 +166,11 @@
 			"branch": "master"
 		},
 		{
+			"name": "minio",
+			"repo": "https://github.com/truenas/minio",
+			"branch": "master"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
