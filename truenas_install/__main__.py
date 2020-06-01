@@ -148,6 +148,9 @@ if __name__ == "__main__":
                     run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
                     undo.append(["umount", f"{root}/sys"])
 
+                    run_command(["mount", "-t", "zfs", "boot-pool/grub", f"{root}/boot/grub"])
+                    undo.append(["umount", f"{root}/boot/grub"])
+
                     for device in sum([glob.glob(f"/dev/{disk}*") for disk in disks], []) + ["/dev/zfs"]:
                         run_command(["touch", f"{root}{device}"])
                         run_command(["mount", "-o", "bind", device, f"{root}{device}"])
