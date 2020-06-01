@@ -171,6 +171,12 @@
 			"branch": "master"
 		},
 		{
+			"name": "zectl",
+			"repo": "https://github.com/sonicaj/zectl",
+			"branch": "master",
+			"subdir": "packaging"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
@@ -195,7 +201,8 @@
 				"python-asyncssh",
 				"licenselib",
 				"migrate93",
-				"truenas-files"
+				"truenas-files",
+				"minio"
 			]
 		},
 		{
