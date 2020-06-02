@@ -304,6 +304,7 @@ build_deb_packages() {
 		mk_overlayfs
 
 		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
+		PREDEP=$(jq -r '."sources"['$k']."predepscmd"' ${MANIFEST})
 		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
 		SUBDIR=$(jq -r '."sources"['$k']."subdir"' ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
@@ -330,7 +331,7 @@ build_deb_packages() {
 		clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Do the build now
-		build_dpkg "$NAME" "$PREBUILD" "$SUBDIR" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+		build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" >>${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Save the build hash
 		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
@@ -362,8 +363,9 @@ build_dpkg() {
 		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
 	fi
 	name="$1"
-	prebuild="$2"
-	subarg="$3"
+	predep="$2"
+	prebuild="$3"
+	subarg="$4"
 	deflags="-us -uc -b"
 
 	# Check if we have a valid sub directory for these sources
@@ -376,6 +378,11 @@ build_dpkg() {
 	pkgdir="$srcdir/../"
 
 	cp -r ${SOURCES}/${name} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
+
+	# Check for a predep command
+	if [ -n "$predep" ] ; then
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $predep" || exit_err "Failed to execute predep command"
+	fi
 
 	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
 		exit_err "Missing debian/control file for $name"
