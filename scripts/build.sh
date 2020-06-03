@@ -27,6 +27,9 @@ HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
 SOURCES="./sources"
 
+# When loggin in as 'su root' the /sbin dirs get dropped out of PATH
+export PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin"
+
 # Makes some perl scripts happy during package builds
 export LC_ALL="C"
 export LANG="C"
