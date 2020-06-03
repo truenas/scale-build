@@ -4,7 +4,11 @@ A build framework for TrueNAS SCALE.
 
 ## Requirements
 
-Any Debian 10 or later host, or TrueNAS SCALE image itself. In addition to the host, you will want to pre-install the following packages:
+ - Debian 10 or later (VM or Bare-Metal)
+ - 16GB of RAM
+ - At least 15GB of free disk space
+
+In addition to the host, you will want to pre-install the following packages:
 
 * build-essential
 * debootstrap
