@@ -148,7 +148,7 @@ if __name__ == "__main__":
                     run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
                     undo.append(["umount", f"{root}/sys"])
 
-                    run_command(["mount", "-t", "zfs", "boot-pool/grub", f"{root}/boot/grub"])
+                    run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                     undo.append(["umount", f"{root}/boot/grub"])
 
                     for device in sum([glob.glob(f"/dev/{disk}*") for disk in disks], []) + ["/dev/zfs"]:
@@ -156,12 +156,13 @@ if __name__ == "__main__":
                         run_command(["mount", "-o", "bind", device, f"{root}{device}"])
                         undo.append(["umount", f"{root}{device}"])
 
+                    # Set bootfs before running update-grub
+                    run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
+
                     run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
 
                     run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
                     run_command(["chroot", root, "update-grub"])
-
-                    run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
 
                     os.makedirs(f"{root}/boot/efi", exist_ok=True)
                     for disk in disks:
