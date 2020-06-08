@@ -384,7 +384,7 @@ build_dpkg() {
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $predep" || exit_err "Failed to execute predep command"
 	fi
 
-	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ]; then
+	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
 		exit_err "Missing debian/control file for $name"
 	fi
 

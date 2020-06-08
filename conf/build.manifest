@@ -101,7 +101,7 @@
 		{
 			"name": "truenas_installer",
 			"repo": "https://github.com/truenas/truenas-installer",
-			"branch": "NAS-104133"
+			"branch": "master"
 		},
 		{
 			"name": "py_blkid",
@@ -173,19 +173,19 @@
 		{
 			"name": "zectl",
 			"repo": "https://github.com/truenas/zectl",
-			"branch": "NAS-104133",
+			"branch": "master",
 			"predepscmd": "cp -a packaging/debian ."
 		},
 		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
-			"branch": "NAS-104133",
+			"branch": "master",
 			"subdir": "src/freenas"
 		},
 		{
 			"name": "middlewared",
 			"repo": "https://github.com/freenas/freenas",
-			"branch": "NAS-104133",
+			"branch": "master",
 			"subdir": "src/middlewared",
 			"dependencies": [
 				"scst",
@@ -202,13 +202,14 @@
 				"licenselib",
 				"migrate93",
 				"truenas-files",
-				"minio"
+				"minio",
+				"zectl"
 			]
 		},
 		{
 			"name": "truenas",
 			"repo": "https://github.com/freenas/freenas",
-			"branch": "NAS-104133",
+			"branch": "master",
 			"subdir": "debian",
 			"dependencies": [
 				"middlewared",
