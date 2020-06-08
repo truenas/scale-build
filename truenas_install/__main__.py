@@ -73,6 +73,7 @@ if __name__ == "__main__":
         "zfs", "create",
         "-o", "mountpoint=legacy",
         "-o", f"truenas:kernel_version={manifest['kernel_version']}",
+        "-o", "zectl:keep=False",
         dataset_name,
     ])
     try:
