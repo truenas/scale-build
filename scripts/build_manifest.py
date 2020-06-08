@@ -10,6 +10,11 @@ import sys
 if __name__ == "__main__":
     output, rootfs, version = sys.argv[1:]
 
+    size = int(int(subprocess.run(
+        ["du", "--block-size", "1", "-d", "0", "-x", rootfs],
+        check=True, stdout=subprocess.PIPE, encoding="utf-8", errors="ignore",
+    ).stdout.split()[0]) * 1.1)
+
     shutil.copytree(
         os.path.join(os.path.dirname(__file__), "../truenas_install"),
         os.path.join(output, "truenas_install"),
@@ -28,6 +33,7 @@ if __name__ == "__main__":
         f.write(json.dumps({
             "date": datetime.utcnow().isoformat(),
             "version": version,
+            "size": size,
             "checksums": checksums,
             "kernel_version": glob.glob(os.path.join(rootfs, "boot/vmlinuz-*"))[0].split("/")[-1][len("vmlinuz-"):],
         }))
