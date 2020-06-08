@@ -171,6 +171,12 @@
 			"branch": "master"
 		},
 		{
+			"name": "zectl",
+			"repo": "https://github.com/truenas/zectl",
+			"branch": "master",
+			"predepscmd": "cp -a packaging/debian ."
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
@@ -195,7 +201,9 @@
 				"python-asyncssh",
 				"licenselib",
 				"migrate93",
-				"truenas-files"
+				"truenas-files",
+				"minio",
+				"zectl"
 			]
 		},
 		{
