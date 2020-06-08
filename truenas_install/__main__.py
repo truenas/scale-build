@@ -116,13 +116,13 @@ if __name__ == "__main__":
                 if old_root is not None:
                     run_command([
                         "rsync", "-aRx",
-                        "--exclude", f"{old_root}/data/factory-v1.db",
-                        "--exclude", f"{old_root}/data/manifest.json",
-                        f"{old_root}/etc/hostid",
-                        f"{old_root}/data",
-                        f"{old_root}/root",
+                        "--exclude", "data/factory-v1.db",
+                        "--exclude", "data/manifest.json",
+                        "etc/hostid",
+                        "data",
+                        "root",
                         f"{root}/",
-                    ])
+                    ], cwd=old_root)
 
                     with open(f"{root}/data/need-update", "w"):
                         pass
