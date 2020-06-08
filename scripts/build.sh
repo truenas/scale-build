@@ -9,7 +9,7 @@ fi
 if [ -n "$TRUENAS_VERSION" ] ; then
   VERSION="$TRUENAS_VERSION"
 else
-  VERSION="MASTER-$(date '+%Y%m%d-%H%M%S')"
+  VERSION="13.0-MASTER-$(date '+%Y%m%d-%H%M%S')"
 fi
 
 TMPFS="./tmp/tmpfs"
