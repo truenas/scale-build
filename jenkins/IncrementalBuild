@@ -24,6 +24,11 @@ pipeline {
         sh 'cd ${BDIR} && make packages'
         }
     }
+    stage('Upload Packages') {
+      steps {
+        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+      }
+    }
     stage('Update') {
       steps {
         sh 'cd ${BDIR} && make update'
@@ -36,7 +41,6 @@ pipeline {
     }
     stage('Upload') {
       steps {
-        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
         sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-MASTER/'
         }
     }
