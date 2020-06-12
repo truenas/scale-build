@@ -104,11 +104,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "py_blkid",
-			"repo": "https://github.com/truenas/py-blkid",
-			"branch": "master"
-		},
-		{
 			"name": "migrate113",
 			"repo": "https://github.com/freenas/freenas-migrate113",
 			"branch": "master"
@@ -192,7 +187,6 @@
 				"migrate113",
 				"py-libzfs",
 				"zettarepl",
-				"py-blkid",
 				"pkg-pybonjour",
 				"pydevd",
 				"python-netsnmpagent",
