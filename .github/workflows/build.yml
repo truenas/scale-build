@@ -1,0 +1,39 @@
+name: build
+on:
+  push:
+    paths-ignore:
+      - .gitignore
+      - "*.md"
+  pull_request:
+    paths-ignore:
+      - .gitignore
+      - "*.md"
+
+env:
+  native_deps: build-essential debootstrap jq git xorriso grub-common grub-efi-amd64-bin grub-pc-bin mtools squashfs-tools unzip ccache
+  
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies (ubuntu)
+        if: matrix.os == 'ubuntu-18.04'
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y ${{ env.native_deps }}
+      - name: Checkout
+        run: make checkout
+      - name: Packages
+        run: make packages
+      - name: Update
+        run: make update
+      - name: Iso
+        run: make iso
+      - name: Clean
+        run: make clean
+      
