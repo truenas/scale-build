@@ -27,13 +27,12 @@ jobs:
           sudo apt-get update &&
           sudo apt-get install -y ${{ env.native_deps }}
       - name: Checkout
-        run: make checkout
+        run: sudo make checkout
       - name: Packages
-        run: make packages
+        run: sudo make packages
       - name: Update
-        run: make update
+        run: sudo make update
       - name: Iso
-        run: make iso
+        run: sudo make iso
       - name: Clean
-        run: make clean
-      
+        run: sudo make clean
