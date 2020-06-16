@@ -51,6 +51,7 @@
 		"grub-efi-amd64",
 		"grub-efi-amd64-bin",
 		"htop",
+		"ifstat",
 		"kubeadm",
 		"kubectl",
 		"nvidia-kernel-440.82",
