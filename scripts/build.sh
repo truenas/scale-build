@@ -623,7 +623,7 @@ install_rootfs_packages() {
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
 
-	python3 scripts/verify_rootfs.py "$CHROOT_BASEDIR" || exit_err "Error verifying rootfs"
+	python3 scripts/finalize_rootfs.py "$CHROOT_BASEDIR" || exit_err "Error finalizing rootfs"
 
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
