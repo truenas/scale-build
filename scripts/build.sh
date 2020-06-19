@@ -484,17 +484,31 @@ checkout_sources() {
 			GHBRANCH="$BRANCH"
 		fi
 
+		# TRY_BRANCH_OVERRIDE is a special use-case. It allows setting a branch name to be used
+		# during the checkout phase, only if it exists on the remote.
+		#
+		# This is useful for PR builds and testing where you want to use defaults for most repos
+		# but need to test building of a series of repos with the same experimental branch
+		#
+		if [ -n "${TRY_BRANCH_OVERRIDE}" ] ; then
+			git ls-remote ${REPO} | grep -wq "${TRY_BRANCH_OVERRIDE}"
+			if [ $? -eq 0 ] ; then
+				echo "TRY_BRANCH_OVERRIDE: Using remote branch ${TRY_BRANCH_OVERRIDE} on ${REPO}"
+				GHBRANCH="${TRY_BRANCH_OVERRIDE}"
+			fi
+		fi
+
 		# Check if we can do a git pull, or need to checkout fresh
 		if [ -d ${SOURCES}/${NAME} ] ; then
 			cbranch=$(cd ${SOURCES}/${NAME} && git branch | awk '{print $2}')
 			if [ "$cbranch" != "$GHBRANCH" ] ; then
 				# Branch name changed in manifest
-				checkout_git_repo "${NAME}" "${BRANCH}" "${REPO}"
+				checkout_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
 			else
-				update_git_repo "${NAME}" "${BRANCH}" "${REPO}"	
+				update_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
 			fi
 		else
-			checkout_git_repo "${NAME}" "${BRANCH}" "${REPO}"
+			checkout_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
 		fi
 
 	done

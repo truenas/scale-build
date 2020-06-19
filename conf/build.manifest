@@ -213,7 +213,7 @@
 			]
 		},
 		{
-			"name": "truecommand-stats",
+			"name": "truecommand_stats",
 			"repo": "https://github.com/freenas/truecommand-stats",
 			"branch": "master"
 		}
