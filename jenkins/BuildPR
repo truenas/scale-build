@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+    stages {
+        stage ("build") {
+            steps {
+                build 'Pull Requests/TrueNAS SCALE/PR Build', , parameters: [string(name: 'PR_BRANCH', value: '${ghprbSourceBranch}')]
+            }
+        }
+    }
+}
