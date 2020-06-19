@@ -59,6 +59,7 @@
 		"nvidia-smi",
 		"libnvidia-encode1",
 		"squashfs-tools",
+		"truecommand-stats",
 		"truenas",
 		"wireguard",
 		"zfs-initramfs"
@@ -210,6 +211,11 @@
 				"middlewared",
 				"truenas-webui"
 			]
+		},
+		{
+			"name": "truecommand-stats",
+			"repo": "https://github.com/freenas/truecommand-stats",
+			"branch": "master"
 		}
 	]
 }
