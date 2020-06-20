@@ -51,6 +51,17 @@ def run_command(cmd, **kwargs):
         raise
 
 
+def enable_user_services(root):
+    from middlewared.client import Client
+    with Client() as cl:
+        systemd_units = []
+        for srv in cl.call('service.query', [['enable', '=', True]]):
+            systemd_units.extend(cl.call('service.systemd_units', srv['service']))
+
+    if systemd_units:
+        run_command(['systemctl', f'--root={root}', 'enable'] + systemd_units)
+
+
 if __name__ == "__main__":
     input = json.loads(sys.stdin.read())
 
@@ -127,6 +138,8 @@ if __name__ == "__main__":
 
                     with open(f"{root}/data/need-update", "w"):
                         pass
+
+                    enable_user_services(root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
