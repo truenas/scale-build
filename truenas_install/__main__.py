@@ -51,6 +51,20 @@ def run_command(cmd, **kwargs):
         raise
 
 
+def enable_user_services(root, old_root):
+    user_services_file = os.path.join(old_root, 'data/user-services.json')
+    if not os.path.exists(user_services_file):
+        return
+
+    with open(user_services_file, 'r') as f:
+        systemd_units = [
+            srv for srv, enabled in json.loads(f.read()).items() if enabled
+        ]
+
+    if systemd_units:
+        run_command(['chroot', root, 'systemctl', 'enable'] + systemd_units)
+
+
 if __name__ == "__main__":
     input = json.loads(sys.stdin.read())
 
@@ -127,6 +141,8 @@ if __name__ == "__main__":
 
                     with open(f"{root}/data/need-update", "w"):
                         pass
+
+                    enable_user_services(root, old_root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
