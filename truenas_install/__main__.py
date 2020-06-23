@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -52,11 +53,15 @@ def run_command(cmd, **kwargs):
 
 
 def enable_user_services(root):
-    from middlewared.client import Client
-    with Client() as cl:
-        systemd_units = []
-        for srv in cl.call('service.query', [['enable', '=', True]]):
-            systemd_units.extend(cl.call('service.systemd_units', srv['service']))
+    user_preset_file = '/etc/systemd/user-preset/10-truenas_user.preset'
+    if not os.path.exists(user_preset_file):
+        return
+
+    with open(user_preset_file, 'r') as f:
+        systemd_units = [
+            srv.split('enable')[-1].split()[0].strip() for srv in map(str.strip, f.read().splitlines())
+            if srv.startswith('enable') and '*' not in srv
+        ]
 
     if systemd_units:
         run_command(['systemctl', f'--root={root}', 'enable'] + systemd_units)
