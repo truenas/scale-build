@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import re
-import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -52,19 +51,18 @@ def run_command(cmd, **kwargs):
         raise
 
 
-def enable_user_services(root):
-    user_preset_file = '/etc/systemd/user-preset/10-truenas_user.preset'
-    if not os.path.exists(user_preset_file):
+def enable_user_services(root, old_root):
+    user_services_file = os.path.join(old_root, 'data/user-services.json')
+    if not os.path.exists(user_services_file):
         return
 
-    with open(user_preset_file, 'r') as f:
+    with open(user_services_file, 'r') as f:
         systemd_units = [
-            srv.split('enable')[-1].split()[0].strip() for srv in map(str.strip, f.read().splitlines())
-            if srv.startswith('enable') and '*' not in srv
+            srv for srv, enabled in json.loads(f.read()).items() if enabled
         ]
 
     if systemd_units:
-        run_command(['systemctl', f'--root={root}', 'enable'] + systemd_units)
+        run_command(['chroot', root, 'systemctl', 'enable'] + systemd_units)
 
 
 if __name__ == "__main__":
@@ -144,7 +142,7 @@ if __name__ == "__main__":
                     with open(f"{root}/data/need-update", "w"):
                         pass
 
-                    enable_user_services(root)
+                    enable_user_services(root, old_root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
