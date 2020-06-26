@@ -1,6 +1,6 @@
 # truenas-build
 
-A build framework for TrueNAS SCALE.
+A build framework for TrueNAS SCALE
 
 ## Requirements
 
