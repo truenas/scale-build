@@ -730,7 +730,7 @@ sign_manifest() {
 }
 
 build_manifest() {
-	python3 scripts/build_manifest.py "$UPDATE_DIR" "$CHROOT_BASEDIR" "$VERSION"
+	python3 scripts/build_manifest.py "$UPDATE_DIR" "$CHROOT_BASEDIR"
 }
 
 build_update_image() {

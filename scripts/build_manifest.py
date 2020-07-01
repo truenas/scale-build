@@ -8,7 +8,10 @@ import subprocess
 import sys
 
 if __name__ == "__main__":
-    output, rootfs, version = sys.argv[1:]
+    output, rootfs = sys.argv[1:]
+
+    with open(os.path.join(rootfs, "etc/version")) as f:
+        version = f.read().strip()
 
     size = int(int(subprocess.run(
         ["du", "--block-size", "1", "-d", "0", "-x", rootfs],
