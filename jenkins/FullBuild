@@ -39,7 +39,8 @@ pipeline {
     }
    stage('Upload') {
       steps {
-        sh 'scp src/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+	sh 'ssh truenas@cdn1.tn.ixsystems.com mkdir -p /cdn/download.truenas.com/truenas-scale-nightly/ || true'
+	sh 'scp src/tmp/release/TrueNAS-SCALE.iso src/tmp/release/TrueNAS-SCALE.iso.sha256 truenas@cdn1.tn.ixsystems.com:/cdn/download.truenas.com/truenas-scale-nightly/'
         }
     }
     stage('Artifact') {
@@ -57,7 +58,7 @@ pipeline {
     }
     failure {
       archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
-      mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com,william@ixsystems.com";
+      mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Nightly Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com,william@ixsystems.com";
      }
   }
 }
