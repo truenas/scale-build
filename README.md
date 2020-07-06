@@ -1,6 +1,6 @@
 # truenas-build
 
-A build framework for TrueNAS SCALE.
+A build framework for TrueNAS SCALE. Want to contribute or collaborate? Join our [Slack instance](http://https://www.ixsystems.com/community/threads/collaborator-community-slack-instance.85717/ "Slack Instance"). 
 
 ## Requirements
 
