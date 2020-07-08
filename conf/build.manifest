@@ -59,6 +59,7 @@
 		"nvidia-smi",
 		"libnvidia-encode1",
 		"squashfs-tools",
+		"sysstat",
 		"truecommand-stats",
 		"truenas",
 		"wireguard",
