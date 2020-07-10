@@ -63,6 +63,7 @@
 		"truecommand-stats",
 		"truenas",
 		"wireguard",
+		"zfs-test",
 		"zfs-initramfs"
 	],
 	"base-prune": [
