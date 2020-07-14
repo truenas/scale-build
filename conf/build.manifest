@@ -125,6 +125,14 @@
 			"branch": "master"
 		},
 		{
+			"name": "paramiko",
+			"repo": "https://github.com/truenas/paramiko",
+			"branch": "master",
+			"predepscmd": "../predepscmd.sh",
+			"subdir": "paramiko-2.7.1",
+			"generate_version": false
+		},
+		{
 			"name": "pkg_pybonjour",
 			"repo": "https://github.com/truenas/pkg-pybonjour",
 			"branch": "master"
