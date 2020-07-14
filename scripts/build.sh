@@ -310,6 +310,7 @@ build_deb_packages() {
 		PREDEP=$(jq -r '."sources"['$k']."predepscmd"' ${MANIFEST})
 		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
 		SUBDIR=$(jq -r '."sources"['$k']."subdir"' ${MANIFEST})
+		GENERATE_VERSION=$(jq -r '."sources"['$k']."generate_version"' ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
 			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
@@ -334,7 +335,7 @@ build_deb_packages() {
 		clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Do the build now
-		build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+		build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Save the build hash
 		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
@@ -369,6 +370,7 @@ build_dpkg() {
 	predep="$2"
 	prebuild="$3"
 	subarg="$4"
+	generate_version="$5"
 	deflags="-us -uc -b"
 
 	# Check if we have a valid sub directory for these sources
@@ -406,8 +408,12 @@ build_dpkg() {
 	fi
 
 	# Make a programatically generated version for this build
-	DATESTAMP=$(date +%Y%m%d%H%M%S)
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && dch -b -M -v ${DATESTAMP}~truenas+1 --force-distribution --distribution bullseye-truenas-unstable 'Tagged from truenas-build'" || exit_err "Failed dch changelog"
+	if [ "$generate_version" -ne "false" ] ; then
+		DATESTAMP=$(date +%Y%m%d%H%M%S)
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && dch -b -M -v ${DATESTAMP}~truenas+1 --force-distribution --distribution bullseye-truenas-unstable 'Tagged from truenas-build'" || exit_err "Failed dch changelog"
+	else
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && dch -b -M --force-distribution --distribution bullseye-truenas-unstable 'Tagged from truenas-build'" || exit_err "Failed dch changelog"
+	fi
 
 	# Build the package
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
