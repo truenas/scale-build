@@ -6,7 +6,7 @@ A build framework for TrueNAS SCALE. Want to contribute or collaborate? Join our
 
  - Debian 10 or later (VM or Bare-Metal)
  - 16GB of RAM
- - At least 15GB of free disk space
+ - At least 20GB of free disk space
 
 In addition to the host, you will want to pre-install the following packages:
 
