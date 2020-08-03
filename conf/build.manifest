@@ -173,6 +173,11 @@
 			"branch": "master"
 		},
 		{
+			"name": "intel_pcm",
+			"repo": "https://github.com/truenas/intel-pcm",
+			"branch": "master"
+		},
+		{
 			"name": "minio",
 			"repo": "https://github.com/truenas/minio",
 			"branch": "master"
@@ -209,6 +214,7 @@
 				"migrate93",
 				"truenas-files",
 				"minio",
+				"intel-pcm",
 				"zectl"
 			]
 		},
