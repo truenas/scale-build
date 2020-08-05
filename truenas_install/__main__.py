@@ -185,12 +185,10 @@ if __name__ == "__main__":
                     for disk in disks:
                         run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
                         # Check if nvme disk and instead use nvme naming convention.
-                        if ("nvme" in disk):
-                            run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{disk}p2"])
-                            run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{disk}p2", "/boot/efi"])
-                        else:
-                            run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{disk}2"])
-                            run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{disk}2", "/boot/efi"])
+                        if "nvme" in disk: partition = "{disk}p2"
+                        else: partition = "{disk}2"
+                        run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{partition}"])
+                        run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{partition}", "/boot/efi"])
                         try:
                             run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
                                          "--efi-directory=/boot/efi",
