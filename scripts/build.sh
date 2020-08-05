@@ -497,7 +497,7 @@ checkout_sources() {
 		# but need to test building of a series of repos with the same experimental branch
 		#
 		if [ -n "${TRY_BRANCH_OVERRIDE}" ] ; then
-			git ls-remote ${REPO} | grep -wq "${TRY_BRANCH_OVERRIDE}"
+			git ls-remote ${REPO} | grep -q -E "/${TRY_BRANCH_OVERRIDE}\$"
 			if [ $? -eq 0 ] ; then
 				echo "TRY_BRANCH_OVERRIDE: Using remote branch ${TRY_BRANCH_OVERRIDE} on ${REPO}"
 				GHBRANCH="${TRY_BRANCH_OVERRIDE}"
