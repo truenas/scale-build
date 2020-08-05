@@ -184,9 +184,13 @@ if __name__ == "__main__":
                     os.makedirs(f"{root}/boot/efi", exist_ok=True)
                     for disk in disks:
                         run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
-
-                        run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{disk}2"])
-                        run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{disk}2", "/boot/efi"])
+                        # Check if nvme disk and instead use nvme naming convention.
+                        if ("nvme" in disk):
+                            run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{disk}p2"])
+                            run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{disk}p2", "/boot/efi"])
+                        else:
+                            run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{disk}2"])
+                            run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{disk}2", "/boot/efi"])
                         try:
                             run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
                                          "--efi-directory=/boot/efi",
