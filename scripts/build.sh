@@ -306,6 +306,9 @@ build_deb_packages() {
 		del_overlayfs
 		mk_overlayfs
 
+		# Clear variables we are going to load from MANIFEST
+		unset GENERATE_VERSION SUBDIR PREBUILD PREDEP NAME
+
 		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
 		PREDEP=$(jq -r '."sources"['$k']."predepscmd"' ${MANIFEST})
 		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
