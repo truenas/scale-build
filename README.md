@@ -2,6 +2,8 @@
 
 A build framework for TrueNAS SCALE. Want to contribute or collaborate? Join our [Slack instance](https://www.ixsystems.com/community/threads/collaborator-community-slack-instance.85717/ "Slack Instance"). 
 
+Found an issue in the build for SCALE? Please report it on our [Jira bugtracker](https://jira.ixsystems.com).
+
 ## Requirements
 
  - Debian 10 or later (VM or Bare-Metal)
