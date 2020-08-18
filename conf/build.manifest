@@ -17,12 +17,6 @@
 				"key": "keys/gluster.gpg"
 			},
 			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/kubernetes/",
-				"distribution": "kubernetes-xenial",
-				"component": "main",
-				"key": "keys/kubernetes.gpg"
-			},
-			{
 				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/",
 				"distribution": "bullseye",
 				"component": "main",
@@ -58,8 +52,6 @@
 		"grub-efi-amd64-bin",
 		"htop",
 		"ifstat",
-		"kubeadm",
-		"kubectl",
 		"nvidia-kernel-440.82",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
