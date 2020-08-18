@@ -192,6 +192,11 @@
 			"branch": "plugins-package"
 		},
 		{
+			"name": "k3s",
+			"repo": "https://github.com/truenas/k3s",
+			"branch": "tn-packages"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
@@ -218,6 +223,8 @@
 				"truenas-files",
 				"minio",
 				"intel-pcm",
+				"plugins",
+				"k3s",
 				"zectl"
 			]
 		},
