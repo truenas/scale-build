@@ -189,12 +189,12 @@
 		{
 			"name": "plugins",
 			"repo": "https://github.com/truenas/plugins",
-			"branch": "plugins-package"
+			"branch": "truenas/master"
 		},
 		{
 			"name": "k3s",
 			"repo": "https://github.com/truenas/k3s",
-			"branch": "tn-packages"
+			"branch": "truenas/master"
 		},
 		{
 			"name": "truenas_files",
