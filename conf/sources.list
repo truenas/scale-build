@@ -7,3 +7,4 @@ deb http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-container/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-docker/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/unstable/debian/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/unstable/helm/ all main
