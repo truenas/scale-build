@@ -187,6 +187,11 @@
 			"predepscmd": "cp -a packaging/debian ."
 		},
 		{
+			"name": "plugins",
+			"repo": "https://github.com/truenas/plugins",
+			"branch": "plugins-package"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
