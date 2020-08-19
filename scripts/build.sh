@@ -6,10 +6,12 @@ else
   TRAIN="TrueNAS-SCALE-MASTER"
 fi
 
+BUILDTIME=$(date +%s)
+
 if [ -n "$TRUENAS_VERSION" ] ; then
   VERSION="$TRUENAS_VERSION"
 else
-  VERSION="13.0-MASTER-$(date '+%Y%m%d-%H%M%S')"
+  VERSION="13.0-MASTER-$(date -d@$BUILDTIME '+%Y%m%d-%H%M%S')"
 fi
 
 TMPFS="./tmp/tmpfs"
@@ -401,7 +403,7 @@ build_dpkg() {
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
 	if [ $name = truenas ] ; then
 		mkdir ${DPKG_OVERLAY}${srcdir}/data
-		echo '{"train": "'$TRAIN'", "version": "'$VERSION'"}' > ${DPKG_OVERLAY}${srcdir}/data/manifest.json
+		echo '{"buildtime": '$BUILDTIME', "train": "'$TRAIN'", "version": "'$VERSION'"}' > ${DPKG_OVERLAY}${srcdir}/data/manifest.json
 		mkdir ${DPKG_OVERLAY}${srcdir}/etc
 		echo $VERSION > ${DPKG_OVERLAY}${srcdir}/etc/version
 	fi
