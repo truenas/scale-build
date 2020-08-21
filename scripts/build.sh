@@ -634,7 +634,7 @@ build_iso() {
 	echo "`date`: Creating ISO file [ISO] (${LOG_DIR}/cdrom-iso.log)"
 	make_iso_file >${LOG_DIR}/cdrom-iso.log 2>&1
 	del_bootstrapdir
-	echo "`date`: Success! CD/USB: ${RELEASE_DIR}/TrueNAS-SCALE.iso"
+	echo "`date`: Success! CD/USB: ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso"
 }
 
 install_rootfs_packages() {
