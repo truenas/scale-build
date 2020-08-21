@@ -1,9 +1,11 @@
 #!/bin/sh
 
+CODENAME="Angelfish"
+
 if [ -n "$TRUENAS_TRAIN" ] ; then
   TRAIN="$TRUENAS_TRAIN"
 else
-  TRAIN="TrueNAS-SCALE-MASTER"
+  TRAIN="TrueNAS-SCALE-${CODENAME}-Nightlies"
 fi
 
 BUILDTIME=$(date +%s)
@@ -11,7 +13,7 @@ BUILDTIME=$(date +%s)
 if [ -n "$TRUENAS_VERSION" ] ; then
   VERSION="$TRUENAS_VERSION"
 else
-  VERSION="13.0-MASTER-$(date -d@$BUILDTIME '+%Y%m%d-%H%M%S')"
+  VERSION="$(date -d@$BUILDTIME +%y.%m)-MASTER-$(date -d@$BUILDTIME '+%Y%m%d-%H%M%S')"
 fi
 
 TMPFS="./tmp/tmpfs"
@@ -605,9 +607,9 @@ make_iso_file() {
 	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/ || exit_err "Failed copy vmlinuz"
 	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
 
-	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE.iso ${CD_DIR} \
+	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
-	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE.iso > ${RELEASE_DIR}/TrueNAS-SCALE.iso.sha256 || exit_err "Failed sha256"
+	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso > ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso.sha256 || exit_err "Failed sha256"
 }
 
 prune_cd_basedir() {
