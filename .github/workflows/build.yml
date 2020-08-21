@@ -17,12 +17,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies (ubuntu)
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update &&
           sudo apt-get install -y ${{ env.native_deps }}
