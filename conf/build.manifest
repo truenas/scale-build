@@ -141,10 +141,15 @@
 			"name": "pydevd",
 			"repo": "https://salsa.debian.org/python-team/modules/pydevd",
 			"branch": "master"
-                },
+		},
 		{
 			"name": "python_netsnmpagent",
 			"repo": "https://github.com/truenas/python-netsnmpagent",
+			"branch": "master"
+		},
+		{
+			"name": "python_remote_pdb",
+			"repo": "https://github.com/truenas/python-remote-pdb",
 			"branch": "master"
 		},
 		{
