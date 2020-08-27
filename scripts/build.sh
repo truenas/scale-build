@@ -67,7 +67,7 @@ make_bootstrapdir() {
 
 	# Setup our ramdisk, up to 4G should suffice
 	mkdir -p ${TMPFS}
-	mount -t tmpfs -o size=6G tmpfs ${TMPFS}
+	mount -t tmpfs -o size=8G tmpfs ${TMPFS}
 
 	# Check if we should invalidate the base cache
 	validate_basecache "$CACHENAME"
