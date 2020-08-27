@@ -192,6 +192,26 @@
 			"branch": "truenas/master"
 		},
 		{
+			"name": "multus-cni",
+			"repo": "https://github.com/truenas/multus-cni",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "kube-router",
+			"repo": "https://github.com/truenas/kube-router",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "kubernetes_asyncio",
+			"repo": "https://github.com/truenas/kubernetes_asyncio",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "aiodocker",
+			"repo": "https://github.com/truenas/aiodocker",
+			"branch": "truenas/master"
+		},
+		{
 			"name": "k3s",
 			"repo": "https://github.com/truenas/k3s",
 			"branch": "truenas/master"
