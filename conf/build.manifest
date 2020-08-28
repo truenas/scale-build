@@ -192,12 +192,12 @@
 			"branch": "truenas/master"
 		},
 		{
-			"name": "multus-cni",
+			"name": "multus_cni",
 			"repo": "https://github.com/truenas/multus-cni",
 			"branch": "truenas/master"
 		},
 		{
-			"name": "kube-router",
+			"name": "kube_router",
 			"repo": "https://github.com/truenas/kube-router",
 			"branch": "truenas/master"
 		},
