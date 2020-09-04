@@ -46,6 +46,7 @@
 	"base-packages": [
 		"dosfstools",
 		"consul",
+		"firmware-bnx2",
 		"grub-pc",
 		"grub-pc-bin",
 		"grub-efi-amd64",
