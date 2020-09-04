@@ -36,3 +36,7 @@ jobs:
         run: sudo make iso
       - name: Clean
         run: sudo make clean
+      - uses: actions/upload-artifact@v2
+        with:
+          name: TrueNAS ISO
+          path: ./tmp/release/*.iso
