@@ -17,12 +17,6 @@
 				"key": "keys/gluster.gpg"
 			},
 			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/kubernetes/",
-				"distribution": "kubernetes-xenial",
-				"component": "main",
-				"key": "keys/kubernetes.gpg"
-			},
-			{
 				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/",
 				"distribution": "bullseye",
 				"component": "main",
@@ -39,6 +33,12 @@
 				"distribution": "bullseye",
 				"component": "main",
 				"key": "keys/docker.gpg"
+			},
+			{
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/helm/",
+				"distribution": "all",
+				"component": "main",
+				"key": "keys/helm.gpg"
 			}
 
 		]
@@ -60,8 +60,6 @@
 		"grub-efi-amd64-bin",
 		"htop",
 		"ifstat",
-		"kubeadm",
-		"kubectl",
 		"nvidia-kernel-440.82",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
@@ -202,6 +200,36 @@
 			"predepscmd": "cp -a packaging/debian ."
 		},
 		{
+			"name": "plugins",
+			"repo": "https://github.com/truenas/plugins",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "multus_cni",
+			"repo": "https://github.com/truenas/multus-cni",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "kube_router",
+			"repo": "https://github.com/truenas/kube-router",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "kubernetes_asyncio",
+			"repo": "https://github.com/truenas/kubernetes_asyncio",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "aiodocker",
+			"repo": "https://github.com/truenas/aiodocker",
+			"branch": "truenas/master"
+		},
+		{
+			"name": "k3s",
+			"repo": "https://github.com/truenas/k3s",
+			"branch": "truenas/master"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
@@ -228,6 +256,8 @@
 				"truenas-files",
 				"minio",
 				"intel-pcm",
+				"plugins",
+				"k3s",
 				"zectl"
 			]
 		},
