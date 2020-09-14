@@ -5,7 +5,7 @@ pipeline {
     }
   }
   environment {
-	BDIR = "/data/truenas-build"
+	BDIR = "/root/truenas-build"
   }
   stages {
     stage('SCM') {
