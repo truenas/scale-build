@@ -1,0 +1,17 @@
+pipeline {
+  agent {
+    node {
+       label 'SCALE-Build'
+    }
+  }
+  environment {
+    BDIR = "/root/truenas-build"
+  }
+  stages {
+    stage('Upload') {
+      steps {
+        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
+        }
+    }
+  }
+}

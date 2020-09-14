@@ -37,11 +37,11 @@ pipeline {
         sh 'cd src && make iso'
         }
     }
-   stage('Upload') {
+    stage('Upload') {
       steps {
-	sh 'ssh truenas@cdn1.tn.ixsystems.com mkdir -p /cdn/download.truenas.com/truenas-scale-nightly/ || true'
-	sh 'scp src/tmp/release/TrueNAS-SCALE*.iso src/tmp/release/TrueNAS-SCALE*.iso.sha256 truenas@cdn1.tn.ixsystems.com:/cdn/download.truenas.com/truenas-scale-nightly/'
-        }
+        sh 'ssh truenas@cdn1.tn.ixsystems.com mkdir -p /cdn/download.truenas.com/truenas-scale-nightly/ || true'
+        sh 'scp src/tmp/release/TrueNAS-SCALE*.iso src/tmp/release/TrueNAS-SCALE*.iso.sha256 truenas@cdn1.tn.ixsystems.com:/cdn/download.truenas.com/truenas-scale-nightly/'
+      }
     }
     stage('Artifact') {
       steps {
