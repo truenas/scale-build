@@ -5,6 +5,12 @@
 		"components": "main non-free contrib",
 		"additional": [
 			{
+				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/debian-sid/",
+				"distribution": "sid",
+				"component": "main non-free contrib",
+				"key": "keys/docker.gpg"
+			},
+			{
 				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/docker/",
 				"distribution": "buster",
 				"component": "stable",
