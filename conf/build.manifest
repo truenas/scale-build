@@ -60,7 +60,7 @@
 		"grub-efi-amd64-bin",
 		"htop",
 		"ifstat",
-		"nvidia-kernel-440.82",
+		"nvidia-kernel-450.66",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
 		"libnvidia-encode1",
