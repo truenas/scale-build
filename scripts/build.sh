@@ -109,6 +109,14 @@ make_bootstrapdir() {
 	# Save the correct repo in sources.list
 	echo "deb $aptrepo $aptdist $aptcomp" > ${CHROOT_BASEDIR}/etc/apt/sources.list
 
+	# Set bullseye repo as the priority
+	# TODO - This should be moved to manifest later
+	cat >${CHROOT_BASEDIR}/etc/apt/preferences << EOF
+Package: *
+Pin: release n=bullseye
+Pin-Priority: 900
+EOF
+
 	# Add additional repos
 	for k in $(jq -r '."apt-repos"."additional" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
