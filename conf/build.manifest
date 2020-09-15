@@ -74,7 +74,8 @@
 		"sysstat",
 		"truecommand-stats",
 		"truenas",
-		"wireguard",
+		"wireguard-dkms",
+		"wireguard-tools",
 		"zfs-test",
 		"zfs-initramfs"
 	],
