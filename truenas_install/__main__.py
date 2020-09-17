@@ -4,16 +4,22 @@ import glob
 import json
 import logging
 import os
+import platform
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
+
+import psutil
 
 logger = logging.getLogger(__name__)
 
 RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+\]\s+(?P<extracted>[0-9]+)/(?P<total>[0-9]+)\s+(?P<progress>[0-9]+)%")
 run_kw = dict(check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", errors="ignore")
 
+IS_FREEBSD = platform.system().upper() == "FREEBSD"
 is_json_output = False
 
 
@@ -25,27 +31,20 @@ def write_progress(progress, message):
     sys.stdout.flush()
 
 
-def write_error(error):
+def write_error(error, raise_=False):
     if is_json_output:
         sys.stdout.write(json.dumps({"error": error}) + "\n")
     else:
         sys.stdout.write(f"Error: {error}\n")
     sys.stdout.flush()
 
-
-@contextlib.contextmanager
-def mount_update(path):
-    with tempfile.TemporaryDirectory() as mounted:
-        run_command(["mount", "-t", "squashfs", "-o", "loop", path, mounted])
-        try:
-            yield mounted
-        finally:
-            run_command(["umount", mounted])
+    if raise_:
+        raise Exception(error)
 
 
 def run_command(cmd, **kwargs):
     try:
-        return subprocess.run(cmd, **run_kw, **kwargs)
+        return subprocess.run(cmd, **dict(run_kw, **kwargs))
     except subprocess.CalledProcessError as e:
         write_error(f"Command {cmd} failed with exit code {e.returncode}: {e.stderr}")
         raise
@@ -65,7 +64,107 @@ def enable_user_services(root, old_root):
         run_command(['chroot', root, 'systemctl', 'enable'] + systemd_units)
 
 
-if __name__ == "__main__":
+def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
+    boot_partition_type = None
+    for disk in disks:
+        gpart_backup = run_command(["gpart", "backup", disk]).stdout.splitlines()
+        partition_table_type = gpart_backup[0].split()[0]
+        if partition_table_type == "GPT":
+            boot_partition_type_probe = gpart_backup[1].split()[1]
+            if boot_partition_type_probe not in ["freebsd-boot", "efi"]:
+                write_error(f"Invalid first partition type {boot_partition_type_probe} on {disk}", raise_=True)
+            if boot_partition_type and boot_partition_type != boot_partition_type_probe:
+                write_error("Non-matching first partition types across disks", raise_=True)
+            boot_partition_type = boot_partition_type_probe
+        else:
+            write_error(f"Invalid partition table type {partition_table_type} on {disk}", raise_=True)
+
+    with contextlib.suppress(FileNotFoundError):
+        os.unlink("/usr/local/etc/grub.d/10_kfreebsd")
+
+    run_command(["truenas-grub.py"])
+
+    cmdline = run_command(["sh", "-c", ". /usr/local/etc/default/grub; echo $GRUB_CMDLINE_LINUX"]).stdout.strip()
+
+    for device in input["devices"]:
+        fs_uuid = run_command(["grub-probe", "--device", f"/dev/{device}", "--target=fs_uuid"]).stdout.strip()
+        if fs_uuid:
+            break
+    else:
+        write_error(f"None of {input['devices']!r} has GRUB fs_uuid", raise_=True)
+
+    grub_script_path = "/usr/local/etc/grub.d/10_truenas"
+    with open(grub_script_path, "w") as f:
+        freebsd_root_dataset = "/".join(
+            [p for p in psutil.disk_partitions() if p.mountpoint == "/"][0].device.split("/")[1:]
+        )
+
+        if boot_partition_type == "freebsd-boot":
+            bsd_loader = f"""\
+                insmod zfs
+                search -s -l {pool_name}
+                kfreebsd /{freebsd_root_dataset}@/boot/loader
+            """
+        else:
+            efi_partition_uuid = run_command([
+                "grub-probe", "--device", f"/dev/{disks[0]}p1", "--target=fs_uuid"
+            ]).stdout.strip()
+            bsd_loader = f"""\
+                insmod zfs
+                insmod search_fs_uuid
+                insmod chain
+                search --fs-uuid --no-floppy --set=root {efi_partition_uuid}
+                chainloader ($root)/efi/boot/FreeBSD.efi
+            """
+
+        f.write(textwrap.dedent(f"""\
+            #!/bin/sh
+            cat << 'EOF'
+            menuentry 'TrueNAS SCALE' --class truenas --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-{fs_uuid}' {{
+                load_video
+                insmod gzio
+                if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+                insmod part_gpt
+                insmod zfs
+                search --no-floppy --fs-uuid --set=root {fs_uuid}
+                echo	'Loading Linux {manifest['kernel_version']} ...'
+                linux	/ROOT/{manifest['version']}@/boot/vmlinuz-{manifest['kernel_version']} root=ZFS={dataset_name} ro {cmdline} console=tty1 zfs_force=yes
+                echo	'Loading initial ramdisk ...'
+                initrd	/ROOT/{manifest['version']}@/boot/initrd.img-{manifest['kernel_version']}
+            }}
+
+            menuentry "TrueNAS <=12" {{
+                insmod part_gpt
+                {bsd_loader}
+            }}
+            EOF
+        """))
+
+    os.chmod(grub_script_path, 0o0755)
+
+    os.makedirs("/boot/grub", exist_ok=True)
+    run_command(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"])
+
+    for disk in disks:
+        if boot_partition_type == "freebsd-boot":
+            run_command(["gpart", "modify", "-i", "1", "-t", "bios-boot", f"/dev/{disk}"])
+            run_command(["grub-install", "--target=i386-pc", f"/dev/{disk}"])
+        elif boot_partition_type == "efi":
+            os.makedirs("/boot/efi", exist_ok=True)
+            run_command(["umount", "/boot/efi"], check=False)
+            run_command(["mount", "-t", "msdosfs", f"/dev/{disk}p1", "/boot/efi"])
+            try:
+                bsd_loader = "/boot/efi/efi/boot/FreeBSD.efi"
+                if not os.path.exists(bsd_loader):
+                    shutil.copyfile("/boot/efi/efi/boot/BOOTx64.efi", bsd_loader)
+                run_command(["grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi", "--removable"])
+            finally:
+                run_command(["umount", "/boot/efi"])
+
+
+def main():
+    global is_json_output
+
     input = json.loads(sys.stdin.read())
 
     disks = input["disks"]
@@ -142,7 +241,11 @@ if __name__ == "__main__":
                     with open(f"{root}/data/need-update", "w"):
                         pass
 
-                    enable_user_services(root, old_root)
+                    if IS_FREEBSD:
+                        with open(f"{root}/data/freebsd-to-scale-update", "w"):
+                            pass
+                    else:
+                        enable_user_services(root, old_root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
@@ -151,62 +254,69 @@ if __name__ == "__main__":
                     with open(f"{root}/data/truenas-eula-pending", "w"):
                         pass
 
-                if password is not None:
-                    run_command(["chroot", root, "/etc/netcli", "reset_root_pw", password])
+                if IS_FREEBSD:
+                    install_grub_freebsd(input, manifest, pool_name, dataset_name, disks)
+                else:
+                    if password is not None:
+                        run_command(["chroot", root, "/etc/netcli", "reset_root_pw", password])
 
-                if sql is not None:
-                    run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
+                    if sql is not None:
+                        run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
 
-                undo = []
-                try:
-                    run_command(["mount", "-t", "proc", "none", f"{root}/proc"])
-                    undo.append(["umount", f"{root}/proc"])
+                    undo = []
+                    try:
+                        run_command(["mount", "-t", "proc", "none", f"{root}/proc"])
+                        undo.append(["umount", f"{root}/proc"])
 
-                    run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
-                    undo.append(["umount", f"{root}/sys"])
+                        run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
+                        undo.append(["umount", f"{root}/sys"])
 
-                    run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
-                    undo.append(["umount", f"{root}/boot/grub"])
+                        run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
+                        undo.append(["umount", f"{root}/boot/grub"])
 
-                    for device in sum([glob.glob(f"/dev/{disk}*") for disk in disks], []) + ["/dev/zfs"]:
-                        run_command(["touch", f"{root}{device}"])
-                        run_command(["mount", "-o", "bind", device, f"{root}{device}"])
-                        undo.append(["umount", f"{root}{device}"])
+                        for device in sum([glob.glob(f"/dev/{disk}*") for disk in disks], []) + ["/dev/zfs"]:
+                            run_command(["touch", f"{root}{device}"])
+                            run_command(["mount", "-o", "bind", device, f"{root}{device}"])
+                            undo.append(["umount", f"{root}{device}"])
 
-                    # Set bootfs before running update-grub
-                    run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
+                        # Set bootfs before running update-grub
+                        run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
 
-                    run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
+                        run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
 
-                    run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
-                    run_command(["chroot", root, "update-grub"])
+                        run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
+                        run_command(["chroot", root, "update-grub"])
 
-                    os.makedirs(f"{root}/boot/efi", exist_ok=True)
-                    for disk in disks:
-                        run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
-                        # Check if nvme disk and instead use nvme naming convention.
-                        if "nvme" in disk:
-                            partition = f"{disk}p2"
-                        else:
-                            partition = f"{disk}2"
-                        run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{partition}"])
-                        run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{partition}", "/boot/efi"])
-                        try:
-                            run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
-                                         "--efi-directory=/boot/efi",
-                                         "--bootloader-id=debian",
-                                         "--recheck",
-                                         "no-floppy"])
-                            run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
-                            run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
-                                         "/boot/efi/EFI/boot/bootx64.efi"])
-                        finally:
-                            run_command(["chroot", root, "umount", "/boot/efi"])
-                finally:
-                    for cmd in reversed(undo):
-                        run_command(cmd)
+                        os.makedirs(f"{root}/boot/efi", exist_ok=True)
+                        for disk in disks:
+                            run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
+                            # Check if nvme disk and instead use nvme naming convention.
+                            if "nvme" in disk:
+                                partition = f"{disk}p2"
+                            else:
+                                partition = f"{disk}2"
+                            run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{partition}"])
+                            run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{partition}", "/boot/efi"])
+                            try:
+                                run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
+                                             "--efi-directory=/boot/efi",
+                                             "--bootloader-id=debian",
+                                             "--recheck",
+                                             "no-floppy"])
+                                run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
+                                run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
+                                             "/boot/efi/EFI/boot/bootx64.efi"])
+                            finally:
+                                run_command(["chroot", root, "umount", "/boot/efi"])
+                    finally:
+                        for cmd in reversed(undo):
+                            run_command(cmd)
             finally:
                 run_command(["umount", root])
     except Exception:
         run_command(["zfs", "destroy", dataset_name])
         raise
+
+
+if __name__ == "__main__":
+    main()
