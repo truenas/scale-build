@@ -69,6 +69,7 @@
 		"nvidia-kernel-450.66",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
+		"openzfs",
 		"libnvidia-encode1",
 		"squashfs-tools",
 		"sysstat",
@@ -101,9 +102,16 @@
 			"branch": "master"
 		},
 		{
+			"name": "openzfs",
+			"repo": "https://github.com/zfsonfreebsd/ZoF",
+			"branch": "scale",
+			"predepscmd": "cp -r contrib/truenas debian",
+			"generate_version": false
+		},
+		{
 			"name": "py_libzfs",
 			"repo": "https://github.com/freenas/py-libzfs",
-			"branch": "master"
+			"branch": "openzfs"
 		},
 		{
 			"name": "zettarepl",
@@ -118,7 +126,7 @@
 		{
 			"name": "truenas_installer",
 			"repo": "https://github.com/truenas/truenas-installer",
-			"branch": "master"
+			"branch": "openzfs"
 		},
 		{
 			"name": "migrate113",
@@ -183,7 +191,7 @@
 		{
 			"name": "migrate93",
 			"repo": "https://github.com/freenas/freenas-migrate93",
-			"branch": "truenas/scale"
+			"branch": "openzfs"
 		},
 		{
 			"name": "glustercli_python",
@@ -203,7 +211,7 @@
 		{
 			"name": "zectl",
 			"repo": "https://github.com/truenas/zectl",
-			"branch": "master",
+			"branch": "openzfs",
 			"predepscmd": "cp -a packaging/debian ."
 		},
 		{
