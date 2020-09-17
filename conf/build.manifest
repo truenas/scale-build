@@ -69,6 +69,7 @@
 		"nvidia-kernel-450.66",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
+		"openzfs",
 		"libnvidia-encode1",
 		"squashfs-tools",
 		"sysstat",
@@ -99,6 +100,13 @@
 			"name": "debootstrap",
 			"repo": "https://github.com/truenas/debootstrap",
 			"branch": "master"
+		},
+		{
+			"name": "openzfs",
+			"repo": "https://github.com/zfsonfreebsd/ZoF",
+			"branch": "truenas/zfs-2.0-release",
+			"predepscmd": "cp -r contrib/truenas debian",
+			"generate_version": false
 		},
 		{
 			"name": "py_libzfs",

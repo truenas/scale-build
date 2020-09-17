@@ -115,6 +115,10 @@ make_bootstrapdir() {
 Package: *
 Pin: release n=bullseye
 Pin-Priority: 900
+
+Package: *zfs*
+Pin: version 2.0.*
+Pin-Priority: 1000
 EOF
 
 	# Add additional repos
@@ -146,26 +150,7 @@ EOF
 	cat ${CHROOT_BASEDIR}/etc/apt/sources.list.prev >> ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "cat"
 	rm ${CHROOT_BASEDIR}/etc/apt/sources.list.prev
 
-
 	umount -f ${CHROOT_BASEDIR}/var/cache/apt
-	umount -f ${CHROOT_BASEDIR}/proc
-	umount -f ${CHROOT_BASEDIR}/sys
-
-	# Build the ZFS module first, so we can install into base chroot
-	echo "Building ZFS Modules"
-	mk_overlayfs
-	build_zfs_modules
-	del_overlayfs
-
-	# Install the new ZFS module into the chroot
-	mount proc ${CHROOT_BASEDIR}/proc -t proc
-	mount sysfs ${CHROOT_BASEDIR}/sys -t sysfs
-	mkdir ${CHROOT_BASEDIR}/packages
-	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
-	mount --bind ${CACHE_DIR}/apt ${CHROOT_BASEDIR}/var/cache/apt || exit_err "Failed mount --bind /var/cache/apt"
-	install_zfs_modules "${CHROOT_BASEDIR}"
-	umount -f ${CHROOT_BASEDIR}/var/cache/apt
-	umount -f ${CHROOT_BASEDIR}/packages
 	umount -f ${CHROOT_BASEDIR}/proc
 	umount -f ${CHROOT_BASEDIR}/sys
 
@@ -423,7 +408,7 @@ build_dpkg() {
 	fi
 
 	# Make a programatically generated version for this build
-	if [ "$generate_version" -ne "false" ] ; then
+	if [ "$generate_version" != "false" ] ; then
 		DATESTAMP=$(date +%Y%m%d%H%M%S)
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && dch -b -M -v ${DATESTAMP}~truenas+1 --force-distribution --distribution bullseye-truenas-unstable 'Tagged from truenas-build'" || exit_err "Failed dch changelog"
 	else
@@ -450,31 +435,6 @@ build_dpkg() {
 	# Update the local APT repo
 	echo "Building local APT repo Packages.gz..."
 	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
-}
-
-install_zfs_modules() {
-	zfsmodules=$(ls ${PKG_DIR}/zfs-modules* 2>/devnull)
-	if [ -z "$zfsmodules" ] ; then
-		return
-	fi
-	zfsmodules=$(basename $zfsmodules)
-	zfsmodules=$(echo $zfsmodules | awk -F'-amd64' '{print $1}')
-	echo "Installing ZFS Modules: $zfsmodules"
-	chroot ${1} /bin/bash -c "cd /packages && apt install -y ./zfs-modules-*" || exit_err "Failed install zfs-modules"
-}
-
-build_zfs_modules() {
-
-	chroot ${DPKG_OVERLAY} apt install -y locales || exit_err "Failed apt install locales"
-	chroot ${DPKG_OVERLAY} apt install -y linux-image-amd64 || exit_err "Failed apt install linux-image-amd64"
-	chroot ${DPKG_OVERLAY} apt install -y debhelper || exit_err "Failed apt install debhelper"
-
-	# Build the .deb package now
-	cp scripts/mk-zfs-modules ${DPKG_OVERLAY}/build.sh
-	chroot ${DPKG_OVERLAY} sh /build.sh || exit_err "Failed building zfs-modules"
-
-	mv ${DPKG_OVERLAY}/*.deb ${PKG_DIR}/ 2>/dev/null
-	mv ${DPKG_OVERLAY}/*.udeb ${PKG_DIR}/ 2>/dev/null
 }
 
 checkout_sources() {
