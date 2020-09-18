@@ -90,6 +90,7 @@
 		"dialog",
 		"jq",
 		"live-boot",
+		"python3-psutil",
 		"truenas-installer",
 		"setserial",
 		"vim-tiny"
