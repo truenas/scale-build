@@ -527,8 +527,9 @@ checkout_sources() {
 		# Check if we can do a git pull, or need to checkout fresh
 		if [ -d ${SOURCES}/${NAME} ] ; then
 			cbranch=$(cd ${SOURCES}/${NAME} && git branch | awk '{print $2}')
-			if [ "$cbranch" != "$GHBRANCH" ] ; then
-				# Branch name changed in manifest
+			corigin=$(cd ${SOURCES}/${NAME} && git remote get-url origin)
+			if [ "$cbranch" != "$GHBRANCH" || "$corigin" != "${REPO}" ] ; then
+				# Branch or repo name changed in manifest
 				checkout_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
 			else
 				update_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
