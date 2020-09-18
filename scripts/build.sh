@@ -528,7 +528,7 @@ checkout_sources() {
 		if [ -d ${SOURCES}/${NAME} ] ; then
 			cbranch=$(cd ${SOURCES}/${NAME} && git branch | awk '{print $2}')
 			corigin=$(cd ${SOURCES}/${NAME} && git remote get-url origin)
-			if [ "$cbranch" != "$GHBRANCH" || "$corigin" != "${REPO}" ] ; then
+			if [ "$cbranch" != "$GHBRANCH" -o "$corigin" != "${REPO}" ] ; then
 				# Branch or repo name changed in manifest
 				checkout_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
 			else
