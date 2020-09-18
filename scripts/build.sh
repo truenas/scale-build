@@ -115,6 +115,10 @@ make_bootstrapdir() {
 Package: *
 Pin: release n=bullseye
 Pin-Priority: 900
+
+Package: *zfs*
+Pin: version 2.0.*
+Pin-Priority: 1000
 EOF
 
 	# Add additional repos
