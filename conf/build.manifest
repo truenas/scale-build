@@ -93,8 +93,7 @@
 		"live-boot",
 		"truenas-installer",
 		"setserial",
-		"vim-tiny",
-		"zfs-initramfs"
+		"vim-tiny"
 	],
 	"sources": [
 		{
