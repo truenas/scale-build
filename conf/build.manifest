@@ -152,7 +152,7 @@
 		},
 		{
 			"name": "pydevd",
-			"repo": "https://salsa.debian.org/python-team/modules/pydevd",
+			"repo": "https://github.com/truenas/pydevd.git",
 			"branch": "master"
 		},
 		{
