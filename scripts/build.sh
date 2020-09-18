@@ -482,6 +482,11 @@ checkout_sources() {
 		mkdir -p ${SOURCES}
 	fi
 
+	GITREMOTE=$(git remote get-url origin)
+	GITSHA=$(git rev-parse --short HEAD)
+	echo "${GITREMOTE} ${GITSHA}" > ${LOG_DIR}/GITMANIFEST
+
+
 	echo "`date`: Starting checkout of source"
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
@@ -531,6 +536,11 @@ checkout_sources() {
 		else
 			checkout_git_repo "${NAME}" "${GHBRANCH}" "${REPO}"
 		fi
+
+		# Update the GITMANIFEST file
+		GITREMOTE=$(cd ${SOURCES}/${NAME} && git remote get-url origin)
+		GITSHA=$(cd ${SOURCES}/${NAME} && git rev-parse --short HEAD)
+		echo "${GITREMOTE} ${GITSHA}" >> ${LOG_DIR}/GITMANIFEST
 
 	done
 	echo "`date`: Finished checkout of source"
