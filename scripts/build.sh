@@ -80,7 +80,6 @@ make_bootstrapdir() {
 			exit_err "Invalid bootstrapdir target"
 			;;
 	esac
-	CACHENAME="${CACHENAME}-${CACHEINVALIDATOR}"
 
 	# Setup our ramdisk, up to 4G should suffice
 	mkdir -p ${TMPFS}
