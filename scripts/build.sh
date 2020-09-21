@@ -44,6 +44,18 @@ export DEBIAN_FRONTEND="noninteractive"
 # Source helper functions
 . scripts/functions.sh
 
+apt_preferences() {
+	cat << EOF
+Package: *
+Pin: release n=bullseye
+Pin-Priority: 900
+
+Package: *zfs*
+Pin: version 2.0.*
+Pin-Priority: 1000
+EOF
+}
+
 make_bootstrapdir() {
 	del_overlayfs
 	del_bootstrapdir
@@ -68,6 +80,7 @@ make_bootstrapdir() {
 			exit_err "Invalid bootstrapdir target"
 			;;
 	esac
+	CACHENAME="${CACHENAME}-${CACHEINVALIDATOR}"
 
 	# Setup our ramdisk, up to 4G should suffice
 	mkdir -p ${TMPFS}
@@ -111,15 +124,7 @@ make_bootstrapdir() {
 
 	# Set bullseye repo as the priority
 	# TODO - This should be moved to manifest later
-	cat >${CHROOT_BASEDIR}/etc/apt/preferences << EOF
-Package: *
-Pin: release n=bullseye
-Pin-Priority: 900
-
-Package: *zfs*
-Pin: version 2.0.*
-Pin-Priority: 1000
-EOF
+	apt_preferences >${CHROOT_BASEDIR}/etc/apt/preferences
 
 	# Add additional repos
 	for k in $(jq -r '."apt-repos"."additional" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
@@ -200,6 +205,10 @@ get_all_repo_hash() {
 		get_repo_hash "${aptrepo}" "${aptdist}"
 		ALLREPOHASH="${ALLREPOHASH}${REPOHASH}"
 	done
+
+	# Hash the apt preferences, too
+	ALLREPOHASH="${ALLREPOHASH}$(apt_preferences | sha256sum | awk '{print $1}')"
+
 	export ALLREPOHASH
 }
 
