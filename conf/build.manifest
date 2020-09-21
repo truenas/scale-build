@@ -69,6 +69,7 @@
 		"nvidia-kernel-450.66",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
+		"intel-qat",
 		"openzfs",
 		"libnvidia-encode1",
 		"squashfs-tools",
@@ -99,6 +100,11 @@
 		{
 			"name": "debootstrap",
 			"repo": "https://github.com/truenas/debootstrap",
+			"branch": "master"
+		},
+		{
+			"name": "intel_qat",
+			"repo": "https://github.com/Ornias1993/intel-qat",
 			"branch": "master"
 		},
 		{
