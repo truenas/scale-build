@@ -32,6 +32,12 @@ preflight_check() {
 		exit_err "Must be run as root (or using sudo)!"
 	fi
 
+	local mem=$(grep MemTotal /proc/meminfo | awk -F ' ' '{print $2}')
+	if [ $mem -lt 15500000 ] ; then
+		echo "WARNING: Running with less than 16GB of memory. Build may fail..."
+		sleep 5
+	fi
+
 	# Check for deps
 	DEPS="make debootstrap jq git xorriso grub-mkrescue mformat mksquashfs unzip"
 	for i in $DEPS
