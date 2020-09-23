@@ -38,6 +38,9 @@ export PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin"
 export LC_ALL="C"
 export LANG="C"
 
+# Passed along to WAF for parallel build
+export DEB_BUILD_OPTIONS="parallel=$(nproc)"
+
 # Never go full interactive on any packages
 export DEBIAN_FRONTEND="noninteractive"
 
@@ -49,6 +52,10 @@ apt_preferences() {
 Package: *
 Pin: release n=bullseye
 Pin-Priority: 900
+
+Package: *truenas-samba*
+Pin: version 4.13.*
+Pin-Priority: 950
 
 Package: *zfs*
 Pin: version 2.0.*
@@ -634,6 +641,7 @@ install_rootfs_packages() {
 
 	for package in $(jq -r '."base-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
 	do
+		echo "`date`: apt installing package [${package}]"
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
 
