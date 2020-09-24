@@ -568,6 +568,9 @@ make_iso_file() {
 	# Set default PW to root
 	chroot ${CHROOT_BASEDIR} /bin/bash -c 'echo -e "root\nroot" | passwd root'
 
+	# Create /etc/version
+	echo "${VERSION}" > ${CHROOT_BASEDIR}/etc/version
+
 	# Copy the CD files
 	cp conf/cd-files/getty@.service ${CHROOT_BASEDIR}/lib/systemd/system/ || exit_err "Failed copy of getty@"
 	cp conf/cd-files/serial-getty@.service ${CHROOT_BASEDIR}/lib/systemd/system/ || exit_err "Failed copy of serial-getty@"
