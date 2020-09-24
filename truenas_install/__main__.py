@@ -51,7 +51,7 @@ def run_command(cmd, **kwargs):
 
 
 def enable_user_services(root, old_root):
-    user_services_file = os.path.join(old_root, 'data/user-services.json')
+    user_services_file = os.path.join(old_root, "data/user-services.json")
     if not os.path.exists(user_services_file):
         return
 
@@ -61,7 +61,7 @@ def enable_user_services(root, old_root):
         ]
 
     if systemd_units:
-        run_command(['chroot', root, 'systemctl', 'enable'] + systemd_units)
+        run_command(["chroot", root, "systemctl", "enable"] + systemd_units)
 
 
 def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
@@ -95,15 +95,14 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
 
     grub_script_path = "/usr/local/etc/grub.d/10_truenas"
     with open(grub_script_path, "w") as f:
-        freebsd_root_dataset = "/".join(
-            [p for p in psutil.disk_partitions() if p.mountpoint == "/"][0].device.split("/")[1:]
-        )
+        freebsd_root_dataset = [p for p in psutil.disk_partitions() if p.mountpoint == "/"][0].device
+        run_command(["zfs", "set", "truenas:12=1", freebsd_root_dataset])
 
         if boot_partition_type == "freebsd-boot":
             bsd_loader = f"""\
                 insmod zfs
                 search -s -l {pool_name}
-                kfreebsd /{freebsd_root_dataset}@/boot/loader
+                kfreebsd /{"/".join(freebsd_root_dataset.split("/")[1:])}@/boot/loader
             """
         else:
             efi_partition_uuid = run_command([
