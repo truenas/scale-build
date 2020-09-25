@@ -103,7 +103,7 @@
 		},
 		{
 			"name": "openzfs",
-			"repo": "https://github.com/zfsonfreebsd/ZoF",
+			"repo": "https://github.com/truenas/zfs",
 			"branch": "truenas/zfs-2.0-release",
 			"predepscmd": "cp -r contrib/truenas debian",
 			"generate_version": false
