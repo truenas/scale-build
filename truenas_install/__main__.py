@@ -81,6 +81,7 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
 
     with contextlib.suppress(FileNotFoundError):
         os.unlink("/usr/local/etc/grub.d/10_kfreebsd")
+        os.unlink("/usr/local/etc/grub.d/30_os-prober")
 
     run_command(["truenas-grub.py"])
 
