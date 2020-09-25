@@ -71,6 +71,7 @@
 		"nvidia-smi",
 		"openzfs",
 		"libnvidia-encode1",
+		"truenas-samba",
 		"squashfs-tools",
 		"sysstat",
 		"truecommand-stats",
@@ -106,6 +107,12 @@
 			"repo": "https://github.com/truenas/zfs",
 			"branch": "truenas/zfs-2.0-release",
 			"predepscmd": "cp -r contrib/truenas debian",
+			"generate_version": false
+		},
+		{
+			"name": "truenas_samba",
+			"repo": "https://github.com/truenas/samba",
+			"branch": "SCALE-v4-13-stable",
 			"generate_version": false
 		},
 		{
@@ -272,6 +279,7 @@
 				"minio",
 				"intel-pcm",
 				"plugins",
+				"truenas-samba",
 				"k3s",
 				"zectl"
 			]
