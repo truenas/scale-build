@@ -252,6 +252,16 @@
 			"branch": "truenas/master"
 		},
 		{
+			"name": "py_sgpersist",
+			"repo": "https://github.com/truenas/py-sgpersist",
+			"branch": "master"
+		},
+		{
+			"name": "py_fenced",
+			"repo": "https://github.com/truenas/py-fenced",
+			"branch": "master"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
@@ -275,6 +285,8 @@
 				"python-asyncssh",
 				"licenselib",
 				"migrate93",
+				"py-sgpersist",
+				"py-fenced",
 				"truenas-files",
 				"minio",
 				"intel-pcm",
