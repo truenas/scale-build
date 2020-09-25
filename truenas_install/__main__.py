@@ -290,27 +290,29 @@ def main():
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
                         run_command(["chroot", root, "update-grub"])
 
-                        os.makedirs(f"{root}/boot/efi", exist_ok=True)
-                        for disk in disks:
-                            run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
-                            # Check if nvme disk and instead use nvme naming convention.
-                            if "nvme" in disk:
-                                partition = f"{disk}p2"
-                            else:
-                                partition = f"{disk}2"
-                            run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{partition}"])
-                            run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{partition}", "/boot/efi"])
-                            try:
-                                run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
-                                             "--efi-directory=/boot/efi",
-                                             "--bootloader-id=debian",
-                                             "--recheck",
-                                             "no-floppy"])
-                                run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
-                                run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
-                                             "/boot/efi/EFI/boot/bootx64.efi"])
-                            finally:
-                                run_command(["chroot", root, "umount", "/boot/efi"])
+                        if old_root is None:
+                            os.makedirs(f"{root}/boot/efi", exist_ok=True)
+                            for disk in disks:
+                                run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
+                                # Check if nvme disk and instead use nvme naming convention.
+                                if "nvme" in disk:
+                                    partition = f"{disk}p2"
+                                else:
+                                    partition = f"{disk}2"
+                                run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{partition}"])
+                                run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{partition}", "/boot/efi"])
+                                try:
+                                    run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
+                                                 "--efi-directory=/boot/efi",
+                                                 "--bootloader-id=debian",
+                                                 "--recheck",
+                                                 "no-floppy"])
+                                    run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
+                                    run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
+                                                 "/boot/efi/EFI/boot/bootx64.efi"])
+                                finally:
+                                    run_command(["chroot", root, "umount", "/boot/efi"])
+
                     finally:
                         for cmd in reversed(undo):
                             run_command(cmd)
