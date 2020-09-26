@@ -79,9 +79,11 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
         else:
             write_error(f"Invalid partition table type {partition_table_type} on {disk}", raise_=True)
 
-    with contextlib.suppress(FileNotFoundError):
-        os.unlink("/usr/local/etc/grub.d/10_kfreebsd")
-        os.unlink("/usr/local/etc/grub.d/30_os-prober")
+    run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
+
+    for f in ["/usr/local/etc/grub.d/10_kfreebsd", "/usr/local/etc/grub.d/30_os-prober"]:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(f)
 
     run_command(["truenas-grub.py"])
 
