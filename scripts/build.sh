@@ -439,7 +439,7 @@ build_dpkg() {
 	echo "Copying finished packages"
 
 	# Copy and record each built packages for cleanup later
-	for pkg in $(ls ${DPKG_OVERLAY}${pkgdir}/*.deb ${DPKG_OVERLAY}${pkgdir}/*.udeb)
+	for pkg in $(ls ${DPKG_OVERLAY}${pkgdir}/*.deb ${DPKG_OVERLAY}${pkgdir}/*.udeb 2>/dev/null)
 	do
 		basepkg=$(basename $pkg)
 		mv ${DPKG_OVERLAY}${pkgdir}/$basepkg ${PKG_DIR}/ || exit_err "Failed mv of $basepkg"
