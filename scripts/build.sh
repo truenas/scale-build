@@ -401,6 +401,7 @@ build_dpkg() {
 
 	# Check for a predep command
 	if [ -n "$predep" -a "$predep" != "null" ] ; then
+		echo "Running predepcmd: $predep"
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $predep" || exit_err "Failed to execute predep command"
 	fi
 
@@ -419,6 +420,7 @@ build_dpkg() {
 	fi
 	# Check for a prebuild command
 	if [ -n "$prebuild" ] ; then
+		echo "Running prebuildcmd: $prebuild"
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $prebuild" || exit_err "Failed to prebuild"
 	fi
 

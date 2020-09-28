@@ -149,7 +149,7 @@
 		{
 			"name": "truenas_webui",
 			"repo": "https://github.com/freenas/webui",
-			"prebuildcmd": "npm install -g yarn && yarn install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
+			"prebuildcmd": "yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
 			"branch": "master"
 		},
 		{
