@@ -1,6 +1,7 @@
 # -*- coding=utf-8 -*-
 import contextlib
 import glob
+import itertools
 import json
 import logging
 import os
@@ -187,6 +188,13 @@ def main():
     dataset_name = f"{pool_name}/ROOT/{manifest['version']}"
 
     write_progress(0, "Creating dataset")
+    existing_datasets = set(filter(None, run_command(["zfs", "list", "-H", "-o", "name"]).stdout.split("\n")))
+    if dataset_name in existing_datasets:
+        for i in itertools.count(1):
+            probe_dataset_name = f"{dataset_name}-{i}"
+            if probe_dataset_name not in existing_datasets:
+                dataset_name = probe_dataset_name
+                break
     run_command([
         "zfs", "create",
         "-o", "mountpoint=legacy",
