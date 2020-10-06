@@ -72,6 +72,7 @@
 		"openzfs",
 		"libnvidia-encode1",
 		"truenas-samba",
+		"netatalk",
 		"squashfs-tools",
 		"sysstat",
 		"truecommand-stats",
@@ -113,6 +114,12 @@
 			"name": "truenas_samba",
 			"repo": "https://github.com/truenas/samba",
 			"branch": "SCALE-v4-13-stable",
+			"generate_version": false
+		},
+		{
+			"name": "netatalk",
+			"repo": "https://github.com/truenas/netatalk",
+			"branch": "SCALE-netatalk",
 			"generate_version": false
 		},
 		{
