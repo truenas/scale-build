@@ -154,6 +154,11 @@
 			"branch": "v3.4-branch"
 		},
 		{
+			"name": "truenas_binaries",
+			"repo": "https://github.com/truenas/binaries",
+			"branch": "master"
+		},
+		{
 			"name": "truenas_webui",
 			"repo": "https://github.com/freenas/webui",
 			"prebuildcmd": "yarnpkg install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
@@ -315,6 +320,7 @@
 			"subdir": "debian",
 			"dependencies": [
 				"middlewared",
+				"truenas-binaries",
 				"truenas-webui"
 			]
 		},
