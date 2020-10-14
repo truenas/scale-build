@@ -647,7 +647,7 @@ install_rootfs_packages() {
 	for package in $(jq -r '."base-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
 	do
 		echo "`date`: apt installing package [${package}]"
-		chroot ${CHROOT_BASEDIR} apt install -y $package
+		chroot ${CHROOT_BASEDIR} apt install -V -y $package
 		if [ $? -ne 0 ] ; then
 			exit_err "Failed apt install $package"
 		fi
