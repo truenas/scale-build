@@ -71,6 +71,7 @@
 		"nvidia-smi",
 		"openzfs",
 		"libnvidia-encode1",
+		"linux-cpupower",
 		"truenas-samba",
 		"netatalk",
 		"squashfs-tools",
