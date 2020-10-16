@@ -185,6 +185,11 @@
 			"branch": "master"
 		},
 		{
+			"name": "python_pyroute2",
+			"repo": "https://github.com/truenas/python-pyroute2",
+			"branch": "master"
+		},
+		{
 			"name": "python_remote_pdb",
 			"repo": "https://github.com/truenas/python-remote-pdb",
 			"branch": "master"
