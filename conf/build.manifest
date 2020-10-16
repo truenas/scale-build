@@ -299,6 +299,8 @@
 				"pkg-pybonjour",
 				"pydevd",
 				"python-netsnmpagent",
+				"python-pyroute2",
+				"python-remote-pdb",
 				"aiorwlock",
 				"glustercli-python",
 				"python-asyncssh",
