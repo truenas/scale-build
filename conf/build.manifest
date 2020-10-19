@@ -67,6 +67,7 @@
 		"htop",
 		"ifstat",
 		"nvidia-kernel-dkms",
+		"nslcd",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
 		"openzfs",
@@ -118,6 +119,12 @@
 			"name": "truenas_samba",
 			"repo": "https://github.com/truenas/samba",
 			"branch": "SCALE-v4-13-stable",
+			"generate_version": false
+		},
+		{
+			"name": "nss_pam_ldapd",
+			"repo": "https://github.com/truenas/nss-pam-ldapd",
+			"branch": "master",
 			"generate_version": false
 		},
 		{
