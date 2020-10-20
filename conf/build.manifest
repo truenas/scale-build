@@ -79,6 +79,7 @@
 		"sysstat",
 		"truecommand-stats",
 		"truenas",
+		"waagent",
 		"wireguard-dkms",
 		"wireguard-tools",
 		"zfs-test",
