@@ -295,6 +295,11 @@
 			"branch": "master"
 		},
 		{
+			"name": "swagger",
+			"repo": "https://github.com/truenas/swagger",
+			"branch": "main"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
