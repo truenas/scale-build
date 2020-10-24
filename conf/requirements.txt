@@ -1,0 +1,6 @@
+google-api-core==1.23.0
+google-api-python-client==1.12.5
+google-auth==1.22.1
+googleapis-common-protos==1.52.0
+protobuf==3.13.0
+uritemplate==3.0.1

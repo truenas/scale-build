@@ -29,6 +29,7 @@ CD_DIR="./tmp/cdrom"
 LOG_DIR="./logs"
 HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
+REQUIREMENTS="./conf/requirements.txt"
 SOURCES="./sources"
 
 # When loggin in as 'su root' the /sbin dirs get dropped out of PATH
@@ -709,6 +710,13 @@ custom_rootfs_setup() {
 			|| exit_err "Failed wget of nomad"
 	fi
 	unzip -d ${CHROOT_BASEDIR}/usr/bin ${CACHE_DIR}/nomad_${NOMADVER}.zip || exit_err "Failed unzip of nomad"
+
+	# Update debian python packages from PyPI
+	cp ${REQUIREMENTS} ${CHROOT_BASEDIR}/requirements.txt
+	chroot ${CHROOT_BASEDIR} apt install -y python3-pip
+	chroot ${CHROOT_BASEDIR} pip3 install -r /requirements.txt
+	chroot ${CHROOT_BASEDIR} apt remove -y python3-pip
+	rm ${CHROOT_BASEDIR}/requirements.txt
 }
 
 build_rootfs_image() {
