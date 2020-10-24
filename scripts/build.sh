@@ -653,8 +653,6 @@ install_rootfs_packages() {
 		fi
 	done
 
-	python3 scripts/finalize_rootfs.py "$CHROOT_BASEDIR" || exit_err "Error finalizing rootfs"
-
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
 
