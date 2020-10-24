@@ -691,6 +691,10 @@ clean_rootfs() {
 	if [ -e "${NVIDIA_CONF}" ] ; then
 		rm -f ${NVIDIA_CONF} 2>&1
 	fi
+
+	rm -rf ${CHROOT_BASEDIR}/usr/share/doc/*
+	rm -rf ${CHROOT_BASEDIR}/var/cache/apt/*
+	rm -rf ${CHROOT_BASEDIR}/var/lib/apt/lists/*
 }
 
 
