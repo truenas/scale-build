@@ -309,43 +309,13 @@
 			"name": "middlewared",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
-			"subdir": "src/middlewared",
-			"dependencies": [
-				"scst",
-				"migrate113",
-				"py-libzfs",
-				"zettarepl",
-				"pkg-pybonjour",
-				"pydevd",
-				"python-netsnmpagent",
-				"python-pyroute2",
-				"python-remote-pdb",
-				"aiorwlock",
-				"glustercli-python",
-				"python-asyncssh",
-				"licenselib",
-				"migrate93",
-				"py-sgpersist",
-				"py-fenced",
-				"truenas-files",
-				"minio",
-				"intel-pcm",
-				"plugins",
-				"truenas-samba",
-				"k3s",
-				"zectl"
-			]
+			"subdir": "src/middlewared"
 		},
 		{
 			"name": "truenas",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
-			"subdir": "debian",
-			"dependencies": [
-				"middlewared",
-				"truenas-binaries",
-				"truenas-webui"
-			]
+			"subdir": "debian"
 		},
 		{
 			"name": "truecommand_stats",
