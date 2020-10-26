@@ -653,8 +653,6 @@ install_rootfs_packages() {
 		fi
 	done
 
-	python3 scripts/finalize_rootfs.py "$CHROOT_BASEDIR" || exit_err "Error finalizing rootfs"
-
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
 
@@ -682,17 +680,21 @@ clean_rootfs() {
 	# Remove any temp build depends
 	chroot ${CHROOT_BASEDIR} /bin/bash -c 'apt autoremove -y' || exit_err "Failed apt autoremove"
 
-    # We install the nvidia-kernel-dkms package which causes a modprobe file to be written
-    # (i.e /etc/modprobe.d/nvidia.conf). This file tries to modprobe all the associated
-    # nvidia drivers at boot whether or not your system has an nvidia card installed.
-    # For all truenas certified and truenas enterprise hardware, we do not include nvidia GPUS.
-    # So to prevent a bunch of systemd "Failed" messages to be barfed to the console during boot,
-    # we remove this file because the linux kernel dynamically loads the modules based on whether
-    # or not you have the actual hardware installed in the system.
-    NVIDIA_CONF="${CHROOT_BASEDIR}/etc/modprobe.d/nvidia.conf"
-    if [ -e "${NVIDIA_CONF}" ] ; then
-        rm -f ${NVIDIA_CONF} 2>&1
-    fi
+	# We install the nvidia-kernel-dkms package which causes a modprobe file to be written
+	# (i.e /etc/modprobe.d/nvidia.conf). This file tries to modprobe all the associated
+	# nvidia drivers at boot whether or not your system has an nvidia card installed.
+	# For all truenas certified and truenas enterprise hardware, we do not include nvidia GPUS.
+	# So to prevent a bunch of systemd "Failed" messages to be barfed to the console during boot,
+	# we remove this file because the linux kernel dynamically loads the modules based on whether
+	# or not you have the actual hardware installed in the system.
+	NVIDIA_CONF="${CHROOT_BASEDIR}/etc/modprobe.d/nvidia.conf"
+	if [ -e "${NVIDIA_CONF}" ] ; then
+		rm -f ${NVIDIA_CONF} 2>&1
+	fi
+
+	rm -rf ${CHROOT_BASEDIR}/usr/share/doc/*
+	rm -rf ${CHROOT_BASEDIR}/var/cache/apt/*
+	rm -rf ${CHROOT_BASEDIR}/var/lib/apt/lists/*
 }
 
 
