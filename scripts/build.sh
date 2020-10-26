@@ -53,6 +53,10 @@ Package: *
 Pin: release n=bullseye
 Pin-Priority: 900
 
+Package: python3-*
+Pin: origin ""
+Pin-Priority: 950
+
 Package: *truenas-samba*
 Pin: version 4.13.*
 Pin-Priority: 950
