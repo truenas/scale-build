@@ -209,6 +209,11 @@
 			"branch": "master"
 		},
 		{
+			"name": "python_truenas_requirements",
+			"repo": "https://github.com/truenas/python-truenas-requirements",
+			"branch": "master"
+		},
+		{
 			"name": "aiorwlock",
 			"repo": "https://github.com/truenas/aiorwlock",
 			"branch": "master"
