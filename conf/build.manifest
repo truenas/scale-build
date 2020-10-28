@@ -214,6 +214,11 @@
 			"branch": "master"
 		},
 		{
+			"name": "throttle",
+			"repo": "https://github.com/truenas/throttle",
+			"branch": "master"
+		},
+		{
 			"name": "aiorwlock",
 			"repo": "https://github.com/truenas/aiorwlock",
 			"branch": "master"
