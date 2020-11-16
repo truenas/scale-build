@@ -162,7 +162,7 @@
 			"name": "scst",
 			"repo": "https://github.com/truenas/scst",
 			"prebuildcmd": "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
-			"branch": "v3.4-branch"
+			"branch": "v3.5-branch"
 		},
 		{
 			"name": "truenas_binaries",
