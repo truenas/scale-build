@@ -354,7 +354,12 @@ build_deb_packages() {
 		clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Do the build now
-		build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+		if [ -n "${PKG_DEBUG}" ] ; then
+			# Running in PKG_DEBUG mode - Display to stdout
+			build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION"
+		else
+			build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+		fi
 
 		# Save the build hash
 		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
@@ -425,8 +430,17 @@ build_dpkg() {
 	# Check for a prebuild command
 	if [ -n "$prebuild" ] ; then
 		echo "Running prebuildcmd: $prebuild"
-		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $prebuild" || exit_err "Failed to prebuild"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $prebuild"
+	        if [ $? -ne 0 ] ; then
+			if [ -n "${PKG_DEBUG}" ] ; then
+				echo "Package prebuild failed - Entering debug Shell"
+				echo "prebuildcmd: $prebuild"
+				chroot ${DPKG_OVERLAY} /bin/bash
+			fi
+			exit_err "Failed to prebuild package"
+		fi
 	fi
+
 
 	# Make a programatically generated version for this build
 	if [ "$generate_version" != "false" ] ; then
@@ -437,7 +451,16 @@ build_dpkg() {
 	fi
 
 	# Build the package
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
+	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags"
+        if [ $? -ne 0 ] ; then
+		if [ -n "${PKG_DEBUG}" ] ; then
+			echo "Package build failed - Entering debug Shell"
+			echo "Build Command: cd $srcdir && debuild $deflags"
+			chroot ${DPKG_OVERLAY} /bin/bash
+		fi
+		exit_err "Failed to build packages"
+	fi
 
 	# Move out the resulting packages
 	echo "Copying finished packages"
