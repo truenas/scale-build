@@ -184,6 +184,11 @@
 			"generate_version": false
 		},
 		{
+			"name": "sedutil",
+			"repo": "https://github.com/amotin/sedutil",
+			"branch": "master"
+		},
+		{
 			"name": "pkg_pybonjour",
 			"repo": "https://github.com/truenas/pkg-pybonjour",
 			"branch": "master"
