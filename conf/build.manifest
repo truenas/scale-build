@@ -180,7 +180,7 @@
 			"repo": "https://github.com/truenas/paramiko",
 			"branch": "master",
 			"predepscmd": "../predepscmd.sh",
-			"subdir": "paramiko-2.7.1",
+			"subdir": "paramiko-2.7.2",
 			"generate_version": false
 		},
 		{
