@@ -86,6 +86,7 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
         with contextlib.suppress(FileNotFoundError):
             os.unlink(f)
 
+    os.makedirs("/usr/local/etc/default", exist_ok=True)
     run_command(["truenas-grub.py"])
 
     cmdline = run_command(["sh", "-c", ". /usr/local/etc/default/grub; echo $GRUB_CMDLINE_LINUX"]).stdout.strip()
