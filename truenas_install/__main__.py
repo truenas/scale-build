@@ -50,6 +50,12 @@ def run_command(cmd, **kwargs):
         write_error(f"Command {cmd} failed with exit code {e.returncode}: {e.stderr}")
         raise
 
+def get_partition(disk, partition):
+    paths =[f"/dev/{disk}{partition}", f"/dev/{disk}p{partition}"]
+    for path in paths:
+        if os.path.exists(path):
+            return path
+    raise Exception(f"Neither {' or '.join(paths)} exist")
 
 def enable_user_services(root, old_root):
     user_services_file = os.path.join(old_root, "data/user-services.json")
@@ -111,7 +117,7 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
             """
         else:
             efi_partition_uuid = run_command([
-                "grub-probe", "--device", f"/dev/{disks[0]}p1", "--target=fs_uuid"
+                "grub-probe", "--device", get_partition(disks[0], 1), "--target=fs_uuid"
             ]).stdout.strip()
             bsd_loader = f"""\
                 insmod zfs
@@ -159,7 +165,7 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
         elif boot_partition_type == "efi":
             os.makedirs("/boot/efi", exist_ok=True)
             run_command(["umount", "/boot/efi"], check=False)
-            run_command(["mount", "-t", "msdosfs", f"/dev/{disk}p1", "/boot/efi"])
+            run_command(["mount", "-t", "msdosfs", get_partition(disk, 1), "/boot/efi"])
             try:
                 bsd_loader = "/boot/efi/efi/boot/FreeBSD.efi"
                 if not os.path.exists(bsd_loader):
@@ -308,13 +314,9 @@ def main():
                             os.makedirs(f"{root}/boot/efi", exist_ok=True)
                             for disk in disks:
                                 run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
-                                # Check if nvme disk and instead use nvme naming convention.
-                                if "nvme" in disk:
-                                    partition = f"{disk}p2"
-                                else:
-                                    partition = f"{disk}2"
-                                run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", f"/dev/{partition}"])
-                                run_command(["chroot", root, "mount", "-t", "vfat", f"/dev/{partition}", "/boot/efi"])
+                                partition = get_partition(disk, 2)
+                                run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", partition])
+                                run_command(["chroot", root, "mount", "-t", "vfat", partition, "/boot/efi"])
                                 try:
                                     run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
                                                  "--efi-directory=/boot/efi",
