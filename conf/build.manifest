@@ -185,7 +185,7 @@
 		},
 		{
 			"name": "sedutil",
-			"repo": "https://github.com/amotin/sedutil",
+			"repo": "https://github.com/truenas/sedutil",
 			"branch": "master"
 		},
 		{
