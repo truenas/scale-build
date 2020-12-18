@@ -290,6 +290,11 @@
 			"branch": "truenas/master"
 		},
 		{
+			"name": "py_sgio",
+			"repo": "https://github.com/truenas/py-sgio",
+			"branch": "main"
+		},
+		{
 			"name": "py_sgpersist",
 			"repo": "https://github.com/truenas/py-sgpersist",
 			"branch": "master"
