@@ -292,7 +292,7 @@
 		{
 			"name": "py_sgio",
 			"repo": "https://github.com/truenas/py-sgio",
-			"branch": "main"
+			"branch": "master"
 		},
 		{
 			"name": "py_sgpersist",
