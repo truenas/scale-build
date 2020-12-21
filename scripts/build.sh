@@ -719,9 +719,7 @@ clean_rootfs() {
 	# we remove this file because the linux kernel dynamically loads the modules based on whether
 	# or not you have the actual hardware installed in the system.
 	NVIDIA_CONF="${CHROOT_BASEDIR}/etc/modprobe.d/nvidia.conf"
-	if [ -e "${NVIDIA_CONF}" ] ; then
-		rm -f ${NVIDIA_CONF} 2>&1
-	fi
+	rm -f ${NVIDIA_CONF} 2>/dev/null
 
 	rm -rf ${CHROOT_BASEDIR}/usr/share/doc/*
 	rm -rf ${CHROOT_BASEDIR}/var/cache/apt/*
