@@ -684,6 +684,16 @@ install_rootfs_packages() {
 		fi
 	done
 
+	for index in $(jq -r '."additional-packages" | keys[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		pkg=$(jq -r '."additional-packages"[$index]."package"')
+		echo "`date`: apt installing package [${pkg}]"
+		chroot ${CHROOT_BASEDIR} apt install -V -y $pkg
+		if [ $? -ne 0 ] ; then
+			exit_err "Failed apt install $pkg"
+		fi
+	done
+
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
 

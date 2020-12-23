@@ -94,6 +94,12 @@
 		"libgdk-pixbuf2.0-0",
 		"x11-common"
 	],
+	"additional-packages": [
+		{
+			"package": "xtail",
+			"comment": "used by support (NAS-108788)"
+		}
+	],
 	"iso-packages": [
 		"dialog",
 		"jq",
