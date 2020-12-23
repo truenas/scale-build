@@ -684,6 +684,33 @@ install_rootfs_packages() {
 		fi
 	done
 
+	for package in $(jq -r '."support-requested-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		echo "`date`: apt installing package [${package}]"
+		chroot ${CHROOT_BASEDIR} apt install -V -y $package
+		if [ $? -ne 0 ] ; then
+			exit_err "Failed apt install $package"
+		fi
+	done
+
+	for package in $(jq -r '."sales-requested-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		echo "`date`: apt installing package [${package}]"
+		chroot ${CHROOT_BASEDIR} apt install -V -y $package
+		if [ $? -ne 0 ] ; then
+			exit_err "Failed apt install $package"
+		fi
+	done
+
+	for package in $(jq -r '."community-requested-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	do
+		echo "`date`: apt installing package [${package}]"
+		chroot ${CHROOT_BASEDIR} apt install -V -y $package
+		if [ $? -ne 0 ] ; then
+			exit_err "Failed apt install $package"
+		fi
+	done
+
 	# Do any custom steps for setting up the rootfs image
 	custom_rootfs_setup
 

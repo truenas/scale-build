@@ -94,6 +94,11 @@
 		"libgdk-pixbuf2.0-0",
 		"x11-common"
 	],
+	"support-requested-packages": [
+		"xtail",
+	],
+	"sales-requested-packages": [],
+	"community-requested-packages": [],
 	"iso-packages": [
 		"dialog",
 		"jq",
