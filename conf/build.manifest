@@ -95,7 +95,7 @@
 		"x11-common"
 	],
 	"support-requested-packages": [
-		"xtail",
+		"xtail"
 	],
 	"sales-requested-packages": [],
 	"community-requested-packages": [],
