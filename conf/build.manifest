@@ -98,6 +98,14 @@
 		{
 			"package": "xtail",
 			"comment": "used by support (NAS-108788)"
+		},
+		{
+			"package": "iperf3",
+			"comment": "requested by sales (NAS-108787)"
+		},
+		{
+			"package": "fio",
+			"comment": "requested by sales (NAS-108787)"
 		}
 	],
 	"iso-packages": [
