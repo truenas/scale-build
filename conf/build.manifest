@@ -309,11 +309,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "py_sgpersist",
-			"repo": "https://github.com/truenas/py-sgpersist",
-			"branch": "master"
-		},
-		{
 			"name": "py_fenced",
 			"repo": "https://github.com/truenas/py-fenced",
 			"branch": "master"
