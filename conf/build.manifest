@@ -75,7 +75,6 @@
 		"libnvidia-encode1",
 		"linux-cpupower",
 		"truenas-samba",
-		"netatalk",
 		"qemu-guest-agent",
 		"squashfs-tools",
 		"sysstat",
@@ -139,12 +138,6 @@
 			"name": "nss_pam_ldapd",
 			"repo": "https://github.com/truenas/nss-pam-ldapd",
 			"branch": "master",
-			"generate_version": false
-		},
-		{
-			"name": "netatalk",
-			"repo": "https://github.com/truenas/netatalk",
-			"branch": "SCALE-netatalk",
 			"generate_version": false
 		},
 		{
