@@ -319,6 +319,11 @@
 			"branch": "main"
 		},
 		{
+			"name": "python_aiohttp",
+			"repo": "https://salsa.debian.org/python-team/packages/python-aiohttp.git",
+			"branch": "debian/3.7.3-1"
+		},
+		{
 			"name": "truenas_files",
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
