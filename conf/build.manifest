@@ -132,7 +132,7 @@
 		{
 			"name": "truenas_samba",
 			"repo": "https://github.com/truenas/samba",
-			"branch": "SCALE-v4-13-stable",
+			"branch": "SCALE-v4-14-stable",
 			"generate_version": false
 		},
 		{
