@@ -199,14 +199,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "paramiko",
-			"repo": "https://github.com/truenas/paramiko",
-			"branch": "master",
-			"predepscmd": "../predepscmd.sh",
-			"subdir": "paramiko-2.7.2",
-			"generate_version": false
-		},
-		{
 			"name": "sedutil",
 			"repo": "https://github.com/truenas/sedutil",
 			"branch": "master"
