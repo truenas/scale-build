@@ -301,6 +301,7 @@ def main():
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
 
+                        run_command(["/usr/local/bin/initrd-zfs.py", pool_name, root, "0"])
                         run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
 
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
