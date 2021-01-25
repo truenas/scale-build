@@ -167,11 +167,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "debian_archive_keyring",
-			"repo": "https://github.com/truenas/debian-archive-keyring",
-			"branch": "master"
-		},
-		{
 			"name": "truenas_installer",
 			"repo": "https://github.com/truenas/truenas-installer",
 			"branch": "master"
