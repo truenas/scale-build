@@ -242,11 +242,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "asyncssh",
-			"repo": "https://github.com/truenas/asyncssh",
-			"branch": "master"
-		},
-		{
 			"name": "licenselib",
 			"repo": "https://github.com/freenas/licenselib",
 			"branch": "master"
