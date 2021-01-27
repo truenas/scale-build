@@ -66,7 +66,7 @@ Pin: version 3.1.12~ix*
 Pin-Priority: 950
 
 Package: *zfs*
-Pin: origin ""
+Pin: version 2.0.*
 Pin-Priority: 1000
 EOF
 }
