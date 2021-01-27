@@ -113,6 +113,8 @@
 		"jq",
 		"live-boot",
 		"truenas-installer",
+		"python3-libzfs",
+		"python3-pyudev",
 		"setserial",
 		"vim-tiny"
 	],
