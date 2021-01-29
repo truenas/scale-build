@@ -170,11 +170,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "midcli",
-			"repo": "https://github.com/freenas/midcli",
-			"branch": "master"
-		},
-		{
 			"name": "migrate113",
 			"repo": "https://github.com/freenas/freenas-migrate113",
 			"branch": "master"
@@ -341,6 +336,11 @@
 			"repo": "https://github.com/freenas/freenas",
 			"branch": "master",
 			"subdir": "src/middlewared"
+		},
+		{
+			"name": "midcli",
+			"repo": "https://github.com/freenas/midcli",
+			"branch": "master"
 		},
 		{
 			"name": "truenas",
