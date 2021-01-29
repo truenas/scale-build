@@ -821,14 +821,28 @@ build_update_image() {
 	echo "`date`: Success! Update image created at: ${RELEASE_DIR}/TrueNAS-SCALE.update"
 }
 
+check_epoch() {
+
+	local epoch=$(jq -r '."build-epoch"' $MANIFEST)
+	if [ -e ".buildEpoch" ] ; then
+		if [ "$(cat .buildEpoch)" != "$epoch" ] ; then
+			echo "Build epoch changed! Removing temporary files and forcing clean build."
+			cleanup
+			echo "$epoch" > .buildEpoch
+		fi
+	else
+		echo "$epoch" > .buildEpoch
+	fi
+}
+
 # Check that host has all the prereq tools installed
 preflight_check
 
 case $1 in
-	checkout) checkout_sources ;;
+	checkout) check_epoch ; checkout_sources ;;
 	clean) cleanup ;;
 	iso) build_iso ;;
-	packages) build_deb_packages ;;
+	packages) check_epoch ; build_deb_packages ;;
 	update) build_update_image ;;
 	*) exit_err "Invalid build option!" ;;
 esac

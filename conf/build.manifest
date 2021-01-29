@@ -94,6 +94,7 @@
 		"libgdk-pixbuf2.0-0",
 		"x11-common"
 	],
+	"build-epoch":1,
 	"additional-packages": [
 		{
 			"package": "xtail",
