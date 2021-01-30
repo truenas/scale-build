@@ -75,6 +75,7 @@
 		"libnvidia-encode1",
 		"linux-cpupower",
 		"truenas-samba",
+		"nfs4xdr-acl-tools",
 		"netatalk",
 		"qemu-guest-agent",
 		"squashfs-tools",
@@ -123,6 +124,11 @@
 		{
 			"name": "debootstrap",
 			"repo": "https://github.com/truenas/debootstrap",
+			"branch": "master"
+		},
+		{
+			"name": "nfs4xdr_acl_tools",
+			"repo": "https://github.com/truenas/nfs4xdr-acl-tools",
 			"branch": "master"
 		},
 		{
