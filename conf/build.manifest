@@ -283,6 +283,11 @@
 			"predepscmd": "cp -a packaging/debian ."
 		},
 		{
+			"name": "catalog_validation",
+			"repo": "https://github.com/truenas/catalog_validation",
+			"branch": "master"
+		},
+		{
 			"name": "plugins",
 			"repo": "https://github.com/truenas/plugins",
 			"branch": "truenas/master"
