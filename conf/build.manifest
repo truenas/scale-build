@@ -122,11 +122,6 @@
 	],
 	"sources": [
 		{
-			"name": "debootstrap",
-			"repo": "https://github.com/truenas/debootstrap",
-			"branch": "master"
-		},
-		{
 			"name": "nfs4xdr_acl_tools",
 			"repo": "https://github.com/truenas/nfs4xdr-acl-tools",
 			"branch": "master"
@@ -167,11 +162,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "debian_archive_keyring",
-			"repo": "https://github.com/truenas/debian-archive-keyring",
-			"branch": "master"
-		},
-		{
 			"name": "truenas_installer",
 			"repo": "https://github.com/truenas/truenas-installer",
 			"branch": "master"
@@ -197,14 +187,6 @@
 			"repo": "https://github.com/freenas/webui",
 			"prebuildcmd": "npm install -g yarn && yarn install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
 			"branch": "master"
-		},
-		{
-			"name": "paramiko",
-			"repo": "https://github.com/truenas/paramiko",
-			"branch": "master",
-			"predepscmd": "../predepscmd.sh",
-			"subdir": "paramiko-2.7.2",
-			"generate_version": false
 		},
 		{
 			"name": "sedutil",
@@ -242,11 +224,6 @@
 			"branch": "master"
 		},
 		{
-			"name": "asyncssh",
-			"repo": "https://github.com/truenas/asyncssh",
-			"branch": "master"
-		},
-		{
 			"name": "licenselib",
 			"repo": "https://github.com/freenas/licenselib",
 			"branch": "master"
@@ -269,11 +246,6 @@
 		{
 			"name": "minio",
 			"repo": "https://github.com/truenas/minio",
-			"branch": "master"
-		},
-		{
-			"name": "rclone",
-			"repo": "https://github.com/truenas/rclone",
 			"branch": "master"
 		},
 		{
