@@ -50,12 +50,14 @@ def run_command(cmd, **kwargs):
         write_error(f"Command {cmd} failed with exit code {e.returncode}: {e.stderr}")
         raise
 
+
 def get_partition(disk, partition):
     paths =[f"/dev/{disk}{partition}", f"/dev/{disk}p{partition}"]
     for path in paths:
         if os.path.exists(path):
             return path
     raise Exception(f"Neither {' or '.join(paths)} exist")
+
 
 def enable_user_services(root, old_root):
     user_services_file = os.path.join(old_root, "data/user-services.json")
@@ -181,6 +183,7 @@ def main():
     input = json.loads(sys.stdin.read())
 
     disks = input["disks"]
+    force_grub_install = input.get("force_grub_install", False)
     if input.get("json"):
         is_json_output = True
     old_root = input.get("old_root", None)
@@ -261,7 +264,7 @@ def main():
                     with open(f"{root}/data/need-update", "w"):
                         pass
 
-                    if IS_FREEBSD:
+                    if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         with open(f"{root}/data/freebsd-to-scale-update", "w"):
                             pass
                     else:
@@ -307,7 +310,7 @@ def main():
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
                         run_command(["chroot", root, "update-grub"])
 
-                        if old_root is None:
+                        if old_root is None or force_grub_install:
                             if os.path.exists("/sys/firmware/efi"):
                                 run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
                                 undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
