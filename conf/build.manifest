@@ -70,6 +70,8 @@
 		"nslcd",
 		"nvidia-container-toolkit",
 		"nvidia-smi",
+		"nvidia-cuda-dev",
+		"nvidia-cuda-toolkit",
 		"openzfs",
 		"open-vm-tools",
 		"libnvidia-encode1",
