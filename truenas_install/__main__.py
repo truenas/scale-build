@@ -318,6 +318,13 @@ def main():
                             os.makedirs(f"{root}/boot/efi", exist_ok=True)
                             for disk in disks:
                                 run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
+
+                                if dict(map(
+                                    lambda s: s.split(": ", 1),
+                                    run_command(["sgdisk", "-i", "2", f"/dev/{disk}"]).stdout.splitlines(),
+                                ))["Partition GUID code"].split()[0] != "C12A7328-F81F-11D2-BA4B-00A0C93EC93B":
+                                    continue
+
                                 partition = get_partition(disk, 2)
                                 run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", partition])
                                 run_command(["chroot", root, "mount", "-t", "vfat", partition, "/boot/efi"])
