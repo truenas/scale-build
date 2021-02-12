@@ -153,12 +153,12 @@
 		},
 		{
 			"name": "py_libzfs",
-			"repo": "https://github.com/freenas/py-libzfs",
+			"repo": "https://github.com/truenas/py-libzfs",
 			"branch": "master"
 		},
 		{
 			"name": "zettarepl",
-			"repo": "https://github.com/freenas/zettarepl",
+			"repo": "https://github.com/truenas/zettarepl",
 			"branch": "master"
 		},
 		{
@@ -168,7 +168,7 @@
 		},
 		{
 			"name": "migrate113",
-			"repo": "https://github.com/freenas/freenas-migrate113",
+			"repo": "https://github.com/truenas/freenas-migrate113",
 			"branch": "master"
 		},
 		{
@@ -184,7 +184,7 @@
 		},
 		{
 			"name": "truenas_webui",
-			"repo": "https://github.com/freenas/webui",
+			"repo": "https://github.com/truenas/webui",
 			"prebuildcmd": "npm install -g yarn && yarn install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
 			"branch": "master"
 		},
@@ -225,12 +225,12 @@
 		},
 		{
 			"name": "licenselib",
-			"repo": "https://github.com/freenas/licenselib",
+			"repo": "https://github.com/truenas/licenselib",
 			"branch": "master"
 		},
 		{
 			"name": "migrate93",
-			"repo": "https://github.com/freenas/freenas-migrate93",
+			"repo": "https://github.com/truenas/freenas-migrate93",
 			"branch": "truenas/scale"
 		},
 		{
@@ -311,30 +311,30 @@
 		},
 		{
 			"name": "truenas_files",
-			"repo": "https://github.com/freenas/freenas",
+			"repo": "https://github.com/truenas/freenas",
 			"branch": "master",
 			"subdir": "src/freenas"
 		},
 		{
 			"name": "middlewared",
-			"repo": "https://github.com/freenas/freenas",
+			"repo": "https://github.com/truenas/freenas",
 			"branch": "master",
 			"subdir": "src/middlewared"
 		},
 		{
 			"name": "midcli",
-			"repo": "https://github.com/freenas/midcli",
+			"repo": "https://github.com/truenas/midcli",
 			"branch": "master"
 		},
 		{
 			"name": "truenas",
-			"repo": "https://github.com/freenas/freenas",
+			"repo": "https://github.com/truenas/freenas",
 			"branch": "master",
 			"subdir": "debian"
 		},
 		{
 			"name": "truecommand_stats",
-			"repo": "https://github.com/freenas/truecommand-stats",
+			"repo": "https://github.com/truenas/truecommand-stats",
 			"branch": "master"
 		}
 	]
