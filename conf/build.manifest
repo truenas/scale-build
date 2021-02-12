@@ -306,7 +306,7 @@
 		},
 		{
 			"name": "python_aiohttp",
-			"repo": "https://salsa.debian.org/python-team/packages/python-aiohttp.git",
+			"repo": "https://github.com/truenas/python-aiohttp",
 			"branch": "debian/3.7.3-1"
 		},
 		{
