@@ -108,6 +108,10 @@
 		{
 			"package": "fio",
 			"comment": "requested by sales (NAS-108787)"
+		},
+		{
+			"package": "dnsutils",
+			"comment": "requested by community (NAS-109391)"
 		}
 	],
 	"iso-packages": [
