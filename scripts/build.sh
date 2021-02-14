@@ -686,7 +686,7 @@ install_rootfs_packages() {
 
 	for index in $(jq -r '."additional-packages" | keys[]' $MANIFEST | tr -s '\n' ' ')
 	do
-		pkg=$(jq -r '."additional-packages"[$index]."package"')
+		pkg=$(jq -r '."additional-packages"['$index']."package"' $MANIFEST)
 		echo "`date`: apt installing package [${pkg}]"
 		chroot ${CHROOT_BASEDIR} apt install -V -y $pkg
 		if [ $? -ne 0 ] ; then
