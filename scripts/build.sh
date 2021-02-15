@@ -633,13 +633,17 @@ make_iso_file() {
 
 	# Copy over boot and kernel before rolling CD
 	cp -r ${CHROOT_BASEDIR}/boot ${CD_DIR}/boot || exit_err "Failed copy boot"
-	cp -r ${CHROOT_BASEDIR}/init* ${CD_DIR}/ || exit_err "Failed copy initrd"
-	cp -r ${CHROOT_BASEDIR}/vmlinuz* ${CD_DIR}/ || exit_err "Failed copy vmlinuz"
+	# Dereference /initrd.img and /vmlinuz so this ISO can be re-written to a FAT32 USB stick using Windows tools
+	cp -L ${CHROOT_BASEDIR}/initrd.img ${CD_DIR}/ || exit_err "Failed to copy initrd"
+	cp -L ${CHROOT_BASEDIR}/vmlinuz ${CD_DIR}/ || exit_err "Failed to copy vmlinuz"
+	rm ${CD_DIR}/boot/initrd.img-* || exit_err "Failed to remove /boot/initrd.img-*"
+	rm ${CD_DIR}/boot/vmlinuz-* || exit_err "Failed to remove /boot/vmlinuz-*"
 	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
 
 	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
-	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso > ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso.sha256 || exit_err "Failed sha256"
+	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso > ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso.sha256 \
+		|| exit_err "Failed sha256sum"
 }
 
 prune_cd_basedir() {
