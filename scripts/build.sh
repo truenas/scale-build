@@ -749,6 +749,19 @@ custom_rootfs_setup() {
 	echo 'ZFS_INITRD_POST_MODPROBE_SLEEP=15' >> ${CHROOT_BASEDIR}/etc/default/zfs
 	chroot ${CHROOT_BASEDIR} update-initramfs -k all -u
 
+	# Generate native systemd unit files for SysV services that lack ones to prevent systemd-sysv-generator
+	# warnings
+	mkdir ${CHROOT_BASEDIR}/tmp/systemd
+	chroot ${CHROOT_BASEDIR} /usr/lib/systemd/system-generators/systemd-sysv-generator \
+		/tmp/systemd /tmp/systemd /tmp/systemd
+	for file in ${CHROOT_BASEDIR}/tmp/systemd/*.service; do
+		echo >> $file
+		echo '[Install]' >> $file
+		echo 'WantedBy=multi-user.target' >> $file
+	done
+	rsync -av ${CHROOT_BASEDIR}/tmp/systemd/ ${CHROOT_BASEDIR}/usr/lib/systemd/system/
+	rm -rf ${CHROOT_BASEDIR}/tmp/systemd
+
 	# Install nomad binary, since no sane debian package exists yet
 	NOMADVER="0.11.1"
 	if [ ! -e "${CACHE_DIR}/nomad_${NOMADVER}.zip" ] ; then
