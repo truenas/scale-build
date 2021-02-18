@@ -640,8 +640,16 @@ make_iso_file() {
 	rm ${CD_DIR}/boot/vmlinuz-* || exit_err "Failed to remove /boot/vmlinuz-*"
 	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
 
-	grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso ${CD_DIR} \
+	mkdir -p ${CHROOT_BASEDIR}/${RELEASE_DIR}
+	mkdir -p ${CHROOT_BASEDIR}/${CD_DIR}
+	mount --bind ${RELEASE_DIR} ${CHROOT_BASEDIR}/${RELEASE_DIR} || exit_err "Failed mount --bind ${RELEASE_DIR}"
+	mount --bind ${CD_DIR} ${CHROOT_BASEDIR}/${CD_DIR} || exit_err "Failed mount --bind ${CD_DIR}"
+	chroot ${CHROOT_BASEDIR} apt-get update
+	chroot ${CHROOT_BASEDIR} apt-get install -y xorriso
+	chroot ${CHROOT_BASEDIR} grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
+	umount -f ${CHROOT_BASEDIR}/${CD_DIR}
+	umount -f ${CHROOT_BASEDIR}/${RELEASE_DIR}
 	sha256sum ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso > ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso.sha256 \
 		|| exit_err "Failed sha256sum"
 }
