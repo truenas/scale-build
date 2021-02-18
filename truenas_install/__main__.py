@@ -315,6 +315,13 @@ def main():
                                 run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
                                 undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
 
+                                # Clean up dumps from NVRAM to prevent
+                                # "failed to register the EFI boot entry: No space left on device"
+                                for item in os.listdir("/sys/firmware/efi/efivars"):
+                                    if item.startswith("dump-"):
+                                        with contextlib.suppress(Exception):
+                                            os.unlink(os.path.join("/sys/firmware/efi/efivars", item))
+
                             os.makedirs(f"{root}/boot/efi", exist_ok=True)
                             for disk in disks:
                                 run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
@@ -333,7 +340,7 @@ def main():
                                                  "--efi-directory=/boot/efi",
                                                  "--bootloader-id=debian",
                                                  "--recheck",
-                                                 "no-floppy"])
+                                                 "--no-floppy"])
                                     run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
                                     run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
                                                  "/boot/efi/EFI/boot/bootx64.efi"])
