@@ -83,7 +83,7 @@ make_bootstrapdir() {
 	case $1 in
 		cd|CD)
 			CDBUILD=1
-			DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg,grub-pc,grub-efi-amd64-signed"
+			DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg"
 			CACHENAME="cdrom"
 			;;
 		package|packages)
@@ -638,14 +638,14 @@ make_iso_file() {
 	cp -L ${CHROOT_BASEDIR}/vmlinuz ${CD_DIR}/ || exit_err "Failed to copy vmlinuz"
 	rm ${CD_DIR}/boot/initrd.img-* || exit_err "Failed to remove /boot/initrd.img-*"
 	rm ${CD_DIR}/boot/vmlinuz-* || exit_err "Failed to remove /boot/vmlinuz-*"
-	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Faile copy .update"
+	cp ${RELEASE_DIR}/TrueNAS-SCALE.update ${CD_DIR}/TrueNAS-SCALE.update || exit_err "Failed to copy .update"
 
 	mkdir -p ${CHROOT_BASEDIR}/${RELEASE_DIR}
 	mkdir -p ${CHROOT_BASEDIR}/${CD_DIR}
 	mount --bind ${RELEASE_DIR} ${CHROOT_BASEDIR}/${RELEASE_DIR} || exit_err "Failed mount --bind ${RELEASE_DIR}"
 	mount --bind ${CD_DIR} ${CHROOT_BASEDIR}/${CD_DIR} || exit_err "Failed mount --bind ${CD_DIR}"
 	chroot ${CHROOT_BASEDIR} apt-get update
-	chroot ${CHROOT_BASEDIR} apt-get install -y xorriso
+	chroot ${CHROOT_BASEDIR} apt-get install -y grub-efi mtools xorriso
 	chroot ${CHROOT_BASEDIR} grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
 	umount -f ${CHROOT_BASEDIR}/${CD_DIR}

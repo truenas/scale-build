@@ -16,15 +16,10 @@ In addition to the host, you will want to pre-install the following packages:
 * debootstrap
 * jq
 * git
-* xorriso
-* grub-common
-* grub-efi-amd64-bin
-* grub-pc-bin
-* mtools
 * squashfs-tools
 * unzip
 
-``` % sudo apt install build-essential debootstrap jq git xorriso grub-common grub-efi-amd64-bin grub-pc-bin mtools squashfs-tools unzip```
+``` % sudo apt install build-essential debootstrap jq git squashfs-tools unzip```
 
 ## Usage
 
