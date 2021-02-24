@@ -645,7 +645,7 @@ make_iso_file() {
 	mount --bind ${RELEASE_DIR} ${CHROOT_BASEDIR}/${RELEASE_DIR} || exit_err "Failed mount --bind ${RELEASE_DIR}"
 	mount --bind ${CD_DIR} ${CHROOT_BASEDIR}/${CD_DIR} || exit_err "Failed mount --bind ${CD_DIR}"
 	chroot ${CHROOT_BASEDIR} apt-get update
-	chroot ${CHROOT_BASEDIR} apt-get install -y grub-efi mtools xorriso
+	chroot ${CHROOT_BASEDIR} apt-get install -y grub-efi grub-pc-bin mtools xorriso
 	chroot ${CHROOT_BASEDIR} grub-mkrescue -o ${RELEASE_DIR}/TrueNAS-SCALE-${VERSION}.iso ${CD_DIR} \
 		|| exit_err "Failed grub-mkrescue"
 	umount -f ${CHROOT_BASEDIR}/${CD_DIR}
