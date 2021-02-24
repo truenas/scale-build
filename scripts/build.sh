@@ -771,7 +771,7 @@ custom_rootfs_setup() {
 		echo '[Install]' >> $file
 		echo 'WantedBy=multi-user.target' >> $file
 	done
-	rsync -av ${CHROOT_BASEDIR}/tmp/systemd/ ${CHROOT_BASEDIR}/usr/lib/systemd/system/
+	chroot ${CHROOT_BASEDIR} rsync -av /tmp/systemd/ /usr/lib/systemd/system/
 	rm -rf ${CHROOT_BASEDIR}/tmp/systemd
 
 	# Install nomad binary, since no sane debian package exists yet
