@@ -113,13 +113,16 @@
 		}
 	],
 	"iso-packages": [
+		"curl",
 		"dialog",
+		"iproute2",
 		"jq",
 		"live-boot",
 		"truenas-installer",
 		"python3-libzfs",
 		"python3-pyudev",
 		"setserial",
+		"udhcpc",
 		"vim-tiny"
 	],
 	"sources": [
