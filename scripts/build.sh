@@ -447,7 +447,7 @@ mk_kernoverlay() {
 	mkdir ${KERNWRK}
 	stored_cwd=$(pwd)
 	cp -r ${SOURCES}/kernel/* ${KERNTMP} || exit_err "Failed to copy sources"
-	apt install -y flex bison dwarves libssl-dev > /dev/null
+	apt install -y flex bison dwarves libssl-dev > /dev/null || exit_err "Failed to install kernel build depenencies."
 	cd ${KERNTMP}; make defconfig > /dev/null
 	make syncconfig >/dev/null
 	make archprepare >/dev/null
