@@ -144,7 +144,7 @@
 		{
 			"name": "openzfs",
 			"repo": "https://github.com/truenas/zfs",
-			"branch": "build-with-custom-kernel",
+			"branch": "truenas/zfs-2.0-release",
 			"predepscmd": "cp -r contrib/truenas debian",
 			"kernel_module": true,
 			"generate_version": false
@@ -192,7 +192,7 @@
 			"repo": "https://github.com/truenas/scst",
 			"prebuildcmd": "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
 			"kernel_module": true,
-			"branch": "build-with-truenas-kernel"
+			"branch": "v3.5-branch"
 		},
 		{
 			"name": "truenas_binaries",

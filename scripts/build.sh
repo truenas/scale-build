@@ -126,7 +126,7 @@ make_bootstrapdir() {
 			;;
 	esac
 
-	# Setup our ramdisk, up to 4G should suffice
+	# Setup our ramdisk, up to 8G should suffice
 	mkdir -p ${TMPFS}
 	if [ $HAS_LOW_RAM -eq 0 ] || [ -z "$UPDATE" ] ; then
 		mount -t tmpfs -o size=8G tmpfs ${TMPFS}
@@ -485,7 +485,6 @@ umount_kern() {
 	if [ -z $kdir ]; then
 		kdir="kernel"
 	fi
-        #umount -f "${DPG_OVERLAY}/${kdir}" 2>/dev/null
         umount -f "${DPKG_OVERLAY}/${kdir}"
 }
 
@@ -587,17 +586,15 @@ build_kernel_dpkg() {
 	pkgdir="$srcdir/../"
 	do_prebuild "$name" "$predep" "$prebuild" "$subarg" "$generate_version" "$srcdir" "$pkgdir" "false"
 	# Build the package
-	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
-	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cp ${srcdir}/.config /"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make distclean && cp /.config ${srcdir}/.config"
 	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && ./scripts/kconfig/merge_config.sh .config ${TN_CONFIG}"
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make -j6 bindeb-pkg"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make -j$(nproc) bindeb-pkg"
 
         if [ $? -ne 0 ] ; then
 		if [ -n "${PKG_DEBUG}" ] ; then
-			echo "Package build failed - Entering debug Shell"
-			echo "Build Command: cd $srcdir && debuild $deflags"
+			echo "Kernel build failed - Entering debug Shell"
+			echo "Build Command: cd $srcdir && make -j$(nproc) bindeb-pkg"
 			chroot ${DPKG_OVERLAY} /bin/bash
 		fi
 		exit_err "Failed to build packages"
@@ -645,8 +642,6 @@ build_normal_dpkg() {
 
 	do_prebuild "$name" "$predep" "$prebuild" "$subarg" "$generate_version" "$srcdir" "$pkgdir" "$kmod"
 	# Build the package
-	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
-	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags"
         if [ $? -ne 0 ] ; then
 		if [ -n "${PKG_DEBUG}" ] ; then
