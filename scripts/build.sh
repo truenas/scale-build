@@ -40,6 +40,8 @@ HAS_LOW_RAM=0
 
 KERNTMP="./tmp/kern"
 KERNWRK="./tmp/kernwrk"
+KERNDEPS="flex bison dwarves libssl-dev"
+KERNMERGE="./scripts/kconfig/merge_config.sh"
 TN_CONFIG="scripts/package/truenas/tn.config"
 DEBUG_CONFIG="scripts/package/truenas/debug.config"
 EXTRA_CONFIG="scripts/package/truenas/extra.config"
@@ -335,6 +337,29 @@ del_overlayfs() {
 	rm -rf ${WORKDIR_OVERLAY} 2>/dev/null
 }
 
+mount_kern() {
+	# In all cases where package being built is not the kernel itself, our
+	# kernel source is mounted to /kernel so that it's visible to developer
+	# when debugging a package build failure.
+	kdir="$1"
+	if [ -z ${kdir} ]; then
+		kdir="kernel"
+	fi
+	kernlower="${DPKG_OVERLAY}/${kdir}"
+	if [ ! -e "${kernlower}" ]; then
+		mkdir -p "${kernlower}"
+	fi
+	mount -t overlay -o lowerdir="${kernlower}",upperdir="${KERNTMP}",workdir="${KERNWRK}", none "${kernlower}"
+}
+
+umount_kern() {
+	kdir="$1"
+	if [ -z $kdir ]; then
+		kdir="kernel"
+	fi
+        umount -f "${DPKG_OVERLAY}/${kdir}"
+}
+
 mk_overlayfs() {
 
 	# Create a new overlay directory
@@ -445,47 +470,33 @@ mk_kernoverlay() {
 	# debian folder is required to install pre-build dependencies.
 	mkdir ${KERNTMP}
 	mkdir ${KERNWRK}
-	stored_cwd=$(pwd)
+
 	cp -r ${SOURCES}/kernel/* ${KERNTMP} || exit_err "Failed to copy sources"
-	apt install -y flex bison dwarves libssl-dev > /dev/null || exit_err "Failed to install kernel build depenencies."
-	cd ${KERNTMP}; make defconfig > /dev/null
-	make syncconfig >/dev/null
-	make archprepare >/dev/null
+
+	del_overlayfs
+	mk_overlayfs
+	mount_kern
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "apt install -y ${KERNDEPS}" > /dev/null || exit_err "Failed to install kernel build depenencies."
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && make defconfig" > /dev/null
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && make syncconfig" >/dev/null
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && make archprepare" >/dev/null
+
 	echo "Merging ${TN_CONFIG} with .config"
-	./scripts/kconfig/merge_config.sh .config ${TN_CONFIG} > /dev/null || exit_err "Failed to merge config"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ${KERNMERGE} .config ${TN_CONFIG}" > /dev/null || exit_err "Failed to merge config"
 	if [ -n "${DEBUG_KERNEL}" ] ; then
 		echo "Merging ${DEBUG_CONFIG} with .config"
-		./scripts/kconfig/merge_config.sh .config ${DEBUG_CONFIG} > /dev/null || exit_err "Failed to merge config"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ${KERNMERGE} .config ${DEBUG_CONFIG}" > /dev/null || exit_err "Failed to merge config"
 	fi
 	if [ -n "${EXTRA_KERNEL_CONFIG}" ] ; then
 		echo "Merging ${EXTRA_CONFIG} with .config"
-		./scripts/kconfig/merge_config.sh .config ${EXTRA_CONFIG} > /dev/null || exit_err "Failed to merge config"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ${KERNMERGE} .config ${EXTRA_CONFIG}" > /dev/null || exit_err "Failed to merge config"
 	fi
-	./scripts/package/mkdebian 2>/dev/null
-	cd "${stored_cwd}"
-}
-
-mount_kern() {
-	# In all cases where package being built is not the kernel itself, our
-	# kernel source is mounted to /kernel so that it's visible to developer
-	# when debugging a package build failure.
-	kdir="$1"
-	if [ -z ${kdir} ]; then
-		kdir="kernel"
-	fi
-	kernlower="${DPKG_OVERLAY}/${kdir}"
-	if [ ! -e "${kernlower}" ]; then
-		mkdir -p "${kernlower}"
-	fi
-	mount -t overlay -o lowerdir="${kernlower}",upperdir="${KERNTMP}",workdir="${KERNWRK}", none "${kernlower}"
-}
-
-umount_kern() {
-	kdir="$1"
-	if [ -z $kdir ]; then
-		kdir="kernel"
-	fi
-        umount -f "${DPKG_OVERLAY}/${kdir}"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ./scripts/package/mkdebian" 2> /dev/null
+	umount_kern
 }
 
 del_kernoverlay() {
