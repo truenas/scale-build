@@ -128,10 +128,10 @@ make_bootstrapdir() {
 			;;
 	esac
 
-	# Setup our ramdisk, up to 8G should suffice
+	# Setup our ramdisk, up to 12G should suffice
 	mkdir -p ${TMPFS}
 	if [ $HAS_LOW_RAM -eq 0 ] || [ -z "$UPDATE" ] ; then
-		mount -t tmpfs -o size=8G tmpfs ${TMPFS}
+		mount -t tmpfs -o size=12G tmpfs ${TMPFS}
 	fi
 
 	# Check if we should invalidate the base cache
