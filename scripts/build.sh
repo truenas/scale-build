@@ -42,6 +42,7 @@ KERNTMP="./tmp/kern"
 KERNWRK="./tmp/kernwrk"
 KERNDEPS="flex bison dwarves libssl-dev"
 KERNMERGE="./scripts/kconfig/merge_config.sh"
+KERN_UPDATED=0
 TN_CONFIG="scripts/package/truenas/tn.config"
 DEBUG_CONFIG="scripts/package/truenas/debug.config"
 EXTRA_CONFIG="scripts/package/truenas/extra.config"
@@ -383,7 +384,6 @@ build_deb_packages() {
 		mkdir -p ${LOG_DIR}/packages
 	fi
 	rm ${LOG_DIR}/packages/* 2>/dev/null
-	mk_kernoverlay
 
 	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
 	do
@@ -409,7 +409,9 @@ build_deb_packages() {
 		# Check if we need to rebuild this package
 		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
 		if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
-			if [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
+			if [ "${KMOD}" = "true" ] && [ -n "${KERN_UPDATED}" ]; then
+				echo "`date`: Rebuilding [$NAME] due to kernel changes"
+			elif [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
 				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
 					echo "`date`: Skipping [$NAME] - No changes detected"
 					continue
@@ -427,6 +429,7 @@ build_deb_packages() {
 			if [ -n "${PKG_DEBUG}" ] ; then
 				# Running in PKG_DEBUG mode - Display to stdout
 				build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION"
+				KERN_UPDATED=1
 			else
 				build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
 			fi
@@ -473,8 +476,6 @@ mk_kernoverlay() {
 
 	cp -r ${SOURCES}/kernel/* ${KERNTMP} || exit_err "Failed to copy sources"
 
-	del_overlayfs
-	mk_overlayfs
 	mount_kern
 
 	chroot ${DPKG_OVERLAY} /bin/bash -c "apt install -y ${KERNDEPS}" > /dev/null || exit_err "Failed to install kernel build depenencies."
@@ -516,6 +517,7 @@ do_prebuild() {
 	kmod="$8"
 
 	if [ "$name" = "kernel" ] ; then
+		mk_kernoverlay
 		mount_kern "dpkg-src"
 	else
 		mount_kern
@@ -599,7 +601,6 @@ build_kernel_dpkg() {
 	# Build the package
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cp ${srcdir}/.config /"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make distclean && cp /.config ${srcdir}/.config"
-	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && ./scripts/kconfig/merge_config.sh .config ${TN_CONFIG}"
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make -j$(nproc) bindeb-pkg"
 
         if [ $? -ne 0 ] ; then
