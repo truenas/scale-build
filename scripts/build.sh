@@ -1054,7 +1054,7 @@ check_epoch() {
 
 	local epoch=$(${YQ} e ".build-epoch" $MANIFEST)
 	if [ -e "tmp/.buildEpoch" ] ; then
-		if [ "$(cat .buildEpoch)" != "$epoch" ] ; then
+		if [ "$(cat tmp/.buildEpoch)" != "$epoch" ] ; then
 			echo "Build epoch changed! Removing temporary files and forcing clean build."
 			cleanup
 			mkdir tmp/
