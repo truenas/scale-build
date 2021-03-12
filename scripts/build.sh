@@ -1053,14 +1053,16 @@ build_update_image() {
 check_epoch() {
 
 	local epoch=$(${YQ} e ".build-epoch" $MANIFEST)
-	if [ -e ".buildEpoch" ] ; then
+	if [ -e "tmp/.buildEpoch" ] ; then
 		if [ "$(cat .buildEpoch)" != "$epoch" ] ; then
 			echo "Build epoch changed! Removing temporary files and forcing clean build."
 			cleanup
-			echo "$epoch" > .buildEpoch
+			mkdir tmp/
+			echo "$epoch" > tmp/.buildEpoch
 		fi
 	else
-		echo "$epoch" > .buildEpoch
+		mkdir tmp
+		echo "$epoch" > tmp/.buildEpoch
 	fi
 }
 
