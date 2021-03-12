@@ -53,6 +53,7 @@ preflight_check() {
 	local mem=$(grep MemTotal /proc/meminfo | awk -F ' ' '{print $2}')
 	if [ $mem -lt 15500000 ] ; then
 		echo "WARNING: Running with less than 16GB of memory. Build may fail..."
+		HAS_LOW_RAM=1
 		sleep 5
 	fi
 

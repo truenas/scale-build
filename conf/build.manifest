@@ -44,6 +44,9 @@ apt-repos:
 ############################################################################
 base-packages:
 - dosfstools
+- linux-truenas-libc-dev
+- linux-headers-amd64
+- linux-image-truenas-amd64
 - consul
 - firmware-bnx2
 - firmware-bnx2x
@@ -118,6 +121,8 @@ additional-packages:
 ############################################################################
 iso-packages:
 - curl
+- bzip2
+- linux-image-truenas-amd64
 - dialog
 - iproute2
 - jq
@@ -135,6 +140,9 @@ iso-packages:
 # NOTE: Built in the order listed
 ############################################################################
 sources:
+- name: kernel
+  repo: https://github.com/truenas/linux
+  branch: SCALE-v5.10-stable
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
   branch: master
@@ -142,6 +150,7 @@ sources:
   repo: https://github.com/truenas/zfs
   branch: truenas/zfs-2.0-release
   predepscmd: cp -r contrib/truenas debian
+  kernel_module: true
   generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
@@ -170,6 +179,7 @@ sources:
 - name: scst
   repo: https://github.com/truenas/scst
   prebuildcmd: make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS
+  kernel_module: true
   branch: v3.5-branch
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries

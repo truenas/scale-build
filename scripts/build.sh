@@ -31,6 +31,26 @@ HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
 SOURCES="./sources"
 YQ="tmp/bin/yq/yq_linux_amd64"
+HAS_LOW_RAM=0
+
+# Kernel build variables
+# Config options can be overridden by adding a stub
+# config with kernel parameters to scripts/package/truenas/extra.config
+# in the kernel source directory and uncommenting EXTRA_KERNEL_CONFIG
+# Debug kernel can be built by uncommenting DEBUG_KERNEL
+
+KERNTMP="./tmp/kern"
+KERNWRK="./tmp/kernwrk"
+KERNDEPS="flex bison dwarves libssl-dev"
+KERNMERGE="./scripts/kconfig/merge_config.sh"
+KERN_UPDATED=0
+TN_CONFIG="scripts/package/truenas/tn.config"
+DEBUG_CONFIG="scripts/package/truenas/debug.config"
+EXTRA_CONFIG="scripts/package/truenas/extra.config"
+#DEBUG_KERNEL=1
+#EXTRA_KERNEL_CONFIG=1
+
+#PKG_DEBUG=1
 
 # When loggin in as 'su root' the /sbin dirs get dropped out of PATH
 export PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin"
@@ -42,7 +62,11 @@ export LANG="C"
 # Passed along to WAF for parallel build
 export DEB_BUILD_OPTIONS="parallel=$(nproc)"
 
-# Never go full interactive on any packages
+# Build kernel with debug symbols
+export CONFIG_DEBUG_INFO=N
+export CONFIG_LOCALVERSION="+truenas"
+
+# Never go full interactive on any packages#
 export DEBIAN_FRONTEND="noninteractive"
 
 # Source helper functions
@@ -73,6 +97,7 @@ EOF
 }
 
 make_bootstrapdir() {
+	del_kernoverlay
 	del_overlayfs
 	del_bootstrapdir
 
@@ -86,20 +111,30 @@ make_bootstrapdir() {
 			CDBUILD=1
 			DEOPTS="--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg"
 			CACHENAME="cdrom"
+			unset UPDATE
+			;;
+		update)
+			UPDATE=1
+			DEOPTS=""
+			CACHENAME="package"
+			unset CDBUILD
 			;;
 		package|packages)
 			DEOPTS=""
 			CACHENAME="package"
 			unset CDBUILD
+			unset UPDATE
 			;;
 		*)
 			exit_err "Invalid bootstrapdir target"
 			;;
 	esac
 
-	# Setup our ramdisk, up to 4G should suffice
+	# Setup our ramdisk, up to 12G should suffice
 	mkdir -p ${TMPFS}
-	mount -t tmpfs -o size=8G tmpfs ${TMPFS}
+	if [ $HAS_LOW_RAM -eq 0 ] || [ -z "$UPDATE" ] ; then
+		mount -t tmpfs -o size=12G tmpfs ${TMPFS}
+	fi
 
 	# Check if we should invalidate the base cache
 	validate_basecache "$CACHENAME"
@@ -279,10 +314,16 @@ del_bootstrapdir() {
 	umount -f ${CHROOT_BASEDIR}/proc 2>/dev/null
 	umount -f ${CHROOT_BASEDIR}/sys 2>/dev/null
 	umount -f ${CHROOT_BASEDIR} 2>/dev/null
+	umount -f ${CHROOT_BASEDIR}/packages 2>/dev/null
 	umount -Rf ${CHROOT_BASEDIR} 2>/dev/null
 	rmdir ${CHROOT_BASEDIR} 2>/dev/null
 	umount -Rf ${TMPFS} 2>/dev/null
-	rmdir ${TMPFS} 2>/dev/null
+	if [ $HAS_LOW_RAM -eq 1 ] ; then
+		rm -rf ${TMPFS}
+	else
+		umount -Rf ${TMPFS} 2>/dev/null
+		rmdir ${TMPFS} 2>/dev/null
+	fi
 }
 
 del_overlayfs() {
@@ -296,6 +337,29 @@ del_overlayfs() {
 	rm -rf ${DPKG_OVERLAY} 2>/dev/null
 	rm -rf ${CHROOT_OVERLAY} 2>/dev/null
 	rm -rf ${WORKDIR_OVERLAY} 2>/dev/null
+}
+
+mount_kern() {
+	# In all cases where package being built is not the kernel itself, our
+	# kernel source is mounted to /kernel so that it's visible to developer
+	# when debugging a package build failure.
+	kdir="$1"
+	if [ -z ${kdir} ]; then
+		kdir="kernel"
+	fi
+	kernlower="${DPKG_OVERLAY}/${kdir}"
+	if [ ! -e "${kernlower}" ]; then
+		mkdir -p "${kernlower}"
+	fi
+	mount -t overlay -o lowerdir="${kernlower}",upperdir="${KERNTMP}",workdir="${KERNWRK}", none "${kernlower}"
+}
+
+umount_kern() {
+	kdir="$1"
+	if [ -z $kdir ]; then
+		kdir="kernel"
+	fi
+        umount -f "${DPKG_OVERLAY}/${kdir}"
 }
 
 mk_overlayfs() {
@@ -328,13 +392,14 @@ build_deb_packages() {
 		mk_overlayfs
 
 		# Clear variables we are going to load from MANIFEST
-		unset GENERATE_VERSION SUBDIR PREBUILD PREDEP NAME
+		unset GENERATE_VERSION SUBDIR PREBUILD PREDEP NAME KMOD
 
 		NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
 		PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
 		PREBUILD=$(${YQ} e ".sources[$k].prebuildcmd" ${MANIFEST})
 		SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
 		GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
+		KMOD=$(${YQ} e ".sources[$k].kernel_module" ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
 			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
@@ -345,7 +410,9 @@ build_deb_packages() {
 		# Check if we need to rebuild this package
 		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
 		if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
-			if [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
+			if [ "${KMOD}" = "true" ] && [ -n "${KERN_UPDATED}" ]; then
+				echo "`date`: Rebuilding [$NAME] due to kernel changes"
+			elif [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
 				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
 					echo "`date`: Skipping [$NAME] - No changes detected"
 					continue
@@ -359,11 +426,21 @@ build_deb_packages() {
 		clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
 
 		# Do the build now
-		if [ -n "${PKG_DEBUG}" ] ; then
-			# Running in PKG_DEBUG mode - Display to stdout
-			build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION"
+		if [ "$NAME" = "kernel" ] ; then
+			if [ -n "${PKG_DEBUG}" ] ; then
+				# Running in PKG_DEBUG mode - Display to stdout
+				build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION"
+				KERN_UPDATED=1
+			else
+				build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+			fi
 		else
-			build_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+			if [ -n "${PKG_DEBUG}" ] ; then
+				# Running in PKG_DEBUG mode - Display to stdout
+				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" "$KMOD"
+			else
+				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+			fi
 		fi
 
 		# Save the build hash
@@ -391,27 +468,67 @@ clean_previous_packages() {
 	rm ${HASH_DIR}/${1}.pkglist
 }
 
-build_dpkg() {
-	if [ -e "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
-		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
+mk_kernoverlay() {
+	# Generate kernel overlay (but not mount).
+	# This makes our debian directory and kernel config used for building
+	# debian folder is required to install pre-build dependencies.
+	mkdir ${KERNTMP}
+	mkdir ${KERNWRK}
+
+	cp -r ${SOURCES}/kernel/* ${KERNTMP} || exit_err "Failed to copy sources"
+
+	mount_kern
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "apt install -y ${KERNDEPS}" > /dev/null || exit_err "Failed to install kernel build depenencies."
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && make defconfig" > /dev/null
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && make syncconfig" >/dev/null
+
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && make archprepare" >/dev/null
+
+	echo "Merging ${TN_CONFIG} with .config"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ${KERNMERGE} .config ${TN_CONFIG}" > /dev/null || exit_err "Failed to merge config"
+	if [ -n "${DEBUG_KERNEL}" ] ; then
+		echo "Merging ${DEBUG_CONFIG} with .config"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ${KERNMERGE} .config ${DEBUG_CONFIG}" > /dev/null || exit_err "Failed to merge config"
 	fi
+	if [ -n "${EXTRA_KERNEL_CONFIG}" ] ; then
+		echo "Merging ${EXTRA_CONFIG} with .config"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ${KERNMERGE} .config ${EXTRA_CONFIG}" > /dev/null || exit_err "Failed to merge config"
+	fi
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd kernel && ./scripts/package/mkdebian" 2> /dev/null
+	umount_kern
+}
+
+del_kernoverlay() {
+	umount_kern
+	rm -rf ${KERNTMP}
+	rm -rf ${KERNWRK}
+}
+
+do_prebuild() {
 	name="$1"
 	predep="$2"
 	prebuild="$3"
 	subarg="$4"
 	generate_version="$5"
-	deflags="-us -uc -b"
+	srcdir="$6"
+	pkgdir="$7"
+	kmod="$8"
 
-	# Check if we have a valid sub directory for these sources
-	if [ -z "$subarg" -o "$subarg" = "null" ] ; then
-		subdir=""
+	if [ "$name" = "kernel" ] ; then
+		mk_kernoverlay
+		mount_kern "dpkg-src"
 	else
-		subdir="/$subarg"
+		mount_kern
+		cp -r ${SOURCES}/${name} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
 	fi
-	srcdir="/dpkg-src$subdir"
-	pkgdir="$srcdir/../"
 
-	cp -r ${SOURCES}/${name} ${DPKG_OVERLAY}/dpkg-src || exit_err "Failed to copy sources"
+	if [ "$kmod" = "true" ] ; then
+		chroot ${DPKG_OVERLAY} /bin/bash -c "apt install -y /packages/linux-headers-truenas*"
+		chroot ${DPKG_OVERLAY} /bin/bash -c "apt install -y /packages/linux-image-truenas*"
+	fi
 
 	# Check for a predep command
 	if [ -n "$predep" -a "$predep" != "null" ] ; then
@@ -419,13 +536,20 @@ build_dpkg() {
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && $predep" || exit_err "Failed to execute predep command"
 	fi
 
+	# Install all the build depends
 	if [ ! -e "${DPKG_OVERLAY}/$srcdir/debian/control" ] ; then
 		exit_err "Missing debian/control file for $name"
 	fi
-
-	# Install all the build depends
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && mk-build-deps --build-dep" || exit_err "Failed mk-build-deps"
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && apt install -y ./*.deb" || exit_err "Failed install build deps"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && apt install -y ./*.deb"
+	if [ $? -ne 0 ] ; then
+		if [ -n "${PKG_DEBUG}" ] ; then
+			echo "Failed install build deps - Entering debug Shell"
+			chroot ${DPKG_OVERLAY} /bin/bash
+		fi
+		exit_err "Failed install build deps"
+	fi
+
 	if [ $name = truenas ] ; then
 		mkdir ${DPKG_OVERLAY}${srcdir}/data
 		echo '{"buildtime": '$BUILDTIME', "train": "'$TRAIN'", "version": "'$VERSION'"}' > ${DPKG_OVERLAY}${srcdir}/data/manifest.json
@@ -446,7 +570,6 @@ build_dpkg() {
 		fi
 	fi
 
-
 	# Make a programatically generated version for this build
 	if [ "$generate_version" != "false" ] ; then
 		DATESTAMP=$(date +%Y%m%d%H%M%S)
@@ -454,9 +577,84 @@ build_dpkg() {
 	else
 		chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && dch -b -M --force-distribution --distribution bullseye-truenas-unstable 'Tagged from truenas-build'" || exit_err "Failed dch changelog"
 	fi
+}
 
+build_kernel_dpkg() {
+	if [ -e "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
+		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
+	fi
+	name="$1"
+	predep="$2"
+	prebuild="$3"
+	subarg="$4"
+	generate_version="$5"
+	deflags="-j$(nproc) -us -uc -b"
+
+	# Check if we have a valid sub directory for these sources
+	if [ -z "$subarg" -o "$subarg" = "null" ] ; then
+		subdir=""
+	else
+		subdir="/$subarg"
+	fi
+	srcdir="/dpkg-src$subdir"
+	pkgdir="$srcdir/../"
+	do_prebuild "$name" "$predep" "$prebuild" "$subarg" "$generate_version" "$srcdir" "$pkgdir" "false"
 	# Build the package
-	#chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags" || exit_err "Failed to build package"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cp ${srcdir}/.config /"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make distclean && cp /.config ${srcdir}/.config"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && make -j$(nproc) bindeb-pkg"
+
+        if [ $? -ne 0 ] ; then
+		if [ -n "${PKG_DEBUG}" ] ; then
+			echo "Kernel build failed - Entering debug Shell"
+			echo "Build Command: cd $srcdir && make -j$(nproc) bindeb-pkg"
+			chroot ${DPKG_OVERLAY} /bin/bash
+		fi
+		exit_err "Failed to build packages"
+	fi
+
+	# Move out the resulting packages
+	echo "Copying finished packages"
+
+	# Copy and record each built packages for cleanup later
+	for pkg in $(ls ${DPKG_OVERLAY}${pkgdir}/*.deb ${DPKG_OVERLAY}${pkgdir}/*.udeb 2>/dev/null)
+	do
+		basepkg=$(basename $pkg)
+		mv ${DPKG_OVERLAY}${pkgdir}/$basepkg ${PKG_DIR}/ || exit_err "Failed mv of $basepkg"
+		echo "$basepkg" >>${HASH_DIR}/${NAME}.pkglist || "Failed recording package name(s)"
+	done
+	mv ${DPKG_OVERLAY}${pkgdir}/*.deb ${PKG_DIR}/ 2>/dev/null
+	mv ${DPKG_OVERLAY}${pkgdir}/*.udeb ${PKG_DIR}/ 2>/dev/null
+
+	# Update the local APT repo
+	echo "Building local APT repo Packages.gz..."
+	chroot ${DPKG_OVERLAY} /bin/bash -c 'cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
+	umount_kern "dpkg-src"
+}
+
+build_normal_dpkg() {
+	if [ -e "${DPKG_OVERLAY}/packages/Packages.gz" ] ; then
+		chroot ${DPKG_OVERLAY} apt update || exit_err "Failed apt update"
+	fi
+	name="$1"
+	predep="$2"
+	prebuild="$3"
+	subarg="$4"
+	generate_version="$5"
+	kmod="$6"
+	deflags="-j$(nproc) -us -uc -b"
+
+	# Check if we have a valid sub directory for these sources
+	if [ -z "$subarg" -o "$subarg" = "null" ] ; then
+		subdir=""
+	else
+		subdir="/$subarg"
+	fi
+	srcdir="/dpkg-src$subdir"
+	pkgdir="$srcdir/../"
+
+	do_prebuild "$name" "$predep" "$prebuild" "$subarg" "$generate_version" "$srcdir" "$pkgdir" "$kmod"
+	# Build the package
 	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags"
         if [ $? -ne 0 ] ; then
 		if [ -n "${PKG_DEBUG}" ] ; then
@@ -464,6 +662,7 @@ build_dpkg() {
 			echo "Build Command: cd $srcdir && debuild $deflags"
 			chroot ${DPKG_OVERLAY} /bin/bash
 		fi
+		umount_kern
 		exit_err "Failed to build packages"
 	fi
 
@@ -689,6 +888,7 @@ install_rootfs_packages() {
 	mkdir -p ${CHROOT_BASEDIR}/packages
 
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
+	echo "force-unsafe-io" > ${CHROOT_BASEDIR}/etc/dpkg/dpkg.cfg.d/force-unsafe-io || exit_err "Failed to force unsafe io"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
 	for package in $(${YQ} e ".base-packages" $MANIFEST | awk '{print $2}' | tr -s '\n' ' ')
@@ -720,6 +920,7 @@ install_rootfs_packages() {
 	cp conf/sources.list ${CHROOT_BASEDIR}/etc/apt/sources.list || exit_err "Failed installing sources.list"
 
 	#chroot ${CHROOT_BASEDIR} /bin/bash
+	chroot ${CHROOT_BASEDIR} depmod
 	umount -f ${CHROOT_BASEDIR}/packages
 	rmdir ${CHROOT_BASEDIR}/packages
 	umount -f ${CHROOT_BASEDIR}/proc
@@ -751,7 +952,6 @@ clean_rootfs() {
 	rm -rf ${CHROOT_BASEDIR}/var/cache/apt/*
 	rm -rf ${CHROOT_BASEDIR}/var/lib/apt/lists/*
 }
-
 
 custom_rootfs_setup() {
 
@@ -841,7 +1041,7 @@ build_manifest() {
 build_update_image() {
 	rm ${LOG_DIR}/rootfs* 2>/dev/null
 	echo "`date`: Bootstrapping TrueNAS rootfs [UPDATE] (${LOG_DIR}/rootfs-bootstrap.log)"
-	make_bootstrapdir "package" >${LOG_DIR}/rootfs-bootstrap.log 2>&1
+	make_bootstrapdir "update" >${LOG_DIR}/rootfs-bootstrap.log 2>&1
 	echo "`date`: Installing TrueNAS rootfs packages [UPDATE] (${LOG_DIR}/rootfs-packages.log)"
 	install_rootfs_packages >${LOG_DIR}/rootfs-packages.log 2>&1
 	echo "`date`: Building TrueNAS rootfs image [UPDATE] (${LOG_DIR}/rootfs-image.log)"
