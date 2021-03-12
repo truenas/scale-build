@@ -95,7 +95,7 @@ base-prune:
 # Update build-epoch when you want to force the next build to be
 # non-incremental
 ############################################################################
-build-epoch: 3
+build-epoch: 4
 
 #
 # List of additional packages installed into TrueNAS SCALE, along with link

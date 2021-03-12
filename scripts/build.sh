@@ -490,6 +490,9 @@ checkout_sources() {
 	if [ ! -d "$SOURCES" ] ; then
 		mkdir -p ${SOURCES}
 	fi
+	if [ ! -d "$LOG_DIR" ] ; then
+		mkdir -p ${LOG_DIR}
+	fi
 
 	GITREMOTE=$(git remote get-url origin)
 	GITSHA=$(git rev-parse --short HEAD)
