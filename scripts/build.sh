@@ -30,6 +30,7 @@ LOG_DIR="./logs"
 HASH_DIR="./tmp/pkghashes"
 MANIFEST="./conf/build.manifest"
 SOURCES="./sources"
+YQ="tmp/bin/yq/yq_linux_amd64"
 
 # When loggin in as 'su root' the /sbin dirs get dropped out of PATH
 export PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin"
@@ -111,9 +112,9 @@ make_bootstrapdir() {
 
 	# Bootstrap the debian base system
 	apt-key --keyring /etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg add keys/truenas.gpg 2>/dev/null >/dev/null || exit_err "Failed adding truenas.gpg apt-key"
-	aptrepo=$(jq -r '."apt-repos"."url"' $MANIFEST)
-	aptdist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
-	aptcomp=$(jq -r '."apt-repos"."components"' $MANIFEST)
+	aptrepo=$(${YQ} e ".apt-repos.url" $MANIFEST)
+	aptdist=$(${YQ} e ".apt-repos.distribution" $MANIFEST)
+	aptcomp=$(${YQ} e ".apt-repos.components" $MANIFEST)
 
 	# Do the fresh bootstrap
 	debootstrap ${DEOPTS} --keyring /etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg \
@@ -141,12 +142,12 @@ make_bootstrapdir() {
 	apt_preferences >${CHROOT_BASEDIR}/etc/apt/preferences
 
 	# Add additional repos
-	for k in $(jq -r '."apt-repos"."additional" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
+	for k in $(${YQ} e ".apt-repos.additional | keys" ${MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
-		apturl=$(jq -r '."apt-repos"."additional"['$k']."url"' $MANIFEST)
-		aptdist=$(jq -r '."apt-repos"."additional"['$k']."distribution"' $MANIFEST)
-		aptcomp=$(jq -r '."apt-repos"."additional"['$k']."component"' $MANIFEST)
-		aptkey=$(jq -r '."apt-repos"."additional"['$k']."key"' $MANIFEST)
+		apturl=$(${YQ} e ".apt-repos.additional[${k}].url" ${MANIFEST})
+		aptdist=$(${YQ} e ".apt-repos.additional[${k}].distribution" ${MANIFEST})
+		aptcomp=$(${YQ} e ".apt-repos.additional[${k}].component" ${MANIFEST})
+		aptkey=$(${YQ} e ".apt-repos.additional[${k}].key" ${MANIFEST})
 		echo "Adding additional repo: $apturl"
 		cp $aptkey ${CHROOT_BASEDIR}/apt.key || exit_err "Failed copying repo apt key"
 		chroot ${CHROOT_BASEDIR} apt-key add /apt.key || exit_err "Failed adding apt-key"
@@ -204,18 +205,18 @@ get_repo_hash() {
 
 get_all_repo_hash() {
 	# Start by validating the main APT repo
-	local repo=$(jq -r '."apt-repos"."url"' $MANIFEST)
-	local dist=$(jq -r '."apt-repos"."distribution"' $MANIFEST)
+	local repo=$(${YQ} e ".apt-repos.url" $MANIFEST)
+	local dist=$(${YQ} e ".apt-repos.distribution" $MANIFEST)
 
 	# Get the hash of remote repo, otherwise remove cache
 	get_repo_hash "${repo}" "${dist}"
 	ALLREPOHASH="${REPOHASH}"
 
 	# Get the hash of extra repos
-	for k in $(jq -r '."apt-repos"."additional" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
+	for k in $(${YQ} e ".apt-repos.additional | keys" ${MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
-		local aptrepo=$(jq -r '."apt-repos"."additional"['$k']."url"' $MANIFEST)
-		local aptdist=$(jq -r '."apt-repos"."additional"['$k']."distribution"' $MANIFEST)
+		local aptrepo=$(${YQ} e ".apt-repos.additional[$k].url" $MANIFEST)
+		local aptdist=$(${YQ} e ".apt-repos.additional[$k].distribution" $MANIFEST)
 		get_repo_hash "${aptrepo}" "${aptdist}"
 		ALLREPOHASH="${ALLREPOHASH}${REPOHASH}"
 	done
@@ -321,7 +322,7 @@ build_deb_packages() {
 	fi
 	rm ${LOG_DIR}/packages/* 2>/dev/null
 
-	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
+	for k in $(${YQ} e ".sources | keys" ${MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
 		del_overlayfs
 		mk_overlayfs
@@ -329,11 +330,11 @@ build_deb_packages() {
 		# Clear variables we are going to load from MANIFEST
 		unset GENERATE_VERSION SUBDIR PREBUILD PREDEP NAME
 
-		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
-		PREDEP=$(jq -r '."sources"['$k']."predepscmd"' ${MANIFEST})
-		PREBUILD=$(jq -r '."sources"['$k']."prebuildcmd"' ${MANIFEST})
-		SUBDIR=$(jq -r '."sources"['$k']."subdir"' ${MANIFEST})
-		GENERATE_VERSION=$(jq -r '."sources"['$k']."generate_version"' ${MANIFEST})
+		NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
+		PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
+		PREBUILD=$(${YQ} e ".sources[$k].prebuildcmd" ${MANIFEST})
+		SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
+		GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
 			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
@@ -496,12 +497,12 @@ checkout_sources() {
 
 
 	echo "`date`: Starting checkout of source"
-	for k in $(jq -r '."sources" | keys[]' ${MANIFEST} 2>/dev/null | tr -s '\n' ' ')
+	for k in $(${YQ} e ".sources | keys" ${MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
 		#eval "CHECK=\$$k"
-		NAME=$(jq -r '."sources"['$k']."name"' ${MANIFEST})
-		REPO=$(jq -r '."sources"['$k']."repo"' ${MANIFEST})
-		BRANCH=$(jq -r '."sources"['$k']."branch"' ${MANIFEST})
+		NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
+		REPO=$(${YQ} e ".sources[$k].repo" ${MANIFEST})
+		BRANCH=$(${YQ} e ".sources[$k].branch" ${MANIFEST})
 		if [ -z "$NAME" ] ; then exit_err "Invalid NAME: $NAME" ; fi
 		if [ -z "$REPO" ] ; then exit_err "Invalid REPO: $REPO" ; fi
 		if [ -z "$BRANCH" ] ; then exit_err "Invalid BRANCH: $BRANCH" ; fi
@@ -588,7 +589,7 @@ install_iso_packages() {
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
-	for package in $(jq -r '."iso-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	for package in $(${YQ} e ".iso-packages" $MANIFEST | awk '{print $2}' | tr -s '\n' ' ')
 	do
 		chroot ${CHROOT_BASEDIR} apt install -y $package || exit_err "Failed apt install $package"
 	done
@@ -687,7 +688,7 @@ install_rootfs_packages() {
 	mount --bind ${PKG_DIR} ${CHROOT_BASEDIR}/packages || exit_err "Failed mount --bind /packages"
 	chroot ${CHROOT_BASEDIR} apt update || exit_err "Failed apt update"
 
-	for package in $(jq -r '."base-packages" | values[]' $MANIFEST | tr -s '\n' ' ')
+	for package in $(${YQ} e ".base-packages" $MANIFEST | awk '{print $2}' | tr -s '\n' ' ')
 	do
 		echo "`date`: apt installing package [${package}]"
 		chroot ${CHROOT_BASEDIR} apt install -V -y $package
@@ -696,9 +697,9 @@ install_rootfs_packages() {
 		fi
 	done
 
-	for index in $(jq -r '."additional-packages" | keys[]' $MANIFEST | tr -s '\n' ' ')
+	for index in $(${YQ} e ".additional-packages | keys" $MANIFEST | awk '{print $2}' | tr -s '\n' ' ')
 	do
-		pkg=$(jq -r '."additional-packages"['$index']."package"' $MANIFEST)
+		pkg=$(${YQ} e ".additional-packages[$index].package" $MANIFEST)
 		echo "`date`: apt installing package [${pkg}]"
 		chroot ${CHROOT_BASEDIR} apt install -V -y $pkg
 		if [ $? -ne 0 ] ; then
@@ -725,7 +726,7 @@ install_rootfs_packages() {
 clean_rootfs() {
 
 	# Remove packages from our build manifest
-	for package in $(jq -r '."base-prune" | values[]' $MANIFEST | tr -s '\n' ' ')
+	for package in $(${YQ} e ".base-prune" $MANIFEST | awk '{print $2}' | tr -s '\n' ' ')
 	do
 		chroot ${CHROOT_BASEDIR} apt remove -y $package || exit_err "Failed apt remove $package"
 	done
@@ -848,7 +849,7 @@ build_update_image() {
 
 check_epoch() {
 
-	local epoch=$(jq -r '."build-epoch"' $MANIFEST)
+	local epoch=$(${YQ} e ".build-epoch" $MANIFEST)
 	if [ -e ".buildEpoch" ] ; then
 		if [ "$(cat .buildEpoch)" != "$epoch" ] ; then
 			echo "Build epoch changed! Removing temporary files and forcing clean build."

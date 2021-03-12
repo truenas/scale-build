@@ -26,6 +26,24 @@ cleanup() {
 	rm -rf ${LOG_DIR}
 }
 
+prep_yq() {
+	if [ -e "tmp/bin/yq" ] ; then
+		return 0
+	fi
+
+	echo "Fetching yq..."
+
+	# Download and stash the YQ binary we'll use for YAML parsing
+	mkdir -p tmp/bin/yq
+
+	local VERSION=v4.6.1
+	local BINARY=yq_linux_amd64
+	wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - 2>/dev/null | \
+		tar xz && mv ${BINARY} tmp/bin/yq
+	if [ $? -ne 0 ] ; then echo "Failed downloading yq" && exit 1 ; fi
+	chmod 755 tmp/bin/yq
+}
+
 preflight_check() {
 
 	if [ $(id -u) != "0" ]; then
@@ -38,8 +56,11 @@ preflight_check() {
 		sleep 5
 	fi
 
+	# Check that yq binary is present
+	prep_yq
+
 	# Check for deps
-	DEPS="make debootstrap jq git xorriso grub-mkrescue mformat mksquashfs unzip"
+	DEPS="make debootstrap git xorriso grub-mkrescue mformat mksquashfs unzip"
 	for i in $DEPS
 	do
 		which $i >/dev/null 2>/dev/null
@@ -61,5 +82,5 @@ preflight_check() {
 	mkdir -p ${LOG_DIR}
 
 	# Validate MANIFEST
-	jq -r '.' ${MANIFEST} >/dev/null 2>/dev/null || exit_err "Invalid $MANIFEST"
+	${YQ} e ${MANIFEST} >/dev/null 2>/dev/null || exit_err "Invalid $MANIFEST"
 }
