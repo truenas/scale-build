@@ -1061,7 +1061,7 @@ check_epoch() {
 			echo "$epoch" > tmp/.buildEpoch
 		fi
 	else
-		mkdir tmp
+		mkdir tmp >/dev/null 2>/dev/null
 		echo "$epoch" > tmp/.buildEpoch
 	fi
 }
