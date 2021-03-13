@@ -1,358 +1,282 @@
-{
-	"apt-repos": {
-		"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/debian/",
-		"distribution": "bullseye",
-		"components": "main non-free contrib",
-		"additional": [
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/debian-sid/",
-				"distribution": "sid",
-				"component": "main non-free contrib",
-				"key": "keys/docker.gpg"
-			},
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/docker/",
-				"distribution": "buster",
-				"component": "stable",
-				"key": "keys/docker.gpg"
-			},
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/gluster/",
-				"distribution": "bullseye",
-				"component": "main",
-				"key": "keys/gluster.gpg"
-			},
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/",
-				"distribution": "bullseye",
-				"component": "main",
-				"key": "keys/docker.gpg"
-			},
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-container/",
-				"distribution": "bullseye",
-				"component": "main",
-				"key": "keys/docker.gpg"
-			},
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-docker/",
-				"distribution": "bullseye",
-				"component": "main",
-				"key": "keys/docker.gpg"
-			},
-			{
-				"url": "http://apt.tn.ixsystems.com/apt-direct/unstable/helm/",
-				"distribution": "all",
-				"component": "main",
-				"key": "keys/helm.gpg"
-			}
+---
+#
+# List of apt repositories that are used and setup inside the build environment
+# for TrueNAS SCALE. These are used to pull additional packages or depend packages
+# into the build chroots, or the final system images.
+############################################################################
+apt-repos:
+  url: http://apt.tn.ixsystems.com/apt-direct/unstable/debian/
+  distribution: bullseye
+  components: main non-free contrib
+  additional:
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/debian-sid/
+    distribution: sid
+    component: main non-free contrib
+    key: keys/docker.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/docker/
+    distribution: buster
+    component: stable
+    key: keys/docker.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/gluster/
+    distribution: bullseye
+    component: main
+    key: keys/gluster.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/
+    distribution: bullseye
+    component: main
+    key: keys/docker.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-container/
+    distribution: bullseye
+    component: main
+    key: keys/docker.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-docker/
+    distribution: bullseye
+    component: main
+    key: keys/docker.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/helm/
+    distribution: all
+    component: main
+    key: keys/helm.gpg
 
-		]
-	},
-	"base-packages": [
-		"dosfstools",
-		"linux-truenas-libc-dev",
-		"linux-headers-truenas-amd64",
-		"linux-image-truenas-amd64",
-		"consul",
-		"firmware-bnx2",
-		"firmware-bnx2x",
-		"firmware-cavium",
-		"firmware-linux",
-		"firmware-myricom",
-		"firmware-netronome",
-		"firmware-netxen",
-		"firmware-realtek",
-		"grub-pc-bin",
-		"grub-efi-amd64-bin",
-		"htop",
-		"ifstat",
-		"nvidia-kernel-dkms",
-		"nslcd",
-		"nvidia-container-toolkit",
-		"nvidia-smi",
-		"openzfs",
-		"open-vm-tools",
-		"libnvidia-encode1",
-		"linux-cpupower",
-		"truenas-samba",
-		"nfs4xdr-acl-tools",
-		"netatalk",
-		"qemu-guest-agent",
-		"squashfs-tools",
-		"sysstat",
-		"truecommand-stats",
-		"truenas",
-		"waagent",
-		"wireguard-dkms",
-		"wireguard-tools",
-		"zfs-test",
-		"zfs-initramfs"
-	],
-	"base-prune": [
-		"gstreamer1.0-x",
-		"gstreamer1.0-plugins-base",
-		"gstreamer1.0-libav",
-		"libgdk-pixbuf2.0-0",
-		"x11-common"
-	],
-	"build-epoch": 2,
-	"additional-packages": [
-		{
-			"package": "xtail",
-			"comment": "used by support (NAS-108788)"
-		},
-		{
-			"package": "iperf3",
-			"comment": "requested by sales (NAS-108787)"
-		},
-		{
-			"package": "fio",
-			"comment": "requested by sales (NAS-108787)"
-		},
-		{
-			"package": "dnsutils",
-			"comment": "requested by community (NAS-109391)"
-		}
-	],
-	"iso-packages": [
-		"curl",
-		"bzip2",
-		"linux-image-truenas-amd64",
-		"dialog",
-		"iproute2",
-		"jq",
-		"live-boot",
-		"truenas-installer",
-		"python3-libzfs",
-		"python3-pyudev",
-		"setserial",
-		"udhcpc",
-		"vim-tiny"
-	],
-	"sources": [
-		{
-			"name": "kernel",
-			"repo": "https://github.com/truenas/linux",
-			"branch": "SCALE-v5.10-stable"
-		},
-		{
-			"name": "nfs4xdr_acl_tools",
-			"repo": "https://github.com/truenas/nfs4xdr-acl-tools",
-			"branch": "master"
-		},
-		{
-			"name": "openzfs",
-			"repo": "https://github.com/truenas/zfs",
-			"branch": "truenas/zfs-2.0-release",
-			"predepscmd": "cp -r contrib/truenas debian",
-			"kernel_module": true,
-			"generate_version": false
-		},
-		{
-			"name": "truenas_samba",
-			"repo": "https://github.com/truenas/samba",
-			"branch": "SCALE-v4-14-stable",
-			"generate_version": false
-		},
-		{
-			"name": "nss_pam_ldapd",
-			"repo": "https://github.com/truenas/nss-pam-ldapd",
-			"branch": "master",
-			"generate_version": false
-		},
-		{
-			"name": "netatalk",
-			"repo": "https://github.com/truenas/netatalk",
-			"branch": "SCALE-netatalk",
-			"generate_version": false
-		},
-		{
-			"name": "py_libzfs",
-			"repo": "https://github.com/truenas/py-libzfs",
-			"branch": "master"
-		},
-		{
-			"name": "zettarepl",
-			"repo": "https://github.com/truenas/zettarepl",
-			"branch": "master"
-		},
-		{
-			"name": "truenas_installer",
-			"repo": "https://github.com/truenas/truenas-installer",
-			"branch": "master"
-		},
-		{
-			"name": "migrate113",
-			"repo": "https://github.com/truenas/freenas-migrate113",
-			"branch": "master"
-		},
-		{
-			"name": "scst",
-			"repo": "https://github.com/truenas/scst",
-			"prebuildcmd": "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS",
-			"kernel_module": true,
-			"branch": "v3.5-branch"
-		},
-		{
-			"name": "truenas_binaries",
-			"repo": "https://github.com/truenas/binaries",
-			"branch": "master"
-		},
-		{
-			"name": "truenas_webui",
-			"repo": "https://github.com/truenas/webui",
-			"prebuildcmd": "npm install -g yarn && yarn install && tar cvzf node_files.tgz node_modules/ && rm -rf node_modules",
-			"branch": "master"
-		},
-		{
-			"name": "sedutil",
-			"repo": "https://github.com/truenas/sedutil",
-			"branch": "master"
-		},
-		{
-			"name": "pkg_pybonjour",
-			"repo": "https://github.com/truenas/pkg-pybonjour",
-			"branch": "master"
-		},
-		{
-			"name": "pydevd",
-			"repo": "https://github.com/truenas/pydevd.git",
-			"branch": "master"
-		},
-		{
-			"name": "python_netsnmpagent",
-			"repo": "https://github.com/truenas/python-netsnmpagent",
-			"branch": "master"
-		},
-		{
-			"name": "python_truenas_requirements",
-			"repo": "https://github.com/truenas/python-truenas-requirements",
-			"branch": "master"
-		},
-		{
-			"name": "throttle",
-			"repo": "https://github.com/truenas/throttle",
-			"branch": "master"
-		},
-		{
-			"name": "aiorwlock",
-			"repo": "https://github.com/truenas/aiorwlock",
-			"branch": "master"
-		},
-		{
-			"name": "licenselib",
-			"repo": "https://github.com/truenas/licenselib",
-			"branch": "master"
-		},
-		{
-			"name": "migrate93",
-			"repo": "https://github.com/truenas/freenas-migrate93",
-			"branch": "truenas/scale"
-		},
-		{
-			"name": "glustercli_python",
-			"repo": "https://github.com/truenas/glustercli-python",
-			"branch": "master"
-		},
-		{
-			"name": "intel_pcm",
-			"repo": "https://github.com/truenas/intel-pcm",
-			"branch": "master"
-		},
-		{
-			"name": "minio",
-			"repo": "https://github.com/truenas/minio",
-			"branch": "master"
-		},
-		{
-			"name": "zectl",
-			"repo": "https://github.com/truenas/zectl",
-			"branch": "master",
-			"predepscmd": "cp -a packaging/debian ."
-		},
-		{
-			"name": "catalog_validation",
-			"repo": "https://github.com/truenas/catalog_validation",
-			"branch": "master"
-		},
-		{
-			"name": "plugins",
-			"repo": "https://github.com/truenas/plugins",
-			"branch": "truenas/master"
-		},
-		{
-			"name": "multus_cni",
-			"repo": "https://github.com/truenas/multus-cni",
-			"branch": "truenas/master"
-		},
-		{
-			"name": "kube_router",
-			"repo": "https://github.com/truenas/kube-router",
-			"branch": "truenas/master"
-		},
-		{
-			"name": "kubernetes_asyncio",
-			"repo": "https://github.com/truenas/kubernetes_asyncio",
-			"branch": "truenas/master"
-		},
-		{
-			"name": "aiodocker",
-			"repo": "https://github.com/truenas/aiodocker",
-			"branch": "truenas/master"
-		},
-		{
-			"name": "k3s",
-			"repo": "https://github.com/truenas/k3s",
-			"branch": "truenas/master"
-		},
-		{
-			"name": "py_sgio",
-			"repo": "https://github.com/truenas/py-sgio",
-			"branch": "master"
-		},
-		{
-			"name": "py_fenced",
-			"repo": "https://github.com/truenas/py-fenced",
-			"branch": "master"
-		},
-		{
-			"name": "swagger",
-			"repo": "https://github.com/truenas/swagger",
-			"branch": "main"
-		},
-		{
-			"name": "python_aiohttp",
-			"repo": "https://github.com/truenas/python-aiohttp",
-			"branch": "debian/3.7.3-1"
-		},
-		{
-			"name": "truenas_files",
-			"repo": "https://github.com/truenas/freenas",
-			"branch": "master",
-			"subdir": "src/freenas"
-		},
-		{
-			"name": "middlewared",
-			"repo": "https://github.com/truenas/freenas",
-			"branch": "master",
-			"subdir": "src/middlewared"
-		},
-		{
-			"name": "midcli",
-			"repo": "https://github.com/truenas/midcli",
-			"branch": "master"
-		},
-		{
-			"name": "truenas",
-			"repo": "https://github.com/truenas/freenas",
-			"branch": "master",
-			"subdir": "debian"
-		},
-		{
-			"name": "truecommand_stats",
-			"repo": "https://github.com/truenas/truecommand-stats",
-			"branch": "master"
-		}
-	]
-}
+#
+# Packages which are installed into the base TrueNAS SCALE System by default
+# NOTE: Installed in the order listed
+############################################################################
+base-packages:
+- dosfstools
+- linux-truenas-libc-dev
+- linux-headers-amd64
+- linux-image-truenas-amd64
+- consul
+- firmware-bnx2
+- firmware-bnx2x
+- firmware-cavium
+- firmware-linux
+- firmware-myricom
+- firmware-netronome
+- firmware-netxen
+- firmware-realtek
+- grub-pc-bin
+- grub-efi-amd64-bin
+- htop
+- ifstat
+- nvidia-kernel-dkms
+- nslcd
+- nvidia-container-toolkit
+- nvidia-smi
+- openzfs
+- open-vm-tools
+- libnvidia-encode1
+- linux-cpupower
+- truenas-samba
+- nfs4xdr-acl-tools
+- netatalk
+- qemu-guest-agent
+- squashfs-tools
+- sysstat
+- truecommand-stats
+- truenas
+- waagent
+- wireguard-dkms
+- wireguard-tools
+- zfs-test
+- zfs-initramfs
+
+#
+# Packages which are removed from the base TrueNAS SCALE System by default
+# since sometimes optional packages are added as depends, which cause bloat
+# NOTE: Removed in the order listed
+############################################################################
+base-prune:
+- gstreamer1.0-x
+- gstreamer1.0-plugins-base
+- gstreamer1.0-libav
+- libgdk-pixbuf2.0-0
+- x11-common
+
+#
+# Update build-epoch when you want to force the next build to be
+# non-incremental
+############################################################################
+build-epoch: 4
+
+#
+# List of additional packages installed into TrueNAS SCALE, along with link
+# to the ticket specifying the reason for requesting
+# NOTE: Installed in the order listed
+############################################################################
+additional-packages:
+- package: xtail
+  comment: used by support (NAS-108788)
+- package: iperf3
+  comment: requested by sales (NAS-108787)
+- package: fio
+  comment: requested by sales (NAS-108787)
+- package: dnsutils
+  comment: requested by community (NAS-109391)
+
+#
+# List of additional packages installed into TrueNAS SCALE ISO file
+# NOTE: Installed in the order listed
+############################################################################
+iso-packages:
+- curl
+- bzip2
+- linux-image-truenas-amd64
+- dialog
+- iproute2
+- jq
+- live-boot
+- truenas-installer
+- python3-libzfs
+- python3-pyudev
+- setserial
+- udhcpc
+- vim-tiny
+
+#
+# List of Git source repositories the buill will checkout and perform a debian
+# package build inside of
+# NOTE: Built in the order listed
+############################################################################
+sources:
+- name: kernel
+  repo: https://github.com/truenas/linux
+  branch: SCALE-v5.10-stable
+- name: nfs4xdr_acl_tools
+  repo: https://github.com/truenas/nfs4xdr-acl-tools
+  branch: master
+- name: openzfs
+  repo: https://github.com/truenas/zfs
+  branch: truenas/zfs-2.0-release
+  predepscmd: cp -r contrib/truenas debian
+  kernel_module: true
+  generate_version: false
+- name: truenas_samba
+  repo: https://github.com/truenas/samba
+  branch: SCALE-v4-14-stable
+  generate_version: false
+- name: nss_pam_ldapd
+  repo: https://github.com/truenas/nss-pam-ldapd
+  branch: master
+  generate_version: false
+- name: netatalk
+  repo: https://github.com/truenas/netatalk
+  branch: SCALE-netatalk
+  generate_version: false
+- name: py_libzfs
+  repo: https://github.com/truenas/py-libzfs
+  branch: master
+- name: zettarepl
+  repo: https://github.com/truenas/zettarepl
+  branch: master
+- name: truenas_installer
+  repo: https://github.com/truenas/truenas-installer
+  branch: master
+- name: migrate113
+  repo: https://github.com/truenas/freenas-migrate113
+  branch: master
+- name: scst
+  repo: https://github.com/truenas/scst
+  prebuildcmd: make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS
+  kernel_module: true
+  branch: v3.5-branch
+- name: truenas_binaries
+  repo: https://github.com/truenas/binaries
+  branch: master
+- name: truenas_webui
+  repo: https://github.com/truenas/webui
+  prebuildcmd: npm install -g yarn && yarn install && tar cvzf node_files.tgz node_modules/
+    && rm -rf node_modules
+  branch: master
+- name: sedutil
+  repo: https://github.com/truenas/sedutil
+  branch: master
+- name: pkg_pybonjour
+  repo: https://github.com/truenas/pkg-pybonjour
+  branch: master
+- name: pydevd
+  repo: https://github.com/truenas/pydevd.git
+  branch: master
+- name: python_netsnmpagent
+  repo: https://github.com/truenas/python-netsnmpagent
+  branch: master
+- name: python_truenas_requirements
+  repo: https://github.com/truenas/python-truenas-requirements
+  branch: master
+- name: throttle
+  repo: https://github.com/truenas/throttle
+  branch: master
+- name: aiorwlock
+  repo: https://github.com/truenas/aiorwlock
+  branch: master
+- name: licenselib
+  repo: https://github.com/truenas/licenselib
+  branch: master
+- name: migrate93
+  repo: https://github.com/truenas/freenas-migrate93
+  branch: truenas/scale
+- name: glustercli_python
+  repo: https://github.com/truenas/glustercli-python
+  branch: master
+- name: intel_pcm
+  repo: https://github.com/truenas/intel-pcm
+  branch: master
+- name: minio
+  repo: https://github.com/truenas/minio
+  branch: master
+- name: zectl
+  repo: https://github.com/truenas/zectl
+  branch: master
+  predepscmd: cp -a packaging/debian .
+- name: catalog_validation
+  repo: https://github.com/truenas/catalog_validation
+  branch: master
+- name: plugins
+  repo: https://github.com/truenas/plugins
+  branch: truenas/master
+- name: multus_cni
+  repo: https://github.com/truenas/multus-cni
+  branch: truenas/master
+- name: kube_router
+  repo: https://github.com/truenas/kube-router
+  branch: truenas/master
+- name: kubernetes_asyncio
+  repo: https://github.com/truenas/kubernetes_asyncio
+  branch: truenas/master
+- name: aiodocker
+  repo: https://github.com/truenas/aiodocker
+  branch: truenas/master
+- name: k3s
+  repo: https://github.com/truenas/k3s
+  branch: truenas/master
+- name: py_sgio
+  repo: https://github.com/truenas/py-sgio
+  branch: master
+- name: py_fenced
+  repo: https://github.com/truenas/py-fenced
+  branch: master
+- name: swagger
+  repo: https://github.com/truenas/swagger
+  branch: main
+- name: python_aiohttp
+  repo: https://github.com/truenas/python-aiohttp
+  branch: debian/3.7.3-1
+- name: truenas_files
+  repo: https://github.com/truenas/freenas
+  branch: master
+  subdir: src/freenas
+- name: middlewared
+  repo: https://github.com/truenas/freenas
+  branch: master
+  subdir: src/middlewared
+- name: midcli
+  repo: https://github.com/truenas/midcli
+  branch: master
+- name: truenas
+  repo: https://github.com/truenas/freenas
+  branch: master
+  subdir: debian
+- name: truecommand_stats
+  repo: https://github.com/truenas/truecommand-stats
+  branch: master
