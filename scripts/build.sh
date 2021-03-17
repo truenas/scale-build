@@ -975,6 +975,7 @@ custom_rootfs_setup() {
 		echo '[Install]' >> $file
 		echo 'WantedBy=multi-user.target' >> $file
 	done
+	find ${CHROOT_BASEDIR}/tmp/systemd/multi-user.target.wants -type f -and \! -name rrdcached.service -delete
 	chroot ${CHROOT_BASEDIR} rsync -av /tmp/systemd/ /usr/lib/systemd/system/
 	rm -rf ${CHROOT_BASEDIR}/tmp/systemd
 
