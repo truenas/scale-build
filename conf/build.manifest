@@ -283,3 +283,9 @@ sources:
 - name: truecommand_stats
   repo: https://github.com/truenas/truecommand-stats
   branch: master
+- name: grub2
+  repo: https://github.com/truenas/grub2
+  branch: master
+  predepscmd: apt install -y wget xz-utils && ./pull.sh
+  deoptions: nocheck
+  generate_version: false

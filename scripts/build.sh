@@ -78,6 +78,10 @@ Package: *
 Pin: release n=bullseye
 Pin-Priority: 900
 
+Package: grub*
+Pin: version 2.99*
+Pin-Priority: 950
+
 Package: python3-*
 Pin: origin ""
 Pin-Priority: 950
@@ -397,6 +401,7 @@ build_deb_packages() {
 		NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
 		PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
 		PREBUILD=$(${YQ} e ".sources[$k].prebuildcmd" ${MANIFEST})
+		DEOPTIONS=$(${YQ} e ".sources[$k].deoptions" ${MANIFEST})
 		SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
 		GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
 		KMOD=$(${YQ} e ".sources[$k].kernel_module" ${MANIFEST})
@@ -437,9 +442,9 @@ build_deb_packages() {
 		else
 			if [ -n "${PKG_DEBUG}" ] ; then
 				# Running in PKG_DEBUG mode - Display to stdout
-				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" "$KMOD"
+				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD"
 			else
-				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" >>${LOG_DIR}/packages/${NAME}.log 2>&1
 			fi
 		fi
 
@@ -639,9 +644,10 @@ build_normal_dpkg() {
 	name="$1"
 	predep="$2"
 	prebuild="$3"
-	subarg="$4"
-	generate_version="$5"
-	kmod="$6"
+	deoptions="$4"
+	subarg="$5"
+	generate_version="$6"
+	kmod="$7"
 	deflags="-j$(nproc) -us -uc -b"
 
 	# Check if we have a valid sub directory for these sources
@@ -655,7 +661,7 @@ build_normal_dpkg() {
 
 	do_prebuild "$name" "$predep" "$prebuild" "$subarg" "$generate_version" "$srcdir" "$pkgdir" "$kmod"
 	# Build the package
-	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && debuild $deflags"
+	chroot ${DPKG_OVERLAY} /bin/bash -c "cd $srcdir && DEB_BUILD_OPTIONS=$deoptions debuild $deflags"
         if [ $? -ne 0 ] ; then
 		if [ -n "${PKG_DEBUG}" ] ; then
 			echo "Package build failed - Entering debug Shell"
