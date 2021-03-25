@@ -40,7 +40,6 @@ HAS_LOW_RAM=0
 # Debug kernel can be built by uncommenting DEBUG_KERNEL
 
 KERNTMP="./tmp/kern"
-KERNWRK="./tmp/kernwrk"
 KERNDEPS="flex bison dwarves libssl-dev"
 KERNMERGE="./scripts/kconfig/merge_config.sh"
 KERN_UPDATED=0
@@ -351,7 +350,7 @@ mount_kern() {
 	if [ ! -e "${kernlower}" ]; then
 		mkdir -p "${kernlower}"
 	fi
-	mount -t overlay -o lowerdir="${kernlower}",upperdir="${KERNTMP}",workdir="${KERNWRK}", none "${kernlower}"
+	mount --bind "${KERNTMP}" "${kernlower}"
 }
 
 umount_kern() {
@@ -473,7 +472,6 @@ mk_kernoverlay() {
 	# This makes our debian directory and kernel config used for building
 	# debian folder is required to install pre-build dependencies.
 	mkdir ${KERNTMP}
-	mkdir ${KERNWRK}
 
 	cp -r ${SOURCES}/kernel/* ${KERNTMP} || exit_err "Failed to copy sources"
 
@@ -504,7 +502,6 @@ mk_kernoverlay() {
 del_kernoverlay() {
 	umount_kern
 	rm -rf ${KERNTMP}
-	rm -rf ${KERNWRK}
 }
 
 do_prebuild() {
