@@ -955,7 +955,7 @@ custom_rootfs_setup() {
 	# Any kind of custom mangling of the built rootfs image can exist here
 	#
 
-	# If we are upgrading a FreeBSD installation on USB, there won't be no opportunity to run initrd-zfs.py
+	# If we are upgrading a FreeBSD installation on USB, there won't be no opportunity to run truenas-initrd.py
 	# So we have to assume worse.
 	# If rootfs image is used in a Linux installation, initrd will be re-generated with proper configuration,
 	# so initrd we make now will only be used on the first boot after FreeBSD upgrade.
