@@ -984,6 +984,9 @@ custom_rootfs_setup() {
 			|| exit_err "Failed wget of nomad"
 	fi
 	unzip -d ${CHROOT_BASEDIR}/usr/bin ${CACHE_DIR}/nomad_${NOMADVER}.zip || exit_err "Failed unzip of nomad"
+
+	# Copy over any /etc file overrides.
+	rsync -av conf/etc/ ${CHROOT_BASEDIR}/etc/
 }
 
 build_rootfs_image() {

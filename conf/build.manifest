@@ -115,6 +115,8 @@ additional-packages:
   comment: requested by sales (NAS-108787)
 - package: dnsutils
   comment: requested by community (NAS-109391)
+- package: prometheus-node-exporter
+  comment: requested by community (NAS-103563)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file

@@ -1,0 +1,6 @@
+# Configure node_exporter default flags
+#
+# * Listen on localhost by default.
+# * Disable rapl collector due to noisy log lines.
+ARGS="--web.listen-address=[::1]:9100 --no-collector.rapl"
+
