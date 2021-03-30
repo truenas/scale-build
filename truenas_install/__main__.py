@@ -306,7 +306,12 @@ def main():
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
 
-                        run_command([f"{root}/usr/local/bin/truenas-initrd.py", root])
+                        cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
+                        if cp.returncode > 1:
+                            raise subprocess.CalledProcessError(
+                                cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
+                            )
+
                         run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
 
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])

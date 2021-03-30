@@ -409,7 +409,7 @@ build_deb_packages() {
 		# Check if we need to rebuild this package
 		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
 		if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
-			if [ "${KMOD}" = "true" ] && [ "${KERN_UPDATED}"  = "1" ]; then
+			if [ "${KMOD}" = "true" ] && [ "${KERN_UPDATED}" = "1" ]; then
 				echo "`date`: Rebuilding [$NAME] due to kernel changes"
 			elif [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
 				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
