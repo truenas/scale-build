@@ -61,7 +61,7 @@ preflight_check() {
 	prep_yq
 
 	# Check for deps
-	DEPS="make debootstrap git xorriso grub-mkrescue mformat mksquashfs unzip"
+	DEPS="make debootstrap git xorriso grub-mkrescue mksquashfs unzip"
 	for i in $DEPS
 	do
 		which $i >/dev/null 2>/dev/null
