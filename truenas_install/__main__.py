@@ -196,6 +196,7 @@ def main():
         manifest = json.load(f)
 
     dataset_name = f"{pool_name}/ROOT/{manifest['version']}"
+    old_bootfs_prop = run_command(["zpool", "get", "-H", "-o", "value", "bootfs", pool_name]).stdout.strip()
 
     write_progress(0, "Creating dataset")
     existing_datasets = set(filter(None, run_command(["zfs", "list", "-H", "-o", "name"]).stdout.split("\n")))
@@ -355,6 +356,8 @@ def main():
             finally:
                 run_command(["umount", root])
     except Exception:
+        if old_bootfs_prop != '-':
+            run_command(["zpool", "set", f"bootfs={old_bootfs_prop}", pool_name])
         run_command(["zfs", "destroy", dataset_name])
         raise
 
