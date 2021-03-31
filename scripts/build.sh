@@ -409,7 +409,7 @@ build_deb_packages() {
 		# Check if we need to rebuild this package
 		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
 		if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
-			if [ "${KMOD}" = "true" ] && [ "${KERN_UPDATED}" -eq "1" ]; then
+			if [ "${KMOD}" = "true" ] && [ "${KERN_UPDATED}" = "1" ]; then
 				echo "`date`: Rebuilding [$NAME] due to kernel changes"
 			elif [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
 				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
@@ -955,7 +955,7 @@ custom_rootfs_setup() {
 	# Any kind of custom mangling of the built rootfs image can exist here
 	#
 
-	# If we are upgrading a FreeBSD installation on USB, there won't be no opportunity to run initrd-zfs.py
+	# If we are upgrading a FreeBSD installation on USB, there won't be no opportunity to run truenas-initrd.py
 	# So we have to assume worse.
 	# If rootfs image is used in a Linux installation, initrd will be re-generated with proper configuration,
 	# so initrd we make now will only be used on the first boot after FreeBSD upgrade.
