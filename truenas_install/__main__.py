@@ -338,15 +338,11 @@ def main():
                                 run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", partition])
                                 run_command(["chroot", root, "mount", "-t", "vfat", partition, "/boot/efi"])
                                 try:
-                                    grub_cmd = ["chroot", root, "grub-install", "--target=x86_64-efi",
-                                                "--efi-directory=/boot/efi",
-                                                "--bootloader-id=debian",
-                                                "--recheck",
-                                                "--no-floppy"]
-                                    if not os.path.exists("/sys/firmware/efi"):
-                                        grub_cmd.append("--no-nvram")
-                                    run_command(grub_cmd)
-
+                                    run_command(["chroot", root, "grub-install", "--target=x86_64-efi",
+                                                 "--efi-directory=/boot/efi",
+                                                 "--bootloader-id=debian",
+                                                 "--recheck",
+                                                 "--no-floppy"])
                                     run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
                                     run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
                                                  "/boot/efi/EFI/boot/bootx64.efi"])
