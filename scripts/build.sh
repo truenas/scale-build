@@ -395,7 +395,7 @@ build_deb_packages() {
 		mk_overlayfs
 
 		# Clear variables we are going to load from MANIFEST
-		unset GENERATE_VERSION SUBDIR PREBUILD PREDEP NAME KMOD
+		unset GENERATE_VERSION SUBDIR PREBUILD DEOPTIONS PREDEP NAME KMOD JOBS
 
 		NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
 		PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
@@ -404,6 +404,7 @@ build_deb_packages() {
 		SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
 		GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
 		KMOD=$(${YQ} e ".sources[$k].kernel_module" ${MANIFEST})
+		JOBS=$(${YQ} e ".sources[$k].jobs" ${MANIFEST})
 		if [ ! -d "${SOURCES}/${NAME}" ] ; then
 			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 		fi
@@ -441,9 +442,9 @@ build_deb_packages() {
 		else
 			if [ -n "${PKG_DEBUG}" ] ; then
 				# Running in PKG_DEBUG mode - Display to stdout
-				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD"
+				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" "$JOBS"
 			else
-				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" "$JOBS" >>${LOG_DIR}/packages/${NAME}.log 2>&1
 			fi
 		fi
 
@@ -645,7 +646,12 @@ build_normal_dpkg() {
 	subarg="$5"
 	generate_version="$6"
 	kmod="$7"
-	deflags="-us -uc -b"
+	jobs="$8"
+	if [ -z "$jobs" -o "$jobs" = "null" ] ; then
+		deflags="-j$(nproc) -us -uc -b"
+	else
+		deflags="-j${jobs} -us -uc -b"
+	fi
 
 	# Check if we have a valid sub directory for these sources
 	if [ -z "$subarg" -o "$subarg" = "null" ] ; then

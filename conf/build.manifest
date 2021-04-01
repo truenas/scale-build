@@ -291,3 +291,4 @@ sources:
   predepscmd: apt install -y wget xz-utils && ./pull.sh
   deoptions: nocheck
   generate_version: false
+  jobs: 1
