@@ -645,7 +645,7 @@ build_normal_dpkg() {
 	subarg="$5"
 	generate_version="$6"
 	kmod="$7"
-	deflags="-j$(nproc) -us -uc -b"
+	deflags="-us -uc -b"
 
 	# Check if we have a valid sub directory for these sources
 	if [ -z "$subarg" -o "$subarg" = "null" ] ; then
