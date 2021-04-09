@@ -155,12 +155,15 @@ sources:
   repo: https://github.com/truenas/zfs
   branch: truenas/zfs-2.0-release
   predepscmd: cp -r contrib/truenas debian
+  deps_path: contrib/truenas
   kernel_module: true
   generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-14-stable
   generate_version: false
+  explicit_deps:
+    - openzfs
 - name: nss_pam_ldapd
   repo: https://github.com/truenas/nss-pam-ldapd
   branch: master
@@ -172,6 +175,8 @@ sources:
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
   branch: master
+  explicit_deps:
+    - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
   branch: master
@@ -186,6 +191,8 @@ sources:
   prebuildcmd: make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS
   kernel_module: true
   branch: v3.5-branch
+  explicit_deps:
+    - openzfs
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
   branch: master
@@ -234,6 +241,9 @@ sources:
   repo: https://github.com/truenas/zectl
   branch: master
   predepscmd: cp -a packaging/debian .
+  deps_path: packaging/debian
+  explicit_deps:
+    - openzfs
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
   branch: master
