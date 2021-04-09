@@ -32,10 +32,11 @@ def normalize_bin_packages_depends(depends_str):
 def normalize_build_depends(build_depends_str):
     deps = []
     for dep in filter(bool, map(str.strip, build_depends_str.split(','))):
-        index = dep.find('(')
-        if index != -1:
-            dep = dep[:index]
-        deps.append(dep)
+        for subdep in filter(bool, map(str.strip, dep.split('|'))):
+            index = subdep.find('(')
+            if index != -1:
+                subdep = subdep[:index].strip()
+            deps.append(subdep)
     return deps
 
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     with open(os.environ['MANIFEST'], 'r') as f:
         manifest = yaml.safe_load(f.read())
 
-    packages = collections.defaultdict(lambda: {'info': None, 'build_deps': set(), 'install_deps': set()})
+    packages = collections.defaultdict(lambda: {'explicit_deps': set(), 'build_deps': set(), 'install_deps': set()})
     sources = []
     for package in manifest['sources']:
         if package['name'] == 'kernel':
@@ -65,14 +66,24 @@ if __name__ == '__main__':
         if not os.path.exists(package_path):
             raise FileNotFoundError(f'{package_path!r} not found, did you forget to "make checkout" ?')
 
-        if package.get('predepscmd'):
-            # TODO: Let's skip these for now
-            continue
-
         if package.get('subdir'):
             package_path = os.path.join(package_path, package['subdir'])
 
-        cp = run([DEPENDS_SCRIPT_PATH, os.path.join(package_path, 'debian/control')])
+        if package.get('predepscmd') and not package.get('deps_path'):
+            # We cannot determine dependency of this package because it does not probably have a control file
+            # in it's current state - the only example we have is grub right now. Let's improve this if there are
+            # more examples
+            packages[name].update({
+                'source_package': name,
+                'source': name,
+            })
+            continue
+        elif package.get('deps_path'):
+            package_path = os.path.join(package_path, package['deps_path'], 'control')
+        else:
+            package_path = os.path.join(package_path, 'debian/control')
+
+        cp = run([DEPENDS_SCRIPT_PATH, package_path])
         info = json.loads(cp.stdout)
 
         for bin_package in info['binary_packages']:
@@ -81,12 +92,14 @@ if __name__ == '__main__':
                 'install_deps': set(normalize_bin_packages_depends(bin_package['depends'] or '')),
                 'source_package': info['source_package']['name'],
                 'source': name,
+                'explicit_deps': set(package.get('explicit_deps', set())),
             })
             if name == 'truenas':
                 packages[bin_package['name']]['build_deps'] |= packages[bin_package['name']]['install_deps']
 
     package_dep = {
-        i['source']: list(get_install_deps(packages, set(), i['build_deps'])) for n, i in packages.items()
+        i['source']: get_install_deps(packages, set(), i['build_deps']) | i['explicit_deps']
+        for n, i in packages.items()
     }
     print(yaml.dump(package_dep))
     # kernel package is special, let's please have it as the first package to be be considered to be built
