@@ -47,17 +47,8 @@ def get_install_deps(packages, deps, deps_list):
     return deps
 
 
-if __name__ == '__main__':
-    # Okay so the order of business here is to first locate all the packages which are in the manifest
-    # Remove those packages whose cache's contents are intact
-    # Figure out dependencies of remaining packages
-    # Implement topological sort and figure out
-    sources_path = os.environ['SOURCES']
-    with open(os.environ['MANIFEST'], 'r') as f:
-        manifest = yaml.safe_load(f.read())
-
+def retrieve_package_deps(sources_path, manifest):
     packages = collections.defaultdict(lambda: {'explicit_deps': set(), 'build_deps': set(), 'install_deps': set()})
-    sources = []
     for package in manifest['sources']:
         if package['name'] == 'kernel':
             continue
@@ -97,11 +88,23 @@ if __name__ == '__main__':
             if name == 'truenas':
                 packages[bin_package['name']]['build_deps'] |= packages[bin_package['name']]['install_deps']
 
-    package_dep = {
+    return {
         i['source']: get_install_deps(packages, set(), i['build_deps']) | i['explicit_deps']
         for n, i in packages.items()
     }
+
+
+if __name__ == '__main__':
+    # Okay so the order of business here is to first locate all the packages which are in the manifest
+    # Remove those packages whose cache's contents are intact
+    # Figure out dependencies of remaining packages
+    # Implement topological sort and figure out
+    sources_path = os.environ['SOURCES']
+    with open(os.environ['MANIFEST'], 'r') as f:
+        manifest = yaml.safe_load(f.read())
+
+    package_dep = retrieve_package_deps(sources_path, manifest)
     print(yaml.dump(package_dep))
     # kernel package is special, let's please have it as the first package to be be considered to be built
-    # packages_ordering = [['kernel']] + [list(deps) for deps in toposort(package_dep)]
-    # print(yaml.dump(packages_ordering))
+    #packages_ordering = [['kernel']] + [list(deps) for deps in toposort(package_dep)]
+    #print(yaml.dump(packages_ordering))
