@@ -392,9 +392,11 @@ build_deb_packages() {
 
 	env HASH_DIR="$HASH_DIR" SOURCES="$SOURCES" MANIFEST="$MANIFEST" PKG_DEBUG="$PKG_DEBUG" PKG_BUILD_MANIFEST="$PKG_BUILD_MANIFEST"  python3 scripts/get_packages_to_build.py >${LOG_DIR}/package_dependencies.log 2>&1 || exit_err "Failed to build dependencies for packages"
 
-	for k in $(${YQ} e ".sources | keys" ${MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
+	for k in $(${YQ} e ". | keys" ${PKG_BUILD_MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
-		build_deb_package "$k"
+		for i in $(${YQ} e ".[$k] | keys" ${PKG_BUILD_MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' '); do
+			build_deb_package "$k" "$i"
+		done
 	done
 
 	del_bootstrapdir
@@ -404,6 +406,7 @@ build_deb_packages() {
 
 build_deb_package() {
 	k="$1"
+	i="$2"
 
 	del_overlayfs
 	mk_overlayfs
@@ -411,14 +414,14 @@ build_deb_package() {
 	# Clear variables we are going to load from MANIFEST
 	unset GENERATE_VERSION SUBDIR PREBUILD DEOPTIONS PREDEP NAME KMOD JOBS
 
-	NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
-	PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
-	PREBUILD=$(${YQ} e ".sources[$k].prebuildcmd" ${MANIFEST})
-	DEOPTIONS=$(${YQ} e ".sources[$k].deoptions" ${MANIFEST})
-	SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
-	GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
-	KMOD=$(${YQ} e ".sources[$k].kernel_module" ${MANIFEST})
-	JOBS=$(${YQ} e ".sources[$k].jobs" ${MANIFEST})
+	NAME=$(${YQ} e ".[$k] | .[$i].name" ${PKG_BUILD_MANIFEST})
+	PREDEP=$(${YQ} e ".[$k] | .[$i].predepscmd" ${PKG_BUILD_MANIFEST})
+	PREBUILD=$(${YQ} e ".[$k] | .[$i].prebuildcmd" ${PKG_BUILD_MANIFEST})
+	DEOPTIONS=$(${YQ} e ".[$k] | .[$i].deoptions" ${PKG_BUILD_MANIFEST})
+	SUBDIR=$(${YQ} e ".[$k] | .[$i].subdir" ${PKG_BUILD_MANIFEST})
+	GENERATE_VERSION=$(${YQ} e ".[$k] | .[$i].generate_version" ${PKG_BUILD_MANIFEST})
+	KMOD=$(${YQ} e ".[$k] | .[$i].kernel_module" ${PKG_BUILD_MANIFEST})
+	JOBS=$(${YQ} e ".[$k] | .[$i].jobs" ${PKG_BUILD_MANIFEST})
 	if [ ! -d "${SOURCES}/${NAME}" ] ; then
 		exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
 	fi
@@ -449,6 +452,7 @@ build_deb_package() {
 	fi
 
 	# Save the build hash
+	SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
 	echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
 
 	del_overlayfs
