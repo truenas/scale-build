@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import collections
+import itertools
 import json
 import os
 import subprocess
@@ -141,15 +142,20 @@ def retrieve_package_update_information(sources_path, manifest):
 
 
 if __name__ == '__main__':
-    # Okay so the order of business here is to first locate all the packages which are in the manifest
-    # Remove those packages whose cache's contents are intact
-    # Figure out dependencies of remaining packages
-    # Implement topological sort and figure out
     sources_path = os.environ['SOURCES']
     with open(os.environ['MANIFEST'], 'r') as f:
         manifest = yaml.safe_load(f.read())
 
-    package_dep = retrieve_package_update_information(sources_path, manifest)
-    # We will not retrieve information if a package needs to be updated
-    packages_ordering = [list(deps) for deps in toposort(package_dep)]
-    print(yaml.dump(packages_ordering))
+    sorted_ordering = [list(deps) for deps in toposort(retrieve_package_update_information(sources_path, manifest))]
+    if os.environ.get('PKG_DEBUG'):
+        sorted_ordering = [list(itertools.chain(*sorted_ordering))]
+
+    sources_info = {p['name']: p for p in manifest['sources']}
+    package_deps = []
+    for index, entry in enumerate(sorted_ordering):
+        package_deps.append([])
+        for pkg in entry:
+            package_deps[index].append(sources_info[pkg])
+
+    with open(os.environ['PKG_BUILD_MANIFEST'], 'w') as f:
+        f.write(yaml.dump(package_deps))
