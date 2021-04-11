@@ -50,8 +50,6 @@ def get_install_deps(packages, deps, deps_list):
 def retrieve_package_deps(sources_path, manifest):
     packages = collections.defaultdict(lambda: {'explicit_deps': set(), 'build_deps': set(), 'install_deps': set()})
     for package in manifest['sources']:
-        if package['name'] == 'kernel':
-            continue
         name = package['name']
         package_path = os.path.join(sources_path, name)
         if not os.path.exists(package_path):
@@ -60,7 +58,7 @@ def retrieve_package_deps(sources_path, manifest):
         if package.get('subdir'):
             package_path = os.path.join(package_path, package['subdir'])
 
-        if package.get('predepscmd') and not package.get('deps_path'):
+        if name == 'kernel' or (package.get('predepscmd') and not package.get('deps_path')):
             # We cannot determine dependency of this package because it does not probably have a control file
             # in it's current state - the only example we have is grub right now. Let's improve this if there are
             # more examples
@@ -78,8 +76,11 @@ def retrieve_package_deps(sources_path, manifest):
         info = json.loads(cp.stdout)
 
         for bin_package in info['binary_packages']:
+            default_dependencies = {'kernel'} if package.get('kernel_module') else set()
             packages[bin_package['name']].update({
-                'build_deps': set(normalize_build_depends(info['source_package']['build_depends'])),
+                'build_deps': set(
+                    normalize_build_depends(info['source_package']['build_depends'])
+                ) | default_dependencies,
                 'install_deps': set(normalize_bin_packages_depends(bin_package['depends'] or '')),
                 'source_package': info['source_package']['name'],
                 'source': name,
@@ -94,6 +95,51 @@ def retrieve_package_deps(sources_path, manifest):
     }
 
 
+def retrieve_package_update_information(sources_path, manifest):
+    package_deps = retrieve_package_deps(sources_path, manifest)
+    hash_dir_path = os.environ['HASH_DIR']
+    packages_info = {}
+    for pkg in manifest['sources']:
+        packages_info[pkg['name']] = {
+            'rebuild': True,
+            'deps': package_deps[pkg['name']],
+        }
+        if pkg['name'] == 'truenas':
+            continue
+
+        pkg_path = os.path.join(sources_path, pkg['name'])
+        source_hash = run(['git', '-C', pkg_path, 'rev-parse', '--verify', 'HEAD']).stdout.decode().strip()
+        existing_hash = None
+        existing_hash_path = os.path.join(hash_dir_path, f'{pkg["name"]}.hash')
+        if os.path.exists(existing_hash_path):
+            with open(existing_hash_path, 'r') as f:
+                existing_hash = f.read().strip()
+        if source_hash == existing_hash:
+            packages_info[pkg['name']]['rebuild'] = run(
+                ['git', '-C', pkg_path, 'diff-files', '--quiet', '--ignore-submodules'], check=False
+            ).returncode != 0
+
+    # Now what we want to do is make sure if a parent package is to be rebuilt, we rebuild child packages
+    parent_mapping = collections.defaultdict(set)
+    for pkg, deps in package_deps.items():
+        for dep in deps:
+            parent_mapping[dep].add(pkg)
+
+    for pkg, info in packages_info.items():
+        if info['rebuild']:
+            for child in parent_mapping[pkg]:
+                packages_info[child]['rebuild'] = True
+
+    # If a package is to be rebuilt, it does not mean it's dependencies necessarily have to be built again
+    to_be_rebuilt_packages = {}
+    for pkg, info in packages_info.items():
+        if not info['rebuild']:
+            continue
+        to_be_rebuilt_packages[pkg] = {p for p in info['deps'] if packages_info[p]['rebuild']}
+
+    return to_be_rebuilt_packages
+
+
 if __name__ == '__main__':
     # Okay so the order of business here is to first locate all the packages which are in the manifest
     # Remove those packages whose cache's contents are intact
@@ -103,8 +149,7 @@ if __name__ == '__main__':
     with open(os.environ['MANIFEST'], 'r') as f:
         manifest = yaml.safe_load(f.read())
 
-    package_dep = retrieve_package_deps(sources_path, manifest)
-    print(yaml.dump(package_dep))
-    # kernel package is special, let's please have it as the first package to be be considered to be built
-    #packages_ordering = [['kernel']] + [list(deps) for deps in toposort(package_dep)]
-    #print(yaml.dump(packages_ordering))
+    package_dep = retrieve_package_update_information(sources_path, manifest)
+    # We will not retrieve information if a package needs to be updated
+    packages_ordering = [list(deps) for deps in toposort(package_dep)]
+    print(yaml.dump(packages_ordering))
