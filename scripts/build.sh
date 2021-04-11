@@ -390,73 +390,81 @@ build_deb_packages() {
 	fi
 	rm ${LOG_DIR}/packages/* 2>/dev/null
 
+	env HASH_DIR="$HASH_DIR" SOURCES="$SOURCES" MANIFEST="$MANIFEST" PKG_DEBUG="$PKG_DEBUG" PKG_BUILD_MANIFEST="$PKG_BUILD_MANIFEST"  python3 scripts/get_packages_to_build.py >${LOG_DIR}/package_dependencies.log 2>&1 || exit_err "Failed to build dependencies for packages"
+
 	for k in $(${YQ} e ".sources | keys" ${MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
-		del_overlayfs
-		mk_overlayfs
-
-		# Clear variables we are going to load from MANIFEST
-		unset GENERATE_VERSION SUBDIR PREBUILD DEOPTIONS PREDEP NAME KMOD JOBS
-
-		NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
-		PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
-		PREBUILD=$(${YQ} e ".sources[$k].prebuildcmd" ${MANIFEST})
-		DEOPTIONS=$(${YQ} e ".sources[$k].deoptions" ${MANIFEST})
-		SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
-		GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
-		KMOD=$(${YQ} e ".sources[$k].kernel_module" ${MANIFEST})
-		JOBS=$(${YQ} e ".sources[$k].jobs" ${MANIFEST})
-		if [ ! -d "${SOURCES}/${NAME}" ] ; then
-			exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
-		fi
-		if [ "$PREBUILD" = "null" ] ; then
-			unset PREBUILD
-		fi
-
-		# Check if we need to rebuild this package
-		SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
-		if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
-			if [ "${KMOD}" = "true" ] && [ "${KERN_UPDATED}" = "1" ]; then
-				echo "`date`: Rebuilding [$NAME] due to kernel changes"
-			elif [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
-				if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
-					echo "`date`: Skipping [$NAME] - No changes detected"
-					continue
-				fi
-			fi
-		fi
-
-
-		echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
-		# Cleanup any packages that came before
-		clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
-
-		# Do the build now
-		if [ "$NAME" = "kernel" ] ; then
-			if [ -n "${PKG_DEBUG}" ] ; then
-				# Running in PKG_DEBUG mode - Display to stdout
-				build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION"
-				KERN_UPDATED=1
-			else
-				build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
-			fi
-		else
-			if [ -n "${PKG_DEBUG}" ] ; then
-				# Running in PKG_DEBUG mode - Display to stdout
-				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" "$JOBS"
-			else
-				build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" "$JOBS" >>${LOG_DIR}/packages/${NAME}.log 2>&1
-			fi
-		fi
-
-		# Save the build hash
-		echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
-
-		del_overlayfs
+		build_deb_package "$k"
 	done
 
 	del_bootstrapdir
 	echo "`date`: Success! Done building packages"
+	return 0
+}
+
+build_deb_package() {
+	k="$1"
+
+	del_overlayfs
+	mk_overlayfs
+
+	# Clear variables we are going to load from MANIFEST
+	unset GENERATE_VERSION SUBDIR PREBUILD DEOPTIONS PREDEP NAME KMOD JOBS
+
+	NAME=$(${YQ} e ".sources[$k].name" ${MANIFEST})
+	PREDEP=$(${YQ} e ".sources[$k].predepscmd" ${MANIFEST})
+	PREBUILD=$(${YQ} e ".sources[$k].prebuildcmd" ${MANIFEST})
+	DEOPTIONS=$(${YQ} e ".sources[$k].deoptions" ${MANIFEST})
+	SUBDIR=$(${YQ} e ".sources[$k].subdir" ${MANIFEST})
+	GENERATE_VERSION=$(${YQ} e ".sources[$k].generate_version" ${MANIFEST})
+	KMOD=$(${YQ} e ".sources[$k].kernel_module" ${MANIFEST})
+	JOBS=$(${YQ} e ".sources[$k].jobs" ${MANIFEST})
+	if [ ! -d "${SOURCES}/${NAME}" ] ; then
+		exit_err "Missing sources for ${NAME}, did you forget to run 'make checkout'?"
+	fi
+	if [ "$PREBUILD" = "null" ] ; then
+		unset PREBUILD
+	fi
+
+	# Check if we need to rebuild this package
+	SOURCEHASH=$(cd ${SOURCES}/${NAME} && git rev-parse --verify HEAD)
+	if [ $NAME != truenas -a -e "${HASH_DIR}/${NAME}.hash" ] ; then
+		if [ "${KMOD}" = "true" ] && [ "${KERN_UPDATED}" = "1" ]; then
+			echo "`date`: Rebuilding [$NAME] due to kernel changes"
+		elif [ "$(cat ${HASH_DIR}/${NAME}.hash)" = "$SOURCEHASH" ] ; then
+			if [ $(cd ${SOURCES}/${NAME} >/dev/null && git diff-files --quiet --ignore-submodules >/dev/null ; echo $?) -eq 0 ] ; then
+				echo "`date`: Skipping [$NAME] - No changes detected"
+				continue
+			fi
+		fi
+	fi
+
+	echo "`date`: Building package [$NAME] (${LOG_DIR}/packages/${NAME}.log)"
+	# Cleanup any packages that came before
+	clean_previous_packages "$NAME" >${LOG_DIR}/packages/${NAME}.log 2>&1
+
+	# Do the build now
+	if [ "$NAME" = "kernel" ] ; then
+		if [ -n "${PKG_DEBUG}" ] ; then
+			# Running in PKG_DEBUG mode - Display to stdout
+			build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION"
+			KERN_UPDATED=1
+		else
+			build_kernel_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$SUBDIR" "$GENERATE_VERSION" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+		fi
+	else
+		if [ -n "${PKG_DEBUG}" ] ; then
+			# Running in PKG_DEBUG mode - Display to stdout
+			build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" "$JOBS"
+		else
+			build_normal_dpkg "$NAME" "$PREDEP" "$PREBUILD" "$DEOPTIONS" "$SUBDIR" "$GENERATE_VERSION" "$KMOD" "$JOBS" >>${LOG_DIR}/packages/${NAME}.log 2>&1
+		fi
+	fi
+
+	# Save the build hash
+	echo "$SOURCEHASH" > ${HASH_DIR}/${NAME}.hash
+
+	del_overlayfs
 	return 0
 }
 
