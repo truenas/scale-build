@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import collections
-import itertools
+import copy
 import json
 import os
 import subprocess
@@ -147,8 +147,13 @@ if __name__ == '__main__':
         manifest = yaml.safe_load(f.read())
 
     sorted_ordering = [list(deps) for deps in toposort(retrieve_package_update_information(sources_path, manifest))]
-    if os.environ.get('PKG_DEBUG'):
-        sorted_ordering = [list(itertools.chain(*sorted_ordering))]
+    parallel_builds = 1 if os.environ.get('PKG_DEBUG') else int(os.environ.get('PARALLEL_BUILDS', 4))
+    current_order = copy.deepcopy(sorted_ordering)
+    sorted_ordering = []
+    for index, batch in enumerate(current_order):
+        while batch:
+            sorted_ordering.append(batch[:parallel_builds])
+            batch = batch[parallel_builds:]
 
     sources_info = {p['name']: p for p in manifest['sources']}
     package_deps = []
