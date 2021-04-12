@@ -147,7 +147,7 @@ if __name__ == '__main__':
         manifest = yaml.safe_load(f.read())
 
     sorted_ordering = [list(deps) for deps in toposort(retrieve_package_update_information(sources_path, manifest))]
-    parallel_builds = 1 if os.environ.get('PKG_DEBUG') else int(os.environ.get('PARALLEL_BUILDS', 4))
+    parallel_builds = 1 if os.environ.get('PKG_DEBUG') else int(os.environ.get('PARALLEL_BUILDS') or 4)
     current_order = copy.deepcopy(sorted_ordering)
     sorted_ordering = []
     for index, batch in enumerate(current_order):
