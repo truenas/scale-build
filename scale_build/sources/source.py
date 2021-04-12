@@ -34,19 +34,20 @@ class Source:
         info = self.retrieve_current_remote_origin_and_sha()
         update_git_manifest(info['url'], info['sha'])
 
-    def checkout(self):
+    def checkout(self, branch_override=None):
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
-        if self.branch == self.existing_branch and self.origin == origin_url:
+        branch = branch_override or self.branch
+        if branch == self.existing_branch and self.origin == origin_url:
             logger.debug(f'Updating git repo [{self.name}] ({GIT_LOG_PATH})')
             with open(GIT_LOG_PATH, 'w') as f:
                 run(['git', '-C', self.path, 'fetch', '--unshallow'], stdout=f, stderr=f, check=False)
-                run(['git', '-C', self.path, 'fetch', 'origin', self.branch], stdout=f, stderr=f)
-                run(['git', '-C', self.path, 'reset', '--hard', f'origin/{self.branch}'], stdout=f, stderr=f)
+                run(['git', '-C', self.path, 'fetch', 'origin', branch], stdout=f, stderr=f)
+                run(['git', '-C', self.path, 'reset', '--hard', f'origin/{branch}'], stdout=f, stderr=f)
         else:
             logger.debug(f'Checking out git repo [{self.name}] ({GIT_LOG_PATH})')
             shutil.rmtree(self.path, ignore_errors=True)
             with open(GIT_LOG_PATH, 'w') as f:
-                run(['git', 'clone', '--depth=1', '-b', self.branch, self.origin, self.path], stdout=f, stderr=f)
+                run(['git', 'clone', '--depth=1', '-b', branch, self.origin, self.path], stdout=f, stderr=f)
 
         self.update_git_manifest()
 
