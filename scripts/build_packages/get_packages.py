@@ -1,29 +1,14 @@
-#!/usr/bin/python3
 import collections
-import copy
 import json
 import os
-import subprocess
 import yaml
 
 from toposort import toposort
 
+from .utils import HASH_DIR, MANIFEST, run, SOURCES
+
 
 DEPENDS_SCRIPT_PATH = './scripts/parse_deps.pl'
-
-
-def run(*args, **kwargs):
-    if isinstance(args[0], list):
-        args = tuple(args[0])
-    kwargs.setdefault('stdout', subprocess.PIPE)
-    kwargs.setdefault('stderr', subprocess.PIPE)
-    check = kwargs.pop('check', True)
-    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'])
-    stdout, stderr = proc.communicate()
-    cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
-    if check:
-        cp.check_returncode()
-    return cp
 
 
 def normalize_bin_packages_depends(depends_str):
@@ -48,11 +33,11 @@ def get_install_deps(packages, deps, deps_list):
     return deps
 
 
-def retrieve_package_deps(sources_path, manifest):
+def retrieve_package_deps(manifest):
     packages = collections.defaultdict(lambda: {'explicit_deps': set(), 'build_deps': set(), 'install_deps': set()})
     for package in manifest['sources']:
         name = package['name']
-        package_path = os.path.join(sources_path, name)
+        package_path = os.path.join(SOURCES, name)
         if not os.path.exists(package_path):
             raise FileNotFoundError(f'{package_path!r} not found, did you forget to "make checkout" ?')
 
@@ -96,9 +81,8 @@ def retrieve_package_deps(sources_path, manifest):
     }
 
 
-def retrieve_package_update_information(sources_path, manifest):
-    package_deps = retrieve_package_deps(sources_path, manifest)
-    hash_dir_path = os.environ['HASH_DIR']
+def retrieve_package_update_information(manifest):
+    package_deps = retrieve_package_deps(manifest)
     packages_info = {}
     for pkg in manifest['sources']:
         packages_info[pkg['name']] = {
@@ -108,10 +92,10 @@ def retrieve_package_update_information(sources_path, manifest):
         if pkg['name'] == 'truenas':
             continue
 
-        pkg_path = os.path.join(sources_path, pkg['name'])
+        pkg_path = os.path.join(SOURCES, pkg['name'])
         source_hash = run(['git', '-C', pkg_path, 'rev-parse', '--verify', 'HEAD']).stdout.decode().strip()
         existing_hash = None
-        existing_hash_path = os.path.join(hash_dir_path, f'{pkg["name"]}.hash')
+        existing_hash_path = os.path.join(HASH_DIR, f'{pkg["name"]}.hash')
         if os.path.exists(existing_hash_path):
             with open(existing_hash_path, 'r') as f:
                 existing_hash = f.read().strip()
@@ -141,26 +125,29 @@ def retrieve_package_update_information(sources_path, manifest):
     return to_be_rebuilt_packages
 
 
-if __name__ == '__main__':
-    sources_path = os.environ['SOURCES']
-    with open(os.environ['MANIFEST'], 'r') as f:
+def get_to_build_packages():
+    with open(MANIFEST, 'r') as f:
         manifest = yaml.safe_load(f.read())
 
-    sorted_ordering = [list(deps) for deps in toposort(retrieve_package_update_information(sources_path, manifest))]
-    parallel_builds = 1 if os.environ.get('PKG_DEBUG') else int(os.environ.get('PARALLEL_BUILDS') or 4)
-    current_order = copy.deepcopy(sorted_ordering)
-    sorted_ordering = []
-    for index, batch in enumerate(current_order):
-        while batch:
-            sorted_ordering.append(batch[:parallel_builds])
-            batch = batch[parallel_builds:]
+    dependency_mapping = retrieve_package_update_information(manifest)
+    sorted_ordering = [list(deps) for deps in toposort(dependency_mapping)]
 
+    for package in filter(lambda p: p['name'] in dependency_mapping, manifest['sources']):
+        dependency_mapping[package['name']] = {
+            'manifest': package,
+            'deps': dependency_mapping[package['name']],
+        }
+
+    return {
+        'sorted_order': sorted_ordering,
+        'packages': dependency_mapping,
+    }
+
+    '''
     sources_info = {p['name']: p for p in manifest['sources']}
     package_deps = []
     for index, entry in enumerate(sorted_ordering):
         package_deps.append([])
         for pkg in entry:
             package_deps[index].append(sources_info[pkg])
-
-    with open(os.environ['PKG_BUILD_MANIFEST'], 'w') as f:
-        f.write(yaml.dump(package_deps))
+    '''
