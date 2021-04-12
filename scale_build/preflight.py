@@ -54,4 +54,5 @@ def preflight_check():
         logging.warning('WARNING: Running with less than 16GB of memory. Build may fail...')
 
     setup_dirs()
+    # TODO: Validate contents of manifest like empty string is not provided for source name/repo etc
     get_manifest()

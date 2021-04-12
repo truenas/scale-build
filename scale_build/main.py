@@ -2,6 +2,10 @@ import argparse
 import logging
 import sys
 
+from scale_build.checkout import checkout_sources
+from scale_build.epoch import check_epoch
+from scale_build.preflight import preflight_check
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +19,7 @@ def setup_logging():
 
 def main():
     setup_logging()
+    preflight_check()
     parser = argparse.ArgumentParser(prog='scale-build')
     subparsers = parser.add_subparsers(help='sub-command help', dest='action')
 
@@ -22,6 +27,7 @@ def main():
 
     args = parser.parse_args()
     if args.action == 'checkout':
-        pass
+        check_epoch()
+        checkout_sources()
     else:
         parser.print_help()
