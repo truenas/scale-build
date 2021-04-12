@@ -390,12 +390,21 @@ build_deb_packages() {
 	fi
 	rm ${LOG_DIR}/packages/* 2>/dev/null
 
-	env HASH_DIR="$HASH_DIR" SOURCES="$SOURCES" MANIFEST="$MANIFEST" PKG_DEBUG="$PKG_DEBUG" PKG_BUILD_MANIFEST="$PKG_BUILD_MANIFEST"  python3 scripts/get_packages_to_build.py >${LOG_DIR}/package_dependencies.log 2>&1 || exit_err "Failed to build dependencies for packages"
+	env PARALLEL_BUILDS="$PARALLEL_BUILDS" HASH_DIR="$HASH_DIR" SOURCES="$SOURCES" MANIFEST="$MANIFEST" PKG_DEBUG="$PKG_DEBUG" PKG_BUILD_MANIFEST="$PKG_BUILD_MANIFEST"  python3 scripts/get_packages_to_build.py >${LOG_DIR}/package_dependencies.log 2>&1 || exit_err "Failed to build dependencies for packages"
 
 	for k in $(${YQ} e ". | keys" ${PKG_BUILD_MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' ')
 	do
+		pids=""
 		for i in $(${YQ} e ".[$k] | keys" ${PKG_BUILD_MANIFEST} 2>/dev/null | awk '{print $2}' | tr -s '\n' ' '); do
-			build_deb_package "$k" "$i"
+			if [ -n "${PKG_DEBUG}" ] ; then
+				build_deb_package "$k" "$i"
+			else
+				build_deb_package "$k" "$i" &
+				pids="$pids $!"
+			fi
+		done
+		for pid in ${pids}; do
+			wait $pid
 		done
 	done
 
