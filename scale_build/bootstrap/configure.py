@@ -44,6 +44,7 @@ def make_bootstrapdir(bootstrapdir_type, log_handle):
     )), exception=CallError, exception_msg='Failed debootstrap', **run_args)
 
     create_basehash(cache_name)
+    os.makedirs(os.path.join(CACHE_DIR, 'apt'), exist_ok=True)
 
     run(['mount', 'proc', os.path.join(CHROOT_BASEDIR, 'proc'), '-t', 'proc'], **run_args)
     run(['mount', 'sysfs', os.path.join(CHROOT_BASEDIR, 'sys'), '-t', 'sysfs'], **run_args)
