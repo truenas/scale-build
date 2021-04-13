@@ -9,8 +9,10 @@ from scale_build.exceptions import CallError
 from .utils import APT_PREFERENCES, CHROOT_BASEDIR, get_manifest, run
 
 
-requests_logger = logging.getLogger('requests')
-requests_logger.disabled = True
+to_disable = ('requests', 'urllib3')
+for name in filter(lambda k: k.startswith(to_disable), logging.Logger.manager.loggerDict.keys()):
+    custom_logger = logging.getLogger(name)
+    custom_logger.disabled = True
 
 
 def get_repo_hash(repo_url, distribution):

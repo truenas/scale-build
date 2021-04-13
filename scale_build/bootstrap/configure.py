@@ -53,7 +53,8 @@ def make_bootstrapdir(bootstrapdir_type, log_handle):
     ], exception=CallError, exception_msg='Failed mount --bind /var/cache/apt', **run_args
     )
 
-    if bootstrapdir_type == 'cd':
+    if bootstrapdir_type != 'cd':
+        # Add extra packages for builds
         run([
             'chroot', CHROOT_BASEDIR, 'apt', 'install', '-y', 'build-essential', 'dh-make', 'devscripts', 'fakeroot'
         ], exception=CallError, exception_msg='Failed chroot setup', **run_args)
