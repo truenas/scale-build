@@ -12,7 +12,7 @@ EPOCH_PATH = os.path.join(TMP_DIR, '.buildEpoch')
 def update_epoch(epoch_value):
     os.makedirs(TMP_DIR, exist_ok=True)
     with open(EPOCH_PATH, 'w') as f:
-        f.write(epoch_value)
+        f.write(str(epoch_value))
 
 
 def check_epoch():
