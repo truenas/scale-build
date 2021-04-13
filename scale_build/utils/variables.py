@@ -1,6 +1,7 @@
 import os
 
 
+BUILDER_DIR = './'
 TMPFS = './tmp/tmpfs'
 CACHE_DIR = './tmp/cache'
 CHROOT_BASEDIR = os.path.join(TMPFS, 'chroot')
