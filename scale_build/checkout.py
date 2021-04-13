@@ -2,9 +2,8 @@ import logging
 import os
 import re
 
-from scale_build.sources.source import Source
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, update_git_manifest
-from scale_build.utils.manifest import get_manifest
+from scale_build.utils.manifest import get_packages
 from scale_build.utils.run import run
 
 
@@ -17,11 +16,10 @@ def checkout_sources():
     logger.debug(f'Starting checkout of source')
     try_branch_override = os.environ.get('TRY_BRANCH_OVERRIDE')
 
-    for source_info in get_manifest()['sources']:
-        source = Source(source_info['name'], source_info['branch'], source_info['repo'])
+    for package in get_packages():
         gh_override = os.environ.get('TRUENAS_BRANCH_OVERRIDE')
         if not gh_override:
-            gh_override = os.environ.get(f'{source.name}_OVERRIDE')
+            gh_override = os.environ.get(f'{package.name}_OVERRIDE')
 
         # TRY_BRANCH_OVERRIDE is a special use-case. It allows setting a branch name to be used
         # during the checkout phase, only if it exists on the remote.
@@ -30,8 +28,8 @@ def checkout_sources():
         # but need to test building of a series of repos with the same experimental branch
         #
         if try_branch_override:
-            cp = run(['git', 'ls-remote', source.origin])
+            cp = run(['git', 'ls-remote', package.origin])
             if re.findall(fr'/{try_branch_override}$', cp.stdout.decode()):
                 gh_override = try_branch_override
 
-        source.checkout(gh_override)
+        package.checkout(gh_override)

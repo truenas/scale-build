@@ -10,11 +10,23 @@ from scale_build.utils.variables import GIT_LOG_PATH, SOURCES_DIR
 logger = logging.getLogger(__name__)
 
 
-class Source:
-    def __init__(self, name, branch, git_origin):
+class Package:
+    def __init__(
+        self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
+        generate_version=False, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
+    ):
         self.name = name
         self.branch = branch
-        self.origin = git_origin
+        self.origin = repo
+        self.prebuildcmd = prebuildcmd
+        self.kernel_module = kernel_module
+        self.explicit_deps = explicit_deps
+        self.generate_version = generate_version
+        self.predepscmd = predepscmd
+        self.deps_path = deps_path
+        self.subdir = subdir
+        self.deoptions = deoptions
+        self.jobs = jobs
 
     @property
     def path(self):
