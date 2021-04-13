@@ -19,4 +19,7 @@ setup(
             'scale_build = scale_build.main:main',
         ],
     },
+    scripts=[
+        'scripts/parse_deps.pl',
+    ]
 )
