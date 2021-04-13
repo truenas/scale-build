@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import requests
 import urllib.parse
@@ -6,6 +7,10 @@ import urllib.parse
 from scale_build.exceptions import CallError
 
 from .utils import APT_PREFERENCES, CHROOT_BASEDIR, get_manifest, run
+
+
+requests_logger = logging.getLogger('requests')
+requests_logger.disabled = True
 
 
 def get_repo_hash(repo_url, distribution):
