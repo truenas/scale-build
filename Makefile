@@ -1,16 +1,17 @@
 #############################################################################
 # Makefile for building: TrueNAS SCALE
 #############################################################################
+PYTHON?=/usr/bin/python3
 
 all: checkout packages update iso
 
 clean:
-	@sh scripts/build.sh clean
+	${PYTHON} scale_build clean
 checkout:
-	@sh scripts/build.sh checkout
+	${PYTHON} scale_build checkout
 iso:
-	@sh scripts/build.sh iso
+	${PYTHON} scale_build iso
 packages:
-	@sh scripts/build.sh packages
+	${PYTHON} scale_build packages
 update:
-	@sh scripts/build.sh update
+	${PYTHON} scale_build update

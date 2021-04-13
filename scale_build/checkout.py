@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def checkout_sources():
-    info = retrieve_git_remote_and_sha('utils')
+    info = retrieve_git_remote_and_sha('.')
     update_git_manifest(info['url'], info['sha'])
     logger.debug(f'Starting checkout of source')
     try_branch_override = os.environ.get('TRY_BRANCH_OVERRIDE')
