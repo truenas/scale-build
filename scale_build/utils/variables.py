@@ -15,6 +15,7 @@ MANIFEST = './conf/build.manifest'
 PARALLEL_BUILDS = int(os.environ.get('PARALLEL_BUILDS') or 4)
 PKG_DEBUG = bool(os.environ.get('PKG_DEBUG'))
 PKG_DIR = './tmp/pkgdir'
+PKG_LOG_DIR = os.path.join(LOG_DIR, 'packages')
 REQUIRED_RAM = 16  # GB
 SOURCES_DIR = './sources'
 TMP_DIR = './tmp'
