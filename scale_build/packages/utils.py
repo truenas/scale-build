@@ -18,6 +18,8 @@ def normalize_build_depends(build_depends_str):
 
 def get_install_deps(packages, deps, deps_list):
     for dep in filter(lambda p: p in packages, deps_list):
-        deps.add(packages[dep]['source_name'])
-        deps.update(get_install_deps(packages, deps, packages[dep]['install_deps'] | packages[dep]['build_deps']))
+        deps.add(packages[dep].source_name)
+        deps.update(
+            get_install_deps(packages, deps, packages[dep].install_dependencies | packages[dep].build_dependencies)
+        )
     return deps
