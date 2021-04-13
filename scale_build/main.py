@@ -4,6 +4,7 @@ import sys
 
 from scale_build.checkout import checkout_sources
 from scale_build.epoch import check_epoch
+from scale_build.package import build_packages
 from scale_build.preflight import preflight_check
 
 logger = logging.getLogger(__name__)
@@ -29,5 +30,8 @@ def main():
     if args.action == 'checkout':
         check_epoch()
         checkout_sources()
+    elif args.action == 'package':
+        check_epoch()
+        build_packages()
     else:
         parser.print_help()
