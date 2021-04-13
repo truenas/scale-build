@@ -53,7 +53,9 @@ def validate_restore_basecache(cache_type, log_handle):
     # No hash file? Lets remove to be safe
     cache_hash_file = os.path.join(CACHE_DIR, get_cache_hash_filename(cache_type))
     invalidated = True
-    if not os.path.exists(cache_hash_file):
+    if not os.path.exists(cache_hash_file) or not os.path.exists(
+        os.path.join(CACHE_DIR, get_cache_filename(cache_type))
+    ):
         remove_basecache(cache_type, log_handle)
     else:
         with open(cache_hash_file, 'r') as f:
