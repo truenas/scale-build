@@ -7,7 +7,7 @@ from scale_build.utils.variables import MANIFEST
 def get_manifest():
     try:
         with open(MANIFEST, 'r') as f:
-            return yaml.load(f.read())
+            return yaml.safe_load(f.read())
     except FileNotFoundError:
         raise MissingManifest()
     except yaml.YAMLError:
