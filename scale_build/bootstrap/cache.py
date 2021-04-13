@@ -36,7 +36,7 @@ def save_build_cache(cache_type, log_handle):
 def remove_basecache(cache_type, log_handle):
     log_handle.write(f'Removing base chroot cache for {cache_type}\n')
     for path in map(
-        lambda p: os.path.join(CACHE_DIR, p), get_cache_filename(cache_type), get_cache_hash_filename(cache_type)
+        lambda p: os.path.join(CACHE_DIR, p), (get_cache_filename(cache_type), get_cache_hash_filename(cache_type))
     ):
         if os.path.exists(path):
             os.unlink(path)

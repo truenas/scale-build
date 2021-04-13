@@ -25,12 +25,13 @@ def main():
     subparsers = parser.add_subparsers(help='sub-command help', dest='action')
 
     subparsers.add_parser('checkout', help='Checkout TrueNAS Scale repositories')
+    subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
 
     args = parser.parse_args()
     if args.action == 'checkout':
         check_epoch()
         checkout_sources()
-    elif args.action == 'package':
+    elif args.action == 'packages':
         check_epoch()
         build_packages()
     else:
