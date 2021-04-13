@@ -16,7 +16,7 @@ def update_epoch(epoch_value):
 
 
 def check_epoch():
-    current_epoch = get_manifest()['build-epoch']
+    current_epoch = str(get_manifest()['build-epoch'])
     if os.path.exists(EPOCH_PATH):
         with open(EPOCH_PATH, 'r') as f:
             epoch_num = f.read().strip()
