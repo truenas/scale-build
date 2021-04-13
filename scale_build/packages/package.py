@@ -6,7 +6,7 @@ import shutil
 from collections import defaultdict
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 from scale_build.utils.run import run
-from scale_build.utils.variables import GIT_LOG_PATH, SOURCES_DIR
+from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, SOURCES_DIR
 
 from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depends, normalize_bin_packages_depends
 
@@ -93,6 +93,29 @@ class Package:
     def build_time_dependencies(self, all_binary_packages):
         # Dependencies at build time will be build_depends
         return get_install_deps(all_binary_packages, set(), self.binary_packages[self.name]) | self.explicit_deps
+
+    @property
+    def rebuild(self):
+        if self.name == 'truenas':
+            # truenas is special and we want to rebuild it always
+            # TODO: Do see why that is so
+            return True
+
+        source_hash = run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD']).stdout.decode().strip()
+        existing_hash = None
+        if os.path.exists(self.hash_path):
+            with open(self.hash_path, 'r') as f:
+                existing_hash = f.read().strip()
+        if source_hash == existing_hash:
+            return run(
+                ['git', '-C', self.source_path, 'diff-files', '--quiet', '--ignore-submodules'], check=False
+            ).returncode != 0
+        else:
+            return True
+
+    @property
+    def hash_path(self):
+        return os.path.join(HASH_DIR, f'{self.name}.hash')
 
     @property
     def exists(self):
