@@ -33,5 +33,9 @@ APT_PREFERENCES = textwrap.dedent('''
 ''')
 
 
+def get_cache_filename(cache_type):
+    return f'basechroot-{cache_type}.squashfs'
+
+
 def get_cache_hash_filename(cache_type):
-    return f'basechroot-{cache_type}.squashfs.hash'
+    return f'{get_cache_filename(cache_type)}.hash'
