@@ -1,6 +1,6 @@
 import logging
 
-from .main import main
+from scale_build.main import main
 
 logger = logging.getLogger(__name__)
 
