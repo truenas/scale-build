@@ -4,7 +4,7 @@ import shutil
 
 from scale_build.exceptions import CallError
 
-from .cache import check_basechroot_changed, create_basehash, save_build_cache
+from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_restore_basecache
 from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, has_low_ram, run, TMPFS
 
 
@@ -25,6 +25,9 @@ def make_bootstrapdir(bootstrapdir_type, log_handle):
         run(['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS], **run_args)
 
     # TODO: Add validation/restoration logic
+    # Check if we should invalidate the base cache
+    if validate_restore_basecache(cache_name, log_handle):
+        return
 
     run([
         'apt-key', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', 'add',
