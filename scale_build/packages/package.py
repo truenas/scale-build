@@ -3,11 +3,12 @@ import logging
 import os
 import shutil
 
-from collections import defaultdict
+from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 from scale_build.utils.run import run
 from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, SOURCES_DIR
 
+from .binary_package import BinaryPackage
 from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depends, normalize_bin_packages_depends
 
 
@@ -24,7 +25,7 @@ class Package:
         self.origin = repo
         self.prebuildcmd = prebuildcmd
         self.kernel_module = kernel_module
-        self.explicit_deps = explicit_deps or set()
+        self.explicit_deps = set(explicit_deps or set())
         self.generate_version = generate_version
         self.predepscmd = predepscmd
         self.deps_path = deps_path
@@ -32,11 +33,11 @@ class Package:
         self.deoptions = deoptions
         self.jobs = jobs
         self.initialized_deps = False
-        self.binary_packages = defaultdict(
-            lambda: {'install_deps': set(), 'source_name': self.name, 'build_deps': set()}
-        )
+        self._binary_packages = []
         self.build_depends = set()
         self.source_package = None
+        self.parent_changed = False
+        self._build_time_dependencies = set()
 
     @property
     def package_path(self):
@@ -57,17 +58,16 @@ class Package:
         return os.path.join(SOURCES_DIR, self.name)
 
     @property
-    def dependencies(self):
-        if self.initialized_deps:
-            return self.binary_packages
+    def binary_packages(self):
+        if self._binary_packages:
+            return self._binary_packages
 
         if self.name == 'kernel' or (self.predepscmd and not self.deps_path):
             # We cannot determine dependency of this package because it does not probably have a control file
             # in it's current state - the only example we have is grub right now. Let's improve this if there are
             # more examples
-            self.binary_packages[self.name].update({
-                'source_package': self.name,
-            })
+            self._binary_packages.append(BinaryPackage(self.name, self.build_depends, self.name, self.name, set()))
+            return self._binary_packages
 
         cp = run([DEPENDS_SCRIPT_PATH, self.debian_control_file_path])
         info = json.loads(cp.stdout)
@@ -77,25 +77,28 @@ class Package:
         ) | default_dependencies
         self.source_package = info['source_package']['name']
         for bin_package in info['binary_packages']:
-            default_dependencies = {'kernel'} if self.kernel_module else set()
-            self.binary_packages[bin_package['name']].update({
-                'install_deps': set(normalize_bin_packages_depends(bin_package['depends'] or '')),
-                'build_deps': self.build_depends,
-            })
+            self._binary_packages.append(BinaryPackage(
+                bin_package['name'], self.build_depends, self.source_package, self.name,
+                set(normalize_bin_packages_depends(bin_package['depends'] or ''))
+            ))
             if self.name == 'truenas':
-                self.binary_packages[bin_package['name']]['build_deps'] |= self.binary_packages[
-                    bin_package['name']]['install_deps']
+                self._binary_packages[-1].build_dependencies |= self._binary_packages[-1].install_dependencies
 
-        self.initialized_deps = True
+        return self._binary_packages
 
-        return self.binary_packages
+    def build_time_dependencies(self, all_binary_packages=None):
+        if self._build_time_dependencies:
+            return self._build_time_dependencies
+        elif not all_binary_packages:
+            raise CallError('Binary packages must be specified when computing build time dependencies')
 
-    def build_time_dependencies(self, all_binary_packages):
-        # Dependencies at build time will be build_depends
-        return get_install_deps(all_binary_packages, set(), self.binary_packages[self.name]) | self.explicit_deps
+        self._build_time_dependencies = get_install_deps(
+            all_binary_packages, set(), self.build_depends
+        ) | self.explicit_deps
+        return self._build_time_dependencies
 
     @property
-    def rebuild(self):
+    def hash_changed(self):
         if self.name == 'truenas':
             # truenas is special and we want to rebuild it always
             # TODO: Do see why that is so
@@ -112,6 +115,10 @@ class Package:
             ).returncode != 0
         else:
             return True
+
+    @property
+    def rebuild(self):
+        return self.hash_changed or self.parent_changed
 
     @property
     def hash_path(self):
