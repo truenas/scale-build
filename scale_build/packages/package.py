@@ -156,6 +156,13 @@ class Package:
         self.update_git_manifest()
 
     @property
+    def deflags(self):
+        if self.name == 'kernel':
+            return [f'-j{os.cpu_count()}', '-us', '-uc', '-b']
+        else:
+            return [f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
+
+    @property
     def existing_branch(self):
         if not self.exists:
             return None
