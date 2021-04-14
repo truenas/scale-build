@@ -10,9 +10,13 @@ def run(*args, **kwargs):
     exception_message = kwargs.pop('exception_msg', None)
     check = kwargs.pop('check', True)
     shell = kwargs.pop('shell', False)
+    logger = kwargs.pop('logger', None)
     proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell)
     stdout, stderr = proc.communicate()
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
+    if logger:
+        logger.debug(stdout.decode(errors='ignore'))
+        logger.error(stderr.decode(errors='ignore'))
     if check:
         if cp.returncode and exception and exception_message:
             raise exception(exception_message)
