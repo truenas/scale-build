@@ -98,6 +98,10 @@ class Package:
         return self._build_time_dependencies
 
     @property
+    def chroot_source_directory(self):
+        return 'dpkg-src'
+
+    @property
     def hash_changed(self):
         if self.name == 'truenas':
             # truenas is special and we want to rebuild it always
