@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 
+from scale_build.clean import clean
 from scale_build.exceptions import CallError
 
 from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_restore_basecache
@@ -13,6 +14,15 @@ logger = logging.getLogger(__name__)
 
 def make_bootstrapdir(bootstrapdir_type, log_handle):
     assert bootstrapdir_type in ('cd', 'update', 'package')
+    clean()
+    try:
+        _make_bootstrapdir_impl(bootstrapdir_type, log_handle)
+    except Exception:
+        clean()
+        raise
+
+
+def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
     run_args = {'stdout': log_handle, 'stderr': log_handle}
     if bootstrapdir_type == 'cd':
         deopts = '--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg'
@@ -34,7 +44,6 @@ def make_bootstrapdir(bootstrapdir_type, log_handle):
         os.path.join(BUILDER_DIR, 'keys/truenas.gpg')
     ], exception=CallError, exception_msg='Failed adding truenas.gpg apt-key', **run_args)
 
-    manifest = get_manifest()
     apt_repos = get_manifest()['apt-repos']
     run(list(filter(
         bool, [
