@@ -6,9 +6,10 @@ import shutil
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 from scale_build.utils.run import run
-from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, SOURCES_DIR
+from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, LOG_DIR, SOURCES_DIR
 
 from .binary_package import BinaryPackage
+from .bootstrap import BootstrapMixin
 from .overlay import OverlayMixin
 from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depends, normalize_bin_packages_depends
 
@@ -16,7 +17,7 @@ from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depend
 logger = logging.getLogger(__name__)
 
 
-class Package(OverlayMixin):
+class Package(BootstrapMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=False, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
@@ -40,6 +41,13 @@ class Package(OverlayMixin):
         self.parent_changed = False
         self._build_time_dependencies = set()
         self.build_stage = None
+        self.logger = logging.getLogger(f'{self.name}_package')
+        self.logger.handlers = []
+        self.logger.addHandler(logging.FileHandler(self.log_file_path))
+
+    @property
+    def log_file_path(self):
+        return os.path.join(LOG_DIR, 'packages', f'{self.name}.log')
 
     @property
     def package_path(self):

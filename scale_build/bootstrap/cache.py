@@ -42,14 +42,13 @@ def remove_basecache(cache_type, log_handle):
             os.unlink(path)
 
 
-def restore_basecache(cache_type, log_handle):
-    log_handle.write('Restoring CHROOT_BASEDIR for runs...\n')
+def restore_basecache(cache_type, chroot_basedir, logger=None):
     run([
-        'unsquashfs', '-f', '-d', CHROOT_BASEDIR, os.path.join(CACHE_DIR, get_cache_filename(cache_type))
-    ], stderr=log_handle, stdout=log_handle, exception=CallError, exception_msg='Failed unsquashfs')
+        'unsquashfs', '-f', '-d', chroot_basedir, os.path.join(CACHE_DIR, get_cache_filename(cache_type))
+    ], exception=CallError, exception_msg='Failed unsquashfs', logger=logger)
 
 
-def validate_restore_basecache(cache_type, log_handle):
+def validate_basecache(cache_type, log_handle):
     # No hash file? Lets remove to be safe
     cache_hash_file = os.path.join(CACHE_DIR, get_cache_hash_filename(cache_type))
     invalidated = True
@@ -65,8 +64,5 @@ def validate_restore_basecache(cache_type, log_handle):
             remove_basecache(cache_type, log_handle)
         else:
             invalidated = False
-
-    if not invalidated:
-        restore_basecache(cache_type, log_handle)
 
     return not invalidated
