@@ -1,7 +1,11 @@
 import os
 
+from distutils.dir_util import copy_tree
 from scale_build.utils.run import run
 from scale_build.utils.variables import DPKG_OVERLAY, TMP_DIR
+
+from .overlayfs import make_kernel_overlay
+from .utils import chroot_run
 
 
 KERNTMP = os.path.join(TMP_DIR, 'kern')
@@ -25,6 +29,21 @@ def umount_kernel(kernel_dir=None):
     run(['umount', '-f', os.path.join(DPKG_OVERLAY, kernel_dir)])
 
 
-def pre_build(package):
+def pre_build(package, log_handle):
     if package.name == 'kernel':
-        pass
+        make_kernel_overlay(log_handle)
+        mount_kernel(package.chroot_source_directory)
+    else:
+        mount_kernel()
+        copy_tree(package.source_path, os.path.join(DPKG_OVERLAY, package.chroot_source_directory))
+
+    if package.kernel_module:
+        for command in (
+            'apt install -y /packages/linux-headers-truenas*',
+            'apt install -y /packages/linux-image-truenas*',
+        ):
+            chroot_run(command, log_handle)
+
+    if package.predepscmd:
+        log_handle.write(f'Running predepcmd: {package.predepscmd}\n')
+        chroot_run([''])

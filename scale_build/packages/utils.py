@@ -1,3 +1,7 @@
+from scale_build.utils.run import run
+from scale_build.utils.variables import DPKG_OVERLAY
+
+
 DEPENDS_SCRIPT_PATH = './scripts/parse_deps.pl'
 
 
@@ -23,3 +27,9 @@ def get_install_deps(packages, deps, deps_list):
             get_install_deps(packages, deps, packages[dep].install_dependencies | packages[dep].build_dependencies)
         )
     return deps
+
+
+def chroot_run(command, handle=None, **kwargs):
+    if handle:
+        kwargs['stdout'] = kwargs['stderr'] = handle
+    return run(f'chroot {DPKG_OVERLAY} /bin/bash -c "{command}"', shell=True, **kwargs)
