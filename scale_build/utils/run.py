@@ -9,7 +9,8 @@ def run(*args, **kwargs):
     exception = kwargs.pop('exception', None)
     exception_message = kwargs.pop('exception_msg', None)
     check = kwargs.pop('check', True)
-    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'])
+    shell = kwargs.pop('shell', False)
+    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell)
     stdout, stderr = proc.communicate()
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:

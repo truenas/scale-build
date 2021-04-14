@@ -4,6 +4,8 @@ import shutil
 
 from .bootstrap.configure import make_bootstrapdir
 from .clean import clean_bootstrap_logs, clean
+from .packages.build_kernel import build_kernel_package
+from .packages.clean import clean_previous_packages
 from .packages.order import get_to_build_packages
 from .utils.variables import LOG_DIR, PKG_LOG_DIR
 
@@ -29,4 +31,6 @@ def _build_packages_impl():
 
     packages = get_to_build_packages()
     for pkg_name, package in packages.items():
-        pass
+        logger.debug('Building package [%s] (%s/packages/%s.log)', pkg_name, LOG_DIR, pkg_name)
+        with open(os.path.join(LOG_DIR, 'packages', f'{pkg_name}.log'), 'w') as f:
+            clean_previous_packages(pkg_name, f)
