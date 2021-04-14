@@ -9,13 +9,14 @@ from scale_build.utils.run import run
 from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, SOURCES_DIR
 
 from .binary_package import BinaryPackage
+from .overlay import OverlayMixin
 from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depends, normalize_bin_packages_depends
 
 
 logger = logging.getLogger(__name__)
 
 
-class Package:
+class Package(OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=False, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
@@ -38,6 +39,7 @@ class Package:
         self.source_package = None
         self.parent_changed = False
         self._build_time_dependencies = set()
+        self.build_stage = None
 
     @property
     def package_path(self):
