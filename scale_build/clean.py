@@ -3,7 +3,6 @@ import os
 import shutil
 
 from scale_build.bootstrap.cleanup import remove_boostrap_directory
-from scale_build.packages.overlayfs import remove_overlay_fs
 
 from .utils.variables import HASH_DIR, LOG_DIR, PKG_DIR, SOURCES_DIR, TMP_DIR
 
@@ -23,7 +22,6 @@ def clean_packages():
 
 
 def clean():
-    remove_overlay_fs()
     remove_boostrap_directory()
 
 
