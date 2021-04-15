@@ -2,10 +2,10 @@ import logging
 import os
 import shutil
 
-from scale_build.clean import clean
 from scale_build.exceptions import CallError
 
 from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_basecache
+from .cleanup import remove_boostrap_directory
 from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, has_low_ram, run, TMPFS
 
 
@@ -14,12 +14,11 @@ logger = logging.getLogger(__name__)
 
 def make_bootstrapdir(bootstrapdir_type, log_handle):
     assert bootstrapdir_type in ('cd', 'update', 'package')
-    clean()
+    remove_boostrap_directory()
     try:
         _make_bootstrapdir_impl(bootstrapdir_type, log_handle)
-    except Exception:
-        clean()
-        raise
+    finally:
+        remove_boostrap_directory()
 
 
 def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
@@ -31,8 +30,9 @@ def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
         deopts = ''
         cache_name = 'package'
 
-    if not has_low_ram() or bootstrapdir_type == 'update':
-        run(['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS], **run_args)
+    # TODO: Commenting out tmpfs logic, let's see if we can just get rid of it
+    # if not has_low_ram() or bootstrapdir_type == 'update':
+    #    run(['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS], **run_args)
 
     # Check if we should invalidate the base cache
     if validate_basecache(cache_name, log_handle):
