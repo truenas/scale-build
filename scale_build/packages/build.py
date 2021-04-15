@@ -16,7 +16,17 @@ class BuildPackageMixin:
         exception = CallError if exception_message else None
         run(
             f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, logger=self.logger,
-            exception=exception, exception_msg=exception_message
+            exception=exception, exception_msg=exception_message, env={
+                **os.environ,
+                # When logging in as 'su root' the /sbin dirs get dropped out of PATH
+                'PATH': f'{os.environ["PATH"]}:/sbin:/usr/sbin:/usr/local/sbin',
+                'LC_ALL': 'C',  # Makes some perl scripts happy during package builds
+                'LANG': 'C',
+                'DEB_BUILD_OPTIONS': f'parallel={os.cpu_count()}',  # Passed along to WAF for parallel build,
+                'CONFIG_DEBUG_INFO': 'N',  # Build kernel with debug symbols
+                'CONFIG_LOCALVERSION': '+truenas',
+                'DEBIAN_FRONTEND': 'noninteractive',  # Never go full interactive on any packages
+            }
         )
 
     @property

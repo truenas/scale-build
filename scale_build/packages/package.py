@@ -10,6 +10,7 @@ from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, LOG_DIR, SOURCES
 
 from .binary_package import BinaryPackage
 from .bootstrap import BootstrapMixin
+from .build import BuildPackageMixin
 from .clean import BuildCleanMixin
 from .overlay import OverlayMixin
 from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depends, normalize_bin_packages_depends
@@ -18,7 +19,7 @@ from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depend
 logger = logging.getLogger(__name__)
 
 
-class Package(BootstrapMixin, BuildCleanMixin, OverlayMixin):
+class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
