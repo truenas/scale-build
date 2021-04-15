@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 
@@ -11,7 +12,8 @@ def run(*args, **kwargs):
     check = kwargs.pop('check', True)
     shell = kwargs.pop('shell', False)
     logger = kwargs.pop('logger', None)
-    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell)
+    env = kwargs.pop('env', None) or os.environ
+    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell, env=env)
     stdout, stderr = proc.communicate()
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if logger:
