@@ -9,12 +9,16 @@ from scale_build.utils.variables import CACHE_DIR, PKG_DIR, TMP_DIR, TMPFS
 class OverlayMixin:
 
     @property
+    def tmpfs_path(self):
+        return f'{TMPFS}_{self.name}'
+
+    @property
     def chroot_base_directory(self):
-        return os.path.join(TMPFS, f'chroot_{self.name}')
+        return os.path.join(self.tmpfs_path, f'chroot_{self.name}')
 
     @property
     def chroot_overlay(self):
-        return os.path.join(TMPFS, f'chroot-overlay_{self.name}')
+        return os.path.join(self.tmpfs_path, f'chroot-overlay_{self.name}')
 
     @property
     def dpkg_overlay(self):
@@ -22,7 +26,7 @@ class OverlayMixin:
 
     @property
     def workdir_overlay(self):
-        return os.path.join(TMPFS, f'workdir-overlay_{self.name}')
+        return os.path.join(self.tmpfs_path, f'workdir-overlay_{self.name}')
 
     @property
     def dpkg_overlay_packages_path(self):
