@@ -5,7 +5,7 @@ import shutil
 from .exceptions import CallError, MissingPackagesException
 from .utils.manifest import get_manifest
 from .utils.system import has_low_ram
-from .utils.variables import CACHE_DIR, HASH_DIR, LOG_DIR, PKG_DIR, SOURCES_DIR, TMP_DIR, TMPFS
+from .utils.variables import CACHE_DIR, HASH_DIR, LOG_DIR, PKG_DIR, PKG_LOG_DIR, SOURCES_DIR, TMP_DIR, TMPFS
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def retrieve_missing_packages():
 
 
 def setup_dirs():
-    for d in (CACHE_DIR, TMP_DIR, HASH_DIR, LOG_DIR, PKG_DIR, SOURCES_DIR, TMPFS):
+    for d in (CACHE_DIR, TMP_DIR, HASH_DIR, LOG_DIR, PKG_DIR, PKG_LOG_DIR, SOURCES_DIR, TMPFS):
         os.makedirs(d, exist_ok=True)
 
 

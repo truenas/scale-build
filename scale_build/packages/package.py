@@ -6,7 +6,7 @@ import shutil
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 from scale_build.utils.run import run
-from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, LOG_DIR, SOURCES_DIR
+from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, LOG_DIR, PKG_LOG_DIR, SOURCES_DIR
 
 from .binary_package import BinaryPackage
 from .bootstrap import BootstrapMixin
@@ -51,7 +51,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
 
     @property
     def log_file_path(self):
-        return os.path.join(LOG_DIR, 'packages', f'{self.name}.log')
+        return os.path.join(PKG_LOG_DIR, f'{self.name}.log')
 
     @property
     def package_path(self):

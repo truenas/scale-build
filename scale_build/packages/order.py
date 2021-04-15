@@ -3,7 +3,7 @@ import logging
 
 from collections import defaultdict
 from scale_build.exceptions import CallError
-from scale_build.utils.manifest import get_packages
+from scale_build.utils.package import get_packages
 
 
 logger = logging.getLogger(__name__)

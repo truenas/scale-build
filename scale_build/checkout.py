@@ -3,7 +3,7 @@ import os
 import re
 
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, update_git_manifest
-from scale_build.utils.manifest import get_packages
+from scale_build.utils.package import get_packages
 from scale_build.utils.run import run
 
 
