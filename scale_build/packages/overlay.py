@@ -67,6 +67,7 @@ class OverlayMixin:
             ['umount', '-f', os.path.join(self.dpkg_overlay, 'sys')],
             ['umount', '-f', self.dpkg_overlay],
             ['umount', '-R', '-f', self.dpkg_overlay],
+            ['umount', '-R', '-f', self.tmpfs_path],
         ):
             run(command, check=False)
 

@@ -34,8 +34,12 @@ class BuildPackageMixin:
         return os.path.join(self.dpkg_overlay, 'dpkg-src')
 
     @property
-    def package_source_in_chroot(self):
-        return os.path.join(*filter(bool, (self.source_in_chroot, self.subdir)))
+    def package_source_with_chroot(self):
+        return os.path.join(self.dpkg_overlay, self.package_source)
+
+    @property
+    def package_source(self):
+        return os.path.join(*filter(bool, ('dpkg-src', self.subdir)))
 
     def build(self):
         # The flow is the following steps
@@ -54,8 +58,8 @@ class BuildPackageMixin:
         self._build_impl()
 
     def _build_impl(self):
-        self.setup_chroot_basedir()
         self.delete_overlayfs()
+        self.setup_chroot_basedir()
         self.make_overlayfs()
         self.clean_previous_packages()
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
@@ -82,29 +86,29 @@ class BuildPackageMixin:
 
             self.logger.debug('Running predepcmd: %r', predep_cmd)
             self.run_in_chroot(
-                f'cd {self.package_source_in_chroot} && {predep_cmd}', 'Failed to execute predep command'
+                f'cd {self.package_source} && {predep_cmd}', 'Failed to execute predep command'
             )
 
-        if not os.path.exists(os.path.join(self.package_source_in_chroot, 'debian/control')):
+        if not os.path.exists(os.path.join(self.package_source_with_chroot, 'debian/control')):
             raise CallError(
-                f'Missing debian/control file for {self.name} in {self.package_source_in_chroot}', errno.ENOENT
+                f'Missing debian/control file for {self.name} in {self.package_source_with_chroot}', errno.ENOENT
             )
 
-        self.run_in_chroot(f'cd {self.package_source_in_chroot} && mk-build-deps --build-dep', 'Failed mk-build-deps')
-        self.run_in_chroot(f'cd {self.package_source_in_chroot} && apt install -y ./*.deb', 'Failed install build deps')
+        self.run_in_chroot(f'cd {self.package_source} && mk-build-deps --build-dep', 'Failed mk-build-deps')
+        self.run_in_chroot(f'cd {self.package_source} && apt install -y ./*.deb', 'Failed install build deps')
 
         # Truenas package is special
         if self.name == 'truenas':
-            os.makedirs(os.path.join(self.package_source_in_chroot, 'data'))
+            os.makedirs(os.path.join(self.package_source_with_chroot, 'data'))
             # FIXME: Please see a good way to have environment variables available
-            with open(os.path.join(self.package_source_in_chroot, 'data/manifest.json'), 'w') as f:
+            with open(os.path.join(self.package_source_with_chroot, 'data/manifest.json'), 'w') as f:
                 f.write(json.dumps({
                     'buildtime': os.environ.get('BUILDTIME'),
                     'train': os.environ.get('TRAIN'),
                     'version': os.environ.get('VERSION'),
                 }))
-            os.makedirs(os.path.join(self.package_source_in_chroot, 'etc'), exist_ok=True)
-            with open(os.path.join(self.package_source_in_chroot, 'etc/version'), 'w') as f:
+            os.makedirs(os.path.join(self.package_source_with_chroot, 'etc'), exist_ok=True)
+            with open(os.path.join(self.package_source_with_chroot, 'etc/version'), 'w') as f:
                 # FIXME: Remove string type cast please
                 f.write(str(os.environ.get('VERSION')))
 
@@ -114,7 +118,7 @@ class BuildPackageMixin:
             generate_version_flags = f' -v {datetime.today().strftime("%Y%m%d%H%M%S")}~truenas+1 '
 
         self.run_in_chroot(
-            f'cd {self.package_source_in_chroot} && dch -b -M {generate_version_flags}--force-distribution '
+            f'cd {self.package_source} && dch -b -M {generate_version_flags}--force-distribution '
             '--distribution bullseye-truenas-unstable \'Tagged from truenas-build\'',
             'Failed dch changelog'
         )
@@ -122,12 +126,12 @@ class BuildPackageMixin:
         for command in self.build_command:
             self.logger.debug('Running build command: %r', command)
             self.run_in_chroot(
-                f'cd {self.package_source_in_chroot} && {command}', f'Failed to build {self.name} package'
+                f'cd {self.package_source} && {command}', f'Failed to build {self.name} package'
             )
 
         self.logger.debug('Copying finished packages')
         # Copy and record each built packages for cleanup later
-        package_dir = os.path.dirname(self.package_source_in_chroot)
+        package_dir = os.path.dirname(self.package_source_with_chroot)
         built_packages = []
         for pkg in filter(lambda p: p.endswith(('.deb', '.udeb')), os.listdir(package_dir)):
             shutil.move(os.path.join(package_dir, pkg), os.path.join(PKG_DIR, pkg))
