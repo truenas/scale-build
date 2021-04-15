@@ -154,7 +154,8 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   branch: truenas/zfs-2.0-release
-  predepscmd: cp -r contrib/truenas debian
+  predepscmd:
+    - "cp -r contrib/truenas debian"
   deps_path: contrib/truenas
   kernel_module: true
   generate_version: false
@@ -240,7 +241,8 @@ sources:
 - name: zectl
   repo: https://github.com/truenas/zectl
   branch: master
-  predepscmd: cp -a packaging/debian .
+  predepscmd:
+    - "cp -a packaging/debian ."
   deps_path: packaging/debian
   explicit_deps:
     - openzfs
@@ -298,7 +300,9 @@ sources:
 - name: grub2
   repo: https://github.com/truenas/grub2
   branch: master
-  predepscmd: apt install -y wget xz-utils && ./pull.sh
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
   deoptions: nocheck
   generate_version: false
   jobs: 1
