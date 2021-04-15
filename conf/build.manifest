@@ -207,7 +207,8 @@ sources:
   branch: master
 - name: scst
   repo: https://github.com/truenas/scst
-  prebuildcmd: make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS
+  prebuildcmd:
+    - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
   kernel_module: true
   branch: v3.5-branch
   explicit_deps:
@@ -217,8 +218,11 @@ sources:
   branch: master
 - name: truenas_webui
   repo: https://github.com/truenas/webui
-  prebuildcmd: npm install -g yarn && yarn install && tar cvzf node_files.tgz node_modules/
-    && rm -rf node_modules
+  prebuildcmd:
+    - "npm install -g yarn"
+    - "yarn install"
+    - "tar cvzf node_files.tgz node_modules/"
+    - "rm -rf node_modules"
   branch: master
 - name: sedutil
   repo: https://github.com/truenas/sedutil
