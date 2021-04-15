@@ -23,7 +23,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
-        buildcmd=None,
+        buildcmd=None, tmpfs=True, tmpfs_size=12
     ):
         self.name = name
         self.branch = branch
@@ -38,6 +38,8 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.subdir = subdir
         self.deoptions = deoptions
         self.jobs = jobs
+        self.tmpfs = tmpfs
+        self.tmpfs_size = tmpfs_size
         self.initialized_deps = False
         self._binary_packages = []
         self.build_depends = set()
