@@ -160,6 +160,11 @@ sources:
           value: true
       command: "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/extra.config"
     - "./scripts/package/mkdebian"
+  buildcmd:
+    - "cp -a .config /"
+    - "make distclean"
+    - "cp -a  /.config .config"
+    - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
   branch: master
