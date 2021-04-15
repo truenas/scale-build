@@ -34,7 +34,6 @@ def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
     if not has_low_ram() or bootstrapdir_type == 'update':
         run(['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS], **run_args)
 
-    # TODO: Add validation/restoration logic
     # Check if we should invalidate the base cache
     if validate_basecache(cache_name, log_handle):
         return
