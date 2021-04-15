@@ -21,16 +21,18 @@ logger = logging.getLogger(__name__)
 class Package(BootstrapMixin, BuildCleanMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
-        generate_version=False, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
+        generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
+        buildcmd=None,
     ):
         self.name = name
         self.branch = branch
         self.origin = repo
-        self.prebuildcmd = prebuildcmd
+        self.prebuildcmd = prebuildcmd or []
+        self.buildcmd = buildcmd or []
         self.kernel_module = kernel_module
         self.explicit_deps = set(explicit_deps or set())
         self.generate_version = generate_version
-        self.predepscmd = predepscmd
+        self.predepscmd = predepscmd or []
         self.deps_path = deps_path
         self.subdir = subdir
         self.deoptions = deoptions
@@ -109,17 +111,13 @@ class Package(BootstrapMixin, BuildCleanMixin, OverlayMixin):
         return self._build_time_dependencies
 
     @property
-    def chroot_source_directory(self):
-        return 'dpkg-src'
-
-    @property
     def hash_changed(self):
         if self.name == 'truenas':
             # truenas is special and we want to rebuild it always
             # TODO: Do see why that is so
             return True
 
-        source_hash = run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD']).stdout.decode().strip()
+        source_hash = self.source_hash
         existing_hash = None
         if os.path.exists(self.hash_path):
             with open(self.hash_path, 'r') as f:
@@ -130,6 +128,10 @@ class Package(BootstrapMixin, BuildCleanMixin, OverlayMixin):
             ).returncode != 0
         else:
             return True
+
+    @property
+    def source_hash(self):
+        return run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD']).stdout.decode().strip()
 
     @property
     def rebuild(self):
@@ -169,13 +171,6 @@ class Package(BootstrapMixin, BuildCleanMixin, OverlayMixin):
                 run(['git', 'clone', '--depth=1', '-b', branch, self.origin, self.source_path], stdout=f, stderr=f)
 
         self.update_git_manifest()
-
-    @property
-    def deflags(self):
-        if self.name == 'kernel':
-            return [f'-j{os.cpu_count()}', '-us', '-uc', '-b']
-        else:
-            return [f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
 
     @property
     def existing_branch(self):
