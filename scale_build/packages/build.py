@@ -64,6 +64,12 @@ class BuildPackageMixin:
         self.clean_previous_packages()
         shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True)
 
+        # TODO: Remove me please
+        self.logger.debug('Setting up apt-cacher')
+        os.makedirs(os.path.join(self.dpkg_overlay, 'etc/apt/apt.conf.d'), exist_ok=True)
+        with open(os.path.join(self.dpkg_overlay, 'etc/apt/apt.conf.d/02proxy'), 'w') as f:
+            f.write('Acquire::http::Proxy "http://192.168.0.3:3142";\n')
+
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
             self.run_in_chroot('apt update')
 
