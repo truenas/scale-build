@@ -50,6 +50,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.logger = logging.getLogger(f'{self.name}_package')
         self.logger.setLevel('DEBUG')
         self.logger.handlers = []
+        self.logger.propagate = False
         self.logger.addHandler(logging.FileHandler(self.log_file_path, mode='w'))
 
     @property
