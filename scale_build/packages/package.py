@@ -49,7 +49,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.build_stage = None
         self.logger = logging.getLogger(f'{self.name}_package')
         self.logger.handlers = []
-        self.logger.addHandler(logging.FileHandler(self.log_file_path))
+        self.logger.addHandler(logging.FileHandler(self.log_file_path, mode='w'))
 
     @property
     def log_file_path(self):
