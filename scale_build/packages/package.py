@@ -48,6 +48,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self._build_time_dependencies = set()
         self.build_stage = None
         self.logger = logging.getLogger(f'{self.name}_package')
+        self.logger.setLevel('DEBUG')
         self.logger.handlers = []
         self.logger.addHandler(logging.FileHandler(self.log_file_path, mode='w'))
 

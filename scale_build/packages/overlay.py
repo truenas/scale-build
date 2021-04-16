@@ -21,6 +21,10 @@ class OverlayMixin:
         return os.path.join(self.tmpfs_path, f'chroot-overlay_{self.name}')
 
     @property
+    def sources_overlay(self):
+        return os.path.join(TMP_DIR, f'sources_{self.name}')
+
+    @property
     def dpkg_overlay(self):
         return os.path.join(TMP_DIR, f'dpkg-overlay_{self.name}')
 
@@ -33,7 +37,7 @@ class OverlayMixin:
         return os.path.join(self.dpkg_overlay, 'packages')
 
     def make_overlayfs(self):
-        for path in (self.chroot_overlay, self.dpkg_overlay, self.workdir_overlay):
+        for path in (self.chroot_overlay, self.dpkg_overlay, self.sources_overlay, self.workdir_overlay):
             os.makedirs(path, exist_ok=True)
 
         for entry in (
@@ -50,6 +54,10 @@ class OverlayMixin:
                 ['mount', '--bind', os.path.join(CACHE_DIR, 'apt'), os.path.join(self.dpkg_overlay, 'var/cache/apt')],
                 'Failed mount --bind /var/cache/apt',
             ),
+            (
+                ['mount', '--bind', self.sources_overlay, self.source_in_chroot],
+                'Failed mount --bind /dpkg-src', self.source_in_chroot
+            )
         ):
             if len(entry) == 2:
                 command, msg = entry
@@ -71,5 +79,8 @@ class OverlayMixin:
         ):
             run(command, check=False)
 
-        for path in (self.chroot_overlay, self.dpkg_overlay, self.workdir_overlay):
+        for path in (
+            self.chroot_overlay, self.dpkg_overlay, self.workdir_overlay, self.chroot_base_directory,
+            self.sources_overlay, self.tmpfs_path
+        ):
             shutil.rmtree(path, ignore_errors=True)

@@ -62,9 +62,10 @@ class BuildPackageMixin:
         self.setup_chroot_basedir()
         self.make_overlayfs()
         self.clean_previous_packages()
+        shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True)
+
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
             self.run_in_chroot('apt update')
-        copy_tree(self.source_path, self.source_in_chroot)
 
         if self.kernel_module:
             self.logger.debug('Installing truenas linux headers')
@@ -74,13 +75,17 @@ class BuildPackageMixin:
         for predep_entry in self.predepscmd:
             if isinstance(predep_entry, dict):
                 predep_cmd = predep_entry['command']
+                skip_cmd = False
                 for env_var in predep_entry['env_checks']:
                     if os.environ.get(env_var['key']) != env_var['value']:
                         self.logger.debug(
                             'Skipping %r predep command because %r does not match %r',
                             predep_cmd, env_var['key'], env_var['value']
                         )
-                        continue
+                        skip_cmd = True
+                        break
+                if skip_cmd:
+                    continue
             else:
                 predep_cmd = predep_entry
 
