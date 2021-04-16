@@ -30,6 +30,10 @@ def _build_packages_impl():
     packages = get_to_build_packages()
     for pkg_name, package in packages.items():
         logger.debug('Building package [%s] (%s/packages/%s.log)', pkg_name, LOG_DIR, pkg_name)
-        package.build()
+        try:
+            package.build()
+        except:
+            logger.error('errored out', exc_info=True)
+            raise
 
     logger.debug('Success! Done building packages')
