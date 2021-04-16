@@ -34,6 +34,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
 
     # Check if we should invalidate the base cache
     if validate_basecache(cache_name):
+        logger.debug('Basechroot cache is intact and does not need to be changed')
         return
 
     run([
