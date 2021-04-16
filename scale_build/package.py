@@ -13,14 +13,15 @@ logger = logging.getLogger(__name__)
 
 def build_packages():
     clean_bootstrap_logs()
-    logger.debug('Creating debian bootstrap directory: (%s/bootstrap_chroot.log)', LOG_DIR)
     try:
         _build_packages_impl()
     except Exception:
-        clean()
+        pass
+        #clean()
 
 
 def _build_packages_impl():
+    logger.debug('Building packages')
     make_bootstrapdir('package')
 
     shutil.rmtree(PKG_LOG_DIR, ignore_errors=True)
@@ -29,3 +30,6 @@ def _build_packages_impl():
     packages = get_to_build_packages()
     for pkg_name, package in packages.items():
         logger.debug('Building package [%s] (%s/packages/%s.log)', pkg_name, LOG_DIR, pkg_name)
+        package.build()
+
+    logger.debug('Success! Done building packages')
