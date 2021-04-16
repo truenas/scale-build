@@ -7,19 +7,24 @@ def run(*args, **kwargs):
         args = tuple(args[0])
     kwargs.setdefault('stdout', subprocess.PIPE)
     kwargs.setdefault('stderr', subprocess.PIPE)
+    stdout = stderr = ''
     exception = kwargs.pop('exception', None)
     exception_message = kwargs.pop('exception_msg', None)
     check = kwargs.pop('check', True)
     shell = kwargs.pop('shell', False)
     logger = kwargs.pop('logger', None)
     env = kwargs.pop('env', None) or os.environ
-    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell, env=env)
-    stdout, stderr = proc.communicate()
-    cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if logger:
-        # TODO: Capture realtime stdout/stderr
-        logger.debug(stdout.decode(errors='ignore'))
-        logger.error(stderr.decode(errors='ignore'))
+        kwargs['stderr'] = subprocess.STDOUT
+
+    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell, env=env)
+    if logger:
+        for line in map(lambda l: l.rstrip().decode(errors='ignore'), iter(proc.stdout.readline, b'')):
+            logger.debug(line)
+
+    stdout, stderr = proc.communicate()
+
+    cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:
         if cp.returncode and exception and exception_message:
             raise exception(exception_message)
