@@ -17,6 +17,7 @@ def run(*args, **kwargs):
     stdout, stderr = proc.communicate()
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if logger:
+        # TODO: Capture realtime stdout/stderr
         logger.debug(stdout.decode(errors='ignore'))
         logger.error(stderr.decode(errors='ignore'))
     if check:
