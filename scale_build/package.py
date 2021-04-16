@@ -21,8 +21,7 @@ def build_packages():
 
 
 def _build_packages_impl():
-    with open(os.path.join(LOG_DIR, 'bootstrap_chroot.log'), 'w') as f:
-        make_bootstrapdir('package', f)
+    make_bootstrapdir('package')
 
     shutil.rmtree(PKG_LOG_DIR, ignore_errors=True)
     os.makedirs(PKG_LOG_DIR)

@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 
@@ -6,23 +5,22 @@ from scale_build.exceptions import CallError
 
 from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_basecache
 from .cleanup import remove_boostrap_directory
+from .logger import get_logger
 from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, has_low_ram, run, TMPFS
 
 
-logger = logging.getLogger(__name__)
-
-
-def make_bootstrapdir(bootstrapdir_type, log_handle):
+def make_bootstrapdir(bootstrapdir_type):
     assert bootstrapdir_type in ('cd', 'update', 'package')
     remove_boostrap_directory()
     try:
-        _make_bootstrapdir_impl(bootstrapdir_type, log_handle)
+        _make_bootstrapdir_impl(bootstrapdir_type)
     finally:
         remove_boostrap_directory()
 
 
-def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
-    run_args = {'stdout': log_handle, 'stderr': log_handle}
+def _make_bootstrapdir_impl(bootstrapdir_type):
+    logger = get_logger(bootstrapdir_type, 'w')
+    run_args = {'logger': logger}
     if bootstrapdir_type == 'cd':
         deopts = '--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg'
         cache_name = 'cdrom'
@@ -35,7 +33,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
     #    run(['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS], **run_args)
 
     # Check if we should invalidate the base cache
-    if validate_basecache(cache_name, log_handle):
+    if validate_basecache(cache_name):
         return
 
     run([
@@ -81,7 +79,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
 
     # Add additional repos
     for repo in apt_repos['additional']:
-        log_handle.write(f'Adding additional repo: {repo["url"]}\n')
+        logger.debug('Adding additional repo: %r', repo['url'])
         shutil.copy(os.path.join(BUILDER_DIR, repo['key']), os.path.join(CHROOT_BASEDIR, 'apt.key'))
         run([
             'chroot', CHROOT_BASEDIR, 'apt-key', 'add', '/apt.key'
@@ -91,7 +89,10 @@ def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
 
     # If not building a cd environment
     if bootstrapdir_type != 'cd':
-        check_basechroot_changed(log_handle)
+        check_basechroot_changed()
+
+    with open(apt_sources_path, 'w') as f:
+        f.write('\n'.join(apt_sources))
 
     # Update apt
     run(['chroot', CHROOT_BASEDIR, 'apt', 'update'], exception=CallError, exception_msg='Failed apt update', **run_args)
@@ -105,4 +106,4 @@ def _make_bootstrapdir_impl(bootstrapdir_type, log_handle):
     run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')], **run_args)
     run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')], **run_args)
 
-    save_build_cache(cache_name, log_handle)
+    save_build_cache(cache_name)
