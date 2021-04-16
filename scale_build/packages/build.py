@@ -117,6 +117,12 @@ class BuildPackageMixin:
                 # FIXME: Remove string type cast please
                 f.write(str(os.environ.get('VERSION')))
 
+        for prebuild_command in self.prebuildcmd:
+            self.logger.debug('Running prebuildcmd: %r', prebuild_command)
+            self.run_in_chroot(
+                f'cd {self.package_source} && {prebuild_command}', 'Failed to execute prebuildcmd command'
+            )
+
         # Make a programmatically generated version for this build
         generate_version_flags = ''
         if self.generate_version:
