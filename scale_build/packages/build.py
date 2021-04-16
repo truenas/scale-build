@@ -62,7 +62,7 @@ class BuildPackageMixin:
         self.setup_chroot_basedir()
         self.make_overlayfs()
         self.clean_previous_packages()
-        shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True)
+        shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)
 
         # TODO: Remove me please
         self.logger.debug('Setting up apt-cacher')
