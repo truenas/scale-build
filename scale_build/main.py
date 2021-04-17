@@ -6,6 +6,7 @@ from scale_build.checkout import checkout_sources
 from scale_build.epoch import check_epoch
 from scale_build.package import build_packages
 from scale_build.preflight import preflight_check
+from scale_build.update_image import build_update_image
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ def main():
 
     subparsers.add_parser('checkout', help='Checkout TrueNAS Scale repositories')
     subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
+    subparsers.add_parser('update', help='Create TrueNAS Scale update image')
 
     args = parser.parse_args()
     if args.action == 'checkout':
@@ -34,5 +36,7 @@ def main():
     elif args.action == 'packages':
         check_epoch()
         build_packages()
+    elif args.action == 'update':
+        build_update_image()
     else:
         parser.print_help()
