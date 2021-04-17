@@ -4,8 +4,8 @@ import os
 import shutil
 
 from datetime import datetime
-from distutils.dir_util import copy_tree
 from scale_build.exceptions import CallError
+from scale_build.utils.environment import APT_ENV
 from scale_build.utils.run import run
 from scale_build.utils.variables import PKG_DIR
 
@@ -18,14 +18,9 @@ class BuildPackageMixin:
             f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, logger=self.logger,
             exception=exception, exception_msg=exception_message, env={
                 **os.environ,
-                # When logging in as 'su root' the /sbin dirs get dropped out of PATH
-                'PATH': f'{os.environ["PATH"]}:/sbin:/usr/sbin:/usr/local/sbin',
-                'LC_ALL': 'C',  # Makes some perl scripts happy during package builds
-                'LANG': 'C',
-                'DEB_BUILD_OPTIONS': f'parallel={os.cpu_count()}',  # Passed along to WAF for parallel build,
+                **APT_ENV,
                 'CONFIG_DEBUG_INFO': 'N',  # Build kernel with debug symbols
                 'CONFIG_LOCALVERSION': '+truenas',
-                'DEBIAN_FRONTEND': 'noninteractive',  # Never go full interactive on any packages
             }
         )
 

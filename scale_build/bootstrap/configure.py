@@ -6,7 +6,7 @@ from scale_build.exceptions import CallError
 from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_basecache
 from .cleanup import remove_boostrap_directory
 from .logger import get_logger
-from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, has_low_ram, run, TMPFS
+from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, run
 
 
 def make_bootstrapdir(bootstrapdir_type):
@@ -27,10 +27,6 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
     else:
         deopts = ''
         cache_name = 'package'
-
-    # TODO: Commenting out tmpfs logic, let's see if we can just get rid of it
-    # if not has_low_ram() or bootstrapdir_type == 'update':
-    #    run(['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS], **run_args)
 
     # Check if we should invalidate the base cache
     if validate_basecache(cache_name):

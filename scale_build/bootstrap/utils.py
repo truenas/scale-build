@@ -33,8 +33,12 @@ APT_PREFERENCES = textwrap.dedent('''
 ''')
 
 
+def normalize_cache_type(cache_type):
+    return 'cdrom' if cache_type == 'cd' else 'package'
+
+
 def get_cache_filename(cache_type):
-    return f'basechroot-{cache_type}.squashfs'
+    return f'basechroot-{normalize_cache_type(cache_type)}.squashfs'
 
 
 def get_cache_hash_filename(cache_type):
