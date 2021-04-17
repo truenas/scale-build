@@ -35,7 +35,7 @@ def build_rootfs_image():
     build_logger = get_logger('rootfs-image', 'w')
     # Create the inner image
     run(
-        ['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), 'comp', 'xz'],
+        ['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'],
         logger=build_logger
     )
     # Build any MANIFEST information
