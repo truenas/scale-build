@@ -22,11 +22,20 @@ def setup_chroot_basedir(basecache_type, logger=None):
     run(['mount', '--bind', PKG_DIR, PACKAGE_PATH], logger=logger)
 
 
+def umount_tmpfs_and_clean_chroot_dir():
+    shutil.rmtree(CHROOT_BASEDIR, ignore_errors=True)
+    run(['umount', '-f', TMPFS], check=False)
+
+
 def umount_chroot_basedir():
     for command in (
         ['umount', '-f', PACKAGE_PATH],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')],
-        ['umount', '-f', TMPFS],
     ):
-        run(command)
+        run(command, check=False)
+
+
+def clean_mounts():
+    umount_chroot_basedir()
+    umount_tmpfs_and_clean_chroot_dir()
