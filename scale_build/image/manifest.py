@@ -5,7 +5,7 @@ import os
 import shutil
 import subprocess
 
-from scale_build.utils.variables import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
+from scale_build.utils.variables import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
 
 UPDATE_FILE = os.path.join(RELEASE_DIR, 'TrueNAS-SCALE.update')
@@ -22,7 +22,7 @@ def build_manifest():
     ).stdout.split()[0]) * 1.1)
 
     shutil.copytree(
-        os.path.join(os.path.dirname(__file__), '../truenas_install'),
+        os.path.join(BUILDER_DIR, 'truenas_install'),
         os.path.join(UPDATE_DIR, 'truenas_install'),
     )
 
