@@ -2,7 +2,7 @@ import os
 import shutil
 
 from scale_build.utils.run import run
-from scale_build.utils.variables import CHROOT_BASEDIR, TMPFS
+from scale_build.utils.paths import CHROOT_BASEDIR, TMPFS
 
 
 def remove_boostrap_directory():

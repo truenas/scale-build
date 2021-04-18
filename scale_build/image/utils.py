@@ -3,7 +3,7 @@ import os
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
 from scale_build.utils.run import run
-from scale_build.utils.variables import CHROOT_BASEDIR
+from scale_build.utils.paths import CHROOT_BASEDIR
 
 
 PACKAGE_PATH = os.path.join(CHROOT_BASEDIR, 'packages')

@@ -1,7 +1,7 @@
 import contextlib
 import os
 
-from scale_build.utils.variables import PKG_DIR
+from scale_build.utils.paths import PKG_DIR
 
 
 class BuildCleanMixin:

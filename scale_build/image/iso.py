@@ -5,7 +5,7 @@ import shutil
 
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.variables import BUILDER_DIR, CD_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
+from scale_build.utils.paths import BUILDER_DIR, CD_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
 
 from .logger import get_logger
 from .manifest import UPDATE_FILE

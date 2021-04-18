@@ -11,7 +11,7 @@ from .image.bootstrap import (
 from .image.iso import install_iso_packages, make_iso_file
 from .image.logger import get_logger
 from .image.manifest import UPDATE_FILE
-from .utils.variables import LOG_DIR, RELEASE_DIR
+from .utils.paths import LOG_DIR, RELEASE_DIR
 
 
 logger = logging.getLogger(__name__)

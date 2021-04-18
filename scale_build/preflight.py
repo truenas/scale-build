@@ -5,7 +5,7 @@ import shutil
 from .exceptions import CallError, MissingPackagesException
 from .utils.manifest import get_manifest
 from .utils.system import has_low_ram
-from .utils.variables import CACHE_DIR, HASH_DIR, LOG_DIR, PKG_DIR, PKG_LOG_DIR, SOURCES_DIR, TMP_DIR, TMPFS
+from .utils.paths import CACHE_DIR, HASH_DIR, LOG_DIR, PKG_DIR, PKG_LOG_DIR, SOURCES_DIR, TMP_DIR, TMPFS
 
 
 logger = logging.getLogger(__name__)

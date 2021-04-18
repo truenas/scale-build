@@ -2,12 +2,13 @@ import argparse
 import logging
 import sys
 
-from scale_build.checkout import checkout_sources
-from scale_build.epoch import check_epoch
-from scale_build.iso import build_iso
-from scale_build.package import build_packages
-from scale_build.preflight import preflight_check
-from scale_build.update_image import build_update_image
+from .checkout import checkout_sources
+from .epoch import check_epoch
+from .iso import build_iso
+from .package import build_packages
+from .preflight import preflight_check
+from .update_image import build_update_image
+
 
 logger = logging.getLogger(__name__)
 

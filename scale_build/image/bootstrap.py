@@ -3,7 +3,7 @@ import shutil
 
 from scale_build.bootstrap.cache import restore_basecache
 from scale_build.utils.run import run
-from scale_build.utils.variables import CD_DIR, CHROOT_BASEDIR, PKG_DIR, RELEASE_DIR, TMPFS
+from scale_build.utils.paths import CD_DIR, CHROOT_BASEDIR, PKG_DIR, RELEASE_DIR, TMPFS
 
 from .utils import PACKAGE_PATH
 

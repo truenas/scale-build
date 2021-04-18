@@ -2,9 +2,8 @@ import logging
 import os
 import shutil
 
-from scale_build.bootstrap.cleanup import remove_boostrap_directory
-
-from .utils.variables import HASH_DIR, LOG_DIR, PKG_DIR, SOURCES_DIR, TMP_DIR
+from .bootstrap.cleanup import remove_boostrap_directory
+from .utils.paths import HASH_DIR, LOG_DIR, PKG_DIR, SOURCES_DIR, TMP_DIR
 
 
 logger = logging.getLogger(__name__)
