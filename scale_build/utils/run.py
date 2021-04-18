@@ -26,7 +26,7 @@ def run(*args, **kwargs):
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:
         if cp.returncode and exception and exception_message:
-            raise exception(f'{exception_message} ({stderr.decode(errors="ignore")}')
+            raise exception(f'{exception_message} ({stderr.decode(errors="ignore")}' if stderr else exception_message)
         else:
             cp.check_returncode()
     return cp

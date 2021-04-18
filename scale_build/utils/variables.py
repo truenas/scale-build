@@ -4,9 +4,11 @@ import os
 BUILDER_DIR = './'
 TMPFS = './tmp/tmpfs'
 CACHE_DIR = './tmp/cache'
+CD_DIR = './tmp/cdrom'
 CHROOT_BASEDIR = os.path.join(TMPFS, 'chroot')
 CHROOT_OVERLAY = os.path.join(TMPFS, 'chroot-overlay')
 CONF_SOURCES = os.path.join(BUILDER_DIR, 'conf/sources.list')
+CONF_GRUB = os.path.join(BUILDER_DIR, 'scripts/grub.cfg')
 DPKG_OVERLAY = './tmp/dpkg-overlay'
 GIT_MANIFEST_PATH = './logs/GITMANIFEST'
 GIT_LOG_PATH = './logs/git-checkout.log'

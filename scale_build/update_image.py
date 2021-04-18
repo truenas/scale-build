@@ -20,10 +20,10 @@ def build_update_image():
     clean_mounts()
     os.makedirs(CHROOT_BASEDIR)
     logger.debug('Bootstrapping TrueNAS rootfs [UPDATE] (%s/rootfs-bootstrap.log)', LOG_DIR)
-    make_bootstrapdir('update')
+    make_bootstrapdir('package', 'rootfs-bootstrap.log')
 
     logger.debug('Installing TrueNAS rootfs package [UPDATE] (%s/rootfs-package.log)', LOG_DIR)
-    setup_chroot_basedir('update', get_logger('rootfs-bootstrap'))
+    setup_chroot_basedir('package', get_logger('rootfs-bootstrap'))
     install_rootfs_packages()
     umount_chroot_basedir()
 

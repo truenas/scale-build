@@ -3,7 +3,7 @@ import shutil
 
 from scale_build.bootstrap.cache import restore_basecache
 from scale_build.utils.run import run
-from scale_build.utils.variables import CHROOT_BASEDIR, PKG_DIR, TMPFS
+from scale_build.utils.variables import CD_DIR, CHROOT_BASEDIR, PKG_DIR, RELEASE_DIR, TMPFS
 
 from .utils import PACKAGE_PATH
 
@@ -32,6 +32,8 @@ def umount_chroot_basedir():
         ['umount', '-f', PACKAGE_PATH],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')],
+        ['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)],
+        ['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)],
     ):
         run(command, check=False)
 
