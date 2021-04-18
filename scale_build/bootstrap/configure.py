@@ -9,27 +9,25 @@ from .logger import get_logger
 from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, run
 
 
-def make_bootstrapdir(bootstrapdir_type):
-    assert bootstrapdir_type in ('cd', 'update', 'package')
+def make_bootstrapdir(bootstrapdir_type, logger_file=None):
+    assert bootstrapdir_type in ('cdrom', 'package')
     remove_boostrap_directory()
     try:
-        _make_bootstrapdir_impl(bootstrapdir_type)
+        _make_bootstrapdir_impl(bootstrapdir_type, logger_file)
     finally:
         remove_boostrap_directory()
 
 
-def _make_bootstrapdir_impl(bootstrapdir_type):
-    logger = get_logger(bootstrapdir_type, 'w')
+def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
+    logger = get_logger(bootstrapdir_type, 'w', logger_file)
     run_args = {'logger': logger}
-    if bootstrapdir_type == 'cd':
-        deopts = '--components=main,contrib,nonfree --variant=minbase --include=systemd-sysv,gnupg'
-        cache_name = 'cdrom'
+    if bootstrapdir_type == 'cdrom':
+        deopts = ['--components=main,contrib,nonfree', '--variant=minbase', '--include=systemd-sysv,gnupg']
     else:
-        deopts = ''
-        cache_name = 'package'
+        deopts = []
 
     # Check if we should invalidate the base cache
-    if validate_basecache(cache_name):
+    if validate_basecache(bootstrapdir_type):
         logger.debug('Basechroot cache is intact and does not need to be changed')
         return
 
@@ -39,14 +37,14 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
     ], exception=CallError, exception_msg='Failed adding truenas.gpg apt-key', **run_args)
 
     apt_repos = get_manifest()['apt-repos']
-    run(list(filter(
-        bool, [
-            'debootstrap', deopts, '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
-            'bullseye', CHROOT_BASEDIR, apt_repos['url']
-        ]
-    )), exception=CallError, exception_msg='Failed debootstrap', **run_args)
+    run(
+        ['debootstrap'] + deopts + [
+            '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', 'bullseye',
+            CHROOT_BASEDIR, apt_repos['url']
+        ], exception=CallError, exception_msg='Failed debootstrap', **run_args
+    )
 
-    create_basehash(cache_name)
+    create_basehash(bootstrapdir_type)
     os.makedirs(os.path.join(CACHE_DIR, 'apt'), exist_ok=True)
 
     run(['mount', 'proc', os.path.join(CHROOT_BASEDIR, 'proc'), '-t', 'proc'], **run_args)
@@ -62,7 +60,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
     with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/apt.conf.d/02proxy'), 'w') as f:
         f.write('Acquire::http::Proxy "http://192.168.0.3:3142";\n')
 
-    if bootstrapdir_type != 'cd':
+    if bootstrapdir_type == 'package':
         # Add extra packages for builds
         run([
             'chroot', CHROOT_BASEDIR, 'apt', 'install', '-y', 'build-essential', 'dh-make', 'devscripts', 'fakeroot'
@@ -71,9 +69,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
     # Save the correct repo in sources.list
     apt_path = os.path.join(CHROOT_BASEDIR, 'etc/apt')
     apt_sources_path = os.path.join(apt_path, 'sources.list')
-    apt_sources = []
-    with open(apt_sources_path, 'w') as f:
-        apt_sources.append(f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}')
+    apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
 
     # Set bullseye repo as the priority
     # TODO - This should be moved to manifest later
@@ -91,7 +87,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
         apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
 
     # If not building a cd environment
-    if bootstrapdir_type != 'cd':
+    if bootstrapdir_type == 'package':
         check_basechroot_changed()
 
     with open(apt_sources_path, 'w') as f:
@@ -109,4 +105,4 @@ def _make_bootstrapdir_impl(bootstrapdir_type):
     run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')], **run_args)
     run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')], **run_args)
 
-    save_build_cache(cache_name)
+    save_build_cache(bootstrapdir_type)
