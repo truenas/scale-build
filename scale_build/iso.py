@@ -4,6 +4,7 @@ import logging
 import os
 
 from .bootstrap.configure import make_bootstrapdir
+from .config import VERSION
 from .exceptions import CallError
 from .image.bootstrap import (
     clean_mounts, setup_chroot_basedir, umount_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
@@ -37,4 +38,4 @@ def build_iso():
     make_iso_file()
 
     umount_tmpfs_and_clean_chroot_dir()
-    logger.debug('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, os.getenv('VERSION'))
+    logger.debug('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, VERSION)
