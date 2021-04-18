@@ -42,7 +42,6 @@ def setup_dirs():
 
 
 def preflight_check():
-    # TODO: Please see how we should delete overlayfs/bootstrapdir when exceptions are raised
     if not is_root():
         raise CallError('Must be run as root (or using sudo)!')
 
