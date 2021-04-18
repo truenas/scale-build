@@ -15,6 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 def build_update_image():
+    try:
+        return build_update_image_impl()
+    finally:
+        clean_mounts()
+
+
+def build_update_image_impl():
     os.makedirs(RELEASE_DIR, exist_ok=True)
 
     clean_mounts()

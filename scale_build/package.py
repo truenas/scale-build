@@ -4,6 +4,7 @@ import shutil
 
 from .bootstrap.configure import make_bootstrapdir
 from .clean import clean_bootstrap_logs
+from .config import PKG_DEBUG
 from .packages.order import get_to_build_packages
 from .utils.paths import LOG_DIR, PKG_LOG_DIR
 
@@ -13,11 +14,7 @@ logger = logging.getLogger(__name__)
 
 def build_packages():
     clean_bootstrap_logs()
-    try:
-        _build_packages_impl()
-    except Exception:
-        pass
-        #clean()
+    _build_packages_impl()
 
 
 def _build_packages_impl():
@@ -32,8 +29,9 @@ def _build_packages_impl():
         logger.debug('Building package [%s] (%s/packages/%s.log)', pkg_name, LOG_DIR, pkg_name)
         try:
             package.build()
-        except:
-            logger.error('errored out', exc_info=True)
+        except Exception:
+            logger.error('Failed to build %r package', exc_info=True)
+            package.delete_overlayfs()
             raise
 
     logger.debug('Success! Done building packages')
