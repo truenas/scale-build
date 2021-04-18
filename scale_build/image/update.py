@@ -7,7 +7,7 @@ import shutil
 
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.variables import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
+from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
 
 from .logger import get_logger
 from .manifest import build_manifest, build_update_manifest, UPDATE_FILE, UPDATE_FILE_HASH

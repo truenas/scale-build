@@ -1,7 +1,7 @@
 import logging
 import os
 
-from .variables import LOG_DIR
+from .paths import LOG_DIR
 
 
 def get_logger(logger_name, logger_path, mode='a+'):

@@ -1,5 +1,5 @@
 from .run import run
-from .variables import GIT_MANIFEST_PATH
+from .paths import GIT_MANIFEST_PATH
 
 
 # TODO: Let's please use python for git specific bits

@@ -1,7 +1,7 @@
 import yaml
 
 from scale_build.exceptions import MissingManifest, InvalidManifest
-from scale_build.utils.variables import MANIFEST
+from scale_build.utils.paths import MANIFEST
 
 
 manifest = None

@@ -1,6 +1,6 @@
 import psutil
 
-from .variables import REQUIRED_RAM
+from .paths import REQUIRED_RAM
 
 
 def has_low_ram():

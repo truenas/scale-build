@@ -1,14 +1,14 @@
 import logging
 import os
 
-from scale_build.bootstrap.configure import make_bootstrapdir
-from scale_build.image.bootstrap import (
+from .bootstrap.configure import make_bootstrapdir
+from .image.bootstrap import (
     clean_mounts, setup_chroot_basedir, umount_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
 )
-from scale_build.image.logger import get_logger
-from scale_build.image.manifest import UPDATE_FILE
-from scale_build.image.update import install_rootfs_packages, build_rootfs_image
-from scale_build.utils.variables import CHROOT_BASEDIR, LOG_DIR, RELEASE_DIR
+from .image.logger import get_logger
+from .image.manifest import UPDATE_FILE
+from .image.update import install_rootfs_packages, build_rootfs_image
+from .utils.paths import CHROOT_BASEDIR, LOG_DIR, RELEASE_DIR
 
 
 logger = logging.getLogger(__name__)

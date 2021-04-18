@@ -2,7 +2,7 @@ import os
 
 from scale_build.exceptions import CallError
 from scale_build.utils.run import run
-from scale_build.utils.variables import DPKG_OVERLAY
+from scale_build.utils.paths import DPKG_OVERLAY
 
 
 def build_kernel_package(package, log_handle):

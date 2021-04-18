@@ -3,9 +3,9 @@ import os
 import shutil
 
 from .bootstrap.configure import make_bootstrapdir
-from .clean import clean_bootstrap_logs, clean
+from .clean import clean_bootstrap_logs
 from .packages.order import get_to_build_packages
-from .utils.variables import LOG_DIR, PKG_LOG_DIR
+from .utils.paths import LOG_DIR, PKG_LOG_DIR
 
 
 logger = logging.getLogger(__name__)
