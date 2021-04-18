@@ -3,7 +3,7 @@ import shutil
 
 from scale_build.exceptions import CallError
 from scale_build.utils.run import run
-from scale_build.utils.variables import CACHE_DIR, PKG_DIR, TMP_DIR, TMPFS
+from scale_build.utils.paths import CACHE_DIR, PKG_DIR, TMP_DIR, TMPFS
 
 
 class OverlayMixin:

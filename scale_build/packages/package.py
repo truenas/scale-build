@@ -6,7 +6,7 @@ import shutil
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 from scale_build.utils.run import run
-from scale_build.utils.variables import GIT_LOG_PATH, HASH_DIR, LOG_DIR, PKG_LOG_DIR, SOURCES_DIR
+from scale_build.utils.paths import GIT_LOG_PATH, HASH_DIR, LOG_DIR, PKG_LOG_DIR, SOURCES_DIR
 
 from .binary_package import BinaryPackage
 from .bootstrap import BootstrapMixin

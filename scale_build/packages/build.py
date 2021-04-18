@@ -7,7 +7,7 @@ from datetime import datetime
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
 from scale_build.utils.run import run
-from scale_build.utils.variables import PKG_DIR
+from scale_build.utils.paths import PKG_DIR
 
 
 class BuildPackageMixin:

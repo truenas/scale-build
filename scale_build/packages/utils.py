@@ -1,5 +1,5 @@
 from scale_build.utils.run import run
-from scale_build.utils.variables import DPKG_OVERLAY
+from scale_build.utils.paths import DPKG_OVERLAY
 
 
 DEPENDS_SCRIPT_PATH = './scripts/parse_deps.pl'

@@ -5,7 +5,7 @@ import os
 import shutil
 import subprocess
 
-from scale_build.utils.variables import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
+from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
 
 UPDATE_FILE = os.path.join(RELEASE_DIR, 'TrueNAS-SCALE.update')

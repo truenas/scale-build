@@ -3,7 +3,7 @@ import textwrap
 from scale_build.utils.manifest import get_manifest # noqa
 from scale_build.utils.run import run # noqa
 from scale_build.utils.system import has_low_ram # noqa
-from scale_build.utils.variables import BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, HASH_DIR, TMP_DIR, TMPFS # noqa
+from scale_build.utils.paths import BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, HASH_DIR, TMP_DIR, TMPFS # noqa
 
 
 APT_PREFERENCES = textwrap.dedent('''

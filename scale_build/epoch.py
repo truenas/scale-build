@@ -1,8 +1,8 @@
 import logging
 import os
 
-from scale_build.utils.manifest import get_manifest
-from .utils.variables import TMP_DIR
+from .utils.manifest import get_manifest
+from .utils.paths import TMP_DIR
 
 
 logger = logging.getLogger(__name__)
