@@ -19,6 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 def build_iso():
+    try:
+        return build_impl()
+    finally:
+        clean_mounts()
+
+
+def build_impl():
     clean_mounts()
     for f in glob.glob(os.path.join(LOG_DIR, 'cdrom*')):
         os.unlink(f)
