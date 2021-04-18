@@ -4,6 +4,7 @@ import os
 import shutil
 
 from datetime import datetime
+from scale_build.config import BUILD_TIME, TRAIN, VERSION
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
 from scale_build.utils.run import run
@@ -109,14 +110,14 @@ class BuildPackageMixin:
             # FIXME: Please see a good way to have environment variables available
             with open(os.path.join(self.package_source_with_chroot, 'data/manifest.json'), 'w') as f:
                 f.write(json.dumps({
-                    'buildtime': os.environ.get('BUILDTIME'),
-                    'train': os.environ.get('TRAIN'),
-                    'version': os.environ.get('VERSION'),
+                    'buildtime': BUILD_TIME,
+                    'train': TRAIN,
+                    'version': VERSION,
                 }))
             os.makedirs(os.path.join(self.package_source_with_chroot, 'etc'), exist_ok=True)
             with open(os.path.join(self.package_source_with_chroot, 'etc/version'), 'w') as f:
                 # FIXME: Remove string type cast please
-                f.write(str(os.environ.get('VERSION')))
+                f.write(VERSION)
 
         for prebuild_command in self.prebuildcmd:
             self.logger.debug('Running prebuildcmd: %r', prebuild_command)
