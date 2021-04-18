@@ -6,7 +6,7 @@ import urllib.parse
 
 from scale_build.exceptions import CallError
 
-from .utils import APT_PREFERENCES, CHROOT_BASEDIR, get_manifest, run
+from .utils import CHROOT_BASEDIR, get_apt_preferences, get_manifest, run
 
 
 to_disable = ('requests', 'urllib3')
@@ -30,7 +30,7 @@ def get_all_repo_hash():
     for repo_config in apt_repos['additional']:
         all_repo_hash += get_repo_hash(repo_config['url'], repo_config['distribution'])
 
-    all_repo_hash += hashlib.sha256(APT_PREFERENCES.encode()).hexdigest()
+    all_repo_hash += hashlib.sha256(get_apt_preferences().encode()).hexdigest()
 
     return all_repo_hash
 

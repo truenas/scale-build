@@ -6,7 +6,7 @@ from scale_build.exceptions import CallError
 from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_basecache
 from .cleanup import remove_boostrap_directory
 from .logger import get_logger
-from .utils import APT_PREFERENCES, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_manifest, run
+from .utils import BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_apt_preferences, get_manifest, run
 
 
 def make_bootstrapdir(bootstrapdir_type, logger_file=None):
@@ -74,7 +74,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
     # Set bullseye repo as the priority
     # TODO - This should be moved to manifest later
     with open(os.path.join(apt_path, 'preferences'), 'w') as f:
-        f.write(APT_PREFERENCES)
+        f.write(get_apt_preferences())
 
     # Add additional repos
     for repo in apt_repos['additional']:
