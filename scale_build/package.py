@@ -69,6 +69,7 @@ def build_package(package_queue, to_build, failed, in_progress, built):
                     shutil.copytree(PKG_DIR, package.dpkg_overlay_packages_path)
                 package._build_impl()
             except Exception as e:
+                logger.error('Failed to build %r package', package.name)
                 failed[package.name] = {'package': package, 'exception': e}
                 break
             else:
@@ -80,7 +81,7 @@ def build_package(package_queue, to_build, failed, in_progress, built):
                     )
                 in_progress.pop(package.name)
                 built[package.name] = package
-                logger.debug(
+                logger.info(
                     'Successfully built %r package (Remaining %d packages)', package.name,
                     len(to_build) + package_queue.qsize() + len(in_progress)
                 )
@@ -96,7 +97,7 @@ def build_packages():
 
 
 def _build_packages_impl():
-    logger.debug('Building packages')
+    logger.info('Building packages')
     logger.debug('Setting up bootstrap directory')
     make_bootstrapdir('package')
     logger.debug('Successfully setup bootstrap directory')
@@ -126,4 +127,4 @@ def _build_packages_impl():
             p['package'].delete_overlayfs()
         logger.error('Failed to build %r package(s)', ', '.join(failed))
     else:
-        logger.debug('Success! Done building packages')
+        logger.info('Success! Done building packages')

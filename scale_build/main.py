@@ -1,4 +1,5 @@
 import argparse
+import coloredlogs
 import logging
 import sys
 
@@ -15,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s')
+    if sys.stdout.isatty():
+        coloredlogs.install(logging.DEBUG, fmt='[%(asctime)s] %(message)s')
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))

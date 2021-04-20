@@ -24,6 +24,7 @@ def build_update_image():
 def build_update_image_impl():
     os.makedirs(RELEASE_DIR, exist_ok=True)
 
+    logger.info('Building update image')
     clean_mounts()
     os.makedirs(CHROOT_BASEDIR)
     logger.debug('Bootstrapping TrueNAS rootfs [UPDATE] (%s/rootfs-bootstrap.log)', LOG_DIR)
@@ -38,4 +39,4 @@ def build_update_image_impl():
     build_rootfs_image()
     umount_tmpfs_and_clean_chroot_dir()
 
-    logger.debug('Success! Update image created at: %s', UPDATE_FILE)
+    logger.info('Success! Update image created at: %s', UPDATE_FILE)

@@ -26,6 +26,7 @@ def build_iso():
 
 
 def build_impl():
+    logger.info('Building TrueNAS SCALE iso')
     clean_mounts()
     for f in glob.glob(os.path.join(LOG_DIR, 'cdrom*')):
         os.unlink(f)
@@ -45,4 +46,4 @@ def build_impl():
     make_iso_file()
 
     umount_tmpfs_and_clean_chroot_dir()
-    logger.debug('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, VERSION)
+    logger.info('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, VERSION)
