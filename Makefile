@@ -7,7 +7,7 @@ COMMIT_HASH=$(shell git rev-parse --short HEAD)
 check:
 ifeq ("$(wildcard ./venv-${COMMIT_HASH})","")
 	@rm -rf venv-*
-	@apt install -y python3-distutils python3-pip python3-venv >/dev/null 2>&1
+	@${PYTHON} -m pip install -U virtualenv >/dev/null 2>&1
 	@${PYTHON} -m venv venv-${COMMIT_HASH}
 	@. ./venv-${COMMIT_HASH}/bin/activate && \
 		python3 -m pip install -r requirements.txt >/dev/null 2>&1 && \
