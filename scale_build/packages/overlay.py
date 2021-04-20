@@ -3,7 +3,7 @@ import shutil
 
 from scale_build.exceptions import CallError
 from scale_build.utils.run import run
-from scale_build.utils.paths import CACHE_DIR, PKG_DIR, TMP_DIR, TMPFS
+from scale_build.utils.paths import TMP_DIR, TMPFS
 
 
 class OverlayMixin:
@@ -48,12 +48,6 @@ class OverlayMixin:
              ], 'Failed overlayfs'),
             (['mount', 'proc', os.path.join(self.dpkg_overlay, 'proc'), '-t', 'proc'], 'Failed mount proc'),
             (['mount', 'sysfs', os.path.join(self.dpkg_overlay, 'sys'), '-t', 'sysfs'], 'Failed mount sysfs'),
-            (['mount', '--bind', PKG_DIR, self.dpkg_overlay_packages_path], 'Failed mount --bind /packages',
-             self.dpkg_overlay_packages_path),
-            (
-                ['mount', '--bind', os.path.join(CACHE_DIR, 'apt'), os.path.join(self.dpkg_overlay, 'var/cache/apt')],
-                'Failed mount --bind /var/cache/apt',
-            ),
             (
                 ['mount', '--bind', self.sources_overlay, self.source_in_chroot],
                 'Failed mount --bind /dpkg-src', self.source_in_chroot
@@ -69,8 +63,6 @@ class OverlayMixin:
 
     def delete_overlayfs(self):
         for command in (
-            ['umount', '-f', os.path.join(self.dpkg_overlay, 'var/cache/apt')],
-            ['umount', '-f', self.dpkg_overlay_packages_path],
             ['umount', '-f', os.path.join(self.dpkg_overlay, 'proc')],
             ['umount', '-f', os.path.join(self.dpkg_overlay, 'sys')],
             ['umount', '-f', self.dpkg_overlay],

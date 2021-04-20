@@ -51,13 +51,13 @@ class BuildPackageMixin:
         # 10) Generate version
         # 11) Execute relevant building commands
         # 12) Save
-        self._build_impl()
-
-    def _build_impl(self):
         self.delete_overlayfs()
         self.setup_chroot_basedir()
         self.make_overlayfs()
         self.clean_previous_packages()
+        self._build_impl()
+
+    def _build_impl(self):
         shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)
 
         # TODO: Remove me please
@@ -152,10 +152,6 @@ class BuildPackageMixin:
 
         with open(self.pkglist_hash_file_path, 'w') as f:
             f.write('\n'.join(built_packages))
-
-        # Update the local APT repo
-        self.logger.debug('Building local APT repo Packages.gz...')
-        self.run_in_chroot('cd /packages && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz')
 
         with open(self.hash_path, 'w') as f:
             f.write(self.source_hash)
