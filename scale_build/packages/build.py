@@ -167,6 +167,10 @@ class BuildPackageMixin:
             return [f'{build_env} debuild {" ".join(self.deflags)}']
 
     @property
+    def debug_command(self):
+        return f'chroot {self.dpkg_overlay} /bin/bash'
+
+    @property
     def deflags(self):
         return [f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
 

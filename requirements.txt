@@ -1,5 +1,6 @@
 coloredlogs
 toposort
+pexpect
 psutil
 pyyaml
 requests
