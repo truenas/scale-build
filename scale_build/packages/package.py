@@ -45,13 +45,17 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.build_depends = set()
         self.source_package = None
         self.parent_changed = False
-        self._build_time_dependencies = set()
+        self._build_time_dependencies = None
         self.build_stage = None
         self.logger = logging.getLogger(f'{self.name}_package')
         self.logger.setLevel('DEBUG')
         self.logger.handlers = []
         self.logger.propagate = False
         self.logger.addHandler(logging.FileHandler(self.log_file_path, mode='w'))
+        self.children = set()
+
+    def __eq__(self, other):
+        return other == self.name if isinstance(other, str) else self.name == other.name
 
     @property
     def log_file_path(self):
@@ -105,7 +109,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         return self._binary_packages
 
     def build_time_dependencies(self, all_binary_packages=None):
-        if self._build_time_dependencies:
+        if self._build_time_dependencies is not None:
             return self._build_time_dependencies
         elif not all_binary_packages:
             raise CallError('Binary packages must be specified when computing build time dependencies')

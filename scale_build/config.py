@@ -9,6 +9,7 @@ BUILD_TIME_OBJ = datetime.fromtimestamp(BUILD_TIME)
 BUILDER_DIR = os.getenv('BUILDER_DIR', './')
 BRANCH_OVERRIDES = {k[:-(len('_OVERRIDE'))]: v for k, v in os.environ.items() if k.endswith('_OVERRIDE')}
 CODE_NAME = os.getenv('CODENAME', 'Angelfish')
+PARALLEL_BUILD = int(os.getenv('PARALLEL_BUILDS', os.cpu_count() / 4))
 PKG_DEBUG = os.getenv('PKG_DEBUG', False)
 TRAIN = os.getenv('TRUENAS_TRAIN', f'TrueNAS-SCALE-{CODE_NAME}-Nightlies')
 TRY_BRANCH_OVERRIDE = os.getenv('TRY_BRANCH_OVERRIDE')

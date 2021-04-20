@@ -1,7 +1,6 @@
 import errno
 import logging
 
-from collections import defaultdict
 from scale_build.exceptions import CallError
 from scale_build.utils.package import get_packages
 
@@ -23,13 +22,12 @@ def get_to_build_packages():
         for binary_package in package.binary_packages:
             binary_packages[binary_package.name] = binary_package
 
-    parent_mapping = defaultdict(set)
     for pkg_name, package in packages.items():
-        for dep in package.build_time_dependencies(binary_packages):
-            parent_mapping[dep].add(pkg_name)
+        for dep in filter(lambda d: d in packages, package.build_time_dependencies(binary_packages)):
+            packages[dep].children.add(pkg_name)
 
     for pkg_name, package in filter(lambda i: i[1].hash_changed, packages.items()):
-        for child in parent_mapping[pkg_name]:
+        for child in package.children:
             packages[child].parent_changed = True
 
     return {package.name: package for package in packages.values() if package.rebuild}
