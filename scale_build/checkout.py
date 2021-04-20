@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def checkout_sources():
     info = retrieve_git_remote_and_sha('.')
     update_git_manifest(info['url'], info['sha'], 'w')
-    logger.debug(f'Starting checkout of source')
+    logger.info('Starting checkout of source')
 
     for package in get_packages():
         gh_override = BRANCH_OVERRIDES.get(package.name)
