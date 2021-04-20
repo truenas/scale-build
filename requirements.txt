@@ -1,3 +1,4 @@
+coloredlogs
 toposort
 psutil
 pyyaml

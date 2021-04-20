@@ -13,7 +13,13 @@ setup(
     include_package_data=True,
     license='BSD',
     platforms='any',
-    install_requires=install_requires,
+    install_requires=[
+        'coloredlogs',
+        'toposort',
+        'psutil',
+        'requests',
+        'pyyaml'
+    ],
     entry_points={
         'console_scripts': [
             'scale_build = scale_build.main:main',
