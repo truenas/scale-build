@@ -8,10 +8,10 @@ from toposort import toposort
 
 from .bootstrap.configure import make_bootstrapdir
 from .clean import clean_bootstrap_logs
-from .config import PARALLEL_BUILD
+from .config import PARALLEL_BUILD, PKG_DEBUG
 from .packages.order import get_to_build_packages
 from .utils.paths import PKG_DIR, PKG_LOG_DIR
-from .utils.run import run
+from .utils.run import interactive_run, run
 
 
 logger = logging.getLogger(__name__)
@@ -56,6 +56,8 @@ def build_package(package_queue, to_build, failed, in_progress, built):
             else:
                 in_progress[package.name] = package
         else:
+            if PKG_DEBUG:
+                logger.debug('Thread exiting')
             break
 
         if package:
@@ -106,6 +108,7 @@ def _build_packages_impl():
     os.makedirs(PKG_LOG_DIR)
 
     to_build = get_to_build_packages()
+    logger.debug('Going to build %d packages: %s', len(to_build), ','.join(to_build))
     package_queue = queue.Queue()
     in_progress = {}
     failed = {}
@@ -123,8 +126,32 @@ def _build_packages_impl():
         thread.join()
 
     if failed:
-        for p in failed.values():
-            p['package'].delete_overlayfs()
         logger.error('Failed to build %r package(s)', ', '.join(failed))
+        try:
+            if PKG_DEBUG:
+                logger.debug(
+                    'Please specify name or index of package to debug ( shell access would be provided to failed '
+                    'package\'s environment ) from following.'
+                )
+                while True:
+                    data = input(
+                        '\n'.join(
+                            [f'{i+1}) {k}' for i, k in enumerate(failed)]
+                        ) + '\n\nPlease type "exit" when done.\n'
+                    )
+                    if data in ('exit', 'e'):
+                        logger.debug('Exiting debug session')
+                        break
+                    elif data.isdigit() and not (1 <= int(data) <= len(failed)):
+                        logger.debug('Please provide valid index value')
+                    elif not data.isdigit() and data not in failed:
+                        logger.debug('Please provide valid package name')
+                    else:
+                        package = failed[data]['package'] if data in failed else list(failed.values())[int(data) - 1]
+                        interactive_run(package.debug_command)
+        finally:
+            for p in failed.values():
+                p['package'].delete_overlayfs()
+
     else:
         logger.info('Success! Done building packages')

@@ -1,4 +1,5 @@
 import os
+import pexpect
 import subprocess
 
 
@@ -30,3 +31,10 @@ def run(*args, **kwargs):
         else:
             cp.check_returncode()
     return cp
+
+
+def interactive_run(command):
+    child = pexpect.spawnu(command)
+    print(f'Executing {command!r} command')
+    child.interact()
+    child.kill(1)
