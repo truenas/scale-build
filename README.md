@@ -20,6 +20,7 @@ In addition to the host, you will want to pre-install the following packages:
 
 * build-essential
 * debootstrap
+* libjson-perl
 * git
 * grub-pc-bin
 * squashfs-tools

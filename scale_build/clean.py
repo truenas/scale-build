@@ -28,3 +28,5 @@ def complete_cleanup():
     clean()
     for path in (LOG_DIR, SOURCES_DIR, TMP_DIR):
         shutil.rmtree(path, ignore_errors=True)
+
+    logger.debug('Removed %s, %s, and %s directories', LOG_DIR, SOURCES_DIR, TMP_DIR)
