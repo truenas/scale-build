@@ -25,8 +25,8 @@ def checkout_sources():
         # but need to test building of a series of repos with the same experimental branch
         #
         if TRY_BRANCH_OVERRIDE:
-            cp = run(['git', 'ls-remote', package.origin])
-            if re.findall(fr'/{TRY_BRANCH_OVERRIDE}$', cp.stdout.decode()):
+            cp = run(['git', 'ls-remote', package.origin], check=False)
+            if cp.returncode == 0 and re.findall(fr'/{TRY_BRANCH_OVERRIDE}\n', cp.stdout.decode(), re.M):
                 gh_override = TRY_BRANCH_OVERRIDE
 
         package.checkout(gh_override)
