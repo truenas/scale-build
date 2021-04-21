@@ -10,6 +10,7 @@ def remove_boostrap_directory():
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'packages')],
+        ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'var/cache/apt')],
         ['umount', '-f', CHROOT_BASEDIR],
         ['umount', '-R', '-f', CHROOT_BASEDIR],
         ['umount', '-R', '-f', TMPFS]
