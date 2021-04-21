@@ -114,12 +114,13 @@ def _build_packages_impl():
     failed = {}
     built = {}
     update_queue(package_queue, to_build, failed, in_progress, built)
-    logger.debug('Creating %d parallel tasks', PARALLEL_BUILD)
+    no_of_tasks = PARALLEL_BUILD if len(to_build) >= PARALLEL_BUILD else len(to_build)
+    logger.debug('Creating %d parallel tasks', no_of_tasks)
     threads = [
         threading.Thread(
             name=f'build_packages_thread_{i + 1}', target=build_package,
             args=(package_queue, to_build, failed, in_progress, built)
-        ) for i in range(PARALLEL_BUILD)
+        ) for i in range(no_of_tasks)
     ]
     for thread in threads:
         thread.start()
