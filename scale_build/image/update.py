@@ -95,7 +95,7 @@ def custom_rootfs_setup(rootfs_logger):
     tmp_systemd = os.path.join(CHROOT_BASEDIR, 'tmp/systemd')
     os.makedirs(tmp_systemd)
     run_in_chroot(
-        f'/usr/lib/systemd/system-generators/systemd-sysv-generator /tmp/systemd /tmp/systemd /tmp/systemd',
+        '/usr/lib/systemd/system-generators/systemd-sysv-generator /tmp/systemd /tmp/systemd /tmp/systemd',
         rootfs_logger
     )
     for unit_file in filter(lambda f: f.endswith('.service'), os.listdir(tmp_systemd)):
@@ -125,7 +125,7 @@ def clean_rootfs(rootfs_logger):
     )
 
     # Remove any temp build depends
-    run_in_chroot('apt autoremove -y', rootfs_logger, f'Failed atp autoremove')
+    run_in_chroot('apt autoremove -y', rootfs_logger, 'Failed atp autoremove')
 
     # We install the nvidia-kernel-dkms package which causes a modprobe file to be written
     # (i.e /etc/modprobe.d/nvidia.conf). This file tries to modprobe all the associated
