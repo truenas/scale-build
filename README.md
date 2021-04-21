@@ -1,6 +1,12 @@
+<p align="center">
+      <a href="https://join.slack.com/t/truenas/shared_invite/zt-f5vf90vr-vG0q9vGcaiiwKLYaW0cfRg"><img alt="Join Slack" src="https://badgen.net/badge/Slack/Chat%20Now/?icon=slack" /></a>
+ <a href="https://www.truenas.com/community/"><img alt="Join Forums" src="https://badgen.net/badge/Forums/Post%20Now//purple" /></a> 
+ <a href="https://jira.ixsystems.com"><img alt="File Issue" src="https://badgen.net/badge/Jira/File%20Issue//red?icon=jira" /></a>
+</p>
+
 # truenas-build
 
-A build framework for TrueNAS SCALE. Want to contribute or collaborate? Join our [Slack instance](https://www.ixsystems.com/community/threads/collaborator-community-slack-instance.85717/ "Slack Instance"). 
+A build framework for TrueNAS SCALE.
 
 Found an issue in the build for SCALE? Please report it on our [Jira bugtracker](https://jira.ixsystems.com).
 
