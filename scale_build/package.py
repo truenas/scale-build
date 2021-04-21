@@ -114,6 +114,7 @@ def _build_packages_impl():
     failed = {}
     built = {}
     update_queue(package_queue, to_build, failed, in_progress, built)
+    logger.debug('Creating %d parallel tasks', PARALLEL_BUILD)
     threads = [
         threading.Thread(
             name=f'build_packages_thread_{i + 1}', target=build_package,
