@@ -149,7 +149,7 @@ sources:
   repo: https://github.com/truenas/nfs4xdr-acl-tools
   branch: master
 - name: alienz
-  repo: https://salsa.debian.org/freqlabs/alien.git
+  repo: https://github.com/truenas/alien.git
   branch: alienz
 - name: openzfs
   repo: https://github.com/truenas/zfs
