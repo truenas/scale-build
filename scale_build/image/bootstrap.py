@@ -12,7 +12,7 @@ def setup_chroot_basedir(basecache_type, logger=None):
     shutil.rmtree(CHROOT_BASEDIR, ignore_errors=True)
     os.makedirs(TMPFS, exist_ok=True)
     run(
-        ['mount', '-t', 'tmpfs', '-o', f'size=12G', 'tmpfs', TMPFS],
+        ['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS],
         logger=logger
     )
     restore_basecache(basecache_type, CHROOT_BASEDIR, logger)
