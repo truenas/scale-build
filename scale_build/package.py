@@ -41,7 +41,7 @@ def update_queue(package_queue, to_build_orig, failed, in_progress, built):
 
     for item in filter(
         lambda i: i in to_build and i not in in_progress and i not in package_queue.queue and i not in built,
-        sorted_ordering[0] if sorted_ordering else []
+        sorted(sorted_ordering[0], key=lambda k: to_build_orig[k].batch_priority) if sorted_ordering else []
     ):
         package_queue.put(to_build_orig.pop(item))
 

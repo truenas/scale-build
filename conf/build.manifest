@@ -162,14 +162,18 @@ iso-packages:
 - vim-tiny
 
 #
-# List of Git source repositories the buill will checkout and perform a debian
+# List of Git source repositories the build will checkout and perform a debian
 # package build inside of
-# NOTE: Built in the order listed
+# Packages will be built in parallel with dependencies being built before automatically
+# To have a package built before in a single batch, please set a lower value for batch_priority.
+# This can be helpful for CPU intensive packages like kernel which have dependencies waiting
+# to be built
 ############################################################################
 sources:
 - name: kernel
   repo: https://github.com/truenas/linux
   branch: SCALE-v5.10-stable
+  batch_priority: 0
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev"
     # We remove git files because kernel makefile tries to interact with git for determining version
@@ -201,6 +205,7 @@ sources:
   branch: alienz
 - name: openzfs
   repo: https://github.com/truenas/zfs
+  batch_priority: 0
   branch: truenas/zfs-2.0-release
   predepscmd:
     - "cp -r contrib/truenas debian"
@@ -211,6 +216,7 @@ sources:
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-14-stable
   generate_version: false
+  batch_priority: 0
   explicit_deps:
     - openzfs
 - name: nss_pam_ldapd
