@@ -100,7 +100,6 @@ class BuildPackageMixin:
         # Truenas package is special
         if self.name == 'truenas':
             os.makedirs(os.path.join(self.package_source_with_chroot, 'data'))
-            # FIXME: Please see a good way to have environment variables available
             with open(os.path.join(self.package_source_with_chroot, 'data/manifest.json'), 'w') as f:
                 f.write(json.dumps({
                     'buildtime': BUILD_TIME,
@@ -109,7 +108,6 @@ class BuildPackageMixin:
                 }))
             os.makedirs(os.path.join(self.package_source_with_chroot, 'etc'), exist_ok=True)
             with open(os.path.join(self.package_source_with_chroot, 'etc/version'), 'w') as f:
-                # FIXME: Remove string type cast please
                 f.write(VERSION)
 
         for prebuild_command in self.prebuildcmd:

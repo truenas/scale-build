@@ -5,6 +5,8 @@ import os
 import textwrap
 import shutil
 
+from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
+from scale_build.exceptions import CallError
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
@@ -42,7 +44,8 @@ def build_rootfs_image():
     build_manifest()
 
     # Sign the image (if enabled)
-    # TODO: Add this please
+    if SIGNING_KEY and SIGNING_PASSWORD:
+        sign_manifest(SIGNING_KEY, SIGNING_PASSWORD)
 
     # Create the outer image now
     run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'], logger=build_logger)
@@ -51,6 +54,15 @@ def build_rootfs_image():
         f.write(update_hash)
 
     build_update_manifest(update_hash)
+
+
+def sign_manifest(signing_key, signing_pass):
+    run(
+        f'echo "{signing_pass}" | gpg -ab --batch --yes --no-use-agent --pinentry-mode loopback --passphrase-fd 0 '
+        f'--default-key {signing_key} --output {os.path.join(UPDATE_DIR, "MANIFEST.sig")} '
+        f'--sign {os.path.join(UPDATE_DIR, "MANIFEST")}', exception_msg='Failed gpg signing with SIGNING_PASSWORD',
+        exception=CallError
+    )
 
 
 def install_rootfs_packages():

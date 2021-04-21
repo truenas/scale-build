@@ -11,6 +11,8 @@ BRANCH_OVERRIDES = {k[:-(len('_OVERRIDE'))]: v for k, v in os.environ.items() if
 CODE_NAME = os.getenv('CODENAME', 'Angelfish')
 PARALLEL_BUILD = int(os.getenv('PARALLEL_BUILDS', os.cpu_count() / 4))
 PKG_DEBUG = os.getenv('PKG_DEBUG', False)
+SIGNING_KEY = os.getenv('SIGNING_KEY')
+SIGNING_PASSWORD = os.getenv('SIGNING_PASSWORD')
 TRAIN = os.getenv('TRUENAS_TRAIN', f'TrueNAS-SCALE-{CODE_NAME}-Nightlies')
 TRY_BRANCH_OVERRIDE = os.getenv('TRY_BRANCH_OVERRIDE')
 if os.getenv('TRUENAS_VERSION'):

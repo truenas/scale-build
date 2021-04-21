@@ -66,7 +66,6 @@ def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
     apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
 
     # Set bullseye repo as the priority
-    # TODO - This should be moved to manifest later
     with open(os.path.join(apt_path, 'preferences'), 'w') as f:
         f.write(get_apt_preferences())
 
