@@ -54,12 +54,6 @@ def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
     ], exception=CallError, exception_msg='Failed mount --bind /var/cache/apt', **run_args
     )
 
-    # TODO: Remove me please
-    logger.debug('Setting up apt-cacher')
-    os.makedirs(os.path.join(CHROOT_BASEDIR, 'etc/apt/apt.conf.d'), exist_ok=True)
-    with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/apt.conf.d/02proxy'), 'w') as f:
-        f.write('Acquire::http::Proxy "http://192.168.0.3:3142";\n')
-
     if bootstrapdir_type == 'package':
         # Add extra packages for builds
         run([
