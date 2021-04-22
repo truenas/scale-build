@@ -4,7 +4,7 @@ import os
 from .paths import LOG_DIR
 
 
-def get_logger(logger_name, logger_path, mode='a+'):
+def get_logger(logger_name, logger_path=None, mode='a+'):
     logger = logging.getLogger(logger_name)
     logger.propagate = False
     logger.setLevel('DEBUG')
