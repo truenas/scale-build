@@ -11,7 +11,7 @@ from .clean import clean_bootstrap_logs
 from .config import PARALLEL_BUILD, PKG_DEBUG
 from .packages.order import get_to_build_packages
 from .utils.logger import get_logger
-from .utils.paths import PKG_DIR, PKG_LOG_DIR
+from .utils.paths import LOG_DIR, PKG_DIR, PKG_LOG_DIR
 from .utils.run import interactive_run, run
 
 
@@ -100,10 +100,11 @@ def build_packages():
 
 
 def _build_packages_impl():
-    logger.info('Building packages')
+    package_logger = get_logger('build_packages', 'build_packages.log', 'w')
+    logger.info('Building packages (%s/build_packages.log)', LOG_DIR)
     logger.debug('Setting up bootstrap directory')
 
-    with PackageBootstrapDirectory(get_logger('package_bootstrap', 'bootstrap_chroot', 'w')) as p:
+    with PackageBootstrapDirectory(package_logger) as p:
         p.setup()
 
     logger.debug('Successfully setup bootstrap directory')

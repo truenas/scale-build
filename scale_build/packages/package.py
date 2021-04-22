@@ -48,11 +48,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.parent_changed = False
         self._build_time_dependencies = None
         self.build_stage = None
-        self.logger = logging.getLogger(f'{self.name}_package')
-        self.logger.setLevel('DEBUG')
-        self.logger.handlers = []
-        self.logger.propagate = False
-        self.logger.addHandler(logging.FileHandler(self.log_file_path, mode='w'))
+        self.logger = get_logger(f'{self.name}_package', self.log_file_path, 'w')
         self.children = set()
         self.batch_priority = batch_priority
 
