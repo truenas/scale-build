@@ -1,3 +1,4 @@
+import distutils.dir_util
 import glob
 import itertools
 import os
@@ -6,7 +7,7 @@ import shutil
 from scale_build.config import VERSION
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.paths import BUILDER_DIR, CD_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
+from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
 
 from .manifest import UPDATE_FILE
 from .utils import run_in_chroot
@@ -35,15 +36,8 @@ def make_iso_file(iso_logger):
         f.write(VERSION)
 
     # Copy the CD files
-    for source, destination in (
-        (os.path.join(BUILDER_DIR, 'conf/cd-files/getty@.service'), os.path.join(CHROOT_BASEDIR, 'lib/systemd/system')),
-        (
-            os.path.join(BUILDER_DIR, 'conf/cd-files/serial-getty@.service'),
-            os.path.join(CHROOT_BASEDIR, 'lib/systemd/system')
-        ),
-        (os.path.join(BUILDER_DIR, 'conf/cd-files/bash_profile'), os.path.join(CHROOT_BASEDIR, 'root/.bash_profile')),
-    ):
-        shutil.copy(source, destination)
+    distutils.dir_util._path_created = {}
+    distutils.dir_util.copy_tree(CD_FILES_DIR, CHROOT_BASEDIR, preserve_symlinks=True)
 
     # Create the CD assembly dir
     shutil.rmtree(CD_DIR, ignore_errors=True)
