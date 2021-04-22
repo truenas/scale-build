@@ -365,3 +365,4 @@ sources:
   deoptions: nocheck
   generate_version: false
   jobs: 1
+  batch_priority: 150

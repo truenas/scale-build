@@ -24,7 +24,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
-        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=1000
+        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100
     ):
         self.name = name
         self.branch = branch
@@ -48,7 +48,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.parent_changed = False
         self._build_time_dependencies = None
         self.build_stage = None
-        self.logger = get_logger(f'{self.name}_package', self.log_file_path, 'w')
+        self.logger = get_logger(f'{self.name}_package', f'packages/{self.name}.log', 'w')
         self.children = set()
         self.batch_priority = batch_priority
 
@@ -166,7 +166,6 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
         branch = branch_override or self.branch
         git_logger = get_logger(f'checkout_{self.name}', 'git-checkout.log', 'w')
-        git_logger.debug('logged it')
         if branch == self.existing_branch and self.origin == origin_url:
             logger.debug('Updating git repo [%s] (%s)', self.name, GIT_LOG_PATH)
             run(['git', '-C', self.source_path, 'fetch', '--unshallow'], logger=git_logger, check=False)

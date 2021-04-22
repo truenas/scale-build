@@ -35,7 +35,7 @@ class CacheMixin:
 
     def save_build_cache(self, installed_packages):
         self.logger.debug('Caching CHROOT_BASEDIR for future runs...')
-        self.run(['mksquashfs', self.chroot_basedir, self.cache_filename])
+        self.run(['mksquashfs', self.chroot_basedir, self.cache_file_path])
         self.update_saved_packages_list(installed_packages)
         self.update_mirror_cache()
 
