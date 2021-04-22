@@ -7,7 +7,7 @@ from scale_build.utils.package import get_packages
 logger = logging.getLogger(__name__)
 
 
-def get_to_build_packages():
+def get_initialized_packages():
     binary_packages = {}
     packages_list = get_packages()
     packages = {}
@@ -27,4 +27,8 @@ def get_to_build_packages():
         for child in package.children:
             packages[child].parent_changed = True
 
-    return {package.name: package for package in packages.values() if package.rebuild}
+    return {package.name: package for package in packages.values()}
+
+
+def get_to_build_packages(packages=None):
+    return {k: v for k, v in (packages or get_initialized_packages()).items() if v.rebuild}

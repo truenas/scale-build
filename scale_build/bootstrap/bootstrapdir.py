@@ -28,12 +28,13 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.run(
             ['debootstrap'] + self.deopts + [
                 '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', 'bullseye',
-                CHROOT_BASEDIR, apt_repos['url']
+                self.chroot_basedir, apt_repos['url']
             ]
         )
         self.setup_mounts()
+
         if self.extra_packages_to_install:
-            self.run(['chroot', self.chroot_basedir, 'apt', 'install', 'y'] + self.extra_packages_to_install)
+            self.run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
 
         installed_packages = self.get_packages()
 
@@ -96,18 +97,22 @@ class BootstrapDir(CacheMixin, HashMixin):
 
     def clean_mounts(self):
         for command in (
-            ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')],
-            ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')],
+            ['umount', '-f', os.path.join(self.chroot_basedir, 'proc')],
+            ['umount', '-f', os.path.join(self.chroot_basedir, 'sys')],
         ):
-            self.run(command, check=False)
+            run(command, check=False)
 
-        shutil.rmtree(self.chroot_basedir)
+    def clean_setup(self):
+        self.clean_mounts()
+        shutil.rmtree(self.chroot_basedir, ignore_errors=True)
 
     def __enter__(self):
+        # To ensure we have a clean start
+        self.clean_setup()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.clean_mounts()
+        self.clean_setup()
 
 
 class PackageBootstrapDirectory(BootstrapDir):

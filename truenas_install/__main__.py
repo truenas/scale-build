@@ -52,7 +52,7 @@ def run_command(cmd, **kwargs):
 
 
 def get_partition(disk, partition):
-    paths =[f"/dev/{disk}{partition}", f"/dev/{disk}p{partition}"]
+    paths = [f"/dev/{disk}{partition}", f"/dev/{disk}p{partition}"]
     for path in paths:
         if os.path.exists(path):
             return path
