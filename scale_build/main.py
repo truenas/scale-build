@@ -5,11 +5,14 @@ import sys
 
 from .checkout import checkout_sources
 from .clean import complete_cleanup
+from .config import BRANCH_OVERRIDES
 from .epoch import check_epoch
+from .exceptions import CallError
 from .iso import build_iso
 from .package import build_packages
 from .preflight import preflight_check
 from .update_image import build_update_image
+from .utils.manifest import get_manifest
 
 
 logger = logging.getLogger(__name__)
@@ -23,6 +26,16 @@ def setup_logging():
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
     logger.addHandler(handler)
+
+
+def validate_config():
+    manifest = get_manifest()
+    packages = [p['name'] for p in manifest['sources']]
+    invalid_overrides = [o for o in BRANCH_OVERRIDES if o not in packages]
+    if invalid_overrides:
+        raise CallError(
+            f'Invalid branch override(s) provided: {", ".join(invalid_overrides)!r} sources not configured in manifest'
+        )
 
 
 def main():

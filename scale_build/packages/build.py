@@ -19,7 +19,7 @@ class BuildPackageMixin:
             exception_msg=exception_message, env={
                 **os.environ,
                 **APT_ENV,
-                'CONFIG_DEBUG_INFO': 'N',  # Build kernel with debug symbols
+                'CONFIG_DEBUG_INFO': 'Y',  # Build kernel with debug symbols
                 'CONFIG_LOCALVERSION': '+truenas',
             }
         )

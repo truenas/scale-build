@@ -24,13 +24,15 @@ def checkout_sources():
         # but need to test building of a series of repos with the same experimental branch
         #
         if TRY_BRANCH_OVERRIDE:
-            retries = 2
-            while retries:
+            while True:
                 try:
                     if branch_exists_in_repository(package.origin, TRY_BRANCH_OVERRIDE):
                         gh_override = TRY_BRANCH_OVERRIDE
                 except CallError:
-                    retries -= 1
+                    logger.debug(
+                        'Failed to determine if %r branch exists for %r. Trying again',
+                        TRY_BRANCH_OVERRIDE, package.origin
+                    )
                 else:
                     break
 
