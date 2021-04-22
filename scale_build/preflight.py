@@ -14,8 +14,6 @@ WANTED_PACKAGES = {
     'make',
     'debootstrap',
     'git',
-    'xorriso',
-    'grub-mkrescue',
     'mksquashfs',
     'unzip',
 }
