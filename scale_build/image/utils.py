@@ -12,5 +12,5 @@ PACKAGE_PATH = os.path.join(CHROOT_BASEDIR, 'packages')
 def run_in_chroot(command, logger=None, exception_message=None, **kwargs):
     return run(
         f'chroot {CHROOT_BASEDIR} /bin/bash -c "{command}"', shell=True, logger=logger,
-        exception=CallError, exception_msg=exception_message, env={**APT_ENV, **os.environ}, **kwargs
+        exception_msg=exception_message, env={**APT_ENV, **os.environ}, **kwargs
     )
