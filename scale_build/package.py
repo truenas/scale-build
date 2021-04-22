@@ -9,7 +9,7 @@ from toposort import toposort
 from .bootstrap.bootstrapdir import PackageBootstrapDirectory
 from .clean import clean_bootstrap_logs
 from .config import PARALLEL_BUILD, PKG_DEBUG
-from .packages.order import get_to_build_packages
+from .packages.order import get_initialized_packages, get_to_build_packages
 from .utils.logger import get_logger
 from .utils.paths import LOG_DIR, PKG_DIR, PKG_LOG_DIR
 from .utils.run import interactive_run, run
@@ -112,15 +112,18 @@ def _build_packages_impl():
     shutil.rmtree(PKG_LOG_DIR, ignore_errors=True)
     os.makedirs(PKG_LOG_DIR)
 
-    to_build = get_to_build_packages()
-    logger.debug('Going to build %d packages: %s', len(to_build), ','.join(to_build))
+    all_packages = get_initialized_packages()
+    to_build = get_to_build_packages(all_packages)
     package_queue = queue.Queue()
     in_progress = {}
     failed = {}
-    built = {}
-    update_queue(package_queue, to_build, failed, in_progress, built)
+    built = {p: all_packages[p] for p in set(all_packages) - set(to_build)}
+    if built:
+        logger.debug('%d package(s) do not need to be rebuilt (%s)', len(built), ','.join(built))
+    logger.debug('Going to build %d package(s): %s', len(to_build), ','.join(to_build))
     no_of_tasks = PARALLEL_BUILD if len(to_build) >= PARALLEL_BUILD else len(to_build)
-    logger.debug('Creating %d parallel tasks', no_of_tasks)
+    update_queue(package_queue, to_build, failed, in_progress, built)
+    logger.debug('Creating %d parallel task(s)', no_of_tasks)
     threads = [
         threading.Thread(
             name=f'build_packages_thread_{i + 1}', target=build_package,

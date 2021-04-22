@@ -75,7 +75,7 @@ class HashMixin:
             return None
 
     def update_saved_packages_list(self, installed_packages):
-        with open(self.packages_file_path, 'w') as f:
+        with open(self.saved_packages_file_path, 'w') as f:
             f.write(json.dumps(installed_packages))
 
     def get_packages(self):
@@ -85,5 +85,3 @@ class HashMixin:
                 'chroot', self.chroot_basedir, 'dpkg-query', '-W', '-f', '${Package}\t${Version}\t${Architecture}\n'
             ]).stdout.decode(errors='ignore'))
         }
-
-

@@ -27,10 +27,13 @@ def run(*args, **kwargs):
 
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:
-        if cp.returncode and exception_message:
-            raise CallError(f'{exception_message} ({stderr.decode(errors="ignore")}' if stderr else exception_message)
-        else:
-            cp.check_returncode()
+        error_str = exception_message or stderr or ''
+        error_str = error_str.decode(errors='ignore') if isinstance(error_str, bytes) else error_str
+        if cp.returncode:
+            raise CallError(
+                f'Command {" ".join(args) if isinstance(args, list) else args!r} returned exit code '
+                f'{cp.returncode}' + (f' ({error_str})' if error_str else '')
+            )
     return cp
 
 

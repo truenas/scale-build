@@ -1,7 +1,7 @@
 import logging
-import subprocess
 
 from .config import BRANCH_OVERRIDES, TRY_BRANCH_OVERRIDE
+from .exceptions import CallError
 from .utils.git_utils import branch_exists_in_repository, retrieve_git_remote_and_sha, update_git_manifest
 from .utils.package import get_packages
 
@@ -27,11 +27,11 @@ def checkout_sources():
             retries = 2
             while retries:
                 try:
-                    branch_exists_in_repository(package.origin, TRY_BRANCH_OVERRIDE)
-                except subprocess.CalledProcessError:
+                    if branch_exists_in_repository(package.origin, TRY_BRANCH_OVERRIDE):
+                        gh_override = TRY_BRANCH_OVERRIDE
+                except CallError:
                     retries -= 1
                 else:
-                    gh_override = TRY_BRANCH_OVERRIDE
                     break
 
         package.checkout(gh_override)
