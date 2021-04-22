@@ -1,18 +1,25 @@
 import hashlib
+import json
 import logging
 import os
+import re
 import requests
 import urllib.parse
 
 from scale_build.exceptions import CallError
+from scale_build.utils.run import run
+from scale_build.utils.paths import CACHE_DIR, CHROOT_BASEDIR, HASH_DIR
 
-from .utils import CHROOT_BASEDIR, get_apt_preferences, get_manifest, run
+from .utils import get_apt_preferences, get_manifest
 
 
 to_disable = ('requests', 'urllib3')
 for name in filter(lambda k: k.startswith(to_disable), logging.Logger.manager.loggerDict.keys()):
     custom_logger = logging.getLogger(name)
     custom_logger.disabled = True
+
+
+INSTALLED_PACKAGES_REGEX = re.compile(r'([^\t]+)\t([^\t]+)\t([\S]+)\n')
 
 
 def get_repo_hash(repo_url, distribution):
@@ -38,3 +45,44 @@ def get_all_repo_hash():
 def get_base_hash():
     cp = run(['chroot', CHROOT_BASEDIR, 'apt', 'list', '--installed'])
     return hashlib.sha256(cp.stdout.strip()).hexdigest()
+
+
+class HashMixin:
+
+    @property
+    def cache_hash_filename(self):
+        return f'{self.cache_filename}.hash'
+
+    @property
+    def cache_hash_file_path(self):
+        return os.path.join(CACHE_DIR, self.cache_hash_filename)
+
+    def update_mirror_cache(self):
+        with open(self.cache_hash_file_path, 'w') as f:
+            f.write(get_all_repo_hash())
+
+    @property
+    def saved_packages_file_path(self):
+        return os.path.join(HASH_DIR, 'packages_in_bootstrapdir.json')
+
+    @property
+    def installed_packages_in_cache(self):
+        if self.cache_exists:
+            with open(self.saved_packages_file_path, 'r') as f:
+                return json.loads(f.read().strip())
+        else:
+            return None
+
+    def update_saved_packages_list(self, installed_packages):
+        with open(self.packages_file_path, 'w') as f:
+            f.write(json.dumps(installed_packages))
+
+    def get_packages(self):
+        return {
+            e[0]: {'version': e[1], 'architecture': e[2]}
+            for e in INSTALLED_PACKAGES_REGEX.findall(run([
+                'chroot', self.chroot_basedir, 'dpkg-query', '-W', '-f', '${Package}\t${Version}\t${Architecture}\n'
+            ]).stdout.decode(errors='ignore'))
+        }
+
+
