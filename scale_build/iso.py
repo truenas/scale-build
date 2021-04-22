@@ -1,4 +1,3 @@
-import errno
 import glob
 import logging
 import os
@@ -32,7 +31,7 @@ def build_impl():
         os.unlink(f)
 
     if not os.path.exists(UPDATE_FILE):
-        raise CallError('Missing rootfs image. Run \'make update\' first.', errno.ENOENT)
+        raise CallError('Missing rootfs image. Run \'make update\' first.')
 
     logger.debug('Bootstrapping CD chroot [ISO] (%s/cdrom-bootstrap.log)', LOG_DIR)
     cdrom_bootstrap_obj = CdromBootstrapDirectory(get_logger('cdrom-bootstrap', 'cdrom-bootstrap.log', 'w'))

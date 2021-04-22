@@ -1,10 +1,9 @@
 import logging
-import re
+import subprocess
 
 from .config import BRANCH_OVERRIDES, TRY_BRANCH_OVERRIDE
-from .utils.git_utils import retrieve_git_remote_and_sha, update_git_manifest
+from .utils.git_utils import branch_exists_in_repository, retrieve_git_remote_and_sha, update_git_manifest
 from .utils.package import get_packages
-from .utils.run import run
 
 
 logger = logging.getLogger(__name__)
@@ -25,8 +24,14 @@ def checkout_sources():
         # but need to test building of a series of repos with the same experimental branch
         #
         if TRY_BRANCH_OVERRIDE:
-            cp = run(['git', 'ls-remote', package.origin], check=False)
-            if cp.returncode == 0 and re.findall(fr'/{TRY_BRANCH_OVERRIDE}\n', cp.stdout.decode(), re.M):
-                gh_override = TRY_BRANCH_OVERRIDE
+            retries = 2
+            while retries:
+                try:
+                    branch_exists_in_repository(package.origin, TRY_BRANCH_OVERRIDE)
+                except subprocess.CalledProcessError:
+                    retries -= 1
+                else:
+                    gh_override = TRY_BRANCH_OVERRIDE
+                    break
 
         package.checkout(gh_override)
