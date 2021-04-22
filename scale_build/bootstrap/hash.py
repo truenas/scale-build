@@ -7,10 +7,11 @@ import requests
 import urllib.parse
 
 from scale_build.exceptions import CallError
+from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CACHE_DIR, CHROOT_BASEDIR, HASH_DIR
 
-from .utils import get_apt_preferences, get_manifest
+from .utils import get_apt_preferences
 
 
 to_disable = ('requests', 'urllib3')
@@ -23,7 +24,7 @@ INSTALLED_PACKAGES_REGEX = re.compile(r'([^\t]+)\t([^\t]+)\t([\S]+)\n')
 
 
 def get_repo_hash(repo_url, distribution):
-    resp = requests.get(urllib.parse.urljoin(repo_url, os.path.join('dists', distribution, 'Release')))
+    resp = requests.get(urllib.parse.urljoin(repo_url, os.path.join('dists', distribution, 'Release')), timeout=60)
     if resp.status_code != 200:
         raise CallError(f'Unable to retrieve hash for {repo_url}')
     return hashlib.sha256(resp.content).hexdigest()
