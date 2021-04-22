@@ -2,12 +2,13 @@ import os
 import shutil
 
 from scale_build.clean import clean_packages
+from scale_build.utils.manifest import get_manifest
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR
 from scale_build.utils.run import run
 
 from .cache import CacheMixin
 from .hash import HashMixin
-from .utils import get_apt_preferences, get_manifest
+from .utils import get_apt_preferences
 
 
 class BootstrapDir(CacheMixin, HashMixin):

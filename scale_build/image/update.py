@@ -1,3 +1,4 @@
+import contextlib
 import glob
 import itertools
 import logging
@@ -7,11 +8,11 @@ import shutil
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
 from scale_build.exceptions import CallError
+from scale_build.utils.logger import get_logger
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
 
-from .logger import get_logger
 from .manifest import build_manifest, build_update_manifest, UPDATE_FILE, UPDATE_FILE_HASH
 from .utils import run_in_chroot
 
@@ -34,7 +35,7 @@ def build_rootfs_image():
     #
     # This allows us to verify without ever extracting anything to disk
 
-    build_logger = get_logger('rootfs-image', 'w')
+    build_logger = get_logger('rootfs-image', 'rootfs-image.log', 'w')
     # Create the inner image
     run(
         ['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'],
@@ -66,7 +67,7 @@ def sign_manifest(signing_key, signing_pass):
 
 
 def install_rootfs_packages():
-    rootfs_logger = get_logger('rootfs-packages', 'w')
+    rootfs_logger = get_logger('rootfs-packages', 'rootfs-packages', 'w')
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d'), exist_ok=True)
     with open(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d/force-unsafe-io'), 'w') as f:
         f.write('force-unsafe-io')
@@ -112,7 +113,7 @@ def custom_rootfs_setup(rootfs_logger):
     )
     for unit_file in filter(lambda f: f.endswith('.service'), os.listdir(tmp_systemd)):
         with open(os.path.join(tmp_systemd, unit_file), 'a') as f:
-            f.write(textwrap.dedent('''
+            f.write(textwrap.dedent('''\
                 [Install]
                 WantedBy=multi-user.target
             '''))
@@ -146,7 +147,7 @@ def clean_rootfs(rootfs_logger):
     # So to prevent a bunch of systemd "Failed" messages to be barfed to the console during boot,
     # we remove this file because the linux kernel dynamically loads the modules based on whether
     # or not you have the actual hardware installed in the system.
-    if os.path.exists(os.path.join(CHROOT_BASEDIR, 'etc/modprobe.d/nvidia.conf')):
+    with contextlib.suppress(FileNotFoundError):
         os.unlink(os.path.join(CHROOT_BASEDIR, 'etc/modprobe.d/nvidia.conf'))
 
     for path in (

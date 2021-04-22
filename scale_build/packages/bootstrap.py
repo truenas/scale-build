@@ -1,6 +1,6 @@
 import os
 
-from scale_build.bootstrap.cache import restore_basecache
+from scale_build.bootstrap.bootstrapdir import PackageBootstrapDirectory
 from scale_build.utils.run import run
 
 
@@ -13,4 +13,4 @@ class BootstrapMixin:
                 ['mount', '-t', 'tmpfs', '-o', f'size={self.tmpfs_size}G', 'tmpfs', self.tmpfs_path],
                 logger=self.logger
             )
-        restore_basecache('package', self.chroot_base_directory, self.logger)
+        PackageBootstrapDirectory(self.logger).restore_cache(self.chroot_base_directory)
