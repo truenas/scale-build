@@ -7,7 +7,6 @@ import textwrap
 import shutil
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
-from scale_build.exceptions import CallError
 from scale_build.utils.logger import get_logger
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
@@ -62,7 +61,6 @@ def sign_manifest(signing_key, signing_pass):
         f'echo "{signing_pass}" | gpg -ab --batch --yes --no-use-agent --pinentry-mode loopback --passphrase-fd 0 '
         f'--default-key {signing_key} --output {os.path.join(UPDATE_DIR, "MANIFEST.sig")} '
         f'--sign {os.path.join(UPDATE_DIR, "MANIFEST")}', exception_msg='Failed gpg signing with SIGNING_PASSWORD',
-        exception=CallError
     )
 
 

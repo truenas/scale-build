@@ -1,3 +1,5 @@
+import re
+
 from .run import run
 from .paths import GIT_MANIFEST_PATH
 
@@ -19,3 +21,8 @@ def retrieve_git_remote_and_sha(path):
 
 def retrieve_git_branch(path):
     return run(['git', '-C', path, 'branch', '--show-current']).stdout.decode().strip()
+
+
+def branch_exists_in_repository(origin, branch):
+    cp = run(['git', 'ls-remote', origin])
+    return bool(re.findall(fr'/{branch}\n', cp.stdout.decode(), re.M))

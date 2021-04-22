@@ -2,13 +2,14 @@ import os
 import pexpect
 import subprocess
 
+from scale_build.exceptions import CallError
+
 
 def run(*args, **kwargs):
     if isinstance(args[0], list):
         args = tuple(args[0])
     kwargs.setdefault('stdout', subprocess.PIPE)
     kwargs.setdefault('stderr', subprocess.PIPE)
-    exception = kwargs.pop('exception', None)
     exception_message = kwargs.pop('exception_msg', None)
     check = kwargs.pop('check', True)
     shell = kwargs.pop('shell', False)
@@ -26,8 +27,8 @@ def run(*args, **kwargs):
 
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:
-        if cp.returncode and exception and exception_message:
-            raise exception(f'{exception_message} ({stderr.decode(errors="ignore")}' if stderr else exception_message)
+        if cp.returncode and exception_message:
+            raise CallError(f'{exception_message} ({stderr.decode(errors="ignore")}' if stderr else exception_message)
         else:
             cp.check_returncode()
     return cp

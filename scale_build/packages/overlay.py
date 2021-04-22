@@ -1,7 +1,6 @@
 import os
 import shutil
 
-from scale_build.exceptions import CallError
 from scale_build.utils.run import run
 from scale_build.utils.paths import TMP_DIR, TMPFS
 
@@ -59,7 +58,7 @@ class OverlayMixin:
                 command, msg, path = entry
                 os.makedirs(path, exist_ok=True)
 
-            run(command, exception=CallError, exception_msg=msg)
+            run(command, exception_msg=msg)
 
     def delete_overlayfs(self):
         for command in (

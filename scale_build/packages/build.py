@@ -1,4 +1,3 @@
-import errno
 import json
 import os
 import shutil
@@ -17,7 +16,7 @@ class BuildPackageMixin:
         exception = CallError if exception_message else None
         run(
             f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, logger=self.logger,
-            exception=exception, exception_msg=exception_message, env={
+            exception_msg=exception_message, env={
                 **os.environ,
                 **APT_ENV,
                 'CONFIG_DEBUG_INFO': 'N',  # Build kernel with debug symbols
@@ -91,7 +90,7 @@ class BuildPackageMixin:
 
         if not os.path.exists(os.path.join(self.package_source_with_chroot, 'debian/control')):
             raise CallError(
-                f'Missing debian/control file for {self.name} in {self.package_source_with_chroot}', errno.ENOENT
+                f'Missing debian/control file for {self.name} in {self.package_source_with_chroot}'
             )
 
         self.run_in_chroot(f'cd {self.package_source} && mk-build-deps --build-dep', 'Failed mk-build-deps')

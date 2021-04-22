@@ -1,4 +1,3 @@
-import errno
 import logging
 
 from scale_build.exceptions import CallError
@@ -14,9 +13,7 @@ def get_to_build_packages():
     packages = {}
     for package in packages_list:
         if not package.exists:
-            raise CallError(
-                f'Missing sources for {package.name},  did you forget to run "make checkout" ?', errno=errno.ENOENT
-            )
+            raise CallError(f'Missing sources for {package.name},  did you forget to run "make checkout" ?')
 
         packages[package.name] = package
         for binary_package in package.binary_packages:
