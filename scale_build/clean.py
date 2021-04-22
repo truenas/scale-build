@@ -2,7 +2,6 @@ import logging
 import os
 import shutil
 
-from .bootstrap.cleanup import remove_boostrap_directory
 from .utils.paths import HASH_DIR, LOG_DIR, PKG_DIR, SOURCES_DIR, TMP_DIR
 
 
@@ -20,12 +19,7 @@ def clean_packages():
         os.makedirs(d)
 
 
-def clean():
-    remove_boostrap_directory()
-
-
 def complete_cleanup():
-    clean()
     for path in (LOG_DIR, SOURCES_DIR, TMP_DIR):
         shutil.rmtree(path, ignore_errors=True)
 

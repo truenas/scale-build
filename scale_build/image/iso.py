@@ -4,7 +4,6 @@ import os
 import shutil
 
 from scale_build.config import VERSION
-from scale_build.utils.logger import get_logger
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import BUILDER_DIR, CD_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
@@ -13,22 +12,20 @@ from .manifest import UPDATE_FILE
 from .utils import run_in_chroot
 
 
-def install_iso_packages():
-    installer_logger = get_logger('cdrom-packages', 'cdrom-packages.log')
-    run_in_chroot('apt update', logger=installer_logger)
+def install_iso_packages(iso_logger):
+    run_in_chroot('apt update', logger=iso_logger)
 
     # echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
     for package in get_manifest()['iso-packages']:
         run_in_chroot(
-            f'apt install -y {package}', logger=installer_logger, exception_message=f'Failed apt install {package}'
+            f'apt install -y {package}', logger=iso_logger, exception_message=f'Failed apt install {package}'
         )
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
     shutil.copy(CONF_GRUB, os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'))
 
 
-def make_iso_file():
-    iso_logger = get_logger('cdrom-iso', 'cdrom-iso.log')
+def make_iso_file(iso_logger):
     for f in glob.glob(os.path.join(RELEASE_DIR, '*.iso*')):
         os.unlink(f)
 
