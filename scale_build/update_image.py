@@ -24,22 +24,23 @@ def build_update_image():
 def build_update_image_impl():
     os.makedirs(RELEASE_DIR, exist_ok=True)
 
-    logger.info('Building update image')
+    update_image_logger = get_logger('update_image', 'update_image.log', 'w')
+    logger.info('Building update image (%s/update_image.log)', LOG_DIR)
     clean_mounts()
     os.makedirs(CHROOT_BASEDIR)
-    logger.debug('Bootstrapping TrueNAS rootfs [UPDATE] (%s/rootfs-bootstrap.log)', LOG_DIR)
+    logger.debug('Bootstrapping TrueNAS rootfs [UPDATE]')
 
-    package_bootstrap_obj = PackageBootstrapDirectory(get_logger('rootfs-bootstrap', 'rootfs-bootstrap.log', 'w'))
+    package_bootstrap_obj = PackageBootstrapDirectory(update_image_logger)
     with package_bootstrap_obj as p:
         p.setup()
 
-    logger.debug('Installing TrueNAS rootfs package [UPDATE] (%s/rootfs-package.log)', LOG_DIR)
+    logger.debug('Installing TrueNAS rootfs package [UPDATE]')
     setup_chroot_basedir(package_bootstrap_obj, package_bootstrap_obj.logger)
-    install_rootfs_packages()
+    install_rootfs_packages(update_image_logger)
     umount_chroot_basedir()
 
-    logger.debug('Building TrueNAS rootfs image [UPDATE] (%s/rootfs-image.log)', LOG_DIR)
-    build_rootfs_image()
+    logger.debug('Building TrueNAS rootfs image [UPDATE]')
+    build_rootfs_image(update_image_logger)
     umount_tmpfs_and_clean_chroot_dir()
 
     logger.info('Success! Update image created at: %s', UPDATE_FILE)

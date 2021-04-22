@@ -25,7 +25,8 @@ def build_iso():
 
 
 def build_impl():
-    logger.info('Building TrueNAS SCALE iso')
+    iso_logger = get_logger('iso_logger', 'create_iso.log', 'w')
+    logger.info('Building TrueNAS SCALE iso (%s/create_iso.log)', LOG_DIR)
     clean_mounts()
     for f in glob.glob(os.path.join(LOG_DIR, 'cdrom*')):
         os.unlink(f)
@@ -33,19 +34,19 @@ def build_impl():
     if not os.path.exists(UPDATE_FILE):
         raise CallError('Missing rootfs image. Run \'make update\' first.')
 
-    logger.debug('Bootstrapping CD chroot [ISO] (%s/cdrom-bootstrap.log)', LOG_DIR)
-    cdrom_bootstrap_obj = CdromBootstrapDirectory(get_logger('cdrom-bootstrap', 'cdrom-bootstrap.log', 'w'))
+    logger.debug('Bootstrapping CD chroot [ISO]')
+    cdrom_bootstrap_obj = CdromBootstrapDirectory(iso_logger)
     with cdrom_bootstrap_obj as p:
         p.setup()
 
     setup_chroot_basedir(cdrom_bootstrap_obj, cdrom_bootstrap_obj.logger)
 
-    logger.debug('Installing packages [ISO] (%s/cdrom-packages.log)', LOG_DIR)
-    install_iso_packages()
+    logger.debug('Installing packages [ISO]')
+    install_iso_packages(iso_logger)
     umount_chroot_basedir()
 
-    logger.debug('Creating ISO file [ISO] (%s/cdrom-iso.log)', LOG_DIR)
-    make_iso_file()
+    logger.debug('Creating ISO file [ISO]')
+    make_iso_file(iso_logger)
 
     umount_tmpfs_and_clean_chroot_dir()
     logger.info('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, VERSION)

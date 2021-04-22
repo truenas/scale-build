@@ -1,5 +1,6 @@
 import yaml
 
+from scale_build.config import TRAIN
 from scale_build.exceptions import MissingManifest, InvalidManifest
 from scale_build.utils.paths import MANIFEST
 
@@ -20,3 +21,11 @@ def get_manifest():
             raise InvalidManifest()
     else:
         return manifest
+
+
+def get_release_code_name():
+    return get_manifest()['code_name']
+
+
+def get_truenas_train():
+    return TRAIN or f'TrueNAS-SCALE-{get_release_code_name()}-Nightlies'

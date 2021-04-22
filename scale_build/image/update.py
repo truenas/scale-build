@@ -7,7 +7,6 @@ import textwrap
 import shutil
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
-from scale_build.utils.logger import get_logger
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
@@ -19,7 +18,7 @@ from .utils import run_in_chroot
 logger = logging.getLogger(__name__)
 
 
-def build_rootfs_image():
+def build_rootfs_image(update_image_logger):
     for f in glob.glob(os.path.join('./tmp/release', '*.update*')):
         os.unlink(f)
 
@@ -34,11 +33,10 @@ def build_rootfs_image():
     #
     # This allows us to verify without ever extracting anything to disk
 
-    build_logger = get_logger('rootfs-image', 'rootfs-image.log', 'w')
     # Create the inner image
     run(
         ['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'],
-        logger=build_logger
+        logger=update_image_logger
     )
     # Build any MANIFEST information
     build_manifest()
@@ -48,7 +46,7 @@ def build_rootfs_image():
         sign_manifest(SIGNING_KEY, SIGNING_PASSWORD)
 
     # Create the outer image now
-    run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'], logger=build_logger)
+    run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'], logger=update_image_logger)
     update_hash = run(['sha256sum', UPDATE_FILE]).stdout.decode(errors='ignore').strip()
     with open(UPDATE_FILE_HASH, 'w') as f:
         f.write(update_hash)
@@ -64,30 +62,29 @@ def sign_manifest(signing_key, signing_pass):
     )
 
 
-def install_rootfs_packages():
-    rootfs_logger = get_logger('rootfs-packages', 'rootfs-packages', 'w')
+def install_rootfs_packages(update_image_logger):
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d'), exist_ok=True)
     with open(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d/force-unsafe-io'), 'w') as f:
         f.write('force-unsafe-io')
 
-    run_in_chroot('apt update', rootfs_logger)
+    run_in_chroot('apt update', update_image_logger)
 
     manifest = get_manifest()
     for package in itertools.chain(
         manifest['base-packages'], map(lambda d: d['package'], manifest['additional-packages'])
     ):
-        run_in_chroot(f'apt install -V -y {package}', rootfs_logger, f'Failed apt install {package}')
+        run_in_chroot(f'apt install -V -y {package}', update_image_logger, f'Failed apt install {package}')
 
     # Do any custom rootfs setup
-    custom_rootfs_setup(rootfs_logger)
+    custom_rootfs_setup(update_image_logger)
 
     # Do any pruning of rootfs
-    clean_rootfs(rootfs_logger)
+    clean_rootfs(update_image_logger)
 
     # Copy the default sources.list file
     shutil.copy(CONF_SOURCES, os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'))
 
-    run_in_chroot('depmod', rootfs_logger, check=False)
+    run_in_chroot('depmod', update_image_logger, check=False)
 
 
 def custom_rootfs_setup(rootfs_logger):
@@ -116,14 +113,10 @@ def custom_rootfs_setup(rootfs_logger):
                 WantedBy=multi-user.target
             '''))
 
-    for file_path in map(
-        lambda f: os.path.join(tmp_systemd, 'multi-user.target.wants', f),
-        filter(
-            lambda f: os.path.isfile(f) and not os.path.islink(f) and f != 'rrdcached.service',
-            os.listdir(os.path.join(tmp_systemd, 'multi-user.target.wants'))
-        )
-    ):
-        os.unlink(file_path)
+    run(
+        fr'find {CHROOT_BASEDIR}/tmp/systemd/multi-user.target.wants -type f -and \! -name rrdcached.service -delete',
+        shell=True, logger=rootfs_logger
+    )
 
     run_in_chroot('rsync -av /tmp/systemd/ /usr/lib/systemd/system/')
     shutil.rmtree(tmp_systemd, ignore_errors=True)
