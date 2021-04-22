@@ -6,11 +6,13 @@ from scale_build.exceptions import CallError
 from .cache import check_basechroot_changed, create_basehash, save_build_cache, validate_basecache
 from .cleanup import remove_boostrap_directory
 from .logger import get_logger
-from .utils import BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_apt_preferences, get_manifest, run
+from .utils import (
+    BootstrapDirectoryType, BUILDER_DIR, CACHE_DIR, CHROOT_BASEDIR, get_apt_preferences, get_manifest, run
+)
 
 
 def make_bootstrapdir(bootstrapdir_type, logger_file=None):
-    assert bootstrapdir_type in ('cdrom', 'package')
+    assert bootstrapdir_type in BootstrapDirectoryType
     remove_boostrap_directory()
     try:
         _make_bootstrapdir_impl(bootstrapdir_type, logger_file)
@@ -21,7 +23,7 @@ def make_bootstrapdir(bootstrapdir_type, logger_file=None):
 def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
     logger = get_logger(bootstrapdir_type, 'w', logger_file)
     run_args = {'logger': logger}
-    if bootstrapdir_type == 'cdrom':
+    if bootstrapdir_type == BootstrapDirectoryType.CDROM:
         deopts = ['--components=main,contrib,nonfree', '--variant=minbase', '--include=systemd-sysv,gnupg']
     else:
         deopts = []
@@ -54,7 +56,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
     ], exception=CallError, exception_msg='Failed mount --bind /var/cache/apt', **run_args
     )
 
-    if bootstrapdir_type == 'package':
+    if bootstrapdir_type == BootstrapDirectoryType.PACKAGE:
         # Add extra packages for builds
         run([
             'chroot', CHROOT_BASEDIR, 'apt', 'install', '-y', 'build-essential', 'dh-make', 'devscripts', 'fakeroot'
@@ -80,7 +82,7 @@ def _make_bootstrapdir_impl(bootstrapdir_type, logger_file=None):
         apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
 
     # If not building a cd environment
-    if bootstrapdir_type == 'package':
+    if bootstrapdir_type == BootstrapDirectoryType.PACKAGE:
         check_basechroot_changed()
 
     with open(apt_sources_path, 'w') as f:
