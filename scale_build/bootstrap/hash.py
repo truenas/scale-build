@@ -9,7 +9,7 @@ import urllib.parse
 from scale_build.exceptions import CallError
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.paths import CACHE_DIR, CHROOT_BASEDIR, HASH_DIR
+from scale_build.utils.paths import CACHE_DIR, HASH_DIR
 
 from .utils import get_apt_preferences
 
@@ -41,11 +41,6 @@ def get_all_repo_hash():
     all_repo_hash += hashlib.sha256(get_apt_preferences().encode()).hexdigest()
 
     return all_repo_hash
-
-
-def get_base_hash():
-    cp = run(['chroot', CHROOT_BASEDIR, 'apt', 'list', '--installed'])
-    return hashlib.sha256(cp.stdout.strip()).hexdigest()
 
 
 class HashMixin:

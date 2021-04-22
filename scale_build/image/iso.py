@@ -13,13 +13,11 @@ from .utils import run_in_chroot
 
 
 def install_iso_packages(iso_logger):
-    run_in_chroot('apt update', logger=iso_logger)
+    run_in_chroot(['apt', 'update'], logger=iso_logger)
 
     # echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
     for package in get_manifest()['iso-packages']:
-        run_in_chroot(
-            f'apt install -y {package}', logger=iso_logger, exception_message=f'Failed apt install {package}'
-        )
+        run_in_chroot(['apt', 'install', '-y', package], logger=iso_logger)
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
     shutil.copy(CONF_GRUB, os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'))
@@ -30,7 +28,7 @@ def make_iso_file(iso_logger):
         os.unlink(f)
 
     # Set default PW to root
-    run_in_chroot(r'echo -e \"root\nroot\" | passwd root', logger=iso_logger)
+    run(fr'chroot {CHROOT_BASEDIR} /bin/bash -c "echo -e \"root\nroot\" | passwd root"', logger=iso_logger, shell=True)
 
     # Create /etc/version
     with open(os.path.join(CHROOT_BASEDIR, 'etc/version'), 'w') as f:
@@ -78,10 +76,12 @@ def make_iso_file(iso_logger):
     run(['mount', '--bind', RELEASE_DIR, os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
     run(['mount', '--bind', CD_DIR, os.path.join(CHROOT_BASEDIR, CD_DIR)])
 
-    run_in_chroot('apt-get update', logger=iso_logger, check=False)
-    run_in_chroot('apt-get install -y grub-efi grub-pc-bin mtools xorriso', logger=iso_logger, check=False)
+    run_in_chroot(['apt-get', 'update'], logger=iso_logger, check=False)
     run_in_chroot(
-        f'grub-mkrescue -o {os.path.join(RELEASE_DIR, f"TrueNAS-SCALE-{VERSION}.iso")} {CD_DIR}', logger=iso_logger
+        ['apt-get', 'install', '-y', 'grub-efi', 'grub-pc-bin', 'mtools', 'xorriso'], logger=iso_logger, check=False
+    )
+    run_in_chroot(
+        ['grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso'), CD_DIR], logger=iso_logger
     )
     run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
     run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
