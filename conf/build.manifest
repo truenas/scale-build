@@ -82,6 +82,7 @@ base-packages:
 - wireguard-tools
 - zfs-test
 - zfs-initramfs
+- nvme-cli
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
