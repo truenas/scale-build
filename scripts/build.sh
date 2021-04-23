@@ -62,7 +62,7 @@ export LANG="C"
 export DEB_BUILD_OPTIONS="parallel=$(nproc)"
 
 # Build kernel with debug symbols
-export CONFIG_DEBUG_INFO=N
+export CONFIG_DEBUG_INFO=Y
 export CONFIG_LOCALVERSION="+truenas"
 
 # Never go full interactive on any packages#
