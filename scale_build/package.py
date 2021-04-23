@@ -157,8 +157,8 @@ def _build_packages_impl():
                     elif not data.isdigit() and data not in failed:
                         logger.debug('Please provide valid package name')
                     else:
-                        package = failed[data]['package'] if data in failed else list(failed.values())[int(data) - 1]
-                        interactive_run(package.debug_command)
+                        package = failed[data] if data in failed else list(failed.values())[int(data) - 1]
+                        interactive_run(package['package'].debug_command)
         finally:
             for p in failed.values():
                 p['package'].delete_overlayfs()
