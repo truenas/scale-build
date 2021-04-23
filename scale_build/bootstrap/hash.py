@@ -14,10 +14,7 @@ from scale_build.utils.paths import CACHE_DIR, HASH_DIR
 from .utils import get_apt_preferences
 
 
-to_disable = ('requests', 'urllib3')
-for name in filter(lambda k: k.startswith(to_disable), logging.Logger.manager.loggerDict.keys()):
-    custom_logger = logging.getLogger(name)
-    custom_logger.disabled = True
+logging.getLogger('urllib3').setLevel(logging.INFO)
 
 
 INSTALLED_PACKAGES_REGEX = re.compile(r'([^\t]+)\t([^\t]+)\t([\S]+)\n')
