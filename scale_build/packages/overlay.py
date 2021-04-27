@@ -70,8 +70,8 @@ class OverlayMixin:
         ):
             run(command, check=False)
 
-        for path in (
+        for path in filter(os.path.exists, (
             self.chroot_overlay, self.dpkg_overlay, self.workdir_overlay, self.chroot_base_directory,
             self.sources_overlay, self.tmpfs_path
-        ):
-            shutil.rmtree(path, ignore_errors=True)
+        )):
+            shutil.rmtree(path)

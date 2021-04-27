@@ -109,7 +109,8 @@ def _build_packages_impl():
 
     logger.debug('Successfully setup bootstrap directory')
 
-    shutil.rmtree(PKG_LOG_DIR, ignore_errors=True)
+    if os.path.exists(PKG_LOG_DIR):
+        shutil.rmtree(PKG_LOG_DIR)
     os.makedirs(PKG_LOG_DIR)
 
     all_packages = get_initialized_packages()

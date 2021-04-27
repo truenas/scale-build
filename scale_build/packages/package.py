@@ -173,7 +173,8 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
             run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'], logger=git_logger)
         else:
             logger.debug('Checking out git repo [%s] (%s)', self.name, GIT_LOG_PATH)
-            shutil.rmtree(self.source_path, ignore_errors=True)
+            if os.path.exists(self.source_path):
+                shutil.rmtree(self.source_path)
             run(['git', 'clone', '--depth=1', '-b', branch, self.origin, self.source_path], logger=git_logger)
 
         self.update_git_manifest()

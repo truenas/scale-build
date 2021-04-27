@@ -22,9 +22,10 @@ def build_rootfs_image(update_image_logger):
     for f in glob.glob(os.path.join('./tmp/release', '*.update*')):
         os.unlink(f)
 
-    shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+    if os.path.exists(UPDATE_DIR):
+        shutil.rmtree(UPDATE_DIR)
     os.makedirs(RELEASE_DIR, exist_ok=True)
-    os.makedirs(UPDATE_DIR, exist_ok=True)
+    os.makedirs(UPDATE_DIR)
 
     # We are going to build a nested squashfs image.
 
@@ -84,8 +85,6 @@ def install_rootfs_packages(update_image_logger):
     # Copy the default sources.list file
     shutil.copy(CONF_SOURCES, os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'))
 
-    run_in_chroot(['depmod'], update_image_logger, check=False)
-
 
 def custom_rootfs_setup(rootfs_logger):
     # Any kind of custom mangling of the built rootfs image can exist here
@@ -119,6 +118,7 @@ def custom_rootfs_setup(rootfs_logger):
 
     run_in_chroot(['rsync', '-av', '/tmp/systemd/', '/usr/lib/systemd/system/'])
     shutil.rmtree(tmp_systemd)
+    run_in_chroot(['depmod'], rootfs_logger, check=False)
 
 
 def clean_rootfs(rootfs_logger):

@@ -15,12 +15,13 @@ def clean_bootstrap_logs():
 
 def clean_packages():
     for d in (HASH_DIR, PKG_DIR):
-        shutil.rmtree(d, ignore_errors=True)
+        if os.path.exists(d):
+            shutil.rmtree(d)
         os.makedirs(d)
 
 
 def complete_cleanup():
-    for path in (LOG_DIR, SOURCES_DIR, TMP_DIR):
-        shutil.rmtree(path, ignore_errors=True)
+    for path in filter(os.path.exists, (LOG_DIR, SOURCES_DIR, TMP_DIR)):
+        shutil.rmtree(path)
 
     logger.debug('Removed %s, %s, and %s directories', LOG_DIR, SOURCES_DIR, TMP_DIR)
