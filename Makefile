@@ -7,11 +7,11 @@ COMMIT_HASH=$(shell git rev-parse --short HEAD)
 check:
 ifeq ("$(wildcard ./venv-${COMMIT_HASH})","")
 	@rm -rf venv-*
-	@${PYTHON} -m pip install -U virtualenv >/dev/null 2>&1
-	@${PYTHON} -m venv venv-${COMMIT_HASH}
-	@. ./venv-${COMMIT_HASH}/bin/activate && \
+	@${PYTHON} -m pip install -U virtualenv >/dev/null 2>&1 || { echo "Failed to install/upgrade virtualenv package"; exit 1; }
+	@${PYTHON} -m venv venv-${COMMIT_HASH} || { echo "Failed to create virutal environment"; exit 1; }
+	@{ . ./venv-${COMMIT_HASH}/bin/activate && \
 		python3 -m pip install -r requirements.txt >/dev/null 2>&1 && \
-		python3 setup.py install >/dev/null 2>&1;
+		python3 setup.py install >/dev/null 2>&1; } || { echo "Failed to install scale-build"; exit 1; }
 endif
 
 all: checkout packages update iso
