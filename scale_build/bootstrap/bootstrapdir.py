@@ -24,10 +24,11 @@ class BootstrapDir(CacheMixin, HashMixin):
             return
 
         self.add_trusted_apt_key()
-        apt_repos = get_manifest()['apt-repos']
+        manifest = get_manifest()
+        apt_repos = manifest['apt-repos']
         self.run(
             ['debootstrap'] + self.deopts + [
-                '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', 'bullseye',
+                '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', manifest['debian_release'],
                 self.chroot_basedir, apt_repos['url']
             ]
         )
