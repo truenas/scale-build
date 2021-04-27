@@ -40,7 +40,8 @@ def make_iso_file(iso_logger):
     distutils.dir_util.copy_tree(CD_FILES_DIR, CHROOT_BASEDIR, preserve_symlinks=True)
 
     # Create the CD assembly dir
-    shutil.rmtree(CD_DIR, ignore_errors=True)
+    if os.path.exists(CD_DIR):
+        shutil.rmtree(CD_DIR)
     os.makedirs(CD_DIR, exist_ok=True)
 
     # Prune away the fat
@@ -85,10 +86,10 @@ def make_iso_file(iso_logger):
 
 
 def prune_cd_basedir():
-    for path in itertools.chain([
+    for path in filter(os.path.exists, itertools.chain([
         os.path.join(CHROOT_BASEDIR, 'var/cache/apt'),
         os.path.join(CHROOT_BASEDIR, 'var/lib/apt'),
         os.path.join(CHROOT_BASEDIR, 'usr/share/doc'),
         os.path.join(CHROOT_BASEDIR, 'usr/share/man'),
-    ] + glob.glob(os.path.join(CHROOT_BASEDIR, 'lib/modules/*-amd64/kernel/sound'))):
-        shutil.rmtree(path, ignore_errors=True)
+    ] + glob.glob(os.path.join(CHROOT_BASEDIR, 'lib/modules/*-amd64/kernel/sound')))):
+        shutil.rmtree(path)

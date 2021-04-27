@@ -1,12 +1,9 @@
-import errno
-
-
 class CallError(Exception):
     def __init__(self, errmsg):
         self.errmsg = errmsg
 
     def __str__(self):
-        return f'[{errno.EFAULT}] {self.errmsg}'
+        return self.errmsg
 
 
 class MissingManifest(CallError):

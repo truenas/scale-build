@@ -8,7 +8,8 @@ from .utils import PACKAGE_PATH
 
 
 def setup_chroot_basedir(bootstrapdir_obj, logger):
-    shutil.rmtree(CHROOT_BASEDIR, ignore_errors=True)
+    if os.path.exists(CHROOT_BASEDIR):
+        shutil.rmtree(CHROOT_BASEDIR)
     os.makedirs(TMPFS, exist_ok=True)
     run(
         ['mount', '-t', 'tmpfs', '-o', 'size=12G', 'tmpfs', TMPFS],
@@ -22,7 +23,8 @@ def setup_chroot_basedir(bootstrapdir_obj, logger):
 
 
 def umount_tmpfs_and_clean_chroot_dir():
-    shutil.rmtree(CHROOT_BASEDIR, ignore_errors=True)
+    if os.path.exists(CHROOT_BASEDIR):
+        shutil.rmtree(CHROOT_BASEDIR)
     run(['umount', '-f', TMPFS], check=False)
 
 

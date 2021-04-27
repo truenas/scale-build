@@ -36,7 +36,7 @@ def checkout_sources():
                         TRY_BRANCH_OVERRIDE, package.origin
                     )
                     if not retries:
-                        logger.debug('Unable to determine if %r branch exists in 3 attempts.')
+                        logger.debug('Unable to determine if %r branch exists in 3 attempts.', TRY_BRANCH_OVERRIDE)
                 else:
                     break
 
