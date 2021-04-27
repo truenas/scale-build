@@ -105,7 +105,8 @@ class BootstrapDir(CacheMixin, HashMixin):
 
     def clean_setup(self):
         self.clean_mounts()
-        shutil.rmtree(self.chroot_basedir, ignore_errors=True)
+        if os.path.exists(self.chroot_basedir):
+            shutil.rmtree(self.chroot_basedir)
 
     def __enter__(self):
         # To ensure we have a clean start
