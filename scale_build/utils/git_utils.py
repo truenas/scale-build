@@ -14,15 +14,15 @@ def update_git_manifest(git_remote, git_sha, mode='a+'):
 
 def retrieve_git_remote_and_sha(path):
     return {
-        'url': run(['git', '-C', path, 'remote', 'get-url', 'origin']).stdout.decode().strip(),
-        'sha': run(['git', '-C', path, 'rev-parse', '--short', 'HEAD']).stdout.decode().strip(),
+        'url': run(['git', '-C', path, 'remote', 'get-url', 'origin']).stdout.strip(),
+        'sha': run(['git', '-C', path, 'rev-parse', '--short', 'HEAD']).stdout.strip(),
     }
 
 
 def retrieve_git_branch(path):
-    return run(['git', '-C', path, 'branch', '--show-current']).stdout.decode().strip()
+    return run(['git', '-C', path, 'branch', '--show-current']).stdout.strip()
 
 
 def branch_exists_in_repository(origin, branch):
     cp = run(['git', 'ls-remote', origin])
-    return bool(re.findall(fr'/{branch}\n', cp.stdout.decode(), re.M))
+    return bool(re.findall(fr'/{branch}\n', cp.stdout, re.M))

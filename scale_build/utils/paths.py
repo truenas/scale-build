@@ -21,7 +21,6 @@ MANIFEST = os.path.join(BUILDER_DIR, 'conf/build.manifest')
 PKG_DIR = os.path.join(TMP_DIR, 'pkgdir')
 PKG_LOG_DIR = os.path.join(LOG_DIR, 'packages')
 RELEASE_DIR = os.path.join(TMP_DIR, 'release')
-REQUIRED_RAM = 16  # GB
 SOURCES_DIR = os.path.join(BUILDER_DIR, 'sources')
 UPDATE_DIR = os.path.join(TMP_DIR, 'update')
 WORKDIR_OVERLAY = os.path.join(TMPFS, 'workdir-overlay')
