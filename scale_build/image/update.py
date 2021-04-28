@@ -48,7 +48,7 @@ def build_rootfs_image(update_image_logger):
 
     # Create the outer image now
     run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'], logger=update_image_logger)
-    update_hash = run(['sha256sum', UPDATE_FILE]).stdout.decode(errors='ignore').strip()
+    update_hash = run(['sha256sum', UPDATE_FILE]).stdout.strip()
     with open(UPDATE_FILE_HASH, 'w') as f:
         f.write(update_hash)
 
@@ -111,10 +111,10 @@ def custom_rootfs_setup(rootfs_logger):
                 WantedBy=multi-user.target
             '''))
 
-    run(
-        fr'find {CHROOT_BASEDIR}/tmp/systemd/multi-user.target.wants -type f -and \! -name rrdcached.service -delete',
-        shell=True, logger=rootfs_logger
-    )
+    for f in os.listdir(os.path.join(tmp_systemd, 'multi-user.target.wants')):
+        file_path = os.path.join(tmp_systemd, f)
+        if os.path.isfile(file_path) and not os.path.islink(file_path) and f != 'rrdcached.service':
+            os.unlink(file_path)
 
     run_in_chroot(['rsync', '-av', '/tmp/systemd/', '/usr/lib/systemd/system/'])
     shutil.rmtree(tmp_systemd)
