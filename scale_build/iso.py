@@ -36,8 +36,7 @@ def build_impl():
 
     logger.debug('Bootstrapping CD chroot [ISO]')
     cdrom_bootstrap_obj = CdromBootstrapDirectory(iso_logger)
-    with cdrom_bootstrap_obj as p:
-        p.setup()
+    cdrom_bootstrap_obj.setup()
 
     setup_chroot_basedir(cdrom_bootstrap_obj, cdrom_bootstrap_obj.logger)
 

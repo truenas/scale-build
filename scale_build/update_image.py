@@ -31,8 +31,7 @@ def build_update_image_impl():
     logger.debug('Bootstrapping TrueNAS rootfs [UPDATE]')
 
     package_bootstrap_obj = PackageBootstrapDirectory(update_image_logger)
-    with package_bootstrap_obj as p:
-        p.setup()
+    package_bootstrap_obj.setup()
 
     logger.debug('Installing TrueNAS rootfs package [UPDATE]')
     setup_chroot_basedir(package_bootstrap_obj, package_bootstrap_obj.logger)
