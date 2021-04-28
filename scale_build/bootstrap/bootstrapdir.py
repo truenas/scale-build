@@ -18,6 +18,13 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.chroot_basedir = CHROOT_BASEDIR
 
     def setup(self):
+        self.clean_setup()
+        try:
+            self.setup_impl()
+        finally:
+            self.clean_setup()
+
+    def setup_impl(self):
         if self.mirror_cache_intact:
             # Mirror cache is intact, we do not need to re-create the bootstrap directory
             self.logger.debug('Basechroot cache is intact and does not need to be changed')
@@ -107,14 +114,6 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.clean_mounts()
         if os.path.exists(self.chroot_basedir):
             shutil.rmtree(self.chroot_basedir)
-
-    def __enter__(self):
-        # To ensure we have a clean start
-        self.clean_setup()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.clean_setup()
 
 
 class PackageBootstrapDirectory(BootstrapDir):

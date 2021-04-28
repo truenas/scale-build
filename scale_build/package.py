@@ -104,8 +104,7 @@ def _build_packages_impl():
     logger.info('Building packages (%s/build_packages.log)', LOG_DIR)
     logger.debug('Setting up bootstrap directory')
 
-    with PackageBootstrapDirectory(package_logger) as p:
-        p.setup()
+    PackageBootstrapDirectory(package_logger).setup()
 
     logger.debug('Successfully setup bootstrap directory')
 
