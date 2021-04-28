@@ -14,7 +14,9 @@ from .bootstrap import BootstrapMixin
 from .build import BuildPackageMixin
 from .clean import BuildCleanMixin
 from .overlay import OverlayMixin
-from .utils import DEPENDS_SCRIPT_PATH, get_install_deps, normalize_build_depends, normalize_bin_packages_depends
+from .utils import (
+    DEPENDS_SCRIPT_PATH, gather_build_time_dependencies, normalize_build_depends, normalize_bin_packages_depends
+)
 
 
 logger = logging.getLogger(__name__)
@@ -112,7 +114,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         elif not all_binary_packages:
             raise CallError('Binary packages must be specified when computing build time dependencies')
 
-        self._build_time_dependencies = get_install_deps(
+        self._build_time_dependencies = gather_build_time_dependencies(
             all_binary_packages, set(), self.build_depends
         ) | self.explicit_deps
         return self._build_time_dependencies
@@ -138,7 +140,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
 
     @property
     def source_hash(self):
-        return run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD']).stdout.decode().strip()
+        return run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD']).stdout.strip()
 
     @property
     def rebuild(self):

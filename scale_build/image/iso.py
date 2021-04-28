@@ -68,21 +68,24 @@ def make_iso_file(iso_logger):
     os.makedirs(os.path.join(CHROOT_BASEDIR, RELEASE_DIR), exist_ok=True)
     os.makedirs(os.path.join(CHROOT_BASEDIR, CD_DIR), exist_ok=True)
 
-    run(['mount', '--bind', RELEASE_DIR, os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
-    run(['mount', '--bind', CD_DIR, os.path.join(CHROOT_BASEDIR, CD_DIR)])
-
-    run_in_chroot(['apt-get', 'update'], logger=iso_logger, check=False)
-    run_in_chroot(
-        ['apt-get', 'install', '-y', 'grub-efi', 'grub-pc-bin', 'mtools', 'xorriso'], logger=iso_logger, check=False
-    )
-    run_in_chroot(
-        ['grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso'), CD_DIR], logger=iso_logger
-    )
-    run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
-    run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
+    try:
+        run(['mount', '--bind', RELEASE_DIR, os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
+        run(['mount', '--bind', CD_DIR, os.path.join(CHROOT_BASEDIR, CD_DIR)])
+        run_in_chroot(['apt-get', 'update'], logger=iso_logger, check=False)
+        run_in_chroot([
+            'apt-get', 'install', '-y', 'grub-common', 'grub2-common', 'grub-efi-amd64-bin',
+            'grub-efi-amd64-signed', 'grub-pc-bin', 'mtools', 'xorriso'
+        ], logger=iso_logger)
+        run_in_chroot(
+            ['grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso'), CD_DIR],
+            logger=iso_logger
+        )
+    finally:
+        run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
+        run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
 
     with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso.sha256'), 'w') as f:
-        f.write(run(['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso')]).stdout.decode().strip())
+        f.write(run(['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso')]).stdout.strip())
 
 
 def prune_cd_basedir():

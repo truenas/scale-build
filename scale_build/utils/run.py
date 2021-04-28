@@ -18,9 +18,11 @@ def run(*args, **kwargs):
     if logger:
         kwargs['stderr'] = subprocess.STDOUT
 
-    proc = subprocess.Popen(args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell, env=env)
+    proc = subprocess.Popen(
+        args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell, env=env, encoding='utf8', errors='ignore'
+    )
     if logger:
-        for line in map(lambda l: l.rstrip().decode(errors='ignore'), iter(proc.stdout.readline, b'')):
+        for line in map(str.rstrip, iter(proc.stdout.readline, '')):
             logger.debug(line)
 
     stdout, stderr = proc.communicate()
@@ -28,7 +30,6 @@ def run(*args, **kwargs):
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:
         error_str = exception_message or stderr or ''
-        error_str = error_str.decode(errors='ignore') if isinstance(error_str, bytes) else error_str
         if cp.returncode:
             raise CallError(
                 f'Command {" ".join(args) if isinstance(args, list) else args!r} returned exit code '

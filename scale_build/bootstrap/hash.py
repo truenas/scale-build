@@ -73,5 +73,5 @@ class HashMixin:
             e[0]: {'version': e[1], 'architecture': e[2]}
             for e in INSTALLED_PACKAGES_REGEX.findall(run([
                 'chroot', self.chroot_basedir, 'dpkg-query', '-W', '-f', '${Package}\t${Version}\t${Architecture}\n'
-            ]).stdout.decode(errors='ignore'))
+            ]).stdout)
         }
