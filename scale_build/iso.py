@@ -3,11 +3,11 @@ import logging
 import os
 
 from .bootstrap.bootstrapdir import CdromBootstrapDirectory
-from .config import VERSION
 from .exceptions import CallError
 from .image.bootstrap import clean_mounts, setup_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
 from .image.iso import install_iso_packages, make_iso_file
 from .image.manifest import UPDATE_FILE
+from .image.utils import get_image_version
 from .utils.logger import get_logger
 from .utils.paths import LOG_DIR, RELEASE_DIR
 
@@ -38,6 +38,8 @@ def build_impl():
 
     setup_chroot_basedir(cdrom_bootstrap_obj, cdrom_bootstrap_obj.logger)
 
+    image_version = get_image_version()
+    logger.debug('Image version identified as %r', image_version)
     logger.debug('Installing packages [ISO]')
     try:
         install_iso_packages(iso_logger)
@@ -47,4 +49,4 @@ def build_impl():
     finally:
         umount_tmpfs_and_clean_chroot_dir()
 
-    logger.info('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, VERSION)
+    logger.info('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, image_version)

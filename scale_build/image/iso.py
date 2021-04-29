@@ -4,14 +4,13 @@ import itertools
 import os
 import shutil
 
-from scale_build.config import VERSION
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import UPDATE_FILE
-from .utils import run_in_chroot
+from .utils import run_in_chroot, get_image_version
 
 
 def install_iso_packages(iso_logger):
@@ -41,7 +40,7 @@ def make_iso_file(iso_logger):
 
     # Create /etc/version
     with open(os.path.join(CHROOT_BASEDIR, 'etc/version'), 'w') as f:
-        f.write(VERSION)
+        f.write(get_image_version())
 
     # Copy the CD files
     distutils.dir_util._path_created = {}
@@ -85,15 +84,17 @@ def make_iso_file(iso_logger):
             'grub-efi-amd64-signed', 'grub-pc-bin', 'mtools', 'xorriso'
         ], logger=iso_logger)
         run_in_chroot(
-            ['grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso'), CD_DIR],
+            ['grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso'), CD_DIR],
             logger=iso_logger
         )
     finally:
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
 
-    with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso.sha256'), 'w') as f:
-        f.write(run(['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso')]).stdout.strip().split()[0])
+    with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso.sha256'), 'w') as f:
+        f.write(run(
+            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')]
+        ).stdout.strip().split()[0])
 
 
 def prune_cd_basedir():
