@@ -16,13 +16,17 @@ endif
 
 all: checkout packages update iso
 
-clean: check
+clean: validate
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build clean
-checkout: check
+checkout: validate
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build checkout
-iso: check
+iso: validate
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build iso
-packages: check
+packages: validate
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages
-update: check
+update: validate
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build update
+validate_manifest: check
+	. ./venv-${COMMIT_HASH}/bin/activate && scale_build validate --no-validate-system_state
+validate: check
+	. ./venv-${COMMIT_HASH}/bin/activate && scale_build validate
