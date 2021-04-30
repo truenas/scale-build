@@ -9,6 +9,7 @@ from toposort import toposort
 from .bootstrap.bootstrapdir import PackageBootstrapDirectory
 from .clean import clean_bootstrap_logs
 from .config import PARALLEL_BUILD, PKG_DEBUG
+from .exceptions import CallError
 from .packages.order import get_initialized_packages, get_to_build_packages
 from .utils.logger import get_logger
 from .utils.paths import LOG_DIR, PKG_DIR, PKG_LOG_DIR
@@ -162,6 +163,8 @@ def _build_packages_impl():
         finally:
             for p in failed.values():
                 p['package'].delete_overlayfs()
+
+        raise CallError(f'{", ".join(failed)!r} Packages failed to build')
 
     else:
         logger.info('Success! Done building packages')

@@ -11,11 +11,6 @@ class MissingManifest(CallError):
         super().__init__('Unable to locate manifest file')
 
 
-class InvalidManifest(CallError):
-    def __init__(self):
-        super().__init__('Invalid manifest file found')
-
-
 class MissingPackagesException(CallError):
     def __init__(self, packages):
         super().__init__(f'Failed preflight check. Please install {", ".join(packages)!r} packages.')
