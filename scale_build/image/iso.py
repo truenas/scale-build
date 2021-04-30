@@ -85,7 +85,7 @@ def make_iso_file(iso_logger):
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
 
     with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso.sha256'), 'w') as f:
-        f.write(run(['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso')]).stdout.strip())
+        f.write(run(['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{VERSION}.iso')]).stdout.strip().split()[0])
 
 
 def prune_cd_basedir():

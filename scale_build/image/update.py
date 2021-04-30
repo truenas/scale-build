@@ -11,6 +11,7 @@ from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
 
+from .bootstrap import umount_chroot_basedir
 from .manifest import build_manifest, build_update_manifest, UPDATE_FILE, UPDATE_FILE_HASH
 from .utils import run_in_chroot
 
@@ -48,7 +49,7 @@ def build_rootfs_image(update_image_logger):
 
     # Create the outer image now
     run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'], logger=update_image_logger)
-    update_hash = run(['sha256sum', UPDATE_FILE]).stdout.strip()
+    update_hash = run(['sha256sum', UPDATE_FILE]).stdout.strip().split()[0]
     with open(UPDATE_FILE_HASH, 'w') as f:
         f.write(update_hash)
 
@@ -64,6 +65,13 @@ def sign_manifest(signing_key, signing_pass):
 
 
 def install_rootfs_packages(update_image_logger):
+    try:
+        install_rootfs_packages_impl(update_image_logger)
+    finally:
+        umount_chroot_basedir()
+
+
+def install_rootfs_packages_impl(update_image_logger):
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d'), exist_ok=True)
     with open(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d/force-unsafe-io'), 'w') as f:
         f.write('force-unsafe-io')
