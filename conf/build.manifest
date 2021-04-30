@@ -139,6 +139,8 @@ additional-packages:
   comment: requested by sales (NAS-108787)
 - package: dnsutils
   comment: requested by community (NAS-109391)
+- package: openseachest
+  comment: requested by performance team (NAS-106154)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
@@ -169,6 +171,9 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: openseachest
+  branch: truenas/master
+  repo: https://github.com/truenas/openseachest
 - name: kernel
   repo: https://github.com/truenas/linux
   branch: SCALE-v5.10-stable
