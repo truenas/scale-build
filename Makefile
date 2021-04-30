@@ -6,6 +6,7 @@ COMMIT_HASH=$(shell git rev-parse --short HEAD)
 
 check:
 ifeq ("$(wildcard ./venv-${COMMIT_HASH})","")
+	@echo "Setting up new virtual environment"
 	@rm -rf venv-*
 	@${PYTHON} -m pip install -U virtualenv >/dev/null 2>&1 || { echo "Failed to install/upgrade virtualenv package"; exit 1; }
 	@${PYTHON} -m venv venv-${COMMIT_HASH} || { echo "Failed to create virutal environment"; exit 1; }
