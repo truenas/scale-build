@@ -13,6 +13,7 @@ from .package import build_packages
 from .preflight import preflight_check
 from .update_image import build_update_image
 from .utils.manifest import get_manifest
+from .validate import validate
 
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,11 @@ def main():
     subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
     subparsers.add_parser('update', help='Create TrueNAS Scale update image')
     subparsers.add_parser('iso', help='Create TrueNAS Scale iso installation file')
+    validate_parser = subparsers.add_parser('validate', help='Validate TrueNAS Scale build manifest and system state')
+    for action in ('manifest', 'system_state'):
+        validate_parser.add_argument(f'--validate-{action}', dest=action, action='store_true')
+        validate_parser.add_argument(f'--no-validate-{action}', dest=action, action='store_false')
+        validate_parser.set_defaults(**{action: True})
 
     args = parser.parse_args()
     if args.action == 'checkout':
@@ -63,5 +69,7 @@ def main():
         build_iso()
     elif args.action == 'clean':
         complete_cleanup()
+    elif args.action == 'validate':
+        validate(args.system_state, args.manifest)
     else:
         parser.print_help()
