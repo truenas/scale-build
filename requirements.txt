@@ -3,6 +3,7 @@ chardet==4.0.0
 coloredlogs==15.0
 humanfriendly==9.1
 idna==2.10
+jsonschema==3.2.0
 pexpect==4.8.0
 psutil==5.8.0
 ptyprocess==0.7.0
@@ -10,4 +11,3 @@ PyYAML==5.4.1
 requests==2.25.1
 toposort==1.6
 urllib3==1.26.4
-jsonschema==3.2.0
