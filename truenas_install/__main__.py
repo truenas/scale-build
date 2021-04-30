@@ -132,7 +132,8 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
         f.write(textwrap.dedent(f"""\
             #!/bin/sh
             cat << 'EOF'
-            menuentry 'TrueNAS SCALE' --class truenas --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-{fs_uuid}' {{
+            menuentry 'TrueNAS SCALE' --class truenas --class gnu-linux --class gnu --class os """
+                                f"""$menuentry_id_option 'gnulinux-simple-{fs_uuid}' {{
                 load_video
                 insmod gzio
                 if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
@@ -140,7 +141,8 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
                 insmod zfs
                 search --no-floppy --fs-uuid --set=root {fs_uuid}
                 echo	'Loading Linux {manifest['kernel_version']} ...'
-                linux	/ROOT/{manifest['version']}@/boot/vmlinuz-{manifest['kernel_version']} root=ZFS={dataset_name} ro {cmdline} console=tty1 zfs_force=yes
+                linux	/ROOT/{manifest['version']}@/boot/vmlinuz-{manifest['kernel_version']}"""
+                                f"""root=ZFS={dataset_name} ro {cmdline} console=tty1 zfs_force=yes
                 echo	'Loading initial ramdisk ...'
                 initrd	/ROOT/{manifest['version']}@/boot/initrd.img-{manifest['kernel_version']}
             }}

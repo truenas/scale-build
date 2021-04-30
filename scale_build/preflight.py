@@ -24,14 +24,7 @@ def is_root():
 
 
 def retrieve_missing_packages():
-    missing = {pkg for pkg in WANTED_PACKAGES if not shutil.which(pkg)}
-    if not os.path.exists('/lib/grub/x86_64-efi') and not os.path.exists('/usr/lib/grub/x86_64-efi'):
-        missing.add('grub-efi-amd64-bin')
-
-    if not os.path.exists('/lib/grub/i386-pc') and not os.path.exists('/usr/lib/grub/i386-pc'):
-        missing.add('grub-pc-bin')
-
-    return missing
+    return {pkg for pkg in WANTED_PACKAGES if not shutil.which(pkg)}
 
 
 def setup_dirs():
