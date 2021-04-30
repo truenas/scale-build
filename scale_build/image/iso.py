@@ -42,6 +42,10 @@ def make_iso_file(iso_logger):
     with open(os.path.join(CHROOT_BASEDIR, 'etc/version'), 'w') as f:
         f.write(get_image_version())
 
+    # Set /etc/hostname so that hostname of builder is not advertised
+    with open(os.path.join(CHROOT_BASEDIR, 'etc/hostname'), 'w') as f:
+        f.write('truenas.local')
+
     # Copy the CD files
     distutils.dir_util._path_created = {}
     distutils.dir_util.copy_tree(CD_FILES_DIR, CHROOT_BASEDIR, preserve_symlinks=True)
