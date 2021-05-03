@@ -9,11 +9,19 @@ from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
 
+from .bootstrap import umount_chroot_basedir
 from .manifest import UPDATE_FILE
 from .utils import run_in_chroot
 
 
 def install_iso_packages(iso_logger):
+    try:
+        install_iso_packages_impl(iso_logger)
+    finally:
+        umount_chroot_basedir()
+
+
+def install_iso_packages_impl(iso_logger):
     run_in_chroot(['apt', 'update'], logger=iso_logger)
 
     # echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
