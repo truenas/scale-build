@@ -5,9 +5,7 @@ import os
 from .bootstrap.bootstrapdir import CdromBootstrapDirectory
 from .config import VERSION
 from .exceptions import CallError
-from .image.bootstrap import (
-    clean_mounts, setup_chroot_basedir, umount_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
-)
+from .image.bootstrap import clean_mounts, setup_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
 from .image.iso import install_iso_packages, make_iso_file
 from .image.manifest import UPDATE_FILE
 from .utils.logger import get_logger
@@ -41,11 +39,12 @@ def build_impl():
     setup_chroot_basedir(cdrom_bootstrap_obj, cdrom_bootstrap_obj.logger)
 
     logger.debug('Installing packages [ISO]')
-    install_iso_packages(iso_logger)
-    umount_chroot_basedir()
+    try:
+        install_iso_packages(iso_logger)
 
-    logger.debug('Creating ISO file [ISO]')
-    make_iso_file(iso_logger)
+        logger.debug('Creating ISO file [ISO]')
+        make_iso_file(iso_logger)
+    finally:
+        umount_tmpfs_and_clean_chroot_dir()
 
-    umount_tmpfs_and_clean_chroot_dir()
     logger.info('Success! CD/USB: %s/TrueNAS-SCALE-%s.iso', RELEASE_DIR, VERSION)
