@@ -126,11 +126,14 @@ def get_manifest():
     try:
         with open(MANIFEST, 'r') as f:
             manifest = yaml.safe_load(f.read())
-            return manifest
+        jsonschema.validate(manifest, MANIFEST_SCHEMA)
+        return manifest
     except FileNotFoundError:
         raise MissingManifest()
     except yaml.YAMLError:
         raise CallError('Provided manifest has invalid format')
+    except jsonschema.ValidationError as e:
+        raise CallError(f'Provided manifest is invalid: {e}')
 
 
 def get_release_code_name():
@@ -139,10 +142,3 @@ def get_release_code_name():
 
 def get_truenas_train():
     return TRAIN or f'TrueNAS-SCALE-{get_release_code_name()}-Nightlies'
-
-
-def validate_manifest():
-    try:
-        jsonschema.validate(get_manifest(), MANIFEST_SCHEMA)
-    except jsonschema.ValidationError as e:
-        raise CallError(f'Provided manifest is invalid: {e}')
