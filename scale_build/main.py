@@ -12,21 +12,27 @@ from .iso import build_iso
 from .package import build_packages
 from .preflight import preflight_check
 from .update_image import build_update_image
+from .utils.logger import ConsoleFilter, LogHandler
 from .utils.manifest import get_manifest
 from .validate import validate
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('scale_build')
 
 
 def setup_logging():
-    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s')
+    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', force=True)
     if sys.stdout.isatty():
-        coloredlogs.install(logging.DEBUG, fmt='[%(asctime)s] %(message)s')
+        coloredlogs.install(logging.DEBUG, fmt='[%(asctime)s] %(message)s', logger=logger)
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
+    handler.addFilter(ConsoleFilter())
     logger.addHandler(handler)
+    log_handler = LogHandler()
+    log_handler.setLevel(logging.DEBUG)
+    logger.addHandler(log_handler)
+    logger.propagate = False
 
 
 def validate_config():

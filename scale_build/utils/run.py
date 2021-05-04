@@ -1,8 +1,12 @@
+import logging
 import os
 import pexpect
 import subprocess
 
 from scale_build.exceptions import CallError
+
+
+logger = logging.getLogger(__name__)
 
 
 def run(*args, **kwargs):
@@ -13,17 +17,18 @@ def run(*args, **kwargs):
     exception_message = kwargs.pop('exception_msg', None)
     check = kwargs.pop('check', True)
     shell = kwargs.pop('shell', False)
-    logger = kwargs.pop('logger', None)
+    log = kwargs.pop('log', True)
+    s_logger = kwargs.pop('logger', None) or logger
     env = kwargs.pop('env', None) or os.environ
-    if logger:
+    if log:
         kwargs['stderr'] = subprocess.STDOUT
 
     proc = subprocess.Popen(
         args, stdout=kwargs['stdout'], stderr=kwargs['stderr'], shell=shell, env=env, encoding='utf8', errors='ignore'
     )
-    if logger:
+    if log:
         for line in map(str.rstrip, iter(proc.stdout.readline, '')):
-            logger.debug(line)
+            s_logger.debug(line)
 
     stdout, stderr = proc.communicate()
 
