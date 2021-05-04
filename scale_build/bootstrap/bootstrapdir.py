@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 
@@ -11,9 +12,12 @@ from .hash import HashMixin
 from .utils import get_apt_preferences
 
 
+logger = logging.getLogger(__name__)
+
+
 class BootstrapDir(CacheMixin, HashMixin):
 
-    def __init__(self, logger):
+    def __init__(self):
         self.logger = logger
         self.chroot_basedir = CHROOT_BASEDIR
 

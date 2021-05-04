@@ -5,7 +5,7 @@ import shutil
 
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
-from scale_build.utils.logger import get_logger
+from scale_build.utils.logger import get_logger, LoggingContext
 from scale_build.utils.run import run
 from scale_build.utils.paths import GIT_LOG_PATH, HASH_DIR, PKG_LOG_DIR, SOURCES_DIR
 
@@ -167,21 +167,20 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
     def checkout(self, branch_override=None):
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
         branch = branch_override or self.branch
-        git_logger = get_logger(f'checkout_{self.name}', 'git-checkout.log', 'w')
         if branch == self.existing_branch and self.origin == origin_url:
             logger.debug('Updating git repo [%s] (%s)', self.name, GIT_LOG_PATH)
-            run(['git', '-C', self.source_path, 'fetch', '--unshallow'], logger=git_logger, check=False)
-            run(['git', '-C', self.source_path, 'fetch', 'origin', branch], logger=git_logger)
-            run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'], logger=git_logger)
-            run(['git', '-C', self.source_path, 'submodule', 'update', '--checkout', '--depth=1'])
+            with LoggingContext('git-checkout', 'w'):
+                run(['git', '-C', self.source_path, 'fetch', '--unshallow'], check=False)
+                run(['git', '-C', self.source_path, 'fetch', 'origin', branch])
+                run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'])
+                run(['git', '-C', self.source_path, 'submodule', 'update', '--checkout', '--depth=1'])
         else:
             logger.debug('Checking out git repo [%s] (%s)', self.name, GIT_LOG_PATH)
             if os.path.exists(self.source_path):
                 shutil.rmtree(self.source_path)
-            run(['git', 'clone', '--depth=1', '-b', branch, self.origin, self.source_path], logger=git_logger)
-            run([
-                'git', '-C', self.source_path, 'submodule', 'update', '--init', '--checkout', '--depth=1'
-            ], logger=git_logger)
+            with LoggingContext('git-checkout', 'w'):
+                run(['git', 'clone', '--depth=1', '-b', branch, self.origin, self.source_path])
+                run(['git', '-C', self.source_path, 'submodule', 'update', '--init', '--checkout', '--depth=1'])
 
         self.update_git_manifest()
 
