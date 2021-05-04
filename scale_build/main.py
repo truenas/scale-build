@@ -61,11 +61,14 @@ def main():
         check_epoch()
         checkout_sources()
     elif args.action == 'packages':
+        validate()
         check_epoch()
         build_packages()
     elif args.action == 'update':
+        validate()
         build_update_image()
     elif args.action == 'iso':
+        validate()
         build_iso()
     elif args.action == 'clean':
         complete_cleanup()
