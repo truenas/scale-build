@@ -27,9 +27,9 @@ def get_image_version():
 
     with tempfile.TemporaryDirectory() as mount_dir:
         try:
-            run(['mount', UPDATE_FILE, mount_dir, '-t', 'squashfs', '-o', 'loop'])
+            run(['mount', UPDATE_FILE, mount_dir, '-t', 'squashfs', '-o', 'loop'], log=False)
             with open(os.path.join(mount_dir, 'manifest.json'), 'r') as f:
                 update_manifest = json.loads(f.read())
             return update_manifest['version']
         finally:
-            run(['umount', '-f', mount_dir])
+            run(['umount', '-f', mount_dir], log=False)
