@@ -109,7 +109,7 @@ class BootstrapDir(CacheMixin, HashMixin):
             ['umount', '-f', os.path.join(self.chroot_basedir, 'proc')],
             ['umount', '-f', os.path.join(self.chroot_basedir, 'sys')],
         ):
-            run(command, check=False)
+            run(command, check=False, log=False)
 
     def clean_setup(self):
         self.clean_mounts()
