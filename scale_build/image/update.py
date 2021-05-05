@@ -1,7 +1,6 @@
 import contextlib
 import glob
 import itertools
-import logging
 import os
 import textwrap
 import shutil
@@ -16,10 +15,7 @@ from .manifest import build_manifest, build_update_manifest, UPDATE_FILE, UPDATE
 from .utils import run_in_chroot
 
 
-logger = logging.getLogger(__name__)
-
-
-def build_rootfs_image(update_image_logger):
+def build_rootfs_image():
     for f in glob.glob(os.path.join('./tmp/release', '*.update*')):
         os.unlink(f)
 
@@ -36,10 +32,7 @@ def build_rootfs_image(update_image_logger):
     # This allows us to verify without ever extracting anything to disk
 
     # Create the inner image
-    run(
-        ['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'],
-        logger=update_image_logger
-    )
+    run(['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'])
     # Build any MANIFEST information
     build_manifest()
 
@@ -48,8 +41,8 @@ def build_rootfs_image(update_image_logger):
         sign_manifest(SIGNING_KEY, SIGNING_PASSWORD)
 
     # Create the outer image now
-    run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'], logger=update_image_logger)
-    update_hash = run(['sha256sum', UPDATE_FILE]).stdout.strip().split()[0]
+    run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'])
+    update_hash = run(['sha256sum', UPDATE_FILE], log=False).stdout.strip().split()[0]
     with open(UPDATE_FILE_HASH, 'w') as f:
         f.write(update_hash)
 
@@ -60,41 +53,42 @@ def sign_manifest(signing_key, signing_pass):
     run(
         f'echo "{signing_pass}" | gpg -ab --batch --yes --no-use-agent --pinentry-mode loopback --passphrase-fd 0 '
         f'--default-key {signing_key} --output {os.path.join(UPDATE_DIR, "MANIFEST.sig")} '
-        f'--sign {os.path.join(UPDATE_DIR, "MANIFEST")}', exception_msg='Failed gpg signing with SIGNING_PASSWORD',
+        f'--sign {os.path.join(UPDATE_DIR, "MANIFEST")}', shell=True,
+        exception_msg='Failed gpg signing with SIGNING_PASSWORD', log=False,
     )
 
 
-def install_rootfs_packages(update_image_logger):
+def install_rootfs_packages():
     try:
-        install_rootfs_packages_impl(update_image_logger)
+        install_rootfs_packages_impl()
     finally:
         umount_chroot_basedir()
 
 
-def install_rootfs_packages_impl(update_image_logger):
+def install_rootfs_packages_impl():
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d'), exist_ok=True)
     with open(os.path.join(CHROOT_BASEDIR, 'etc/dpkg/dpkg.cfg.d/force-unsafe-io'), 'w') as f:
         f.write('force-unsafe-io')
 
-    run_in_chroot(['apt', 'update'], update_image_logger)
+    run_in_chroot(['apt', 'update'])
 
     manifest = get_manifest()
     for package in itertools.chain(
         manifest['base-packages'], map(lambda d: d['package'], manifest['additional-packages'])
     ):
-        run_in_chroot(['apt', 'install', '-V', '-y', package], update_image_logger)
+        run_in_chroot(['apt', 'install', '-V', '-y', package])
 
     # Do any custom rootfs setup
-    custom_rootfs_setup(update_image_logger)
+    custom_rootfs_setup()
 
     # Do any pruning of rootfs
-    clean_rootfs(update_image_logger)
+    clean_rootfs()
 
     # Copy the default sources.list file
     shutil.copy(CONF_SOURCES, os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'))
 
 
-def custom_rootfs_setup(rootfs_logger):
+def custom_rootfs_setup():
     # Any kind of custom mangling of the built rootfs image can exist here
 
     # If we are upgrading a FreeBSD installation on USB, there won't be no opportunity to run truenas-initrd.py
@@ -104,14 +98,14 @@ def custom_rootfs_setup(rootfs_logger):
     with open(os.path.join(CHROOT_BASEDIR, 'etc/default/zfs'), 'a') as f:
         f.write('ZFS_INITRD_POST_MODPROBE_SLEEP=15')
 
-    run_in_chroot(['update-initramfs', '-k', 'all', '-u'], logger=rootfs_logger)
+    run_in_chroot(['update-initramfs', '-k', 'all', '-u'])
 
     # Generate native systemd unit files for SysV services that lack ones to prevent systemd-sysv-generator warnings
     tmp_systemd = os.path.join(CHROOT_BASEDIR, 'tmp/systemd')
     os.makedirs(tmp_systemd)
     run_in_chroot([
         '/usr/lib/systemd/system-generators/systemd-sysv-generator', '/tmp/systemd', '/tmp/systemd', '/tmp/systemd'
-    ], rootfs_logger)
+    ])
     for unit_file in filter(lambda f: f.endswith('.service'), os.listdir(tmp_systemd)):
         with open(os.path.join(tmp_systemd, unit_file), 'a') as f:
             f.write(textwrap.dedent('''\
@@ -126,15 +120,15 @@ def custom_rootfs_setup(rootfs_logger):
 
     run_in_chroot(['rsync', '-av', '/tmp/systemd/', '/usr/lib/systemd/system/'])
     shutil.rmtree(tmp_systemd)
-    run_in_chroot(['depmod'], rootfs_logger, check=False)
+    run_in_chroot(['depmod'], check=False)
 
 
-def clean_rootfs(rootfs_logger):
+def clean_rootfs():
     to_remove = get_manifest()['base-prune']
-    run_in_chroot(['apt', 'remove', '-y'] + to_remove, rootfs_logger)
+    run_in_chroot(['apt', 'remove', '-y'] + to_remove)
 
     # Remove any temp build depends
-    run_in_chroot(['apt', 'autoremove', '-y'], rootfs_logger)
+    run_in_chroot(['apt', 'autoremove', '-y'])
 
     # We install the nvidia-kernel-dkms package which causes a modprobe file to be written
     # (i.e /etc/modprobe.d/nvidia.conf). This file tries to modprobe all the associated

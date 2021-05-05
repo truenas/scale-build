@@ -13,30 +13,30 @@ from .manifest import UPDATE_FILE
 from .utils import run_in_chroot, get_image_version
 
 
-def install_iso_packages(iso_logger):
+def install_iso_packages():
     try:
-        install_iso_packages_impl(iso_logger)
+        install_iso_packages_impl()
     finally:
         umount_chroot_basedir()
 
 
-def install_iso_packages_impl(iso_logger):
-    run_in_chroot(['apt', 'update'], logger=iso_logger)
+def install_iso_packages_impl():
+    run_in_chroot(['apt', 'update'])
 
     # echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
     for package in get_manifest()['iso-packages']:
-        run_in_chroot(['apt', 'install', '-y', package], logger=iso_logger)
+        run_in_chroot(['apt', 'install', '-y', package])
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
     shutil.copy(CONF_GRUB, os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'))
 
 
-def make_iso_file(iso_logger):
+def make_iso_file():
     for f in glob.glob(os.path.join(RELEASE_DIR, '*.iso*')):
         os.unlink(f)
 
     # Set default PW to root
-    run(fr'chroot {CHROOT_BASEDIR} /bin/bash -c "echo -e \"root\nroot\" | passwd root"', logger=iso_logger, shell=True)
+    run(fr'chroot {CHROOT_BASEDIR} /bin/bash -c "echo -e \"root\nroot\" | passwd root"', shell=True)
 
     # Create /etc/version
     with open(os.path.join(CHROOT_BASEDIR, 'etc/version'), 'w') as f:
@@ -60,7 +60,7 @@ def make_iso_file(iso_logger):
 
     # Lets make squashfs now
     tmp_truenas_path = os.path.join(TMP_DIR, 'truenas.squashfs')
-    run(['mksquashfs', CHROOT_BASEDIR, tmp_truenas_path, '-comp', 'xz'], logger=iso_logger)
+    run(['mksquashfs', CHROOT_BASEDIR, tmp_truenas_path, '-comp', 'xz'])
     os.makedirs(os.path.join(CD_DIR, 'live'), exist_ok=True)
     shutil.move(tmp_truenas_path, os.path.join(CD_DIR, 'live/filesystem.squashfs'))
 
@@ -82,22 +82,21 @@ def make_iso_file(iso_logger):
     try:
         run(['mount', '--bind', RELEASE_DIR, os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
         run(['mount', '--bind', CD_DIR, os.path.join(CHROOT_BASEDIR, CD_DIR)])
-        run_in_chroot(['apt-get', 'update'], logger=iso_logger, check=False)
+        run_in_chroot(['apt-get', 'update'], check=False)
         run_in_chroot([
             'apt-get', 'install', '-y', 'grub-common', 'grub2-common', 'grub-efi-amd64-bin',
             'grub-efi-amd64-signed', 'grub-pc-bin', 'mtools', 'xorriso'
-        ], logger=iso_logger)
-        run_in_chroot(
-            ['grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso'), CD_DIR],
-            logger=iso_logger
-        )
+        ])
+        run_in_chroot([
+            'grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso'), CD_DIR
+        ])
     finally:
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
 
     with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso.sha256'), 'w') as f:
         f.write(run(
-            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')]
+            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')], log=False
         ).stdout.strip().split()[0])
 
 
