@@ -11,7 +11,7 @@ from .clean import clean_bootstrap_logs
 from .config import PARALLEL_BUILD, PKG_DEBUG
 from .exceptions import CallError
 from .packages.order import get_initialized_packages, get_to_build_packages
-from .utils.logger import LoggingContext, get_logger
+from .utils.logger import LoggingContext
 from .utils.paths import LOG_DIR, PKG_DIR, PKG_LOG_DIR
 from .utils.run import interactive_run, run
 
@@ -65,24 +65,26 @@ def build_package(package_queue, to_build, failed, in_progress, built):
         if package:
             try:
                 logger.debug('Building %r package', package.name)
-                package.delete_overlayfs()
-                package.setup_chroot_basedir()
-                package.make_overlayfs()
-                with APT_LOCK:
-                    package.clean_previous_packages()
-                    shutil.copytree(PKG_DIR, package.dpkg_overlay_packages_path)
-                package._build_impl()
+                with LoggingContext(os.path.join('packages', package.name), 'w'):
+                    package.delete_overlayfs()
+                    package.setup_chroot_basedir()
+                    package.make_overlayfs()
+                    with APT_LOCK:
+                        package.clean_previous_packages()
+                        shutil.copytree(PKG_DIR, package.dpkg_overlay_packages_path)
+                    package._build_impl()
             except Exception as e:
                 logger.error('Failed to build %r package', package.name)
                 failed[package.name] = {'package': package, 'exception': e}
                 break
             else:
                 with APT_LOCK:
-                    package.logger.debug('Building local APT repo Packages.gz...')
-                    run(
-                        f'cd {PKG_DIR} && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz',
-                        shell=True, logger=package.logger
-                    )
+                    with LoggingContext(os.path.join('packages', package.name)):
+                        logger.debug('Building local APT repo Packages.gz...')
+                        run(
+                            f'cd {PKG_DIR} && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz',
+                            shell=True
+                        )
                 in_progress.pop(package.name)
                 built[package.name] = package
                 logger.info(
@@ -97,15 +99,15 @@ def build_package(package_queue, to_build, failed, in_progress, built):
 
 def build_packages():
     clean_bootstrap_logs()
-    with LoggingContext(get_logger('build_packages', 'build_packages.log', 'w')):
-        _build_packages_impl()
+    _build_packages_impl()
 
 
 def _build_packages_impl():
     logger.info('Building packages (%s/build_packages.log)', LOG_DIR)
     logger.debug('Setting up bootstrap directory')
 
-    PackageBootstrapDirectory().setup()
+    with LoggingContext('build_packages', 'w'):
+        PackageBootstrapDirectory().setup()
 
     logger.debug('Successfully setup bootstrap directory')
 
@@ -162,7 +164,8 @@ def _build_packages_impl():
                         interactive_run(package['package'].debug_command)
         finally:
             for p in failed.values():
-                p['package'].delete_overlayfs()
+                with LoggingContext(os.path.join('packages', p.name)):
+                    p['package'].delete_overlayfs()
 
         raise CallError(f'{", ".join(failed)!r} Packages failed to build')
 

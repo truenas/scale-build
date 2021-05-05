@@ -22,8 +22,6 @@ logger = logging.getLogger('scale_build')
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', force=True)
-    if sys.stdout.isatty():
-        coloredlogs.install(logging.DEBUG, fmt='[%(asctime)s] %(message)s', logger=logger)
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
@@ -33,6 +31,8 @@ def setup_logging():
     log_handler.setLevel(logging.DEBUG)
     logger.addHandler(log_handler)
     logger.propagate = False
+    if sys.stdout.isatty():
+        coloredlogs.install(logging.DEBUG, fmt='[%(asctime)s] %(message)s', logger=logger)
 
 
 def validate_config():
