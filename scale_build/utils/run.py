@@ -18,7 +18,6 @@ def run(*args, **kwargs):
     check = kwargs.pop('check', True)
     shell = kwargs.pop('shell', False)
     log = kwargs.pop('log', True)
-    s_logger = kwargs.pop('logger', None) or logger
     env = kwargs.pop('env', None) or os.environ
     if log:
         kwargs['stderr'] = subprocess.STDOUT
@@ -28,7 +27,7 @@ def run(*args, **kwargs):
     )
     if log:
         for line in map(str.rstrip, iter(proc.stdout.readline, '')):
-            s_logger.debug(line)
+            logger.debug(line)
 
     stdout, stderr = proc.communicate()
 
