@@ -5,7 +5,7 @@ import shutil
 
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
-from scale_build.utils.logger import get_logger, LoggingContext
+from scale_build.utils.logger import LoggingContext
 from scale_build.utils.run import run
 from scale_build.utils.paths import GIT_LOG_PATH, HASH_DIR, PKG_LOG_DIR, SOURCES_DIR
 
@@ -50,7 +50,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.parent_changed = False
         self._build_time_dependencies = None
         self.build_stage = None
-        self.logger = get_logger(f'{self.name}_package', f'packages/{self.name}.log', 'w')
+        self.logger = logger
         self.children = set()
         self.batch_priority = batch_priority
 
@@ -91,7 +91,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
             self._binary_packages.append(BinaryPackage(self.name, self.build_depends, self.name, self.name, set()))
             return self._binary_packages
 
-        cp = run([DEPENDS_SCRIPT_PATH, self.debian_control_file_path])
+        cp = run([DEPENDS_SCRIPT_PATH, self.debian_control_file_path], log=False)
         info = json.loads(cp.stdout)
         default_dependencies = {'kernel'} if self.kernel_module else set()
         self.build_depends = set(
@@ -133,14 +133,14 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
                 existing_hash = f.read().strip()
         if source_hash == existing_hash:
             return run(
-                ['git', '-C', self.source_path, 'diff-files', '--quiet', '--ignore-submodules'], check=False
+                ['git', '-C', self.source_path, 'diff-files', '--quiet', '--ignore-submodules'], check=False, log=False
             ).returncode != 0
         else:
             return True
 
     @property
     def source_hash(self):
-        return run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD']).stdout.strip()
+        return run(['git', '-C', self.source_path, 'rev-parse', '--verify', 'HEAD'], log=False).stdout.strip()
 
     @property
     def rebuild(self):

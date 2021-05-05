@@ -9,8 +9,5 @@ class BootstrapMixin:
         self.logger.debug('Restoring CHROOT_BASEDIR for runs...')
         os.makedirs(self.tmpfs_path, exist_ok=True)
         if self.tmpfs:
-            run(
-                ['mount', '-t', 'tmpfs', '-o', f'size={self.tmpfs_size}G', 'tmpfs', self.tmpfs_path],
-                logger=self.logger
-            )
-        PackageBootstrapDirectory(self.logger).restore_cache(self.chroot_base_directory)
+            run(['mount', '-t', 'tmpfs', '-o', f'size={self.tmpfs_size}G', 'tmpfs', self.tmpfs_path])
+        PackageBootstrapDirectory().restore_cache(self.chroot_base_directory)

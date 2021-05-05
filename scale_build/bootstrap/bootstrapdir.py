@@ -37,7 +37,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.add_trusted_apt_key()
         manifest = get_manifest()
         apt_repos = manifest['apt-repos']
-        self.run(
+        run(
             ['debootstrap'] + self.deopts + [
                 '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', manifest['debian_release'],
                 self.chroot_basedir, apt_repos['url']
@@ -46,7 +46,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.setup_mounts()
 
         if self.extra_packages_to_install:
-            self.run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
+            run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
 
         installed_packages = self.get_packages()
 
@@ -65,7 +65,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         for repo in apt_repos['additional']:
             self.logger.debug('Adding additional repo: %r', repo['url'])
             shutil.copy(os.path.join(BUILDER_DIR, repo['key']), os.path.join(self.chroot_basedir, 'apt.key'))
-            self.run(['chroot', self.chroot_basedir, 'apt-key', 'add', '/apt.key'])
+            run(['chroot', self.chroot_basedir, 'apt-key', 'add', '/apt.key'])
             os.unlink(os.path.join(self.chroot_basedir, 'apt.key'))
             apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
 
@@ -73,7 +73,7 @@ class BootstrapDir(CacheMixin, HashMixin):
             f.write('\n'.join(apt_sources))
 
         # Update apt
-        self.run(['chroot', self.chroot_basedir, 'apt', 'update'])
+        run(['chroot', self.chroot_basedir, 'apt', 'update'])
 
         # Put our local package up at the top of the food chain
         apt_sources.insert(0, 'deb [trusted=yes] file:/packages /')
@@ -87,13 +87,10 @@ class BootstrapDir(CacheMixin, HashMixin):
         pass
 
     def add_trusted_apt_key(self):
-        self.run([
+        run([
             'apt-key', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', 'add',
             os.path.join(BUILDER_DIR, 'keys/truenas.gpg')
         ])
-
-    def run(self, *args, **kwargs):
-        return run(*args, logger=self.logger, **kwargs)
 
     @property
     def extra_packages_to_install(self):
@@ -104,8 +101,8 @@ class BootstrapDir(CacheMixin, HashMixin):
         raise NotImplementedError
 
     def setup_mounts(self):
-        self.run(['mount', 'proc', os.path.join(self.chroot_basedir, 'proc'), '-t', 'proc'])
-        self.run(['mount', 'sysfs', os.path.join(self.chroot_basedir, 'sys'), '-t', 'sysfs'])
+        run(['mount', 'proc', os.path.join(self.chroot_basedir, 'proc'), '-t', 'proc'])
+        run(['mount', 'sysfs', os.path.join(self.chroot_basedir, 'sys'), '-t', 'sysfs'])
 
     def clean_mounts(self):
         for command in (
