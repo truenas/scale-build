@@ -1,6 +1,7 @@
 import os
 
 from scale_build.utils.paths import CACHE_DIR
+from scale_build.utils.run import run
 
 from .hash import get_all_repo_hash
 
@@ -35,7 +36,7 @@ class CacheMixin:
 
     def save_build_cache(self, installed_packages):
         self.logger.debug('Caching CHROOT_BASEDIR for future runs...')
-        self.run(['mksquashfs', self.chroot_basedir, self.cache_file_path])
+        run(['mksquashfs', self.chroot_basedir, self.cache_file_path])
         self.update_saved_packages_list(installed_packages)
         self.update_mirror_cache()
 
@@ -61,4 +62,4 @@ class CacheMixin:
         return self.installed_packages_in_cache != self.get_packages()
 
     def restore_cache(self, chroot_basedir):
-        self.run(['unsquashfs', '-f', '-d', chroot_basedir, self.cache_file_path])
+        run(['unsquashfs', '-f', '-d', chroot_basedir, self.cache_file_path])

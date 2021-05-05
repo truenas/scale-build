@@ -15,8 +15,8 @@ class BuildPackageMixin:
 
     def run_in_chroot(self, command, exception_message=None):
         run(
-            f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, logger=self.logger,
-            exception_msg=exception_message, env={
+            f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, exception_msg=exception_message,
+            env={
                 **os.environ,
                 **APT_ENV,
                 'CONFIG_DEBUG_INFO': 'Y',  # Build kernel with debug symbols
