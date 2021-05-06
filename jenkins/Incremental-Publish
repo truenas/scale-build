@@ -14,6 +14,7 @@ pipeline {
         copyArtifacts filter: '**/*.update', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Incremental)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Incremental)', selector: lastSuccessful(), target: 'upload/files'
         sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
+        sh 'rm -rf upload/files'
         }
     }
   }
