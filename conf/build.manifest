@@ -116,6 +116,8 @@ additional-packages:
   comment: requested by sales (NAS-108787)
 - package: dnsutils
   comment: requested by community (NAS-109391)
+- package: traceroute
+  comment: requested by platform and perf (NAS-110493)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
