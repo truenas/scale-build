@@ -93,6 +93,10 @@ base-packages:
   install_recommends: false
 - name: ifstat
   install_recommends: true
+- name: nslcd
+  install_recommends: true
+- name: apt-cacher-ng
+  install_recommends: true
 - name: openzfs
   install_recommends: true
 - name: open-vm-tools
@@ -128,6 +132,18 @@ base-packages:
 - name: openzfs-zfs-modules-dbg
   install_recommends: true
 - name: openzfs-zfs-initramfs
+  install_recommends: true
+- name: build-essential
+  install_recommends: true
+- name: locales
+  install_recommends: true
+- name: debootstrap
+  install_recommends: true
+- name: xorriso
+  install_recommends: true
+- name: squashfs-tools
+  install_recommends: true
+- name: unzip
   install_recommends: true
 - name: nvme-cli
   install_recommends: true
