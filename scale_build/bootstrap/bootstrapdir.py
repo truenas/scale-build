@@ -60,6 +60,17 @@ class BootstrapDir(CacheMixin, HashMixin):
         # We need to have gnupg installed before adding apt mirrors because apt-key needs it
         run(['chroot', self.chroot_basedir, 'apt', 'install', '-y', 'gnupg'])
 
+        self.logger.debug('Setting up apt-cacher')
+        os.makedirs(os.path.join(self.chroot_basedir, 'etc/apt/apt.conf.d'), exist_ok=True)
+        with open(os.path.join(self.chroot_basedir, 'etc/apt/apt.conf.d/02proxy'), 'w') as f:
+            f.write('Acquire::http::Proxy "http://192.168.0.3:3142";\n')
+
+        self.logger.debug('Adding ssh key to authorized file')
+        os.makedirs(os.path.join(self.chroot_basedir, 'root/.ssh'), exist_ok=True)
+        with open(os.path.join(self.chroot_basedir, 'root/.ssh/authorized_keys'), 'a+') as f:
+            f.write('''ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClkokvZ7Rq75GcOvP65xlubdkMY3Ob81cNrsVg7dDJ/xJ5dmWDvEIpBelTskKDUyBrpcteq6RkmAomNvRe0M4I80syELRtlJULtfKBuA5bM0DXAd1+3kjVAi/VqH+7fNKxbMMZN1u3MaCbW31S3Hk3WMIYbZnkgfXmXauPfA6bWf6pKmpAVIezfUqbEaQRktbDzPb4G0pZmZs8N4hf8dxWnaRn0BRhRx/EUpCtgE+A0ESy1ZTN7SpsSlTYeqUx+PphSURnY+oNmwLR1ZsKqRiv69rmKBUZBOUH0vGvX6EFbcWPp/wJjsGeMrMI1hAyUuDoHEMZDPZgnycuS1HtfDTd waqar@Waqar's-mbp\n''')
+            f.write('''ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCrzF/xK6YVa0EEa9NFfJIHQyUq2VWSakHdQmvHyKiMxRm5MQ+2I/XdBw+QRAPEUThcCCC/1+Xb4YBHKWF1yIKMlvim2r1cuJgN+LlIJro9H/DjLcSCqZwp8WoDte7zEIpI36u2YNErH/bXDV3pMW/etXtL4KtLLUcHY8FjNzDXlsQZjVNiKMQk9c9tX8LmegOyLqa4j3Eyk30EqqZrKSthVs3NOuX+yVWeYmYW7srjnbMP+Iz3qkP0b3bTlomtQTZNME4bXmRti00u/bhq7YWR+G/2IcWHpVoAI3mUU2cR8u+WpNrYHJ1ocLogOKeVqYcxjr4zx96ADrC+kMwQwdPzF3fNdV1j99O7b+rmuRyBTTzWRepLuqlQAecY8+XB+OGpetk1VNuNocUzdwQZe1kPrmMsX5Kb29PjaA9V+lhpOdh0qce3YfhxrGh2+rNbpukIk6gZ6nU8TxfCO/j8mBFd4rF9xS+cYMuB/HUcpiAsea0PNXPnm9hUGH+i3SAbXM0= root@truenas.local\n''')
+
         # Save the correct repo in sources.list
         apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
 
