@@ -1,3 +1,4 @@
+import distutils.dir_util
 import glob
 import itertools
 import logging
@@ -9,7 +10,7 @@ import stat
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
+from scale_build.utils.paths import CHROOT_BASEDIR, CUSTOM_TN, RELEASE_DIR, UPDATE_DIR
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import build_manifest, build_release_manifest, update_file_path, update_file_checksum_path
@@ -122,6 +123,18 @@ def post_rootfs_setup():
     with os.scandir(os.path.join(CHROOT_BASEDIR, 'usr/bin')) as binaries:
         for binary in filter(lambda x: should_rem_execute_bit(x), binaries):
             os.chmod(binary.path, stat.S_IMODE(binary.stat(follow_symlinks=False).st_mode) & no_executable_flag)
+
+    # Copy over custom tn setup
+    distutils.dir_util._path_created = {}
+    distutils.dir_util.copy_tree(CUSTOM_TN, CHROOT_BASEDIR, preserve_symlinks=True)
+
+    run_in_chroot(['locale-gen'])
+    run(['mkdir', '-p', os.path.join(CHROOT_BASEDIR, 'var/log/apt-cacher-ng')])
+    run(['chown', '-R', 'apt-cacher-ng:apt-cacher-ng', os.path.join(CHROOT_BASEDIR, 'var/log/apt-cacher-ng')])
+    run([
+        'chown', '-R', 'root:root', os.path.join(CHROOT_BASEDIR, 'root/.zshrc'),
+        os.path.join(CHROOT_BASEDIR, 'root/.oh-my-zsh'), os.path.join(CHROOT_BASEDIR, 'root/.zsh_history')
+    ])
 
 
 def custom_rootfs_setup():
