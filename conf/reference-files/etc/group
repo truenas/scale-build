@@ -81,6 +81,7 @@ libvirt-qemu:x:986:libvirt-qemu
 haproxy:x:130:netdata
 uuidd:x:131:
 i2c:x:132:
+apt-cacher-ng:x:180:
 sgx:x:133:
 _ssh:x:134:
 ntpsec:x:135:
