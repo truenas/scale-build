@@ -15,6 +15,7 @@ CD_FILES_DIR = os.path.join(BUILDER_DIR, 'conf/cd-files')
 CHROOT_BASEDIR = os.path.join(TMPFS, 'chroot')
 CHROOT_OVERLAY = os.path.join(TMPFS, 'chroot-overlay')
 CONF_GRUB = os.path.join(BUILDER_DIR, 'scripts/grub.cfg')
+CUSTOM_TN = os.path.join(BUILDER_DIR, 'conf/tn')
 DPKG_OVERLAY = os.path.join(TMP_DIR, 'dpkg-overlay')
 GIT_MANIFEST_PATH = os.path.join(LOG_DIR, 'GITMANIFEST')
 GIT_LOG_DIR_NAME = 'git'
