@@ -22,13 +22,12 @@ In addition to the host, you will want to pre-install the following packages:
 * debootstrap
 * libjson-perl
 * git
-* grub-pc-bin
 * python3-pip
 * python3-venv
 * squashfs-tools
 * unzip
 
-``` % sudo apt install build-essential debootstrap git grub-pc-bin python3-pip python3-venv squashfs-tools unzip```
+``` % sudo apt install build-essential debootstrap git python3-pip python3-venv squashfs-tools unzip libjson-perl```
 
 ## Usage
 
