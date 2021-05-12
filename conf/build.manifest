@@ -123,7 +123,7 @@ apt_preferences:
   Pin: "version 3.1.12~ix*"
   Pin-Priority: 950
 - Package: "*zfs*"
-  Pin: "version 2.0.*"
+  Pin: "version 2.1.*"
   Pin-Priority: 1000
 
 #
@@ -213,7 +213,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: truenas/zfs-2.0-release
+  branch: truenas/zfs-2.1-release
   predepscmd:
     - "cp -r contrib/truenas debian"
   deps_path: contrib/truenas
