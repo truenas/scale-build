@@ -163,9 +163,9 @@ def _build_packages_impl():
                         package = failed[data] if data in failed else list(failed.values())[int(data) - 1]
                         interactive_run(package['package'].debug_command)
         finally:
-            for p in failed.values():
+            for p in map(lambda p: p['package'], failed.values()):
                 with LoggingContext(os.path.join('packages', p.name)):
-                    p['package'].delete_overlayfs()
+                    p.delete_overlayfs()
 
         raise CallError(f'{", ".join(failed)!r} Packages failed to build')
 
