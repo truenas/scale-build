@@ -253,12 +253,22 @@ def main():
 
                 write_progress(0.9, "Performing post-install tasks")
 
+                if os.path.exists(f"{root}/var/lib/dbus/machine-id"):
+                    # We want to remove this for fresh installation + upgrade both
+                    # In this case, /etc/machine-id would be treated as the valid
+                    # machine-id which it will be otherwise as well if we use
+                    # systemd-machine-id-setup --print to confirm but just to be cautious
+                    # we remove this as it will be generated automatically by systemd then
+                    # complying with /etc/machine-id contents
+                    os.unlink(f"{root}/var/lib/dbus/machine-id")
+
                 if old_root is not None:
                     run_command([
                         "rsync", "-aRx",
                         "--exclude", "data/factory-v1.db",
                         "--exclude", "data/manifest.json",
                         "etc/hostid",
+                        "etc/machine-id",
                         "data",
                         "root",
                         f"{root}/",
@@ -279,6 +289,9 @@ def main():
                         pass
                     with open(f"{root}/data/truenas-eula-pending", "w"):
                         pass
+
+                    os.unlink(f"{root}/etc/machine-id")
+                    run_command(["systemd-machine-id-setup", f"--root={root}"])
 
                 if IS_FREEBSD:
                     install_grub_freebsd(input, manifest, pool_name, dataset_name, disks)
