@@ -4,6 +4,8 @@
 PYTHON?=/usr/bin/python3
 COMMIT_HASH=$(shell git rev-parse --short HEAD)
 
+.DEFAULT_GOAL := all
+
 check:
 ifeq ("$(wildcard ./venv-${COMMIT_HASH})","")
 	@echo "Setting up new virtual environment"
