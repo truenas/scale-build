@@ -207,9 +207,6 @@ sources:
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
   branch: master
-- name: alienz
-  repo: https://github.com/truenas/alien.git
-  branch: alienz
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
