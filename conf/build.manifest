@@ -338,9 +338,6 @@ sources:
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: main
-- name: python_aiohttp
-  repo: https://github.com/truenas/python-aiohttp
-  branch: debian/3.7.3-1
 - name: truenas_files
   repo: https://github.com/truenas/freenas
   branch: master
