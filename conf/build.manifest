@@ -278,31 +278,31 @@ sources:
   branch: master
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: master
+  branch: release/21.06-BETA.1
 - name: throttle
   repo: https://github.com/truenas/throttle
-  branch: master
+  branch: release/21.06-BETA.1
 - name: aiorwlock
   repo: https://github.com/truenas/aiorwlock
-  branch: master
+  branch: release/21.06-BETA.1
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: master
+  branch: release/21.06-BETA.1
 - name: migrate93
   repo: https://github.com/truenas/freenas-migrate93
   branch: truenas/scale
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
-  branch: master
+  branch: release/21.06-BETA.1
 - name: intel_pcm
   repo: https://github.com/truenas/intel-pcm
-  branch: master
+  branch: release/21.06-BETA.1
 - name: minio
   repo: https://github.com/truenas/minio
-  branch: master
+  branch: release/21.06-BETA.1
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: master
+  branch: release/21.06-BETA.1
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -310,7 +310,7 @@ sources:
     - openzfs
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
-  branch: master
+  branch: release/21.06-BETA.1
 - name: plugins
   repo: https://github.com/truenas/plugins
   branch: truenas/master
@@ -331,34 +331,34 @@ sources:
   branch: truenas/master
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: master
+  branch: release/21.06-BETA.1
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: master
+  branch: release/21.06-BETA.1
 - name: swagger
   repo: https://github.com/truenas/swagger
-  branch: main
+  branch: release/21.06-BETA.1
 - name: truenas_files
   repo: https://github.com/truenas/freenas
-  branch: master
+  branch: release/21.06-BETA.1
   subdir: src/freenas
 - name: middlewared
   repo: https://github.com/truenas/freenas
-  branch: master
+  branch: release/21.06-BETA.1
   subdir: src/middlewared
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: master
+  branch: release/21.06-BETA.1
 - name: truenas
   repo: https://github.com/truenas/freenas
-  branch: master
+  branch: release/21.06-BETA.1
   subdir: debian
 - name: truecommand_stats
   repo: https://github.com/truenas/truecommand-stats
-  branch: master
+  branch: release/21.06-BETA.1
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: master
+  branch: release/21.06-BETA.1
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
