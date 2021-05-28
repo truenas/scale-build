@@ -17,6 +17,11 @@ import psutil
 
 logger = logging.getLogger(__name__)
 
+EFI_SYSTEM_PARTITION_GUID = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+
+CORE_BSD_LOADER_PATH = "/boot/efi/efi/boot/BOOTx64.efi"
+SCALE_BSD_LOADER_PATH = "/boot/efi/efi/boot/FreeBSD.efi"
+
 RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+\]\s+(?P<extracted>[0-9]+)/(?P<total>[0-9]+)\s+(?P<progress>[0-9]+)%")
 run_kw = dict(check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", errors="ignore")
 
@@ -57,6 +62,13 @@ def get_partition(disk, partition):
         if os.path.exists(path):
             return path
     raise Exception(f"Neither {' or '.join(paths)} exist")
+
+
+def get_partition_guid(disk, partition):
+    return dict(map(
+        lambda s: s.split(": ", 1),
+        run_command(["sgdisk", "-i", str(partition), f"/dev/{disk}"]).stdout.splitlines(),
+    ))["Partition GUID code"].split()[0]
 
 
 def enable_user_services(root, old_root):
@@ -111,24 +123,6 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
         freebsd_root_dataset = [p for p in psutil.disk_partitions() if p.mountpoint == "/"][0].device
         run_command(["zfs", "set", "truenas:12=1", freebsd_root_dataset])
 
-        if boot_partition_type == "freebsd-boot":
-            bsd_loader = f"""\
-                insmod zfs
-                search -s -l {pool_name}
-                kfreebsd /{"/".join(freebsd_root_dataset.split("/")[1:])}@/boot/loader
-            """
-        else:
-            efi_partition_uuid = run_command([
-                "grub-probe", "--device", get_partition(disks[0], 1), "--target=fs_uuid"
-            ]).stdout.strip()
-            bsd_loader = f"""\
-                insmod zfs
-                insmod search_fs_uuid
-                insmod chain
-                search --fs-uuid --no-floppy --set=root {efi_partition_uuid}
-                chainloader ($root)/efi/boot/FreeBSD.efi
-            """
-
         f.write(textwrap.dedent(f"""\
             #!/bin/sh
             cat << 'EOF'
@@ -146,12 +140,6 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
                 echo	'Loading initial ramdisk ...'
                 initrd	/ROOT/{manifest['version']}@/boot/initrd.img-{manifest['kernel_version']}
             }}
-
-            menuentry "TrueNAS <=12" {{
-                insmod part_gpt
-                {bsd_loader}
-            }}
-            EOF
         """))
 
     os.chmod(grub_script_path, 0o0755)
@@ -171,9 +159,8 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
             run_command(["umount", "/boot/efi"], check=False)
             run_command(["mount", "-t", "msdosfs", get_partition(disk, 1), "/boot/efi"])
             try:
-                bsd_loader = "/boot/efi/efi/boot/FreeBSD.efi"
-                if not os.path.exists(bsd_loader):
-                    shutil.copyfile("/boot/efi/efi/boot/BOOTx64.efi", bsd_loader)
+                if not os.path.exists(SCALE_BSD_LOADER_PATH):
+                    shutil.copyfile(CORE_BSD_LOADER_PATH, SCALE_BSD_LOADER_PATH)
                 run_command(["grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi", "--removable"])
             finally:
                 run_command(["umount", "/boot/efi"])
@@ -253,7 +240,7 @@ def main():
 
                 write_progress(0.9, "Performing post-install tasks")
 
-                if os.path.exists(f"{root}/var/lib/dbus/machine-id"):
+                with contextlib.suppress(FileNotFoundError):
                     # We want to remove this for fresh installation + upgrade both
                     # In this case, /etc/machine-id would be treated as the valid
                     # machine-id which it will be otherwise as well if we use
@@ -262,22 +249,35 @@ def main():
                     # complying with /etc/machine-id contents
                     os.unlink(f"{root}/var/lib/dbus/machine-id")
 
+                is_freebsd_upgrade = False
+                setup_machine_id = False
                 if old_root is not None:
+                    if os.path.exists(f"{old_root}/bin/freebsd-version"):
+                        is_freebsd_upgrade = True
+
+                    rsync = [
+                        "etc/hostid",
+                        "data",
+                        "root",
+                    ]
+                    if is_freebsd_upgrade:
+                        if not IS_FREEBSD:
+                            setup_machine_id = True
+                    else:
+                        rsync.append("etc/machine-id")
+
                     run_command([
                         "rsync", "-aRx",
                         "--exclude", "data/factory-v1.db",
                         "--exclude", "data/manifest.json",
-                        "etc/hostid",
-                        "etc/machine-id",
-                        "data",
-                        "root",
+                    ] + rsync + [
                         f"{root}/",
                     ], cwd=old_root)
 
                     with open(f"{root}/data/need-update", "w"):
                         pass
 
-                    if os.path.exists(f"{old_root}/bin/freebsd-version"):
+                    if is_freebsd_upgrade:
                         with open(f"{root}/data/freebsd-to-scale-update", "w"):
                             pass
                     else:
@@ -290,7 +290,12 @@ def main():
                     with open(f"{root}/data/truenas-eula-pending", "w"):
                         pass
 
-                    os.unlink(f"{root}/etc/machine-id")
+                    setup_machine_id = True
+
+                if setup_machine_id:
+                    with contextlib.suppress(FileNotFoundError):
+                        os.unlink(f"{root}/etc/machine-id")
+
                     run_command(["systemd-machine-id-setup", f"--root={root}"])
 
                 if IS_FREEBSD:
@@ -321,6 +326,8 @@ def main():
 
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
+                        if is_freebsd_upgrade:
+                            run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
                         cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
                         if cp.returncode > 1:
@@ -347,17 +354,35 @@ def main():
 
                             os.makedirs(f"{root}/boot/efi", exist_ok=True)
                             for disk in disks:
-                                run_command(["chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"])
+                                install_grub_i386 = True
+                                efi_partition_number = 2
+                                format_efi_partition = True
+                                copy_bsd_loader = False
+                                if is_freebsd_upgrade:
+                                    if get_partition_guid(disk, 1) == EFI_SYSTEM_PARTITION_GUID:
+                                        install_grub_i386 = False
+                                        efi_partition_number = 1
+                                        format_efi_partition = False
+                                        copy_bsd_loader = True
 
-                                if dict(map(
-                                    lambda s: s.split(": ", 1),
-                                    run_command(["sgdisk", "-i", "2", f"/dev/{disk}"]).stdout.splitlines(),
-                                ))["Partition GUID code"].split()[0] != "C12A7328-F81F-11D2-BA4B-00A0C93EC93B":
+                                if install_grub_i386:
+                                    run_command([
+                                        "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                                    ])
+
+                                if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
                                     continue
 
-                                partition = get_partition(disk, 2)
-                                run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", partition])
+                                partition = get_partition(disk, efi_partition_number)
+                                if format_efi_partition:
+                                    run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI",
+                                                 partition])
                                 run_command(["chroot", root, "mount", "-t", "vfat", partition, "/boot/efi"])
+
+                                if copy_bsd_loader:
+                                    if not os.path.exists(root + SCALE_BSD_LOADER_PATH):
+                                        shutil.copyfile(root + CORE_BSD_LOADER_PATH, root + SCALE_BSD_LOADER_PATH)
+
                                 try:
                                     grub_cmd = ["chroot", root, "grub-install", "--target=x86_64-efi",
                                                 "--efi-directory=/boot/efi",
@@ -373,14 +398,13 @@ def main():
                                                  "/boot/efi/EFI/boot/bootx64.efi"])
                                 finally:
                                     run_command(["chroot", root, "umount", "/boot/efi"])
-
                     finally:
                         for cmd in reversed(undo):
                             run_command(cmd)
             finally:
                 run_command(["umount", root])
     except Exception:
-        if old_bootfs_prop != '-':
+        if old_bootfs_prop != "-":
             run_command(["zpool", "set", f"bootfs={old_bootfs_prop}", pool_name])
         run_command(["zfs", "destroy", dataset_name])
         raise
