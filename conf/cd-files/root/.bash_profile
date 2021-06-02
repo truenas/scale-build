@@ -4,4 +4,4 @@
 mkdir /cdrom
 mount /dev/disk/by-label/ISOIMAGE /cdrom
 
-/sbin/truenas-install
+until /sbin/truenas-install; do true; done
