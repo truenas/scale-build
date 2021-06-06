@@ -26,7 +26,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
-        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100
+        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None,
     ):
         self.name = name
         self.branch = branch
@@ -53,6 +53,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         self.logger = logger
         self.children = set()
         self.batch_priority = batch_priority
+        self.env = env or {}
 
     def __eq__(self, other):
         return other == self.name if isinstance(other, str) else self.name == other.name

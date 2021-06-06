@@ -19,8 +19,7 @@ class BuildPackageMixin:
             env={
                 **os.environ,
                 **APT_ENV,
-                'CONFIG_DEBUG_INFO': 'Y',  # Build kernel with debug symbols
-                'CONFIG_LOCALVERSION': '+truenas',
+                **self.env,
             }
         )
 
@@ -71,7 +70,7 @@ class BuildPackageMixin:
                 predep_cmd = predep_entry['command']
                 skip_cmd = False
                 for env_var in predep_entry['env_checks']:
-                    if os.environ.get(env_var['key']) != env_var['value']:
+                    if all(f(env_var['key']) != env_var['value'] for f in (os.environ.get, self.env.get)):
                         self.logger.debug(
                             'Skipping %r predep command because %r does not match %r',
                             predep_cmd, env_var['key'], env_var['value']
