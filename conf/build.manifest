@@ -181,7 +181,7 @@ sources:
   repo: https://github.com/truenas/openseachest
 - name: inadyn
   branch: master
-  repo: https://github.com/troglobit/inadyn.git
+  repo: https://github.com/truenas/inadyn.git
 - name: kernel
   repo: https://github.com/truenas/linux
   branch: SCALE-v5.10-stable
