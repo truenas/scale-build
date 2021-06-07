@@ -186,6 +186,9 @@ sources:
   repo: https://github.com/truenas/linux
   branch: SCALE-v5.10-stable
   batch_priority: 0
+  env:
+    CONFIG_DEBUG_INFO: "Y"
+    CONFIG_LOCALVERSION: "+truenas"
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev"
     # We remove git files because kernel makefile tries to interact with git for determining version

@@ -16,12 +16,7 @@ class BuildPackageMixin:
     def run_in_chroot(self, command, exception_message=None):
         run(
             f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, exception_msg=exception_message,
-            env={
-                **os.environ,
-                **APT_ENV,
-                'CONFIG_DEBUG_INFO': 'Y',  # Build kernel with debug symbols
-                'CONFIG_LOCALVERSION': '+truenas',
-            }
+            env=self._get_build_env()
         )
 
     @property
@@ -56,6 +51,13 @@ class BuildPackageMixin:
         self.clean_previous_packages()
         self._build_impl()
 
+    def _get_build_env(self):
+        return {
+            **os.environ,
+            **APT_ENV,
+            **self.env,
+        }
+
     def _build_impl(self):
         shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
@@ -70,8 +72,9 @@ class BuildPackageMixin:
             if isinstance(predep_entry, dict):
                 predep_cmd = predep_entry['command']
                 skip_cmd = False
+                build_env = self._get_build_env()
                 for env_var in predep_entry['env_checks']:
-                    if os.environ.get(env_var['key']) != env_var['value']:
+                    if build_env.get(env_var['key']) != env_var['value']:
                         self.logger.debug(
                             'Skipping %r predep command because %r does not match %r',
                             predep_cmd, env_var['key'], env_var['value']
