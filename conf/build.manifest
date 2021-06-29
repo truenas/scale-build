@@ -50,6 +50,8 @@ base-packages:
 - linux-headers-amd64
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
+- linux-tools-5.10
+- bpftrace
 - consul
 - firmware-bnx2
 - firmware-bnx2x
