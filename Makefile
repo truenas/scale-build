@@ -3,11 +3,12 @@
 #############################################################################
 PYTHON?=/usr/bin/python3
 COMMIT_HASH=$(shell git rev-parse --short HEAD)
+REPO_CHANGED=$(shell if [ -d "./venv-$(COMMIT_HASH)" ]; then git status --porcelain | grep -c "scale_build/"; else echo "1"; fi)
 
 .DEFAULT_GOAL := all
 
 check:
-ifeq ("$(wildcard ./venv-${COMMIT_HASH})","")
+ifneq ($(REPO_CHANGED),0)
 	@echo "Setting up new virtual environment"
 	@rm -rf venv-*
 	@${PYTHON} -m pip install -U virtualenv >/dev/null 2>&1 || { echo "Failed to install/upgrade virtualenv package"; exit 1; }
