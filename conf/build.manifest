@@ -148,6 +148,8 @@ additional-packages:
   comment: requested by platform and perf (NAS-110493)
 - package: openseachest
   comment: requested by performance team (NAS-106154)
+- package: cxgbtool
+  comment: requested by OS team (NAS-111041)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
@@ -178,6 +180,9 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: chelsio_uwire
+  repo: https://github.com/truenas/chelsiouwire
+  branch: master
 - name: openseachest
   branch: truenas/master
   repo: https://github.com/truenas/openseachest
