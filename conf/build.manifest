@@ -75,7 +75,6 @@ base-packages:
 - linux-cpupower
 - truenas-samba
 - nfs4xdr-acl-tools
-- netatalk
 - qemu-guest-agent
 - squashfs-tools
 - sysstat
@@ -120,9 +119,6 @@ apt_preferences:
   Pin-Priority: 950
 - Package: "*truenas-samba*"
   Pin: "version 4.13.*"
-  Pin-Priority: 950
-- Package: "*netatalk*"
-  Pin: "version 3.1.12~ix*"
   Pin-Priority: 950
 - Package: "*zfs*"
   Pin: "version 2.1.*"
@@ -241,10 +237,6 @@ sources:
 - name: nss_pam_ldapd
   repo: https://github.com/truenas/nss-pam-ldapd
   branch: master
-  generate_version: false
-- name: netatalk
-  repo: https://github.com/truenas/netatalk
-  branch: SCALE-netatalk
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
