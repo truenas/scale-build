@@ -98,6 +98,7 @@ base-prune:
 - gstreamer1.0-libav
 - libgdk-pixbuf2.0-0
 - x11-common
+- python-is-python2
 
 #
 # Update build-epoch when you want to force the next build to be
@@ -146,6 +147,8 @@ additional-packages:
   comment: requested by performance team (NAS-106154)
 - package: cxgbtool
   comment: requested by OS team (NAS-111041)
+- package: python-is-python3
+  comment: NAS-111358 (symlinks /usr/bin/python to python3)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
