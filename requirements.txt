@@ -10,4 +10,4 @@ ptyprocess==0.7.0
 PyYAML==5.4.1
 requests==2.25.1
 toposort==1.6
-urllib3==1.26.4
+urllib3==1.26.5
