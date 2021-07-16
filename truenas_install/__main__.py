@@ -171,6 +171,7 @@ def main():
 
     input = json.loads(sys.stdin.read())
 
+    cleanup = input.get("cleanup", True)
     disks = input["disks"]
     force_grub_install = input.get("force_grub_install", False)
     if input.get("json"):
@@ -406,7 +407,8 @@ def main():
     except Exception:
         if old_bootfs_prop != "-":
             run_command(["zpool", "set", f"bootfs={old_bootfs_prop}", pool_name])
-        run_command(["zfs", "destroy", dataset_name])
+        if cleanup:
+            run_command(["zfs", "destroy", dataset_name])
         raise
 
 
