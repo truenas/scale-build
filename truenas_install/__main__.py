@@ -166,6 +166,15 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
                 run_command(["umount", "/boot/efi"])
 
 
+def configure_system_for_zectl(boot_pool):
+    root_ds = os.path.join(boot_pool, "ROOT")
+    set_prop = IS_FREEBSD or run_command([
+        "zfs", "get", "-H", "-o", "value", "org.zectl:bootloader", root_ds
+    ]).stdout.strip() != 'grub'
+    if set_prop:
+        run_command(["zfs", "set", "org.zectl:bootloader=grub", root_ds])
+
+
 def main():
     global is_json_output
 
@@ -410,6 +419,8 @@ def main():
         if cleanup:
             run_command(["zfs", "destroy", dataset_name])
         raise
+
+    configure_system_for_zectl(pool_name)
 
 
 if __name__ == "__main__":
