@@ -92,7 +92,7 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
         partition_table_type = gpart_backup[0].split()[0]
         if partition_table_type == "GPT":
             boot_partition_type_probe = gpart_backup[1].split()[1]
-            if boot_partition_type_probe not in ["freebsd-boot", "efi"]:
+            if boot_partition_type_probe not in ["bios-boot", "freebsd-boot", "efi"]:
                 write_error(f"Invalid first partition type {boot_partition_type_probe} on {disk}", raise_=True)
             if boot_partition_type and boot_partition_type != boot_partition_type_probe:
                 write_error("Non-matching first partition types across disks", raise_=True)
@@ -151,8 +151,9 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
     run_command(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"])
 
     for disk in disks:
-        if boot_partition_type == "freebsd-boot":
-            run_command(["gpart", "modify", "-i", "1", "-t", "bios-boot", f"/dev/{disk}"])
+        if boot_partition_type in ["bios-boot", "freebsd-boot"]:
+            if boot_partition_type != "bios-boot":
+                run_command(["gpart", "modify", "-i", "1", "-t", "bios-boot", f"/dev/{disk}"])
             run_command(["grub-install", "--target=i386-pc", f"/dev/{disk}"])
         elif boot_partition_type == "efi":
             os.makedirs("/boot/efi", exist_ok=True)
