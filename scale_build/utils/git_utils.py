@@ -26,3 +26,7 @@ def retrieve_git_branch(path):
 def branch_exists_in_repository(origin, branch):
     cp = run(['git', 'ls-remote', origin], log=False)
     return bool(re.findall(fr'/{branch}\n', cp.stdout, re.M))
+
+
+def create_branch(path, base_branch, new_branch):
+    run(['git', '-C', path, 'checkout', '-b', new_branch, base_branch])
