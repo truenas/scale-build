@@ -171,17 +171,16 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, OverlayMixin):
         if branch == self.existing_branch and self.origin == origin_url:
             logger.debug('Updating git repo [%s] (%s)', self.name, GIT_LOG_PATH)
             with LoggingContext('git-checkout', 'w'):
-                run(['git', '-C', self.source_path, 'fetch', '--unshallow'], check=False)
-                run(['git', '-C', self.source_path, 'fetch', 'origin', branch])
+                run(['git', '-C', self.source_path, 'fetch', 'origin'])
+                run(['git', '-C', self.source_path, 'checkout', branch])
                 run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'])
-                run(['git', '-C', self.source_path, 'submodule', 'update', '--checkout', '--depth=1'])
         else:
             logger.debug('Checking out git repo [%s] (%s)', self.name, GIT_LOG_PATH)
             if os.path.exists(self.source_path):
                 shutil.rmtree(self.source_path)
             with LoggingContext('git-checkout', 'w'):
-                run(['git', 'clone', '--depth=1', '-b', branch, self.origin, self.source_path])
-                run(['git', '-C', self.source_path, 'submodule', 'update', '--init', '--checkout', '--depth=1'])
+                run(['git', 'clone', '--recurse', self.origin, self.source_path])
+                run(['git', '-C', self.source_path, 'checkout', branch])
 
         self.update_git_manifest()
 
