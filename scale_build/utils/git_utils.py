@@ -1,5 +1,7 @@
 import re
 
+from urllib.parse import urlparse
+
 from .run import run
 from .paths import GIT_MANIFEST_PATH
 
@@ -14,7 +16,7 @@ def update_git_manifest(git_remote, git_sha, mode='a+'):
 
 def retrieve_git_remote_and_sha(path):
     return {
-        'url': run(['git', '-C', path, 'remote', 'get-url', 'origin'], log=False).stdout.strip(),
+        'url': get_origin_uri(path),
         'sha': run(['git', '-C', path, 'rev-parse', '--short', 'HEAD'], log=False).stdout.strip(),
     }
 
@@ -30,3 +32,12 @@ def branch_exists_in_repository(origin, branch):
 
 def create_branch(path, base_branch, new_branch):
     run(['git', '-C', path, 'checkout', '-b', new_branch, base_branch])
+
+
+def get_origin_uri(path):
+    return run(['git', '-C', path, 'remote', 'get-url', 'origin'], log=False).stdout.strip()
+
+
+def push_changes(path, api_token, branch):
+    url = urlparse(get_origin_uri(path))
+    run(['git', '-C', path, 'push', f'https://{api_token}@{url.hostname}{url.path}', branch])
