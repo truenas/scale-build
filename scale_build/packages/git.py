@@ -8,7 +8,7 @@ from scale_build.utils.git_utils import (
     branch_exists_in_repository, create_branch, retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 )
 from scale_build.utils.logger import LoggingContext
-from scale_build.utils.paths import BRANCH_OUT_LOG_FILENAME, GIT_LOG_PATH
+from scale_build.utils.paths import GIT_LOG_PATH
 from scale_build.utils.run import run
 
 
@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 class GitPackageMixin:
 
     def branch_out(self, new_branch_name, base_branch_override=None):
-        with LoggingContext(BRANCH_OUT_LOG_FILENAME):
-            create_branch(self.source_path, base_branch_override or self.branch, new_branch_name)
+        create_branch(self.source_path, base_branch_override or self.branch, new_branch_name)
 
     def retrieve_current_remote_origin_and_sha(self):
         if self.exists:
