@@ -3,6 +3,7 @@ import coloredlogs
 import logging
 import sys
 
+from .branch_out import branch_out_repos, validate_branch_out_config
 from .checkout import checkout_sources
 from .clean import complete_cleanup
 from .config import BRANCH_OVERRIDES
@@ -56,6 +57,12 @@ def main():
     subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
     subparsers.add_parser('update', help='Create TrueNAS Scale update image')
     subparsers.add_parser('iso', help='Create TrueNAS Scale iso installation file')
+    branchout_parser = subparsers.add_parser('branchout', help='Checkout new branch for all packages')
+    branchout_parser.add_argument(
+        '--skip-push', '-sp', action='store_true', default=False,
+        help='Do not push new branches to packages with provided credentials',
+    )
+
     validate_parser = subparsers.add_parser('validate', help='Validate TrueNAS Scale build manifest and system state')
     for action in ('manifest', 'system_state'):
         validate_parser.add_argument(f'--validate-{action}', dest=action, action='store_true')
@@ -80,5 +87,8 @@ def main():
         complete_cleanup()
     elif args.action == 'validate':
         validate(args.system_state, args.manifest)
+    elif args.action == 'branchout':
+        validate_branch_out_config(not args.skip_push)
+        branch_out_repos(not args.skip_push)
     else:
         parser.print_help()

@@ -6,6 +6,8 @@ from scale_build.config import BUILDER_DIR
 LOG_DIR = os.path.join(BUILDER_DIR, 'logs')
 TMP_DIR = os.path.join(BUILDER_DIR, 'tmp')
 TMPFS = os.path.join(TMP_DIR, 'tmpfs')
+BRANCH_OUT_LOG_FILENAME = 'git-branchout.log'
+BRANCH_OUT_LOG_DIR = os.path.join(LOG_DIR, 'branchout')
 CACHE_DIR = os.path.join(TMP_DIR, 'cache')
 CD_DIR = os.path.join(TMP_DIR, 'cdrom')
 CD_FILES_DIR = os.path.join(BUILDER_DIR, 'conf/cd-files')

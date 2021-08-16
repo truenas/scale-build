@@ -34,3 +34,6 @@ validate_manifest: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build validate --no-validate-system_state
 validate: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build validate
+
+branchout: checkout
+	. ./venv-${COMMIT_HASH}/bin/activate && scale_build branchout $(args)
