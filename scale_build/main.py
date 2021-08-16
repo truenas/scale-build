@@ -3,7 +3,7 @@ import coloredlogs
 import logging
 import sys
 
-from .branch_out import branch_out_repos, push_branched_out_repos, validate_branch_out_config
+from .branch_out import branch_out_repos, validate_branch_out_config
 from .checkout import checkout_sources
 from .clean import complete_cleanup
 from .config import BRANCH_OVERRIDES
@@ -88,9 +88,7 @@ def main():
     elif args.action == 'validate':
         validate(args.system_state, args.manifest)
     elif args.action == 'branchout':
-        validate_branch_out_config()
-        branch_out_repos()
-        if not args.skip_push:
-            push_branched_out_repos()
+        validate_branch_out_config(not args.skip_push)
+        branch_out_repos(not args.skip_push)
     else:
         parser.print_help()

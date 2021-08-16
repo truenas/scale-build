@@ -31,7 +31,7 @@ def branch_exists_in_repository(origin, branch):
 
 
 def branch_checked_out_locally(path, branch):
-    return bool(run(['git', '-C', path, '--list', branch], log=False).stdout.strip())
+    return bool(run(['git', '-C', path, 'branch', '--list', branch], log=False).stdout.strip())
 
 
 def create_branch(path, base_branch, new_branch):
