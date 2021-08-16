@@ -56,10 +56,12 @@ def branch_out_repos(push_branched_out_repos):
     with LoggingContext(os.path.join('branchout', 'scale-build'), 'w'):
         safe_checkout('.', BRANCH_OUT_NAME)
 
-    # Now that we have checked out the branch we should update the manifest
-    update_packages_branch(BRANCH_OUT_NAME)
-    commit_changes('.', 'Update scale-build manifest')
+        # Now that we have checked out the branch we should update the manifest
+        update_packages_branch(BRANCH_OUT_NAME)
+        commit_changes('.', 'Update scale-build manifest')
 
     if push_branched_out_repos:
         # Finally we should push the changes
-        push_changes('.', GITHUB_TOKEN, BRANCH_OUT_NAME)
+        logger.debug('Pushing scale-build branch to upstream')
+        with LoggingContext(os.path.join('branchout', 'scale-build'), 'a'):
+            push_changes('.', GITHUB_TOKEN, BRANCH_OUT_NAME)

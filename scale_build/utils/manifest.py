@@ -158,4 +158,4 @@ def update_packages_branch(branch_name):
     updated_str = BRANCH_REGEX.sub(fr'\1{branch_name}', manifest_str)
 
     with open(MANIFEST, 'w') as f:
-        f.write(yaml.safe_dump(updated_str))
+        f.write(updated_str)
