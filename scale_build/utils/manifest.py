@@ -134,7 +134,7 @@ def get_manifest_str():
 @functools.cache
 def get_manifest():
     try:
-        manifest = get_manifest_str()
+        manifest = yaml.safe_load(get_manifest_str())
         jsonschema.validate(manifest, MANIFEST_SCHEMA)
         return manifest
     except yaml.YAMLError:
