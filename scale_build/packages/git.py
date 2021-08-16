@@ -5,7 +5,8 @@ import shutil
 from scale_build.config import BRANCH_OVERRIDES, TRY_BRANCH_OVERRIDE
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import (
-    branch_exists_in_repository, create_branch, retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
+    branch_checked_out_locally, branch_exists_in_repository, create_branch,
+    retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 )
 from scale_build.utils.logger import LoggingContext
 from scale_build.utils.paths import GIT_LOG_PATH
@@ -19,6 +20,12 @@ class GitPackageMixin:
 
     def branch_out(self, new_branch_name, base_branch_override=None):
         create_branch(self.source_path, base_branch_override or self.branch, new_branch_name)
+
+    def branch_exists_in_remote(self, branch):
+        return branch_exists_in_repository(self.origin, branch)
+
+    def branch_checked_out_locally(self, branch):
+        return branch_checked_out_locally(self.source_path, branch)
 
     def retrieve_current_remote_origin_and_sha(self):
         if self.exists:
