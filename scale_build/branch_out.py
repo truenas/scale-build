@@ -31,7 +31,8 @@ def branch_out_repos(push_branched_out_repos):
         logger.debug('Branching out %r', package.name)
         skip_log = None
         with LoggingContext(os.path.join('branchout', package.name), 'w'):
-            if package.branch_exists_in_remote(BRANCH_OUT_NAME):
+            branch_exists_remotely = package.branch_exists_in_remote(BRANCH_OUT_NAME)
+            if branch_exists_remotely:
                 skip_log = 'Branch already available in remote upstream, skipping'
             if package.branch_checked_out_locally(BRANCH_OUT_NAME):
                 skip_log = 'Branch checked out locally already, skipping'
@@ -41,7 +42,10 @@ def branch_out_repos(push_branched_out_repos):
                 logger.debug(skip_log)
 
         if push_branched_out_repos:
-            logger.debug('Pushing %r package\'s branch', package.name)
+            if branch_exists_remotely:
+                logger.debug('%r branch exists remotely already for %r', BRANCH_OUT_NAME, package.name)
+            else:
+                logger.debug('Pushing %r package\'s branch', package.name)
 
-        with LoggingContext(os.path.join('branchout', package.name), 'a+'):
-            push_changes(package.source_path, GITHUB_TOKEN, BRANCH_OUT_NAME)
+                with LoggingContext(os.path.join('branchout', package.name), 'a+'):
+                    push_changes(package.source_path, GITHUB_TOKEN, BRANCH_OUT_NAME)
