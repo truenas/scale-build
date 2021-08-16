@@ -4,8 +4,9 @@ import shutil
 
 from .config import BRANCH_OUT_NAME, GITHUB_TOKEN
 from .exceptions import CallError
-from .utils.git_utils import push_changes
+from .utils.git_utils import push_changes, safe_checkout
 from .utils.logger import LoggingContext
+from .utils.manifest import get_manifest, update_packages_branch
 from .utils.package import get_packages
 from .utils.paths import BRANCH_OUT_LOG_DIR
 
@@ -49,3 +50,12 @@ def branch_out_repos(push_branched_out_repos):
 
                 with LoggingContext(os.path.join('branchout', package.name), 'a+'):
                     push_changes(package.source_path, GITHUB_TOKEN, BRANCH_OUT_NAME)
+
+    # Once we have branched out the packages, we should be branch out the builder itself as well
+    logger.debug('Branching out scale-build')
+    with LoggingContext(os.path.join('branchout', 'scale-build'), 'w'):
+        safe_checkout('.', BRANCH_OUT_NAME)
+
+    # Now that we have checked out the branch we should update the manifest
+    update_packages_branch(BRANCH_OUT_NAME)
+    

@@ -45,3 +45,15 @@ def get_origin_uri(path):
 def push_changes(path, api_token, branch):
     url = urlparse(get_origin_uri(path))
     run(['git', '-C', path, 'push', f'https://{api_token}@{url.hostname}{url.path}', branch])
+
+
+def fetch_origin(path):
+    run(['git', '-C', path, 'fetch', 'origin'])
+
+
+def safe_checkout(path, branch):
+    fetch_origin(path)
+    if branch_exists_in_repository(get_origin_uri(path), branch):
+        run(['git', '-C', path, 'checkout', branch])
+    else:
+        run(['git', '-C', path, 'checkout', '-b', branch])

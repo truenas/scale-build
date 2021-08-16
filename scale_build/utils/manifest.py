@@ -1,5 +1,6 @@
 import functools
 import jsonschema
+import re
 import yaml
 
 from scale_build.config import TRAIN
@@ -7,6 +8,7 @@ from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
 
 
+BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.]+\b')
 MANIFEST_SCHEMA = {
     'type': 'object',
     'properties': {
@@ -121,15 +123,20 @@ MANIFEST_SCHEMA = {
 }
 
 
+def get_manifest_str():
+    try:
+        with open(MANIFEST, 'r') as f:
+            return f.read()
+    except FileNotFoundError:
+        raise MissingManifest()
+
+
 @functools.cache
 def get_manifest():
     try:
-        with open(MANIFEST, 'r') as f:
-            manifest = yaml.safe_load(f.read())
+        manifest = get_manifest_str()
         jsonschema.validate(manifest, MANIFEST_SCHEMA)
         return manifest
-    except FileNotFoundError:
-        raise MissingManifest()
     except yaml.YAMLError:
         raise CallError('Provided manifest has invalid format')
     except jsonschema.ValidationError as e:
@@ -142,3 +149,13 @@ def get_release_code_name():
 
 def get_truenas_train():
     return TRAIN or f'TrueNAS-SCALE-{get_release_code_name()}-Nightlies'
+
+
+def update_packages_branch(branch_name):
+    # We would like to update branches but if we use python module, we would lose the comments which is not desired
+    # Let's please use regex and find a better way to do this in the future
+    manifest_str = get_manifest_str()
+    updated_str = BRANCH_REGEX.sub(fr'\1{branch_name}', manifest_str)
+
+    with open(MANIFEST, 'w') as f:
+        f.write(yaml.safe_dump(updated_str))
