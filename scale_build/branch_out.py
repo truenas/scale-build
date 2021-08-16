@@ -4,9 +4,9 @@ import shutil
 
 from .config import BRANCH_OUT_NAME, GITHUB_TOKEN
 from .exceptions import CallError
-from .utils.git_utils import push_changes, safe_checkout
+from .utils.git_utils import commit_changes, push_changes, safe_checkout
 from .utils.logger import LoggingContext
-from .utils.manifest import get_manifest, update_packages_branch
+from .utils.manifest import update_packages_branch
 from .utils.package import get_packages
 from .utils.paths import BRANCH_OUT_LOG_DIR
 
@@ -58,4 +58,8 @@ def branch_out_repos(push_branched_out_repos):
 
     # Now that we have checked out the branch we should update the manifest
     update_packages_branch(BRANCH_OUT_NAME)
-    
+    commit_changes('.', 'Update scale-build manifest')
+
+    if push_branched_out_repos:
+        # Finally we should push the changes
+        push_changes('.', GITHUB_TOKEN, BRANCH_OUT_NAME)

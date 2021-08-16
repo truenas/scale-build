@@ -57,3 +57,13 @@ def safe_checkout(path, branch):
         run(['git', '-C', path, 'checkout', branch])
     else:
         run(['git', '-C', path, 'checkout', '-b', branch])
+
+
+def commit_changes(path, commit_msg):
+    # TODO: Hard coding git username/email for now
+    username = 'bugclerk'
+    email = 'dev@ixsystems.com'
+    run(['git', '-C', path, 'config', 'user.name', username])
+    run(['git', '-C', path, 'config', 'user.email', email])
+    run(['git', '-C', path, 'add', '.'])
+    run(['git', '-C', path, 'commit', '-m', commit_msg])
