@@ -9,6 +9,7 @@ BUILD_TIME_OBJ = datetime.fromtimestamp(BUILD_TIME)
 BUILDER_DIR = os.getenv('BUILDER_DIR', './')
 BRANCH_OUT_NAME = os.getenv('NEW_BRANCH_NAME')
 BRANCH_OVERRIDES = {k[:-(len('_OVERRIDE'))]: v for k, v in os.environ.items() if k.endswith('_OVERRIDE')}
+FORCE_CLEANUP_WITH_EPOCH_CHANGE = bool(int(os.getenv('FORCE_CLEANUP_WITH_EPOCH_CHANGE') or '0'))
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 PARALLEL_BUILD = int(os.getenv('PARALLEL_BUILDS', max(os.cpu_count(), 8) / 4))
 PKG_DEBUG = bool(int(os.getenv('PKG_DEBUG') or '0'))
