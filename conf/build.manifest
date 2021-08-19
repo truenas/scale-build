@@ -258,10 +258,14 @@ sources:
   branch: master
 - name: scst
   repo: https://github.com/truenas/scst
+  generate_version: false
   prebuildcmd:
+    - "make debian/changelog"
+  buildcmd:
+    - "make scst-dist-gzip"
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
   kernel_module: true
-  branch: v3.5-branch
+  branch: truenas-svn-trunk
   explicit_deps:
     - openzfs
 - name: truenas_binaries
