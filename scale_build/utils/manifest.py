@@ -3,6 +3,8 @@ import jsonschema
 import re
 import yaml
 
+from urllib.parse import urlparse
+
 from scale_build.config import TRAIN
 from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
@@ -159,3 +161,19 @@ def update_packages_branch(branch_name):
 
     with open(MANIFEST, 'w') as f:
         f.write(updated_str)
+
+
+def validate_manifest():
+    manifest = get_manifest()
+    # We would like to make sure that each package source we build from is from our fork and not another one
+    invalid_packages = []
+    for package in manifest['sources']:
+        url = urlparse(package['repo'])
+        if 'github.com' != url.hostname.strip('www.') or not url.path.startswith('/truenas/'):
+            invalid_packages.append(package['name'])
+
+    if invalid_packages:
+        raise CallError(
+            f'{",".join(invalid_packages)!r} are using repos from unsupported git upstream. Scale-build only '
+            'accepts packages from github.com/truenas organisation.'
+        )
