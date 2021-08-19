@@ -1,17 +1,17 @@
 pipeline {
   agent {
     node {
-       label 'SCALE-Build'
+      label 'SCALE-Build'
     }
   }
   environment {
-	BDIR = "/root/truenas-build"
+    BDIR = "/root/truenas-build"
   }
   stages {
     stage('SCM') {
       steps {
-	sh '[ -d "${BDIR}" ] || git clone --depth=1 https://github.com/truenas/truenas-build ${BDIR}'
-	sh 'cd ${BDIR} && git reset --hard && git pull'
+        sh '[ -d "${BDIR}" ] || git clone --depth=1 https://github.com/truenas/truenas-build ${BDIR}'
+        sh 'cd ${BDIR} && git reset --hard && git pull'
       }
     }
     stage('Checkout') {
@@ -22,7 +22,7 @@ pipeline {
     stage('Packages') {
       steps {
         sh 'cd ${BDIR} && make packages'
-        }
+      }
     }
     stage('Upload Packages') {
       steps {
@@ -32,17 +32,17 @@ pipeline {
     stage('Update') {
       steps {
         sh 'cd ${BDIR} && make update'
-        }
+      }
     }
     stage('ISO') {
       steps {
         sh 'cd ${BDIR} && make iso'
-        }
+      }
     }
     stage('Upload') {
       steps {
         sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
-        }
+      }
     }
   }
   post {
@@ -51,6 +51,8 @@ pipeline {
       sh 'mkdir -p artifacts/logs'
       sh 'mv ${BDIR}/tmp/release/* artifacts/'
       sh 'cp -r ${BDIR}/logs/* artifacts/logs/'
+      sh 'mkdir -p artifacts/pkg_dbg'
+      sh 'cp ${BDIR}/tmp/pkgdir/*dbg* artifacts/pkg_dbg/'
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
     }
     failure {
@@ -59,6 +61,6 @@ pipeline {
       sh 'cp -r ${BDIR}/logs/* artifacts/logs/'
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
       mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com,william@ixsystems.com";
-     }
+    }
   }
 }
