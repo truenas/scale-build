@@ -2,6 +2,8 @@ import logging
 import os
 
 from .clean import complete_cleanup
+from .config import FORCE_CLEANUP_WITH_EPOCH_CHANGE
+from .exceptions import CallError
 from .preflight import setup_dirs
 from .utils.manifest import get_manifest
 from .utils.paths import TMP_DIR
@@ -23,9 +25,15 @@ def check_epoch():
         with open(EPOCH_PATH, 'r') as f:
             epoch_num = f.read().strip()
             if epoch_num != current_epoch:
-                logger.warning('Build epoch changed! Removing temporary files and forcing clean build.')
-                update_epoch(current_epoch)
-                complete_cleanup()
-                setup_dirs()
+                if FORCE_CLEANUP_WITH_EPOCH_CHANGE:
+                    logger.warning('Build epoch changed! Removing temporary files and forcing clean build.')
+                    update_epoch(current_epoch)
+                    complete_cleanup()
+                    setup_dirs()
+                else:
+                    raise CallError(
+                        'Build epoch changed, either run "make clean" or set '
+                        '"FORCE_CLEANUP_WITH_EPOCH_CHANGE" environment variable to proceed.'
+                    )
     else:
         update_epoch(current_epoch)
