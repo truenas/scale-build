@@ -51,8 +51,8 @@ pipeline {
       sh 'mkdir -p artifacts/logs'
       sh 'mv ${BDIR}/tmp/release/* artifacts/'
       sh 'cp -r ${BDIR}/logs/* artifacts/logs/'
-      sh 'mkdir -p artifacts/pkg_dbg'
-      sh 'cp ${BDIR}/tmp/pkgdir/*dbg* artifacts/pkg_dbg/'
+      sh 'mkdir -p artifacts/artifacts'
+      sh 'cp ${BDIR}/tmp/pkgdir/* artifacts/artifacts/'
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
     }
     failure {

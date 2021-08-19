@@ -40,9 +40,9 @@ pipeline {
     stage('Artifact') {
       steps {
         sh 'rm -rf artifacts || true'
-        sh 'mkdir -p artifacts/pkg_dbg'
+        sh 'mkdir -p artifacts/packages'
         sh 'mv src/tmp/release/* artifacts/'
-        sh 'cp src/tmp/pkgdir/*dbg* artifacts/pkg_dbg/'
+        sh 'cp src/tmp/pkgdir/* artifacts/packages/'
       }
     }
   }
