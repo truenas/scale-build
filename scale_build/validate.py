@@ -3,7 +3,7 @@ import logging
 import shutil
 
 from .exceptions import CallError, MissingPackagesException
-from .utils.manifest import get_manifest
+from .utils.manifest import validate_manifest
 
 
 logger = logging.getLogger(__name__)
@@ -35,5 +35,5 @@ def validate(system_state_flag=True, manifest_flag=True):
         validate_system_state()
         logger.debug('System state Validated')
     if manifest_flag:
-        get_manifest()
+        validate_manifest()
         logger.debug('Manifest Validated')
