@@ -1,14 +1,14 @@
 pipeline {
   agent {
     node {
-       label 'SCALE-Build'
+      label 'SCALE-Build'
     }
   }
   stages {
     stage('SCM') {
       steps {
         dir('src') {
-           checkout scm
+          checkout scm
         }
       }
     }
@@ -25,12 +25,12 @@ pipeline {
     stage('Packages') {
       steps {
         sh 'cd src && make packages'
-        }
+      }
     }
     stage('Update') {
       steps {
         sh 'cd src && make update'
-        }
+      }
     }
     stage('ISO') {
       steps {
@@ -46,9 +46,10 @@ pipeline {
     stage('Artifact') {
       steps {
         sh 'rm -rf artifacts || true'
-        sh 'mkdir -p artifacts'
+        sh 'mkdir -p artifacts/packages'
         sh 'mv src/tmp/release/* artifacts/'
-        }
+        sh 'cp src/tmp/pkgdir/* artifacts/packages/'
+      }
     }
   }
   post {
@@ -59,6 +60,6 @@ pipeline {
     failure {
       archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
       mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Nightly Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "kris@ixsystems.com,william@ixsystems.com";
-     }
+    }
   }
 }
