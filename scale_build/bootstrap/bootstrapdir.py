@@ -45,6 +45,22 @@ class BootstrapDir(CacheMixin, HashMixin):
         )
         self.setup_mounts()
 
+        self.logger.debug('Updating apt preferences')
+        apt_path = os.path.join(self.chroot_basedir, 'etc/apt')
+        apt_sources_path = os.path.join(apt_path, 'sources.list')
+        # Set bullseye repo as the priority
+        with open(os.path.join(apt_path, 'preferences'), 'w') as f:
+            f.write(get_apt_preferences())
+
+        self.logger.debug('Adding debian-security to sources')
+        deb_security = '\n'.join([
+            'deb http://deb.debian.org/debian-security/ bullseye-security main',
+            'deb-src http://deb.debian.org/debian-security/ bullseye-security main',
+        ])
+        with open(apt_sources_path, 'a+') as f:
+            f.write(f'\n{deb_security}\n')
+        run(['chroot', self.chroot_basedir, 'apt', 'update'])
+
         if self.extra_packages_to_install:
             run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
 
@@ -53,13 +69,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.after_extra_packages_installation_steps()
 
         # Save the correct repo in sources.list
-        apt_path = os.path.join(self.chroot_basedir, 'etc/apt')
-        apt_sources_path = os.path.join(apt_path, 'sources.list')
         apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
-
-        # Set bullseye repo as the priority
-        with open(os.path.join(apt_path, 'preferences'), 'w') as f:
-            f.write(get_apt_preferences())
 
         # Add additional repos
         for repo in apt_repos['additional']:
