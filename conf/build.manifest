@@ -113,6 +113,9 @@ apt_preferences:
 - Package: "*"
   Pin: "release n=bullseye"
   Pin-Priority: 900
+- Package: "collectd*"
+  Pin: "version 5.99*"
+  Pin-Priority: 950
 - Package: "grub*"
   Pin: "version 2.99*"
   Pin-Priority: 950
@@ -374,6 +377,14 @@ sources:
 - name: truecommand_stats
   repo: https://github.com/truenas/truecommand-stats
   branch: master
+- name: collectd
+  repo: https://github.com/truenas/collectd
+  branch: master
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
   branch: master
