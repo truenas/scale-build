@@ -153,6 +153,8 @@ additional-packages:
   comment: requested by OS team (NAS-111041)
 - package: python-is-python3
   comment: NAS-111358 (symlinks /usr/bin/python to python3)
+- package: python3-pip
+  comment: NAS-112161 ( requested by QE team )
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
