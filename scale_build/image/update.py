@@ -140,6 +140,14 @@ def clean_rootfs():
     with contextlib.suppress(FileNotFoundError):
         os.unlink(os.path.join(CHROOT_BASEDIR, 'etc/modprobe.d/nvidia.conf'))
 
+    # OpenSSH generates its server keys on installation, we don't want all SCALE builds
+    # of the same version to have the same keys. middleware will generate these keys on
+    # specific installation first boot.
+    ssh_keys = os.path.join(CHROOT_BASEDIR, 'etc/ssh')
+    for f in os.listdir(ssh_keys):
+        if f.startswith('ssh_host_') and (f.endswith('_key') or f.endswith('_key.pub') or f.endswith('key-cert.pub')):
+            os.unlink(os.path.join(ssh_keys, f))
+
     for path in (
         os.path.join(CHROOT_BASEDIR, 'usr/share/doc'),
         os.path.join(CHROOT_BASEDIR, 'var/cache/apt'),
