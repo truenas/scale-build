@@ -124,7 +124,7 @@ def _build_packages_impl():
     if built:
         logger.debug('%d package(s) do not need to be rebuilt (%s)', len(built), ','.join(built))
     logger.debug('Going to build %d package(s): %s', len(to_build), ','.join(to_build))
-    no_of_tasks = PARALLEL_BUILD if len(to_build) >= PARALLEL_BUILD else len(to_build)
+    no_of_tasks = min(len(to_build), PARALLEL_BUILD)
     update_queue(package_queue, to_build, failed, in_progress, built)
     logger.debug('Creating %d parallel task(s)', no_of_tasks)
     threads = [
@@ -148,10 +148,14 @@ def _build_packages_impl():
                 )
                 while True:
                     data = input(
-                        '\n'.join(
-                            [f'{i+1}) {k}' for i, k in enumerate(failed)]
-                        ) + '\n\nPlease type "exit" when done.\n'
+                        (
+                            '\n'.join(
+                                f'{i+1}) {k}' for i, k in enumerate(failed)
+                            )
+                            + '\n\nPlease type "exit" when done.\n'
+                        )
                     )
+
                     if data in ('exit', 'e'):
                         logger.debug('Exiting debug session')
                         break
@@ -160,7 +164,7 @@ def _build_packages_impl():
                     elif not data.isdigit() and data not in failed:
                         logger.debug('Please provide valid package name')
                     else:
-                        package = failed[data] if data in failed else list(failed.values())[int(data) - 1]
+                        package = failed.get(data, list(failed.values())[int(data) - 1])
                         interactive_run(package['package'].debug_command)
         finally:
             for p in map(lambda p: p['package'], failed.values()):

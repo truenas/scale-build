@@ -155,9 +155,8 @@ class BuildPackageMixin:
     def build_command(self):
         if self.buildcmd:
             return self.buildcmd
-        else:
-            build_env = f'DEB_BUILD_OPTIONS={self.deoptions} ' if self.deoptions else ''
-            return [f'{build_env} debuild {" ".join(self.deflags)}']
+        build_env = f'DEB_BUILD_OPTIONS={self.deoptions} ' if self.deoptions else ''
+        return [f'{build_env} debuild {" ".join(self.deflags)}']
 
     @property
     def debug_command(self):
@@ -165,4 +164,4 @@ class BuildPackageMixin:
 
     @property
     def deflags(self):
-        return [f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
+        return [f'-j{self.jobs or os.cpu_count()}', '-us', '-uc', '-b']
