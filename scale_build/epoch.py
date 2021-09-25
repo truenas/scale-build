@@ -25,15 +25,14 @@ def check_epoch():
         with open(EPOCH_PATH, 'r') as f:
             epoch_num = f.read().strip()
             if epoch_num != current_epoch:
-                if FORCE_CLEANUP_WITH_EPOCH_CHANGE:
-                    logger.warning('Build epoch changed! Removing temporary files and forcing clean build.')
-                    update_epoch(current_epoch)
-                    complete_cleanup()
-                    setup_dirs()
-                else:
+                if not FORCE_CLEANUP_WITH_EPOCH_CHANGE:
                     raise CallError(
                         'Build epoch changed, either run "make clean" or set '
                         '"FORCE_CLEANUP_WITH_EPOCH_CHANGE" environment variable to proceed.'
                     )
+                logger.warning('Build epoch changed! Removing temporary files and forcing clean build.')
+                update_epoch(current_epoch)
+                complete_cleanup()
+                setup_dirs()
     else:
         update_epoch(current_epoch)

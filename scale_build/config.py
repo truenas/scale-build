@@ -18,7 +18,7 @@ SIGNING_PASSWORD = os.getenv('SIGNING_PASSWORD')
 SKIP_SOURCE_REPO_VALIDATION = bool(int(os.getenv('SKIP_SOURCE_REPO_VALIDATION') or '0'))
 TRAIN = os.getenv('TRUENAS_TRAIN')
 TRY_BRANCH_OVERRIDE = os.getenv('TRY_BRANCH_OVERRIDE')
-if os.getenv('TRUENAS_VERSION'):
-    VERSION = os.getenv('TRUENAS_VERSION')
-else:
-    VERSION = f'{BUILD_TIME_OBJ.strftime("%y.%m")}-MASTER-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}'
+VERSION = (
+    os.getenv('TRUENAS_VERSION')
+    or f'{BUILD_TIME_OBJ.strftime("%y.%m")}-MASTER-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}'
+)
