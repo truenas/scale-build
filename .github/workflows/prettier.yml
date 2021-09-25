@@ -1,2 +1,2 @@
-- name: Prettier Action
-  uses: creyD/prettier_action@v4.0
+- name: actionsx/prettier
+  uses: actionsx/prettier@v2
