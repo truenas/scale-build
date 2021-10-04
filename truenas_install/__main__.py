@@ -281,6 +281,7 @@ def main():
                         "rsync", "-aRx",
                         "--exclude", "data/factory-v1.db",
                         "--exclude", "data/manifest.json",
+                        "--exclude", "data/sentinels",
                     ] + rsync + [
                         f"{root}/",
                     ], cwd=old_root)
