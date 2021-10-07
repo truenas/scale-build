@@ -122,6 +122,9 @@ apt_preferences:
 - Package: "python3-*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "rrdcached*"
+  Pin: "version 1.99*"
+  Pin-Priority: 950
 - Package: "*truenas-samba*"
   Pin: "version 4.13.*"
   Pin-Priority: 950
@@ -397,3 +400,11 @@ sources:
   generate_version: false
   jobs: 1
   batch_priority: 150
+- name: rrdcached
+  repo: https://github.com/truenas/rrdtool
+  branch: master
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
