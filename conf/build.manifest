@@ -7,35 +7,31 @@ debian_release: "bullseye"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/unstable/debian/
+  url: http://apt.tn.ixsystems.com/apt-direct/stable/debian/
   distribution: bullseye
   components: main non-free contrib
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/debian-sid/
-    distribution: sid
-    component: main non-free contrib
-    key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/stable/docker/
     distribution: buster
     component: stable
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/gluster/
+  - url: http://apt.tn.ixsystems.com/apt-direct/stable/gluster/
     distribution: bullseye
     component: main
     key: keys/gluster.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/libnvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/stable/libnvidia/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-container/
+  - url: http://apt.tn.ixsystems.com/apt-direct/stable/nvidia-container/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/nvidia-docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/stable/nvidia-docker/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/unstable/helm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/stable/helm/
     distribution: all
     component: main
     key: keys/helm.gpg
