@@ -18,6 +18,7 @@ import psutil
 logger = logging.getLogger(__name__)
 
 EFI_SYSTEM_PARTITION_GUID = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+FREEBSD_BOOT_PARTITION_GUID = "83BD6B9D-7F41-11DC-BE0B-001560B84F0F"
 
 CORE_BSD_LOADER_PATH = "/boot/efi/efi/boot/BOOTx64.efi"
 SCALE_BSD_LOADER_PATH = "/boot/efi/efi/boot/FreeBSD.efi"
@@ -371,11 +372,16 @@ def main():
                                 format_efi_partition = True
                                 copy_bsd_loader = False
                                 if is_freebsd_upgrade:
-                                    if get_partition_guid(disk, 1) == EFI_SYSTEM_PARTITION_GUID:
+                                    first_partition_guid = get_partition_guid(disk, 1)
+                                    if first_partition_guid == EFI_SYSTEM_PARTITION_GUID:
                                         install_grub_i386 = False
                                         efi_partition_number = 1
                                         format_efi_partition = False
                                         copy_bsd_loader = True
+                                    if first_partition_guid == FREEBSD_BOOT_PARTITION_GUID:
+                                        run_command([
+                                            "sgdisk", "-t1:EF02", f"/dev/{disk}",
+                                        ])
 
                                 if install_grub_i386:
                                     run_command([
