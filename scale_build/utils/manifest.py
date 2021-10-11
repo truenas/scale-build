@@ -10,7 +10,7 @@ from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
 
 
-BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.]+\b')
+BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.-]+\b')
 MANIFEST_SCHEMA = {
     'type': 'object',
     'properties': {
