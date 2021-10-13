@@ -118,6 +118,9 @@ apt_preferences:
 - Package: "python3-*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "waagent"
+  Pin: "origin \"\""
+  Pin-Priority: 950
 - Package: "rclone"
   Pin: "origin \"\""
   Pin-Priority: 950
@@ -190,6 +193,9 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: waagent
+  repo: https://github.com/truenas/WALinuxAgent.git
+  branch: truenas/master
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
   branch: master
