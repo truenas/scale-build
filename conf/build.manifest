@@ -118,6 +118,9 @@ apt_preferences:
 - Package: "python3-*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "rclone"
+  Pin: "origin \"\""
+  Pin-Priority: 950
 - Package: "rrdcached*"
   Pin: "version 1.99*"
   Pin-Priority: 950
@@ -396,6 +399,11 @@ sources:
   generate_version: false
   jobs: 1
   batch_priority: 150
+- name: rclone
+  repo: https://github.com/truenas/rclone
+  branch: master
+  deoptions: nocheck
+  generate_version: false
 - name: rrdcached
   repo: https://github.com/truenas/rrdtool
   branch: release/22.02-RC.1
