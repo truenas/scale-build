@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 
-from scale_build.config import BRANCH_OVERRIDES, TRY_BRANCH_OVERRIDE
+from scale_build.config import BRANCH_OVERRIDES, TRUENAS_BRANCH_OVERRIDE, TRY_BRANCH_OVERRIDE
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import (
     branch_checked_out_locally, branch_exists_in_repository, create_branch,
@@ -63,7 +63,9 @@ class GitPackageMixin:
         return retrieve_git_branch(self.source_path)
 
     def get_branch_override(self):
-        gh_override = BRANCH_OVERRIDES.get(self.name)
+        # We prioritise TRUENAS_BRANCH_OVERRIDE over any individual branch override
+        # keeping in line with the behavior we used to have before
+        gh_override = TRUENAS_BRANCH_OVERRIDE or BRANCH_OVERRIDES.get(self.name)
 
         # TRY_BRANCH_OVERRIDE is a special use-case. It allows setting a branch name to be used
         # during the checkout phase, only if it exists on the remote.
