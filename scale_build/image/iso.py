@@ -6,7 +6,7 @@ import shutil
 
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, RELEASE_DIR, TMP_DIR
+from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import UPDATE_FILE
@@ -82,6 +82,7 @@ def make_iso_file():
     try:
         run(['mount', '--bind', RELEASE_DIR, os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
         run(['mount', '--bind', CD_DIR, os.path.join(CHROOT_BASEDIR, CD_DIR)])
+        run(['mount', '--bind', PKG_DIR, os.path.join(CHROOT_BASEDIR, 'packages')])
         run_in_chroot(['apt-get', 'update'], check=False)
         run_in_chroot([
             'apt-get', 'install', '-y', 'grub-common', 'grub2-common', 'grub-efi-amd64-bin',
@@ -93,6 +94,7 @@ def make_iso_file():
     finally:
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
+        run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'packages')])
 
     with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso.sha256'), 'w') as f:
         f.write(run(
