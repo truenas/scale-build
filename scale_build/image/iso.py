@@ -79,6 +79,12 @@ def make_iso_file():
     os.makedirs(os.path.join(CHROOT_BASEDIR, RELEASE_DIR), exist_ok=True)
     os.makedirs(os.path.join(CHROOT_BASEDIR, CD_DIR), exist_ok=True)
 
+    # Debian GRUB EFI image probes for `.disk/info` file to identify a device/partition
+    # to load config file from.
+    os.makedirs(os.path.join(CD_DIR, '.disk'), exist_ok=True)
+    with open(os.path.join(CD_DIR, '.disk/info'), 'w') as f:
+        pass
+
     try:
         run(['mount', '--bind', RELEASE_DIR, os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
         run(['mount', '--bind', CD_DIR, os.path.join(CHROOT_BASEDIR, CD_DIR)])
@@ -88,6 +94,14 @@ def make_iso_file():
             'apt-get', 'install', '-y', 'grub-common', 'grub2-common', 'grub-efi-amd64-bin',
             'grub-efi-amd64-signed', 'grub-pc-bin', 'mtools', 'xorriso'
         ])
+
+        # Debian GRUB EFI searches for GRUB config in a different place
+        os.makedirs(os.path.join(CD_DIR, 'EFI/debian'), exist_ok=True)
+        shutil.copy(CONF_GRUB, os.path.join(CD_DIR, 'EFI/debian/grub.cfg'))
+        os.makedirs(os.path.join(CD_DIR, 'EFI/debian/fonts'), exist_ok=True)
+        shutil.copy(os.path.join(CHROOT_BASEDIR, 'usr/share/grub/unicode.pf2'),
+                    os.path.join(CD_DIR, 'EFI/debian/fonts/unicode.pf2'))
+
         run_in_chroot([
             'grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso'), CD_DIR
         ])
