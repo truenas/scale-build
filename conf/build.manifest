@@ -7,31 +7,31 @@ debian_release: "bullseye"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/stable/debian/
+  url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/
   distribution: bullseye
   components: main non-free contrib
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/stable/docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/
     distribution: buster
     component: stable
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/stable/gluster/
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/gluster/
     distribution: bullseye
     component: main
     key: keys/gluster.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/stable/libnvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/libnvidia/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/stable/nvidia-container/
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-container/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/stable/nvidia-docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/stable/helm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/
     distribution: all
     component: main
     key: keys/helm.gpg

@@ -1,9 +1,9 @@
 # Default APT sources.list for TrueNAS SCALE
-deb http://apt.tn.ixsystems.com/apt-direct/stable/angelfish/ truenas main
-deb http://apt.tn.ixsystems.com/apt-direct/stable/gluster/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/stable/docker/ buster stable
-deb http://apt.tn.ixsystems.com/apt-direct/stable/libnvidia/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/stable/nvidia-container/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/stable/nvidia-docker/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/stable/debian/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/stable/helm/ all main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/angelfish/ truenas main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/gluster/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/ buster stable
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/libnvidia/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-container/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/ all main
