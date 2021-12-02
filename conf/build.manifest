@@ -47,6 +47,7 @@ base-packages:
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
 - linux-tools-5.10
+- avahi-daemon
 - bpftrace
 - bpfcc-tools
 - consul
@@ -128,7 +129,10 @@ apt_preferences:
   Pin: "version 1.99*"
   Pin-Priority: 950
 - Package: "*truenas-samba*"
-  Pin: "version 4.13.*"
+  Pin: "version 4.15.*"
+  Pin-Priority: 950
+- Package: "*avahi*"
+  Pin: "version 0.8+ix*"
   Pin-Priority: 950
 - Package: "*zfs*"
   Pin: "version 2.1.*"
@@ -254,6 +258,10 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
+- name: avahi
+  repo: https://github.com/truenas/avahi
+  branch: SCALE-v0.8
+  generate_version: false
 - name: nss_pam_ldapd
   repo: https://github.com/truenas/nss-pam-ldapd
   branch: master
