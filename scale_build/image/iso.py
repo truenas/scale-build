@@ -3,6 +3,10 @@ import glob
 import itertools
 import os
 import shutil
+import tarfile
+import tempfile
+
+import requests
 
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
@@ -102,9 +106,59 @@ def make_iso_file():
         shutil.copy(os.path.join(CHROOT_BASEDIR, 'usr/share/grub/unicode.pf2'),
                     os.path.join(CD_DIR, 'EFI/debian/fonts/unicode.pf2'))
 
-        run_in_chroot([
-            'grub-mkrescue', '-o', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso'), CD_DIR
-        ])
+        iso = os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')
+        run_in_chroot(['grub-mkrescue', '-o', iso, CD_DIR])
+
+        # Installed grub EFI image does not support `search` command which we need to make TrueNAS ISO working in
+        # Rufus "ISO Image mode".
+        # Let's just replace it with pre-built Debian GRUB EFI image that the official Debian ISO installer uses.
+        with tempfile.NamedTemporaryFile() as efi_img:
+            with tempfile.NamedTemporaryFile(suffix='.tar.gz') as f:
+                apt_repos = get_manifest()['apt-repos']
+                r = requests.get(
+                    f'{apt_repos["url"]}/dists/{apt_repos["distribution"]}/main/installer-amd64/current/images/cdrom/'
+                    'debian-cd_info.tar.gz',
+                    timeout=10,
+                    stream=True,
+                )
+                r.raise_for_status()
+                shutil.copyfileobj(r.raw, f)
+                f.flush()
+
+                with tarfile.open(f.name) as tf:
+                    shutil.copyfileobj(tf.extractfile('./grub/efi.img'), efi_img)
+
+            efi_img.flush()
+            with tempfile.TemporaryDirectory() as td:
+                run(['mount', '-t', 'vfat', efi_img.name, td])
+                try:
+                    lo = run(['losetup', '-f'], log=False).stdout.strip()
+                    run(['losetup', '-P', lo, iso])
+                    try:
+                        with tempfile.TemporaryDirectory() as td2:
+                            run(['mount', f'{lo}p2', td2])
+                            try:
+                                shutil.rmtree(os.path.join(td2, 'EFI'))
+                                shutil.copytree(os.path.join(td, 'EFI'), os.path.join(td2, 'EFI'))
+
+                                grub_cfg_path = os.path.join(td2, 'EFI/debian/grub.cfg')
+                                with open(grub_cfg_path) as f:
+                                    grub_cfg = f.read()
+
+                                substr = 'source $prefix/x86_64-efi/grub.cfg'
+                                if substr not in grub_cfg:
+                                    raise ValueError(f'Invalid grub.cfg:\n{grub_cfg}')
+
+                                grub_cfg = grub_cfg.replace(substr, 'source $prefix/grub.cfg')
+
+                                with open(grub_cfg_path, 'w') as f:
+                                    f.write(grub_cfg)
+                            finally:
+                                run(['umount', td2])
+                    finally:
+                        run(['losetup', '-d', lo])
+                finally:
+                    run(['umount', td])
     finally:
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
