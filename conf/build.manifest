@@ -169,6 +169,8 @@ additional-packages:
   comment: NAS-112161 ( requested by QE team )
 - package: zstd
   comment: NAS-113855 ( requested by engineering team )
+- package: powertop
+  comment: requested by community (NAS-113898)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
