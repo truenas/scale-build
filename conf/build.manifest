@@ -266,8 +266,6 @@ sources:
 - name: nfs-ganesha
   repo: https://github.com/truenas/nfs-ganesha
   branch: SCALE-V4.0
-  predepscmd:
-    - "git submodule update --init --recursive"
   generate_version: false
 - name: avahi
   repo: https://github.com/truenas/avahi
