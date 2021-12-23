@@ -356,7 +356,8 @@ def main():
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
                         if is_freebsd_upgrade:
-                            run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
+                            if old_bootfs_prop != "-":
+                                run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
                         cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
                         if cp.returncode > 1:
