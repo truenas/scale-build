@@ -26,7 +26,7 @@ pipeline {
     }
     stage('Upload Packages') {
       steps {
-        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@apt-mirror.tn.ixsystems.net:repo/'
       }
     }
     stage('Update') {
