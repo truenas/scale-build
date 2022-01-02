@@ -23,6 +23,7 @@ FREEBSD_BOOT_PARTITION_GUID = "83BD6B9D-7F41-11DC-BE0B-001560B84F0F"
 CORE_BSD_LOADER_PATH = "/boot/efi/efi/boot/BOOTx64.efi"
 SCALE_BSD_LOADER_PATH = "/boot/efi/efi/boot/FreeBSD.efi"
 
+RE_AZURE_CHECK = re.compile(r'Manufacturer:\s+Microsoft Corporation.*Family:\s+Virtual Machine', flags=re.DOTALL)
 RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+\]\s+(?P<extracted>[0-9]+)/(?P<total>[0-9]+)\s+(?P<progress>[0-9]+)%")
 run_kw = dict(check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", errors="ignore")
 
@@ -70,6 +71,13 @@ def get_partition_guid(disk, partition):
         lambda s: s.split(": ", 1),
         run_command(["sgdisk", "-i", str(partition), f"/dev/{disk}"]).stdout.splitlines(),
     ))["Partition GUID code"].split()[0]
+
+
+def enable_system_user_services(root, old_root):
+    enable_user_services(root, old_root)
+    # We will see if the scale system in question is running in azure, if that holds, we will enable walinuxagent
+    if RE_AZURE_CHECK.findall(run_command(["dmidecode", "-t", "1"]).stdout):
+        run_command(["chroot", root, "systemctl", "enable", "walinuxagent"])
 
 
 def enable_user_services(root, old_root):
@@ -310,7 +318,7 @@ def main():
                         with open(f"{root}/data/freebsd-to-scale-update", "w"):
                             pass
                     else:
-                        enable_user_services(root, old_root)
+                        enable_system_user_services(root, old_root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
