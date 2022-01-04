@@ -4,6 +4,7 @@ import itertools
 import os
 import textwrap
 import shutil
+import stat
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
 from scale_build.utils.manifest import get_manifest
@@ -86,6 +87,18 @@ def install_rootfs_packages_impl():
 
     # Copy the default sources.list file
     shutil.copy(CONF_SOURCES, os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'))
+
+    post_rootfs_setup()
+
+
+def post_rootfs_setup():
+    # We want to disable apt related binaries so that users can avoid footshooting themselves as
+    # using apt is not advised/recommended
+    binaries_path = os.path.join(CHROOT_BASEDIR, 'usr/bin')
+    no_executable_flag = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
+    for binary in filter(lambda s: s == 'apt' or s.startswith('apt-'), os.listdir(binaries_path)):
+        binary_path = os.path.join(binaries_path, binary)
+        os.chmod(binary_path, stat.S_IMODE(os.lstat(binary_path).st_mode) & no_executable_flag)
 
 
 def custom_rootfs_setup():
