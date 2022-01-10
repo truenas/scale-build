@@ -116,6 +116,9 @@ apt_preferences:
 - Package: "grub*"
   Pin: "version 2.99*"
   Pin-Priority: 950
+- Package: "librrd*"
+  Pin: "version 1.99*"
+  Pin-Priority: 950
 - Package: "python3-*"
   Pin: "origin \"\""
   Pin-Priority: 950
@@ -125,7 +128,7 @@ apt_preferences:
 - Package: "rclone"
   Pin: "origin \"\""
   Pin-Priority: 950
-- Package: "rrdcached*"
+- Package: "rrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
 - Package: "*truenas-samba*"
