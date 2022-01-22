@@ -185,6 +185,7 @@ non_removable_dev ()
     echo "${ret}"
 }
 
+mkdir -p "$mountpoint"
 if find_livefs
 then
     until /sbin/truenas-install; do true; done
