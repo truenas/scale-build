@@ -1,4 +1,3 @@
-import distutils.dir_util
 import glob
 import itertools
 import os
@@ -51,8 +50,7 @@ def make_iso_file():
         f.write('truenas.local')
 
     # Copy the CD files
-    distutils.dir_util._path_created = {}
-    distutils.dir_util.copy_tree(CD_FILES_DIR, CHROOT_BASEDIR, preserve_symlinks=True)
+    run(f'rsync -av {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
 
     # Create the CD assembly dir
     if os.path.exists(CD_DIR):
