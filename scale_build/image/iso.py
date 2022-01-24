@@ -50,7 +50,7 @@ def make_iso_file():
         f.write('truenas.local')
 
     # Copy the CD files
-    run(f'rsync -av {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
+    run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
 
     # Create the CD assembly dir
     if os.path.exists(CD_DIR):
