@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if -f /cdrom/TrueNAS-SCALE.update
+if [ -f /cdrom/TrueNAS-SCALE.update ];
 then
     until /sbin/truenas-install; do true; done
 else
