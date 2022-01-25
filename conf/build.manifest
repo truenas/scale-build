@@ -48,6 +48,7 @@ base-packages:
 - linux-image-truenas-amd64
 - linux-tools-5.10
 - avahi-daemon
+- nfs-kernel-server
 - bpftrace
 - bpfcc-tools
 - consul
