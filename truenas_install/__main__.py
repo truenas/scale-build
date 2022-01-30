@@ -344,7 +344,6 @@ def main():
                         run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
                         undo.append(["umount", f"{root}/sys"])
 
-                        os.makedirs(f"{root}/boot/grub", exist_ok=True)
                         run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                         undo.append(["umount", f"{root}/boot/grub"])
 
