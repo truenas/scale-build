@@ -137,9 +137,6 @@ apt_preferences:
 - Package: "*avahi*"
   Pin: "version 0.8+ix*"
   Pin-Priority: 950
-- Package: "*nfs-ganesha*"
-  Pin: "version 4.0+ix*"
-  Pin-Priority: 950
 - Package: "*zfs*"
   Pin: "version 2.1.*"
   Pin-Priority: 1000
@@ -266,10 +263,6 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
-- name: nfs-ganesha
-  repo: https://github.com/truenas/nfs-ganesha
-  branch: SCALE-V4.0
-  generate_version: false
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
@@ -317,9 +310,6 @@ sources:
   branch: master
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: master
-- name: pkg_pybonjour
-  repo: https://github.com/truenas/pkg-pybonjour
   branch: master
 - name: pydevd
   repo: https://github.com/truenas/pydevd.git
