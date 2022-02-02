@@ -83,10 +83,7 @@ def enable_user_services(root, old_root):
         ]
 
     if systemd_units:
-        try:
-            run_command(["chroot", root, "systemctl", "enable"] + systemd_units, check=False)
-        except Exception:
-            pass
+        run_command(["chroot", root, "systemctl", "enable"] + systemd_units, check=False)
 
 
 def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
