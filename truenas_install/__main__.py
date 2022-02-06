@@ -8,6 +8,7 @@ import os
 import platform
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -70,6 +71,37 @@ def get_partition_guid(disk, partition):
         lambda s: s.split(": ", 1),
         run_command(["sgdisk", "-i", str(partition), f"/dev/{disk}"]).stdout.splitlines(),
     ))["Partition GUID code"].split()[0]
+
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
+def query_config_table(table, database_path, prefix=None):
+    database_path = database_path
+    conn = sqlite3.connect(database_path)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    c.execute(f"SELECT * FROM {table}")
+    result = c.fetchone()
+    if prefix:
+        result = {k.replace(prefix, ''): v for k, v in result.items()}
+    return result
+
+
+def enable_system_user_services(root, old_root):
+    db_path = os.path.join(old_root, "data/freenas-v1.db")
+    if os.path.exists(db_path):
+        # We would like to explicitly enable/disable serial-getty in the new BE based on db configuration
+        advanced = query_config_table("system_advanced", db_path, prefix="adv_")
+        run_command([
+            "chroot", root, "systemctl", "enable" if advanced["serialconsole"] else "disable", "serial-getty@*.service"
+        ], check=False)
+
+    enable_user_services(root, old_root)
 
 
 def enable_user_services(root, old_root):
@@ -310,7 +342,7 @@ def main():
                         with open(f"{root}/data/freebsd-to-scale-update", "w"):
                             pass
                     else:
-                        enable_user_services(root, old_root)
+                        enable_system_user_services(root, old_root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
