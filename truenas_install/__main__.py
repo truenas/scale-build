@@ -88,19 +88,24 @@ def query_config_table(table, database_path, prefix=None):
     c.execute(f"SELECT * FROM {table}")
     result = c.fetchone()
     if prefix:
-        result = {k.replace(prefix, ''): v for k, v in result.items()}
+        result = {k.replace(prefix, ""): v for k, v in result.items()}
     return result
 
 
-def enable_system_user_services(root, old_root):
-    db_path = os.path.join(old_root, "data/freenas-v1.db")
-    if os.path.exists(db_path):
-        # We would like to explicitly enable/disable serial-getty in the new BE based on db configuration
-        advanced = query_config_table("system_advanced", db_path, prefix="adv_")
-        run_command([
-            "chroot", root, "systemctl", "enable" if advanced["serialconsole"] else "disable", "serial-getty@*.service"
-        ], check=False)
+def configure_serial_port(root, db_path):
+    if not os.path.exists(db_path):
+        return
 
+    # We would like to explicitly enable/disable serial-getty in the new BE based on db configuration
+    advanced = query_config_table("system_advanced", db_path, prefix="adv_")
+    if advanced["serialconsole"]:
+        run_command(
+            ["chroot", root, "systemctl", "enable", f"serial-getty@{advanced['serialport']}.service"], check=False
+        )
+
+
+def enable_system_user_services(root, old_root):
+    configure_serial_port(root, os.path.join(old_root, "data/freenas-v1.db"))
     enable_user_services(root, old_root)
 
 
@@ -310,7 +315,7 @@ def main():
                     os.unlink(f"{root}/var/lib/dbus/machine-id")
 
                 is_freebsd_upgrade = False
-                setup_machine_id = False
+                setup_machine_id = configure_serial = False
                 if old_root is not None:
                     if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         is_freebsd_upgrade = True
@@ -351,7 +356,7 @@ def main():
                     with open(f"{root}/data/truenas-eula-pending", "w"):
                         pass
 
-                    setup_machine_id = True
+                    setup_machine_id = configure_serial = True
 
                 if setup_machine_id:
                     with contextlib.suppress(FileNotFoundError):
@@ -367,6 +372,9 @@ def main():
 
                     if sql is not None:
                         run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
+
+                    if configure_serial:
+                        configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
 
                     undo = []
                     try:
