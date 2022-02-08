@@ -6,8 +6,7 @@ from .bootstrap.bootstrapdir import CdromBootstrapDirectory
 from .exceptions import CallError
 from .image.bootstrap import clean_mounts, setup_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
 from .image.iso import install_iso_packages, make_iso_file
-from .image.manifest import UPDATE_FILE
-from .image.utils import get_image_version
+from .image.manifest import get_image_version, update_file_path
 from .utils.logger import LoggingContext
 from .utils.paths import LOG_DIR, RELEASE_DIR
 
@@ -27,7 +26,7 @@ def build_impl():
     for f in glob.glob(os.path.join(LOG_DIR, 'cdrom*')):
         os.unlink(f)
 
-    if not os.path.exists(UPDATE_FILE):
+    if not os.path.exists(update_file_path()):
         raise CallError('Missing rootfs image. Run \'make update\' first.')
 
     logger.debug('Bootstrapping CD chroot [ISO] (%s/cdrom-bootstrap.log)', LOG_DIR)
