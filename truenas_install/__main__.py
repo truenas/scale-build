@@ -87,6 +87,8 @@ def query_config_table(table, database_path, prefix=None):
     c = conn.cursor()
     c.execute(f"SELECT * FROM {table}")
     result = c.fetchone()
+    c.close()
+    conn.close()
     if prefix:
         result = {k.replace(prefix, ""): v for k, v in result.items()}
     return result
