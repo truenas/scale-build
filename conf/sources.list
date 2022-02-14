@@ -1,5 +1,4 @@
 # Default APT sources.list for TrueNAS SCALE
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/angelfish/ truenas main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/gluster/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/ buster stable
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/libnvidia/ bullseye main
