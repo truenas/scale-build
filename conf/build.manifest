@@ -74,6 +74,7 @@ base-packages:
 - linux-cpupower
 - truenas-samba
 - nfs4xdr-acl-tools
+- nfs4-acl-tools
 - qemu-guest-agent
 - squashfs-tools
 - sysstat
