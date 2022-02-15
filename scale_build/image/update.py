@@ -12,7 +12,7 @@ from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
 
 from .bootstrap import umount_chroot_basedir
-from .manifest import build_manifest, build_update_manifest, UPDATE_FILE, UPDATE_FILE_HASH
+from .manifest import build_manifest, build_release_manifest, update_file_path, update_file_checksum_path
 from .utils import run_in_chroot
 
 
@@ -35,19 +35,20 @@ def build_rootfs_image():
     # Create the inner image
     run(['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'])
     # Build any MANIFEST information
-    build_manifest()
+    version = build_manifest()
 
     # Sign the image (if enabled)
     if SIGNING_KEY and SIGNING_PASSWORD:
         sign_manifest(SIGNING_KEY, SIGNING_PASSWORD)
 
     # Create the outer image now
-    run(['mksquashfs', UPDATE_DIR, UPDATE_FILE, '-noD'])
-    update_hash = run(['sha256sum', UPDATE_FILE], log=False).stdout.strip().split()[0]
-    with open(UPDATE_FILE_HASH, 'w') as f:
-        f.write(update_hash)
+    update_file = update_file_path(version)
+    run(['mksquashfs', UPDATE_DIR, update_file, '-noD'])
+    update_file_checksum = run(['sha256sum', update_file_path(version)], log=False).stdout.strip().split()[0]
+    with open(update_file_checksum_path(version), 'w') as f:
+        f.write(update_file_checksum)
 
-    build_update_manifest(update_hash)
+    build_release_manifest(update_file, update_file_checksum)
 
 
 def sign_manifest(signing_key, signing_pass):
