@@ -30,6 +30,6 @@ def get_image_version():
             run(['mount', UPDATE_FILE, mount_dir, '-t', 'squashfs', '-o', 'loop'], log=False)
             with open(os.path.join(mount_dir, 'manifest.json'), 'r') as f:
                 update_manifest = json.loads(f.read())
-            return update_manifest['version'].replace('.RELEASE', '')
+            return update_manifest['version'].replace('.RELEASE', '.0')
         finally:
             run(['umount', '-f', mount_dir], log=False)
