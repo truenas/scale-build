@@ -67,9 +67,11 @@ class BootstrapDir(CacheMixin, HashMixin):
         # Add additional repos
         for repo in apt_repos['additional']:
             self.logger.debug('Adding additional repo: %r', repo['url'])
-            shutil.copy(os.path.join(BUILDER_DIR, repo['key']), os.path.join(self.chroot_basedir, 'apt.key'))
-            run(['chroot', self.chroot_basedir, 'apt-key', 'add', '/apt.key'])
-            os.unlink(os.path.join(self.chroot_basedir, 'apt.key'))
+            if repo.get('key'):
+                shutil.copy(os.path.join(BUILDER_DIR, repo['key']), os.path.join(self.chroot_basedir, 'apt.key'))
+                run(['chroot', self.chroot_basedir, 'apt-key', 'add', '/apt.key'])
+                os.unlink(os.path.join(self.chroot_basedir, 'apt.key'))
+
             apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
 
         with open(apt_sources_path, 'w') as f:
