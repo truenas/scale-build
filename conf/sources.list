@@ -6,4 +6,5 @@ deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-container/
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-debug/ bullseye-debug main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-security/ bullseye-security main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/ all main
