@@ -9,7 +9,7 @@ debian_release: "bullseye"
 apt-repos:
   url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/
   distribution: bullseye
-  components: main non-free contrib
+  components: main
   additional:
   - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/
     distribution: buster
