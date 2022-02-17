@@ -52,13 +52,6 @@ class BootstrapDir(CacheMixin, HashMixin):
         with open(os.path.join(apt_path, 'preferences'), 'w') as f:
             f.write(get_apt_preferences())
 
-        self.logger.debug('Adding debian-security to sources')
-        deb_security = '\n'.join([
-            'deb http://deb.debian.org/debian-security/ bullseye-security main',
-            'deb-src http://deb.debian.org/debian-security/ bullseye-security main',
-        ])
-        with open(apt_sources_path, 'a+') as f:
-            f.write(f'\n{deb_security}\n')
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
 
         if self.extra_packages_to_install:
