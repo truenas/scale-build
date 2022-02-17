@@ -35,6 +35,9 @@ apt-repos:
     distribution: all
     component: main
     key: keys/helm.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-security/
+    distribution: bullseye-security
+    component: main
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -145,6 +148,12 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*ssl*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*policykit*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*polkit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 #
