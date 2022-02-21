@@ -388,6 +388,9 @@ sources:
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
   branch: master
+- name: py_nvme
+  repo: https://github.com/truenas/py-nvme
+  branch: master
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: main
