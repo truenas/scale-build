@@ -1,5 +1,5 @@
 ---
-code_name: "Angelfish"
+code_name: "Bluefin"
 debian_release: "bullseye"
 #
 # List of apt repositories that are used and setup inside the build environment
@@ -7,34 +7,37 @@ debian_release: "bullseye"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/
+  url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian/
   distribution: bullseye
-  components: main non-free contrib
+  components: main
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/docker/
     distribution: buster
     component: stable
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/gluster/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/gluster/
     distribution: bullseye
     component: main
     key: keys/gluster.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/libnvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/libnvidia/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-container/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nvidia-container/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nvidia-docker/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/helm/
     distribution: all
     component: main
     key: keys/helm.gpg
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-security/
+    distribution: bullseye-security
+    component: main
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -48,6 +51,7 @@ base-packages:
 - linux-image-truenas-amd64
 - linux-tools-5.10
 - avahi-daemon
+- nfs-kernel-server
 - bpftrace
 - bpfcc-tools
 - consul
@@ -73,12 +77,12 @@ base-packages:
 - linux-cpupower
 - truenas-samba
 - nfs4xdr-acl-tools
+- nfs4-acl-tools
 - qemu-guest-agent
 - squashfs-tools
 - sysstat
 - truecommand-stats
 - truenas
-- waagent
 - wireguard-dkms
 - wireguard-tools
 - zfs-test
@@ -116,6 +120,9 @@ apt_preferences:
 - Package: "grub*"
   Pin: "version 2.99*"
   Pin-Priority: 950
+- Package: "librrd*"
+  Pin: "version 1.99*"
+  Pin-Priority: 950
 - Package: "python3-*"
   Pin: "origin \"\""
   Pin-Priority: 950
@@ -125,7 +132,7 @@ apt_preferences:
 - Package: "rclone"
   Pin: "origin \"\""
   Pin-Priority: 950
-- Package: "rrdcached*"
+- Package: "rrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
 - Package: "*truenas-samba*"
@@ -141,6 +148,12 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*ssl*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*policykit*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*polkit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 #
@@ -169,6 +182,8 @@ additional-packages:
   comment: NAS-112161 ( requested by QE team )
 - package: zstd
   comment: NAS-113855 ( requested by engineering team )
+- package: sdparm
+  comment: NAS-114723
 - package: powertop
   comment: requested by community (NAS-113898)
 
@@ -310,9 +325,6 @@ sources:
 - name: sedutil
   repo: https://github.com/truenas/sedutil
   branch: master
-- name: pkg_pybonjour
-  repo: https://github.com/truenas/pkg-pybonjour
-  branch: master
 - name: pydevd
   repo: https://github.com/truenas/pydevd.git
   branch: master
@@ -377,6 +389,9 @@ sources:
   branch: master
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
+  branch: master
+- name: py_nvme
+  repo: https://github.com/truenas/py-nvme
   branch: master
 - name: swagger
   repo: https://github.com/truenas/swagger

@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Mount the local CD/USB image to access install file
-mkdir /cdrom
-mount /dev/disk/by-label/ISOIMAGE /cdrom
-
-until /sbin/truenas-install; do true; done
+if [ -f /cdrom/TrueNAS-SCALE.update ];
+then
+    until /sbin/truenas-install; do true; done
+else
+    read -p "No installation media found. Press enter to reboot..." answer
+    reboot
+fi

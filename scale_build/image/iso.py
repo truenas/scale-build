@@ -1,4 +1,3 @@
-import distutils.dir_util
 import glob
 import itertools
 import os
@@ -13,8 +12,8 @@ from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
 
 from .bootstrap import umount_chroot_basedir
-from .manifest import UPDATE_FILE
-from .utils import run_in_chroot, get_image_version
+from .manifest import get_image_version, update_file_path
+from .utils import run_in_chroot
 
 
 def install_iso_packages():
@@ -51,8 +50,7 @@ def make_iso_file():
         f.write('truenas.local')
 
     # Copy the CD files
-    distutils.dir_util._path_created = {}
-    distutils.dir_util.copy_tree(CD_FILES_DIR, CHROOT_BASEDIR, preserve_symlinks=True)
+    run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
 
     # Create the CD assembly dir
     if os.path.exists(CD_DIR):
@@ -79,7 +77,7 @@ def make_iso_file():
     ):
         os.unlink(f)
 
-    shutil.copy(UPDATE_FILE, os.path.join(CD_DIR, 'TrueNAS-SCALE.update'))
+    shutil.copy(update_file_path(), os.path.join(CD_DIR, 'TrueNAS-SCALE.update'))
     os.makedirs(os.path.join(CHROOT_BASEDIR, RELEASE_DIR), exist_ok=True)
     os.makedirs(os.path.join(CHROOT_BASEDIR, CD_DIR), exist_ok=True)
 

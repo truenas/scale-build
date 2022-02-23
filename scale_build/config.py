@@ -22,4 +22,4 @@ TRY_BRANCH_OVERRIDE = os.getenv('TRY_BRANCH_OVERRIDE')
 if os.getenv('TRUENAS_VERSION'):
     VERSION = os.getenv('TRUENAS_VERSION')
 else:
-    VERSION = f'22.02-MASTER-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}'
+    VERSION = f'22.12-MASTER-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}'

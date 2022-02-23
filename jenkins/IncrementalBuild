@@ -26,7 +26,7 @@ pipeline {
     }
     stage('Upload Packages') {
       steps {
-        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@10.238.19.9:repo/'
+        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@apt-mirror.tn.ixsystems.net:repo/'
       }
     }
     stage('Update') {
@@ -41,7 +41,7 @@ pipeline {
     }
     stage('Upload') {
       steps {
-        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
+        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE-*.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
       }
     }
   }

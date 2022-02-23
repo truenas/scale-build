@@ -1,0 +1,14 @@
+[Unit]
+Description=Mount installation media
+DefaultDependencies=no
+
+Before=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=300
+ExecStart=/sbin/mount-cd
+
+[Install]
+WantedBy=multi-user.target

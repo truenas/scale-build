@@ -5,11 +5,11 @@ import os
 import shutil
 import subprocess
 
+from scale_build.exceptions import CallError
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
 
-UPDATE_FILE = os.path.join(RELEASE_DIR, 'TrueNAS-SCALE.update')
-UPDATE_FILE_HASH = f'{UPDATE_FILE}.sha256'
+RELEASE_MANIFEST = os.path.join(RELEASE_DIR, 'manifest.json')
 
 
 def build_manifest():
@@ -46,16 +46,34 @@ def build_manifest():
             )[0].split('/')[-1][len('vmlinuz-'):],
         }))
 
+    return version
 
-def build_update_manifest(update_file_checksum):
+
+def build_release_manifest(update_file, update_file_checksum):
     with open(os.path.join(UPDATE_DIR, 'manifest.json')) as f:
         manifest = json.load(f)
 
-    with open(os.path.join(RELEASE_DIR, 'manifest.json'), 'w') as f:
+    with open(RELEASE_MANIFEST, 'w') as f:
         json.dump({
-            'filename': os.path.basename(UPDATE_FILE),
+            'filename': os.path.basename(update_file),
             'version': manifest['version'],
             'date': manifest['date'],
             'changelog': '',
             'checksum': update_file_checksum,
         }, f)
+
+
+def get_image_version():
+    if not os.path.exists(RELEASE_MANIFEST):
+        raise CallError(f'{RELEASE_MANIFEST!r} does not exist')
+
+    with open(RELEASE_MANIFEST) as f:
+        return json.load(f)['version']
+
+
+def update_file_path(version=None):
+    return os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{version or get_image_version()}.update')
+
+
+def update_file_checksum_path(version=None):
+    return f'{update_file_path(version)}.sha256'

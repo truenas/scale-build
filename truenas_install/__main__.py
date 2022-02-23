@@ -8,6 +8,7 @@ import os
 import platform
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -72,6 +73,48 @@ def get_partition_guid(disk, partition):
     ))["Partition GUID code"].split()[0]
 
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
+def query_config_table(table, database_path, prefix=None):
+    database_path = database_path
+    conn = sqlite3.connect(database_path)
+    try:
+        conn.row_factory = dict_factory
+        c = conn.cursor()
+        try:
+            c.execute(f"SELECT * FROM {table}")
+            result = c.fetchone()
+        finally:
+            c.close()
+    finally:
+        conn.close()
+    if prefix:
+        result = {k.replace(prefix, ""): v for k, v in result.items()}
+    return result
+
+
+def configure_serial_port(root, db_path):
+    if not os.path.exists(db_path):
+        return
+
+    # We would like to explicitly enable/disable serial-getty in the new BE based on db configuration
+    advanced = query_config_table("system_advanced", db_path, prefix="adv_")
+    if advanced["serialconsole"]:
+        run_command(
+            ["chroot", root, "systemctl", "enable", f"serial-getty@{advanced['serialport']}.service"], check=False
+        )
+
+
+def enable_system_user_services(root, old_root):
+    configure_serial_port(root, os.path.join(old_root, "data/freenas-v1.db"))
+    enable_user_services(root, old_root)
+
+
 def enable_user_services(root, old_root):
     user_services_file = os.path.join(old_root, "data/user-services.json")
     if not os.path.exists(user_services_file):
@@ -83,7 +126,7 @@ def enable_user_services(root, old_root):
         ]
 
     if systemd_units:
-        run_command(["chroot", root, "systemctl", "enable"] + systemd_units)
+        run_command(["chroot", root, "systemctl", "enable"] + systemd_units, check=False)
 
 
 def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
@@ -278,7 +321,7 @@ def main():
                     os.unlink(f"{root}/var/lib/dbus/machine-id")
 
                 is_freebsd_upgrade = False
-                setup_machine_id = False
+                setup_machine_id = configure_serial = False
                 if old_root is not None:
                     if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         is_freebsd_upgrade = True
@@ -310,7 +353,7 @@ def main():
                         with open(f"{root}/data/freebsd-to-scale-update", "w"):
                             pass
                     else:
-                        enable_user_services(root, old_root)
+                        enable_system_user_services(root, old_root)
                 else:
                     run_command(["cp", "/etc/hostid", f"{root}/etc/"])
 
@@ -319,7 +362,7 @@ def main():
                     with open(f"{root}/data/truenas-eula-pending", "w"):
                         pass
 
-                    setup_machine_id = True
+                    setup_machine_id = configure_serial = True
 
                 if setup_machine_id:
                     with contextlib.suppress(FileNotFoundError):
@@ -336,6 +379,9 @@ def main():
                     if sql is not None:
                         run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
 
+                    if configure_serial:
+                        configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
+
                     undo = []
                     try:
                         run_command(["mount", "-t", "proc", "none", f"{root}/proc"])
@@ -344,7 +390,6 @@ def main():
                         run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
                         undo.append(["umount", f"{root}/sys"])
 
-                        os.makedirs(f"{root}/boot/grub", exist_ok=True)
                         run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                         undo.append(["umount", f"{root}/boot/grub"])
 
@@ -356,7 +401,8 @@ def main():
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
                         if is_freebsd_upgrade:
-                            run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
+                            if old_bootfs_prop != "-":
+                                run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
                         cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
                         if cp.returncode > 1:
