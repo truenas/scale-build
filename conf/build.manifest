@@ -1,5 +1,5 @@
 ---
-code_name: "Angelfish"
+code_name: "Bluefin"
 debian_release: "bullseye"
 #
 # List of apt repositories that are used and setup inside the build environment
@@ -7,35 +7,35 @@ debian_release: "bullseye"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/
+  url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian/
   distribution: bullseye
   components: main
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/docker/
     distribution: buster
     component: stable
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/gluster/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/gluster/
     distribution: bullseye
     component: main
     key: keys/gluster.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/libnvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/libnvidia/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-container/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nvidia-container/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nvidia-docker/
     distribution: bullseye
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/helm/
     distribution: all
     component: main
     key: keys/helm.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-security/
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-security/
     distribution: bullseye-security
     component: main
 
