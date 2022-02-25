@@ -102,8 +102,9 @@ def post_rootfs_setup():
         os.chmod(binary_path, stat.S_IMODE(os.lstat(binary_path).st_mode) & no_executable_flag)
     # We want to disable the docker-compose binary so that users want get confused about it
     # not working correctly on SCALE and push them to use other alternatives like Apps, VM or docker-in-docker
-    binary_path = os.path.join(binaries_path, "docker-compose")
-    os.chmod(binary_path, stat.S_IMODE(os.lstat(binary_path).st_mode) & no_executable_flag)
+    ## Please note that this binary is present in two locations and both need to be disabled for correct results.
+    os.chmod(binary_path, stat.S_IMODE(os.lstat("/usr/bin/docker-compose").st_mode) & no_executable_flag)
+    os.chmod(binary_path, stat.S_IMODE(os.lstat("/bin/docker-compose").st_mode) & no_executable_flag)
 
 def custom_rootfs_setup():
     # Any kind of custom mangling of the built rootfs image can exist here
