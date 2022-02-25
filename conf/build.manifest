@@ -184,6 +184,8 @@ additional-packages:
   comment: NAS-113855 ( requested by engineering team )
 - package: sdparm
   comment: NAS-114723
+- package: powertop
+  comment: requested by community (NAS-113898)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
