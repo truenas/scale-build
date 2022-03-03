@@ -1,6 +1,5 @@
 # -*- coding=utf-8 -*-
 import contextlib
-import glob
 import itertools
 import json
 import logging
@@ -384,6 +383,9 @@ def main():
 
                     undo = []
                     try:
+                        run_command(["mount", "-t", "devtmpfs", "udev", f"{root}/dev"])
+                        undo.append(["umount", f"{root}/dev"])
+
                         run_command(["mount", "-t", "proc", "none", f"{root}/proc"])
                         undo.append(["umount", f"{root}/proc"])
 
@@ -392,11 +394,6 @@ def main():
 
                         run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                         undo.append(["umount", f"{root}/boot/grub"])
-
-                        for device in sum([glob.glob(f"/dev/{disk}*") for disk in disks], []) + ["/dev/zfs"]:
-                            run_command(["touch", f"{root}{device}"])
-                            run_command(["mount", "-o", "bind", device, f"{root}{device}"])
-                            undo.append(["umount", f"{root}{device}"])
 
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
