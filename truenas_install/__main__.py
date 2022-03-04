@@ -205,7 +205,7 @@ def install_grub_freebsd(input, manifest, pool_name, dataset_name, disks):
     os.chmod(grub_script_path, 0o0755)
 
     os.makedirs("/boot/grub", exist_ok=True)
-    run_command(["zfs", "destroy", f"{pool_name}/grub"], check=False)
+    run_command(["zfs", "destroy", "-r", f"{pool_name}/grub"], check=False)
     run_command(["zfs", "create", "-o", "mountpoint=legacy", f"{pool_name}/grub"])
     run_command(["mount", "-t", "zfs", f"{pool_name}/grub", "/boot/grub"])
     run_command(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"])
