@@ -35,8 +35,8 @@ def build_manifest():
     with open(os.path.join(UPDATE_DIR, 'manifest.json'), "w") as f:
         f.write(json.dumps({
             'date': datetime.utcnow().isoformat(),
-            'version': '22.02.RELEASE',  # So that old `can_update` implementations would be able to update to this
-                                         # version
+            'version': '22.02.RELEASE.1',  # So that old `can_update` implementations would be able to update to this
+                                           # version
             'size': size,
             'checksums': checksums,
             'kernel_version': glob.glob(
