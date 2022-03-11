@@ -156,6 +156,9 @@ apt_preferences:
 - Package: "*polkit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*docker*"
+  Pin: "origin \"\""
+  Pin-Priority: 950
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
@@ -216,6 +219,10 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: docker
+  repo: https://github.com/truenas/moby
+  branch: truenas/20.10
+  generate_version: false
 - name: waagent
   repo: https://github.com/truenas/WALinuxAgent.git
   branch: truenas/master
