@@ -13,6 +13,7 @@ WANTED_PACKAGES = {
     'debootstrap',
     'git',
     'mksquashfs',
+    'rsync',
     'unzip',
 }
 
