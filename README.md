@@ -25,6 +25,7 @@ In addition to the host, you will want to pre-install the following packages:
 * python3-pip
 * python3-venv
 * squashfs-tools
+* rsync
 * unzip
 
 ``` % sudo apt install build-essential debootstrap git python3-pip python3-venv squashfs-tools unzip libjson-perl```
