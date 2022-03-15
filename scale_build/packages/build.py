@@ -6,7 +6,7 @@ from datetime import datetime
 from scale_build.config import BUILD_TIME, VERSION
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
-from scale_build.utils.manifest import get_truenas_train
+from scale_build.utils.manifest import get_manifest, get_truenas_train
 from scale_build.utils.run import run
 from scale_build.utils.paths import PKG_DIR
 
@@ -53,6 +53,7 @@ class BuildPackageMixin:
 
     def _get_build_env(self):
         return {
+            'IX_KERNEL_VERSION': get_manifest()['kernel_version'],
             **os.environ,
             **APT_ENV,
             **self.env,
