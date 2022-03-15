@@ -1,6 +1,7 @@
 ---
 code_name: "Bluefin"
 debian_release: "bullseye"
+kernel_version: "5.10.103+truenas"
 #
 # List of apt repositories that are used and setup inside the build environment
 # for TrueNAS SCALE. These are used to pull additional packages or depend packages

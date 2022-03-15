@@ -16,6 +16,7 @@ MANIFEST_SCHEMA = {
     'properties': {
         'code_name': {'type': 'string'},
         'debian_release': {'type': 'string'},
+        'kernel_version': {'type': 'string'},
         'apt-repos': {
             'type': 'object',
             'properties': {
