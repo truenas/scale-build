@@ -189,6 +189,12 @@ additional-packages:
   comment: NAS-114723
 - package: powertop
   comment: requested by community (NAS-113898)
+- package: rdma-core
+  comment: requested by community (NAS-115260)
+- package: ibutils
+  comment: requested by community (NAS-115260)
+- package: infiniband-diags
+  comment: requested by community (NAS-115260)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
