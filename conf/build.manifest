@@ -148,7 +148,7 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*ssl*"
-  Pin: "release n=bullseye-security"
+  Pin: "origin \"deb.debian.org\""
   Pin-Priority: 1000
 - Package: "*policykit*"
   Pin: "release n=bullseye-security"
