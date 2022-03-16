@@ -144,7 +144,7 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*ssl*"
-  Pin: "release n=bullseye-security"
+  Pin: "origin \"deb.debian.org\""
   Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link

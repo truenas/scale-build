@@ -59,6 +59,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         ])
         with open(apt_sources_path, 'a+') as f:
             f.write(f'\n{deb_security}\n')
+
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
 
         if self.extra_packages_to_install:
