@@ -76,6 +76,8 @@ def build_package(package_queue, to_build, failed, in_progress, built):
             except Exception as e:
                 logger.error('Failed to build %r package', package.name)
                 failed[package.name] = {'package': package, 'exception': e}
+                with LoggingContext(os.path.join('packages', package.name)):
+                    logger.error('%r package failed to build: %r', package.name, e, exc_info=True)
                 break
             else:
                 with APT_LOCK:
