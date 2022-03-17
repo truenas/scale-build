@@ -13,6 +13,9 @@ UPDATE_FILE_HASH = f'{UPDATE_FILE}.sha256'
 
 
 def build_manifest():
+    with open(os.path.join(CHROOT_BASEDIR, 'etc/version')) as f:
+        version = f.read().strip()
+
     size = int(int(subprocess.run(
         ['du', '--block-size', '1', '-d', '0', '-x', CHROOT_BASEDIR],
         check=True, stdout=subprocess.PIPE, encoding='utf-8', errors='ignore',
@@ -35,8 +38,7 @@ def build_manifest():
     with open(os.path.join(UPDATE_DIR, 'manifest.json'), "w") as f:
         f.write(json.dumps({
             'date': datetime.utcnow().isoformat(),
-            'version': '22.02.RELEASE.1',  # So that old `can_update` implementations would be able to update to this
-                                           # version
+            'version': version,
             'size': size,
             'checksums': checksums,
             'kernel_version': glob.glob(
