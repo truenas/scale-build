@@ -38,6 +38,9 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-security/
     distribution: bullseye-security
     component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-backports/
+    distribution: debian-backports
+    component: "main contrib non-free"
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -159,6 +162,15 @@ apt_preferences:
 - Package: "*docker*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "*nvidia*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*cuda*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*libnvcuvid*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
