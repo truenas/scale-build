@@ -39,7 +39,7 @@ apt-repos:
     distribution: bullseye-security
     component: main
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-backports/
-    distribution: debian-backports
+    distribution: bullseye-backports
     component: "main contrib non-free"
 
 #
