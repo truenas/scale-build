@@ -248,9 +248,8 @@ sources:
     # which results in misconfigured version due to our debian based changes
     - "rm -rf .git .gitattributes .gitignore"
     - "make defconfig"
-    - "make syncconfig"
-    - "make archprepare"
-    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/tn.config"
+    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/debian_amd64.config"
+    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/truenas.config"
     - env_checks:
         - key: DEBUG_KERNEL
           value: true
@@ -259,6 +258,8 @@ sources:
         - key: EXTRA_KERNEL_CONFIG
           value: true
       command: "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/extra.config"
+    - "make syncconfig"
+    - "make archprepare"
     - "./scripts/package/mkdebian"
   buildcmd:
     - "cp -a .config /"
