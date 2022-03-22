@@ -7,4 +7,5 @@ deb http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nvidia-docker/ bull
 deb http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-debug/ bullseye-debug main
 deb http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-security/ bullseye-security main
+deb http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-backports/ debian-backports main contrib non-free
 deb http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/helm/ all main
