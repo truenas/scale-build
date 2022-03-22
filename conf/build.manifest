@@ -52,7 +52,7 @@ base-packages:
 - linux-headers-amd64
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
-- linux-tools-5.10
+- linux-perf-5.15
 - avahi-daemon
 - nfs-kernel-server
 - bpftrace
