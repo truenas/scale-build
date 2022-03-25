@@ -57,10 +57,6 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         return other == self.name if isinstance(other, str) else self.name == other.name
 
     @property
-    def pkg_name(self):
-        return self.name
-
-    @property
     def log_file_path(self):
         return os.path.join(PKG_LOG_DIR, f'{self.name}.log')
 
