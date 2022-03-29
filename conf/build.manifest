@@ -249,7 +249,7 @@ sources:
   repo: https://github.com/truenas/inadyn.git
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: NAS-115139
+  branch: SCALE-v5.15-stable
   batch_priority: 0
   env:
     CONFIG_DEBUG_INFO: "Y"
