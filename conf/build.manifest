@@ -38,6 +38,9 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-security/
     distribution: bullseye-security
     component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-backports/
+    distribution: bullseye-backports
+    component: "main contrib non-free"
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -49,7 +52,7 @@ base-packages:
 - linux-headers-amd64
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
-- linux-tools-5.10
+- linux-perf-5.15
 - avahi-daemon
 - nfs-kernel-server
 - bpftrace
@@ -159,6 +162,15 @@ apt_preferences:
 - Package: "*docker*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "*nvidia*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*cuda*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*libnvcuvid*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
@@ -237,7 +249,7 @@ sources:
   repo: https://github.com/truenas/inadyn.git
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: SCALE-v5.10-stable
+  branch: SCALE-v5.15-stable
   batch_priority: 0
   env:
     CONFIG_DEBUG_INFO: "Y"
