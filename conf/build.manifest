@@ -171,6 +171,9 @@ apt_preferences:
 - Package: "*libnvcuvid*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
+- Package: "*golang*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
