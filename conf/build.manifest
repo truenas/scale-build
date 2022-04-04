@@ -325,7 +325,11 @@ sources:
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
+  env:
+    KVER: "$(shell apt info linux-headers-truenas-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+    KDIR: "/lib/modules/$(KVER)/build"
   prebuildcmd:
+    - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
     - "make debian/changelog"
   buildcmd:
     - "make scst-dist-gzip"
