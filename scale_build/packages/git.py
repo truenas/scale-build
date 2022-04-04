@@ -41,13 +41,13 @@ class GitPackageMixin:
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
         branch = branch_override or self.branch
         if branch == self.existing_branch and self.origin == origin_url:
-            logger.debug('Updating git repo [%s] (%s)', self.name, GIT_LOG_PATH)
+            logger.debug('Updating git repo [%s (using branch %s)] (%s)', self.name, branch, GIT_LOG_PATH)
             with LoggingContext('git-checkout', 'w'):
                 run(['git', '-C', self.source_path, 'fetch', 'origin'])
                 run(['git', '-C', self.source_path, 'checkout', branch])
                 run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'])
         else:
-            logger.debug('Checking out git repo [%s] (%s)', self.name, GIT_LOG_PATH)
+            logger.debug('Checking out git repo [%s (using branch %s)] (%s)', self.name, branch, GIT_LOG_PATH)
             if os.path.exists(self.source_path):
                 shutil.rmtree(self.source_path)
             with LoggingContext('git-checkout', 'w'):
@@ -55,7 +55,7 @@ class GitPackageMixin:
                 run(['git', '-C', self.source_path, 'checkout', branch])
 
         self.update_git_manifest()
-        logger.info('%r checkout complete', self.name)
+        logger.info('Checking out of [%s (using branch %s)] complete', self.name, branch)
 
     @property
     def existing_branch(self):
