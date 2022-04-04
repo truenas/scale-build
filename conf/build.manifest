@@ -65,6 +65,7 @@ base-packages:
 - firmware-myricom
 - firmware-netronome
 - firmware-netxen
+- firmware-qlogic
 - firmware-realtek
 - grub-pc-bin
 - grub-efi-amd64-bin
