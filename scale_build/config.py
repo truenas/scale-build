@@ -2,6 +2,8 @@ from os import environ, cpu_count
 from time import time
 from datetime import datetime
 
+_VERS = '22.12-MASTER'
+
 
 def get_env_variable(key, default_value, _type):
     value = environ.get(key)
@@ -38,4 +40,4 @@ SKIP_SOURCE_REPO_VALIDATION = get_env_variable('SKIP_SOURCE_REPO_VALIDATION', 0,
 TRAIN = get_env_variable('TRUENAS_TRAIN', '', str)
 TRUENAS_BRANCH_OVERRIDE = get_env_variable('TRUENAS_BRANCH_OVERRIDE', '', str)
 TRY_BRANCH_OVERRIDE = get_env_variable('TRY_BRANCH_OVERRIDE', '', str)
-VERSION = get_env_variable('TRUENAS_VERSION', f'22.12-MASTER-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}', str)
+VERSION = get_env_variable('TRUENAS_VERSION', f'{_VERS}-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}', str)
