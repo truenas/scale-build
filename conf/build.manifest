@@ -335,7 +335,7 @@ sources:
     - "make scst-dist-gzip"
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
   kernel_module: true
-  branch: truenas-svn-trunk
+  branch: master
   explicit_deps:
     - openzfs
 - name: truenas_binaries
