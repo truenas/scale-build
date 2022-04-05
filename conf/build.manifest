@@ -166,6 +166,24 @@ apt_preferences:
 - Package: "*docker*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "*python3-lxml*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*python3-pil*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*apache2*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*libnss3*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*libexpat1*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*openjdk-11-jre-headless*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
