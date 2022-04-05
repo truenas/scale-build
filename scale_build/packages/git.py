@@ -55,7 +55,7 @@ class GitPackageMixin:
                 run(['git', '-C', self.source_path, 'checkout', branch])
 
         self.update_git_manifest()
-        logger.info('Checking out of [%s (using branch %s)] complete', self.name, branch)
+        logger.info('Checkout of [%s (using branch %s)] complete', self.name, branch)
 
     @property
     def existing_branch(self):
