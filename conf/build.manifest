@@ -163,6 +163,9 @@ apt_preferences:
 - Package: "*golang*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
+- Package: "*docker*"
+  Pin: "origin \"\""
+  Pin-Priority: 950
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
@@ -223,6 +226,10 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: docker
+  repo: https://github.com/truenas/moby
+  branch: stable/angelfish
+  generate_version: false
 - name: waagent
   repo: https://github.com/truenas/WALinuxAgent.git
   branch: stable/angelfish
