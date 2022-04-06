@@ -52,22 +52,9 @@ class BootstrapDir(CacheMixin, HashMixin):
         with open(os.path.join(apt_path, 'preferences'), 'w') as f:
             f.write(get_apt_preferences())
 
-        self.logger.debug('Adding debian-security to sources')
-        deb_security = '\n'.join([
-            'deb http://deb.debian.org/debian-security/ bullseye-security main',
-            'deb-src http://deb.debian.org/debian-security/ bullseye-security main',
-        ])
-        with open(apt_sources_path, 'a+') as f:
-            f.write(f'\n{deb_security}\n')
-
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
-
-        if self.extra_packages_to_install:
-            run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
-
-        installed_packages = self.get_packages()
-
-        self.after_extra_packages_installation_steps()
+        # We need to have gnupg installed before adding apt mirrors because apt-key needs it
+        run(['chroot', self.chroot_basedir, 'apt', 'install', '-y', 'gnupg'])
 
         # Save the correct repo in sources.list
         apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
@@ -87,6 +74,13 @@ class BootstrapDir(CacheMixin, HashMixin):
 
         # Update apt
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
+
+        if self.extra_packages_to_install:
+            run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
+
+        installed_packages = self.get_packages()
+
+        self.after_extra_packages_installation_steps()
 
         # Put our local package up at the top of the food chain
         apt_sources.insert(0, 'deb [trusted=yes] file:/packages /')
