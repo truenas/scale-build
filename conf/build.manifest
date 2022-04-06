@@ -181,7 +181,7 @@ apt_preferences:
 - Package: "*libexpat1*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
-- Package: "*openjdk-11-jre-headless*"
+- Package: "*openjdk-11*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 #
