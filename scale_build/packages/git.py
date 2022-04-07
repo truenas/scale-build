@@ -9,7 +9,7 @@ from scale_build.utils.git_utils import (
     retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 )
 from scale_build.utils.logger import LoggingContext
-from scale_build.utils.paths import GIT_LOG_PATH
+from scale_build.utils.paths import GIT_LOG_DIR_NAME, GIT_LOG_DIR
 from scale_build.utils.run import run
 
 
@@ -37,20 +37,28 @@ class GitPackageMixin:
         info = self.retrieve_current_remote_origin_and_sha()
         update_git_manifest(info['url'], info['sha'])
 
+    @property
+    def git_log_file(self):
+        return os.path.join(GIT_LOG_DIR_NAME, self.name)
+
+    @property
+    def git_log_file_path(self):
+        return os.path.join(GIT_LOG_DIR, f'{self.name}.log')
+
     def checkout(self, branch_override=None):
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
         branch = branch_override or self.branch
         if branch == self.existing_branch and self.origin == origin_url:
-            logger.debug('Updating git repo [%s (using branch %s)] (%s)', self.name, branch, GIT_LOG_PATH)
-            with LoggingContext('git-checkout', 'w'):
+            logger.debug('Updating git repo [%s (using branch %s)] (%s)', self.name, branch, self.git_log_file_path)
+            with LoggingContext(self.git_log_file, 'w'):
                 run(['git', '-C', self.source_path, 'fetch', 'origin'])
                 run(['git', '-C', self.source_path, 'checkout', branch])
                 run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'])
         else:
-            logger.debug('Checking out git repo [%s (using branch %s)] (%s)', self.name, branch, GIT_LOG_PATH)
+            logger.debug('Checking out git repo [%s (using branch %s)] (%s)', self.name, branch, self.git_log_file_path)
             if os.path.exists(self.source_path):
                 shutil.rmtree(self.source_path)
-            with LoggingContext('git-checkout', 'w'):
+            with LoggingContext(self.git_log_file, 'w'):
                 run(['git', 'clone', '--recurse', self.origin, self.source_path])
                 run(['git', '-C', self.source_path, 'checkout', branch])
 
