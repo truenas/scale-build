@@ -410,16 +410,16 @@ sources:
   branch: stable/angelfish
 - name: kube_router
   repo: https://github.com/truenas/kube-router
-  branch: stable/angelfish
+  branch: truenas/master
 - name: kubernetes_asyncio
   repo: https://github.com/truenas/kubernetes_asyncio
-  branch: stable/angelfish
+  branch: truenas/master
 - name: aiodocker
   repo: https://github.com/truenas/aiodocker
   branch: stable/angelfish
 - name: k3s
   repo: https://github.com/truenas/k3s
-  branch: stable/angelfish
+  branch: truenas/master
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
   branch: stable/angelfish
