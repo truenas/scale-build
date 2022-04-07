@@ -205,6 +205,8 @@ additional-packages:
   comment: NAS-114723
 - package: powertop
   comment: requested by community (NAS-113898)
+- package: pv
+  comment: requested by community (NAS-115638)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
