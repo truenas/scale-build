@@ -118,19 +118,43 @@ apt_preferences:
 - Package: "*"
   Pin: "release n=bullseye"
   Pin-Priority: 900
+- Package: "*avahi*"
+  Pin: "version 0.8+ix*"
+  Pin-Priority: 950
 - Package: "collectd*"
   Pin: "version 5.99*"
   Pin-Priority: 950
+- Package: "*cuda*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*docker*"
+  Pin: "origin \"\""
+  Pin-Priority: 950
+- Package: "*golang*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "grub*"
   Pin: "version 2.99*"
   Pin-Priority: 950
+- Package: "*inadyn*"
+  Pin: "origin \"\""
+  Pin-Priority: 1000
+- Package: "*libnvcuvid*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "librrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
+- Package: "*nvidia*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*policykit*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*polkit*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "python3-*"
-  Pin: "origin \"\""
-  Pin-Priority: 950
-- Package: "waagent"
   Pin: "origin \"\""
   Pin-Priority: 950
 - Package: "rclone"
@@ -139,41 +163,17 @@ apt_preferences:
 - Package: "rrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
-- Package: "*truenas-samba*"
-  Pin: "version 4.15.*"
-  Pin-Priority: 950
-- Package: "*avahi*"
-  Pin: "version 0.8+ix*"
-  Pin-Priority: 950
-- Package: "*zfs*"
-  Pin: "version 2.1.*"
-  Pin-Priority: 1000
-- Package: "*inadyn*"
-  Pin: "origin \"\""
-  Pin-Priority: 1000
 - Package: "*ssl*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
-- Package: "*policykit*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
-- Package: "*polkit*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
-- Package: "*docker*"
+- Package: "*truenas-samba*"
+  Pin: "version 4.15.*"
+  Pin-Priority: 950
+- Package: "waagent"
   Pin: "origin \"\""
   Pin-Priority: 950
-- Package: "*nvidia*"
-  Pin: "release n=bullseye-backports"
-  Pin-Priority: 1000
-- Package: "*cuda*"
-  Pin: "release n=bullseye-backports"
-  Pin-Priority: 1000
-- Package: "*libnvcuvid*"
-  Pin: "release n=bullseye-backports"
-  Pin-Priority: 1000
-- Package: "*golang*"
-  Pin: "release n=bullseye-backports"
+- Package: "*zfs*"
+  Pin: "version 2.1.*"
   Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
