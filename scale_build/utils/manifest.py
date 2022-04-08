@@ -133,11 +133,18 @@ def get_manifest_str():
         raise MissingManifest()
 
 
+def validate_apt_preferences_order(manifest):
+    packages = [p['Package'] for p in manifest['apt_preferences']]
+    if sorted(packages, key=lambda k: k.strip('*')) != packages:
+        raise CallError('Please list down apt preferences in alphabetical order')
+
+
 @functools.cache
 def get_manifest():
     try:
         manifest = yaml.safe_load(get_manifest_str())
         jsonschema.validate(manifest, MANIFEST_SCHEMA)
+        validate_apt_preferences_order(manifest)
         return manifest
     except yaml.YAMLError:
         raise CallError('Provided manifest has invalid format')
