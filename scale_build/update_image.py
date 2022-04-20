@@ -1,15 +1,43 @@
+import difflib
 import logging
 import os
 
 from .bootstrap.bootstrapdir import PackageBootstrapDirectory
+from .exceptions import CallError
 from .image.bootstrap import clean_mounts, setup_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
 from .image.manifest import update_file_path
 from .image.update import install_rootfs_packages, build_rootfs_image
 from .utils.logger import LoggingContext
-from .utils.paths import CHROOT_BASEDIR, LOG_DIR, RELEASE_DIR
-
+from .utils.paths import CHROOT_BASEDIR, LOG_DIR, REFERENCE_FILES_DIR, RELEASE_DIR
 
 logger = logging.getLogger(__name__)
+
+REFERENCE_FILES = ('etc/group', 'etc/passwd')
+
+
+def compare_reference_files(cut_nonexistent_user_group_membership=False):
+    for reference_file in REFERENCE_FILES:
+        with open(os.path.join(REFERENCE_FILES_DIR, reference_file)) as f:
+            reference = f.readlines()
+
+        if cut_nonexistent_user_group_membership:
+            if reference_file == 'etc/group':
+                # `etc/group` on newly installed system can't have group membership information for users that have
+                # not been created yet.
+                with open(os.path.join(CHROOT_BASEDIR, 'etc/passwd')) as f:
+                    reference_users = {line.split(':')[0] for line in f.readlines()}
+
+                for i, line in enumerate(reference):
+                    bits = line.rstrip().split(':')
+                    bits[3] = ','.join([user for user in bits[3].split(',') if user in reference_users])
+                    reference[i] = ':'.join(bits) + '\n'
+
+        with open(os.path.join(CHROOT_BASEDIR, reference_file)) as f:
+            real = f.readlines()
+
+        diff = list(difflib.unified_diff(reference, real))
+
+        yield reference_file, diff[3:]
 
 
 def build_update_image():
@@ -33,7 +61,39 @@ def build_update_image_impl():
     try:
         with LoggingContext('rootfs-packages', 'w'):
             setup_chroot_basedir(package_bootstrap_obj)
+
+            # These files will be overwritten so we should make sure that new build does not have any entities that
+            # are not in our reference files.
+            for reference_file, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
+                if any(line.startswith('+') for line in diff):
+                    raise CallError(
+                        f'Reference file {reference_file!r} has new lines in newly installed system.\n'
+                        f'Full diff below:\n' +
+                        ''.join(diff) + '\n' +
+                        'Please update corresponding file in `conf/reference-files/` directory of scale-build '
+                        'repository.'
+                    )
+
+            # built-in users and groups are typically created by debian packages postinst scripts.
+            # As newly created user/group uid/gid uses autoincrement counter and debian packages install order is
+            # undetermined, different builds are not guaranteed to have the same uid/gids. We overcome this issue by
+            # persisting `group` and `passwd` files between builds.
+            for reference_file in REFERENCE_FILES:
+                with open(os.path.join(CHROOT_BASEDIR, reference_file), 'w') as dst:
+                    with open(os.path.join(REFERENCE_FILES_DIR, reference_file)) as src:
+                        dst.write(src.read())
+
             install_rootfs_packages()
+
+            for reference_file, diff in compare_reference_files():
+                if diff:
+                    raise CallError(
+                        f'Reference file {reference_file!r} changed.\n'
+                        f'Full diff below:\n' +
+                        ''.join(diff) + '\n' +
+                        'Please update corresponding file in `conf/reference-files/` directory of scale-build '
+                        'repository.'
+                    )
 
         logger.debug('Building TrueNAS rootfs image [UPDATE] (%s/rootfs-image.log)', LOG_DIR)
         with LoggingContext('rootfs-image', 'w'):
