@@ -9,7 +9,7 @@ import stat
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
-from scale_build.utils.paths import CHROOT_BASEDIR, CONF_SOURCES, RELEASE_DIR, UPDATE_DIR
+from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import build_manifest, build_release_manifest, update_file_path, update_file_checksum_path
@@ -86,10 +86,18 @@ def install_rootfs_packages_impl():
     # Do any pruning of rootfs
     clean_rootfs()
 
-    # Copy the default sources.list file
-    shutil.copy(CONF_SOURCES, os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'))
+    with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'), 'w') as f:
+        f.write('\n'.join(get_apt_sources()))
 
     post_rootfs_setup()
+
+
+def get_apt_sources():
+    apt_repos = get_manifest()['apt-repos']
+    apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+    for repo in apt_repos['additional']:
+        apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
+    return apt_sources
 
 
 def post_rootfs_setup():

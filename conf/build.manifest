@@ -41,6 +41,9 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-backports/
     distribution: bullseye-backports
     component: "main contrib non-free"
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-debug/
+    distribution: bullseye-debug
+    component: main
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
