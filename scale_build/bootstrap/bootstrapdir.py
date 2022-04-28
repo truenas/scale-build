@@ -74,6 +74,9 @@ class BootstrapDir(CacheMixin, HashMixin):
 
         # Update apt
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
+        # Upgrade apt so that packages which were pulled in by debootstrap i.e libssl, they also
+        # respect the apt preferences we have specified
+        run(['chroot', self.chroot_basedir, 'apt', 'upgrade', '-y'])
 
         if self.extra_packages_to_install:
             run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
