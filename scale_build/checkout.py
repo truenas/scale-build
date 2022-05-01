@@ -1,6 +1,7 @@
 import logging
 import concurrent.futures
 
+from .exceptions import CallError
 from .utils.git_utils import retrieve_git_remote_and_sha, update_git_manifest
 from .utils.package import get_packages
 
@@ -33,4 +34,16 @@ def checkout_sources():
 
         logger.info('Starting checkout of sources')
         futures = [exc.submit(v['checkout_method'], v['branch_override']) for pkg, v in pkgs.items()]
-        concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
+        failures = []
+        for future, pkg in zip(futures, pkgs):
+            try:
+                future.result()
+            except Exception as e:
+                failures.append((pkg, str(e)))
+
+    if failures:
+        raise CallError(
+            'Failed to checkout following packages:\n' + '\n'.join(
+                f'{i+1}) {v[0]} ({v[1]})' for i, v in enumerate(failures)
+            )
+        )
