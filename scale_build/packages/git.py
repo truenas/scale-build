@@ -84,7 +84,7 @@ class GitPackageMixin:
                 for cmd in cmds:
                     cp = run(cmd, check=False)
                     if cp.returncode:
-                        failed = (f'{" ".join(cmd)!r}', f'{cp.stderr!r}', f'{cp.returncode!r}')
+                        failed = (f'{" ".join(cmd)}', f'{cp.stderr}', f'{cp.returncode}')
                         break
 
             if failed:
@@ -99,7 +99,7 @@ class GitPackageMixin:
 
         self.update_git_manifest()
         log = 'Checkout ' if not update else 'Updating '
-        logger.info(log + 'of %r (using branch %r) complete', self.name, branch)
+        logger.info(log + 'of git repo %r (using branch %r) complete', self.name, branch)
 
     @property
     def existing_branch(self):
