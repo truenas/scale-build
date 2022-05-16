@@ -88,7 +88,10 @@ class GitPackageMixin:
                         break
 
             if failed:
-                err = f'Failed cmd {failed[0]!r} with error {failed[1]!r} with returncode {failed[2]!r}'
+                failed_log_file = self.git_log_file + f'.failed.{i}'
+                err = f'Failed cmd {failed[0]!r} with error {failed[1]!r} with returncode {failed[2]!r}.'
+                err += f' Check {failed_log_file!r} for details.'
+                shutil.copyfile(self.git_log_file, failed_log_file)
                 if i == retries:
                     raise CallError(err)
                 else:
