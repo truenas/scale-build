@@ -67,14 +67,20 @@ class GitPackageMixin:
         # amounts of packets (~75%+). This is happening network wide so we've got the
         # retries.
         # NOTE: when the issue is fixed, we could remove this retry logic
-        retries = 3 if retries <= 0 or retries > 10 else retries
+        _min = 3
+        _max = 10
+        if retries < _min or retries > _max:
+            raise RuntimeError(f'The number of retries must be between {_min!r} and {_max!r}')
+
         for i in range(1, retries + 1):
             if i == 1:
                 log = 'Updating git repo' if update else 'Checking out git repo'
                 logger_method = logger.debug
+                open_mode = 'w'
             else:
                 log = 'Retrying to update git repo' if update else 'Retrying to checkout git repo'
                 logger_method = logger.warning
+                open_mode = 'a'
 
             log += f' {self.name!r} (using branch {branch!r}) ({self.git_log_file_path})'
             logger_method(log)
@@ -86,7 +92,10 @@ class GitPackageMixin:
                     shutil.rmtree(self.source_path)
 
             failed = False
-            with LoggingContext(self.git_log_file, 'w'):
+            with LoggingContext(self.git_log_file, open_mode):
+                if open_mode == 'a':
+                    logger.warning(f'\n\n #####Attempt {i}##### \n\n')
+
                 for cmd in cmds:
                     cp = run(cmd, check=False)
                     if cp.returncode:
@@ -94,10 +103,8 @@ class GitPackageMixin:
                         break
 
             if failed:
-                failed_log_file = self.git_log_file + f'.failed.{i}'
                 err = f'Failed cmd {failed[0]!r} with error {failed[1]!r} with returncode {failed[2]!r}.'
-                err += f' Check {failed_log_file!r} for details.'
-                shutil.copyfile(self.git_log_file, failed_log_file)
+                err += f' Check {self.git_log_file!r} for details.'
                 if i == retries:
                     raise CallError(err)
                 else:
