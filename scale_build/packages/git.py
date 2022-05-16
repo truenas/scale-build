@@ -61,6 +61,12 @@ class GitPackageMixin:
                 ['git', '-C', self.source_path, 'checkout', branch],
             )
 
+        # We're doing retries here because at the time of writing this the iX network
+        # is having issues with an external hop through the routing of the interwebz
+        # getting to github.com. They've found a particular hop is dropping significant
+        # amounts of packets (~75%+). This is happening network wide so we've got the
+        # retries.
+        # NOTE: when the issue is fixed, we could remove this retry logic
         retries = 3 if retries <= 0 or retries > 10 else retries
         for i in range(1, retries + 1):
             if i == 1:
