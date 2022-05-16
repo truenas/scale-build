@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import contextlib
 
 from scale_build.config import BRANCH_OVERRIDES, TRUENAS_BRANCH_OVERRIDE, TRY_BRANCH_OVERRIDE
 from scale_build.exceptions import CallError
@@ -11,7 +12,6 @@ from scale_build.utils.git_utils import (
 from scale_build.utils.logger import LoggingContext
 from scale_build.utils.paths import GIT_LOG_DIR_NAME, GIT_LOG_DIR
 from scale_build.utils.run import run
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,25 +45,77 @@ class GitPackageMixin:
     def git_log_file_path(self):
         return os.path.join(GIT_LOG_DIR, f'{self.name}.log')
 
-    def checkout(self, branch_override=None):
+    def checkout(self, branch_override=None, retries=3):
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
         branch = branch_override or self.branch
-        if branch == self.existing_branch and self.origin == origin_url:
-            logger.debug('Updating git repo [%s (using branch %s)] (%s)', self.name, branch, self.git_log_file_path)
-            with LoggingContext(self.git_log_file, 'w'):
-                run(['git', '-C', self.source_path, 'fetch', 'origin'])
-                run(['git', '-C', self.source_path, 'checkout', branch])
-                run(['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'])
+        update = (branch == self.existing_branch) and self.origin == origin_url
+        if update:
+            cmds = (
+                ['git', '-C', self.source_path, 'fetch', 'origin'],
+                ['git', '-C', self.source_path, 'checkout', branch],
+                ['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'],
+            )
         else:
-            logger.debug('Checking out git repo [%s (using branch %s)] (%s)', self.name, branch, self.git_log_file_path)
-            if os.path.exists(self.source_path):
-                shutil.rmtree(self.source_path)
-            with LoggingContext(self.git_log_file, 'w'):
-                run(['git', 'clone', '--recurse', self.origin, self.source_path])
-                run(['git', '-C', self.source_path, 'checkout', branch])
+            cmds = (
+                ['git', 'clone', '--recurse', self.origin, self.source_path],
+                ['git', '-C', self.source_path, 'checkout', branch],
+            )
+
+        # We're doing retries here because at the time of writing this the iX network
+        # is having issues with an external hop through the routing of the interwebz
+        # getting to github.com. They've found a particular hop is dropping significant
+        # amounts of packets (~75%+). This is happening network wide so we've got the
+        # retries.
+        # NOTE: when the issue is fixed, we could remove this retry logic
+        _min = 3
+        _max = 10
+        if retries < _min or retries > _max:
+            raise RuntimeError(f'The number of retries must be between {_min!r} and {_max!r}')
+
+        for i in range(1, retries + 1):
+            if i == 1:
+                log = 'Updating git repo' if update else 'Checking out git repo'
+                logger_method = logger.debug
+                open_mode = 'w'
+            else:
+                log = 'Retrying to update git repo' if update else 'Retrying to checkout git repo'
+                logger_method = logger.warning
+                open_mode = 'a'
+
+            log += f' {self.name!r} (using branch {branch!r}) ({self.git_log_file_path})'
+            logger_method(log)
+
+            if not update:
+                # if we're not updating then we need to remove the existing
+                # git directory (if it exists) before trying to checkout
+                with contextlib.suppress(FileNotFoundError):
+                    shutil.rmtree(self.source_path)
+
+            failed = False
+            with LoggingContext(self.git_log_file, open_mode):
+                if open_mode == 'a':
+                    logger.warning(f'\n\n #####Attempt {i}##### \n\n')
+
+                for cmd in cmds:
+                    cp = run(cmd, check=False)
+                    if cp.returncode:
+                        failed = (f'{" ".join(cmd)}', f'{cp.stderr}', f'{cp.returncode}')
+                        break
+
+            if failed:
+                err = f'Failed cmd {failed[0]!r} with error {failed[1]!r} with returncode {failed[2]!r}.'
+                err += f' Check {self.git_log_file!r} for details.'
+                if i == retries:
+                    raise CallError(err)
+                else:
+                    logger.warning(err)
+                    continue
+            else:
+                break
 
         self.update_git_manifest()
-        logger.info('Checkout of [%s (using branch %s)] complete', self.name, branch)
+        log = 'Checkout ' if not update else 'Updating '
+        logger.info(log + 'of git repo %r (using branch %r) complete', self.name, branch)
 
     @property
     def existing_branch(self):
