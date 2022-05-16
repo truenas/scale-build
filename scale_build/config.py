@@ -2,7 +2,7 @@ from os import environ, cpu_count
 from time import time
 from datetime import datetime
 
-_VERS = '22.02.1-MASTER'
+_VERS = '22.02.2-MASTER'
 
 
 def get_env_variable(key, default_value, _type):
