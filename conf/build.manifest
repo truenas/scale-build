@@ -166,6 +166,9 @@ apt_preferences:
 - Package: "rrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
+- Package: "smartmontools*"
+  Pin: "version 7.99*"
+  Pin-Priority: 950
 - Package: "*ssl*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
@@ -472,6 +475,14 @@ sources:
   generate_version: false
 - name: rrdcached
   repo: https://github.com/truenas/rrdtool
+  branch: master
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
+- name: smartmontools
+  repo: https://github.com/truenas/smartmontools
   branch: master
   predepscmd:
     - "apt install -y wget xz-utils"
