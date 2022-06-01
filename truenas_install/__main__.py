@@ -425,7 +425,7 @@ def main():
                                             os.unlink(os.path.join("/sys/firmware/efi/efivars", item))
 
                             os.makedirs(f"{root}/boot/efi", exist_ok=True)
-                            for disk in disks:
+                            for i, disk in enumerate(disks):
                                 install_grub_i386 = True
                                 efi_partition_number = 2
                                 format_efi_partition = True
@@ -465,14 +465,20 @@ def main():
                                                 "--efi-directory=/boot/efi",
                                                 "--bootloader-id=debian",
                                                 "--recheck",
-                                                "--no-floppy"]
-                                    if not os.path.exists("/sys/firmware/efi"):
-                                        grub_cmd.append("--no-nvram")
+                                                "--no-floppy",
+                                                "--no-nvram"]
                                     run_command(grub_cmd)
 
                                     run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
                                     run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
                                                  "/boot/efi/EFI/boot/bootx64.efi"])
+
+                                    if os.path.exists("/sys/firmware/efi"):
+                                        run_command(["chroot", root, "efibootmgr", "-c",
+                                                     "-d", f"/dev/{disk}",
+                                                     "-p", f"{efi_partition_number}",
+                                                     "-L", f"TrueNAS-{i}",
+                                                     "-l", "/EFI/debian/grubx64.efi"])
                                 finally:
                                     run_command(["chroot", root, "umount", "/boot/efi"])
                     finally:
