@@ -148,8 +148,8 @@ apt_preferences:
 - Package: "librrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
-- Package: "*nvidia*"
-  Pin: "release n=bullseye-backports"
+- Package: "*nslcd*"
+  Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*policykit*"
   Pin: "release n=bullseye-security"
