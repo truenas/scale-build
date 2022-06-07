@@ -432,10 +432,6 @@ sources:
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: stable/angelfish
-- name: truenas_devel
-  repo: https://github.com/truenas/middleware
-  branch: master
-  subdir: src/truenas-devel
 - name: truenas_files
   repo: https://github.com/truenas/middleware
   branch: stable/angelfish
