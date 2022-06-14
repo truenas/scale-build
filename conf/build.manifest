@@ -358,7 +358,6 @@ sources:
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   prebuildcmd:
-    - "npm install -g yarn"
     - "yarn install"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
