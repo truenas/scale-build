@@ -44,6 +44,12 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/debian-debug/
     distribution: bullseye-debug
     component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs/
+    distribution: bullseye
+    component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/yarn/
+    distribution: stable
+    component: main
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -148,6 +154,9 @@ apt_preferences:
 - Package: "librrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
+- Package: "*node*"
+  Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
+  Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
@@ -349,7 +358,6 @@ sources:
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   prebuildcmd:
-    - "npm install -g yarn"
     - "yarn install"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
