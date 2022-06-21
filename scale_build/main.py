@@ -54,7 +54,10 @@ def main():
 
     subparsers.add_parser('checkout', help='Checkout TrueNAS Scale repositories')
     subparsers.add_parser('clean', help='Clean build package(s) / cloned source(s) / image(s) of TrueNAS Scale')
-    subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
+    packages_parser = subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
+    packages_parser.add_argument(
+        '--packages', '-p', help='Specify specific packages to be built', default=[], nargs='+'
+    )
     subparsers.add_parser('update', help='Create TrueNAS Scale update image')
     subparsers.add_parser('iso', help='Create TrueNAS Scale iso installation file')
     branchout_parser = subparsers.add_parser('branchout', help='Checkout new branch for all packages')
@@ -76,7 +79,7 @@ def main():
     elif args.action == 'packages':
         validate()
         check_epoch()
-        build_packages()
+        build_packages(args.packages)
     elif args.action == 'update':
         validate()
         build_update_image()
