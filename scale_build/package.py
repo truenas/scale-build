@@ -99,12 +99,12 @@ def build_package(package_queue, to_build, failed, in_progress, built):
                 update_queue(package_queue, to_build, failed, in_progress, built)
 
 
-def build_packages():
+def build_packages(desired_packages=None):
     clean_bootstrap_logs()
-    _build_packages_impl()
+    _build_packages_impl(desired_packages)
 
 
-def _build_packages_impl():
+def _build_packages_impl(desired_packages=None):
     logger.info('Building packages (%s/build_packages.log)', LOG_DIR)
     logger.debug('Setting up bootstrap directory')
 
@@ -117,8 +117,8 @@ def _build_packages_impl():
         shutil.rmtree(PKG_LOG_DIR)
     os.makedirs(PKG_LOG_DIR)
 
-    all_packages = get_initialized_packages()
-    to_build = get_to_build_packages(all_packages)
+    all_packages = get_initialized_packages(desired_packages)
+    to_build = get_to_build_packages(all_packages, desired_packages)
     package_queue = queue.Queue()
     in_progress = {}
     failed = {}

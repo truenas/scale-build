@@ -46,6 +46,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self.build_depends = set()
         self.source_package = None
         self.parent_changed = False
+        self.force_build = False
         self._build_time_dependencies = None
         self.build_stage = None
         self.logger = logger
