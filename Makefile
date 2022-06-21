@@ -3,6 +3,7 @@
 #############################################################################
 PYTHON?=/usr/bin/python3
 COMMIT_HASH=$(shell git rev-parse --short HEAD)
+PACKAGES?=""
 REPO_CHANGED=$(shell if [ -d "./venv-$(COMMIT_HASH)" ]; then git status --porcelain | grep -c "scale_build/"; else echo "1"; fi)
 
 .DEFAULT_GOAL := all
@@ -27,7 +28,11 @@ checkout: check
 iso: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build iso
 packages: check
+ifeq ($(PACKAGES),"")
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages
+else
+	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages --packages ${PACKAGES}
+endif
 update: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build update
 validate_manifest: check
