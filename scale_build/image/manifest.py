@@ -60,6 +60,7 @@ def build_release_manifest(update_file, update_file_checksum):
             'date': manifest['date'],
             'changelog': '',
             'checksum': update_file_checksum,
+            'filesize': os.path.getsize(update_file),
         }, f)
 
 
