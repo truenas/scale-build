@@ -187,6 +187,15 @@ apt_preferences:
 - Package: "*openjdk-11*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*nvidia*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*cuda*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*libnvcuvid*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 #
 # List of additional packages installed into TrueNAS SCALE, along with link
 # to the ticket specifying the reason for requesting
