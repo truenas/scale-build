@@ -38,6 +38,9 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-security/
     distribution: bullseye-security
     component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.3/debian-security-22.02.3/
+    distribution: bullseye-security
+    component: main
   - url: http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-backports/
     distribution: bullseye-backports
     component: "main contrib non-free"
@@ -185,7 +188,7 @@ apt_preferences:
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 - Package: "*openjdk-11*"
-  Pin: "release n=bullseye-security"
+  Pin: "version 11.0.14+9-1~deb11u1"
   Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "release n=bullseye-backports"
