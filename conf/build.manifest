@@ -190,6 +190,15 @@ apt_preferences:
 - Package: "*openjdk-11*"
   Pin: "version 11.0.14+9-1~deb11u1"
   Pin-Priority: 1000
+- Package: "*util-linux*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*qemu*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*ntfs-3g*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
