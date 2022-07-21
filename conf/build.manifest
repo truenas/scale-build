@@ -199,6 +199,12 @@ apt_preferences:
 - Package: "*ntfs-3g*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*dpdk*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*librte*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
