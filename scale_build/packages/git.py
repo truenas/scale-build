@@ -123,9 +123,17 @@ class GitPackageMixin:
     @property
     def git_args(self):
         if self.ssh_based_source:
-            return ['git', '-c', 'core.sshCommand=ssh -i ./key -o StrictHostKeyChecking=\'accept-new\'']
+            return [
+                'git', '-c',
+                f'core.sshCommand=ssh -i {self.get_identity_file_path} -o StrictHostKeyChecking=\'accept-new\''
+            ]
         else:
             return ['git']
+
+    @property
+    def get_identity_file_path(self):
+        # We need to use absolute path as git changes it's working directory with -C
+        return os.path.abspath(self.identity_file_path)
 
     @property
     def ssh_based_source(self):
@@ -141,10 +149,10 @@ class GitPackageMixin:
                 f'in order to checkout {self.name!r}'
             )
 
-        if not os.path.exists(self.identity_file_path):
+        if not os.path.exists(self.get_identity_file_path):
             raise CallError(f'{self.identity_file_path!r} identity file path does not exist')
 
-        if oct(os.stat(self.identity_file_path).st_mode & 0o777) != '0o600':
+        if oct(os.stat(self.get_identity_file_path).st_mode & 0o777) != '0o600':
             raise CallError(f'{self.identity_file_path!r} identity file path should have 0o600 permissions')
 
     @property
