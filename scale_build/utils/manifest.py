@@ -81,6 +81,7 @@ MANIFEST_SCHEMA = {
                 'properties': {
                     'name': {'type': 'string'},
                     'repo': {'type': 'string'},
+                    'identity_file_path': {'type': 'string'},
                     'branch': {'type': 'string'},
                     'batch_priority': {'type': 'integer'},
                     'predepscmd': {
