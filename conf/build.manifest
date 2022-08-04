@@ -154,12 +154,18 @@ apt_preferences:
 - Package: "librrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
+- Package: "libssl1.1"
+  Pin:  "origin \"\""
+  Pin-Priority: 1100
 - Package: "*node*"
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
+- Package: "openssl"
+  Pin:  "origin \"\""
+  Pin-Priority: 1100
 - Package: "*policykit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
