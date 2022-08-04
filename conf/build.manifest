@@ -248,6 +248,10 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: corssl
+  repo: git@github.com:iXsystems/corssl.git
+  branch: master
+  generate_version: false
 - name: docker
   repo: https://github.com/truenas/moby
   branch: truenas/20.10
