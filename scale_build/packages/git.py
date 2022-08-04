@@ -3,7 +3,10 @@ import os
 import shutil
 import contextlib
 
-from scale_build.config import BRANCH_OVERRIDES, TRUENAS_BRANCH_OVERRIDE, TRY_BRANCH_OVERRIDE
+from scale_build.config import (
+    BRANCH_OVERRIDES, IDENTITY_FILE_PATH_OVERRIDE_SUFFIX, PACKAGE_IDENTITY_FILE_PATH_OVERRIDES,
+    TRUENAS_BRANCH_OVERRIDE, TRY_BRANCH_OVERRIDE,
+)
 from scale_build.exceptions import CallError
 from scale_build.utils.git_utils import (
     branch_checked_out_locally, branch_exists_in_repository, create_branch,
@@ -133,7 +136,8 @@ class GitPackageMixin:
     @property
     def get_identity_file_path(self):
         # We need to use absolute path as git changes it's working directory with -C
-        return os.path.abspath(self.identity_file_path)
+        path = PACKAGE_IDENTITY_FILE_PATH_OVERRIDES.get(self.name) or self.identity_file_path
+        return os.path.abspath(path) if path else None
 
     @property
     def ssh_based_source(self):
@@ -143,17 +147,18 @@ class GitPackageMixin:
         if not self.ssh_based_source:
             return
 
-        if not self.identity_file_path:
+        if not self.get_identity_file_path:
             raise CallError(
-                'Identity file path ("identity_file_path" attribute) must be specified '
-                f'in order to checkout {self.name!r}'
+                f'Identity file path must be specified in order to checkout {self.name!r}. It can be done either as '
+                'specifying "identity_file_path" attribute in manifest or providing '
+                f'"{self.name}{IDENTITY_FILE_PATH_OVERRIDE_SUFFIX}" env variable specifying path of the file.'
             )
 
         if not os.path.exists(self.get_identity_file_path):
-            raise CallError(f'{self.identity_file_path!r} identity file path does not exist')
+            raise CallError(f'{self.get_identity_file_path!r} identity file path does not exist')
 
         if oct(os.stat(self.get_identity_file_path).st_mode & 0o777) != '0o600':
-            raise CallError(f'{self.identity_file_path!r} identity file path should have 0o600 permissions')
+            raise CallError(f'{self.get_identity_file_path!r} identity file path should have 0o600 permissions')
 
     @property
     def existing_branch(self):
