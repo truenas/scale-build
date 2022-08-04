@@ -54,14 +54,14 @@ class GitPackageMixin:
         update = (branch == self.existing_branch) and self.origin == origin_url
         if update:
             cmds = (
-                ['git', '-C', self.source_path, 'fetch', 'origin'],
-                ['git', '-C', self.source_path, 'checkout', branch],
-                ['git', '-C', self.source_path, 'reset', '--hard', f'origin/{branch}'],
+                ['-C', self.source_path, 'fetch', 'origin'],
+                ['-C', self.source_path, 'checkout', branch],
+                ['-C', self.source_path, 'reset', '--hard', f'origin/{branch}'],
             )
         else:
             cmds = (
-                ['git', 'clone', '--recurse', self.origin, self.source_path],
-                ['git', '-C', self.source_path, 'checkout', branch],
+                ['clone', '--recurse', self.origin, self.source_path],
+                ['-C', self.source_path, 'checkout', branch],
             )
 
         # We're doing retries here because at the time of writing this the iX network
@@ -99,7 +99,7 @@ class GitPackageMixin:
                 if open_mode == 'a':
                     logger.warning(f'\n\n #####Attempt {i}##### \n\n')
 
-                for cmd in cmds:
+                for cmd in map(lambda c: self.git_args + c, cmds):
                     cp = run(cmd, check=False)
                     if cp.returncode:
                         failed = (f'{" ".join(cmd)}', f'{cp.stderr}', f'{cp.returncode}')
@@ -120,8 +120,19 @@ class GitPackageMixin:
         log = 'Checkout ' if not update else 'Updating '
         logger.info(log + 'of git repo %r (using branch %r) complete', self.name, branch)
 
+    @property
+    def git_args(self):
+        if self.ssh_based_source:
+            return ['git', '-c', 'core.sshCommand=ssh -i ./key -o StrictHostKeyChecking=\'accept-new\'']
+        else:
+            return ['git']
+
+    @property
+    def ssh_based_source(self):
+        return bool(SSH_SOURCE_REGEX.findall(self.origin))
+
     def validate_checkout(self):
-        if not SSH_SOURCE_REGEX.findall(self.origin):
+        if not self.ssh_based_source:
             return
 
         if not self.identity_file_path:
