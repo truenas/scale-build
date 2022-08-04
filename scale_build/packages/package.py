@@ -24,7 +24,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
-        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None,
+        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
     ):
         self.name = name
         self.branch = branch
@@ -37,6 +37,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self.predepscmd = predepscmd or []
         self.deps_path = deps_path
         self.subdir = subdir
+        self.identity_file_path = identity_file_path
         self.deoptions = deoptions
         self.jobs = jobs
         self.tmpfs = tmpfs

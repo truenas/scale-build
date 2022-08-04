@@ -10,6 +10,7 @@ from scale_build.utils.git_utils import (
     retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 )
 from scale_build.utils.logger import LoggingContext
+from scale_build.utils.manifest import SSH_SOURCE_REGEX
 from scale_build.utils.paths import GIT_LOG_DIR_NAME, GIT_LOG_DIR
 from scale_build.utils.run import run
 
@@ -46,6 +47,8 @@ class GitPackageMixin:
         return os.path.join(GIT_LOG_DIR, f'{self.name}.log')
 
     def checkout(self, branch_override=None, retries=3):
+        self.validate_checkout()
+
         origin_url = self.retrieve_current_remote_origin_and_sha()['url']
         branch = branch_override or self.branch
         update = (branch == self.existing_branch) and self.origin == origin_url
@@ -116,6 +119,22 @@ class GitPackageMixin:
         self.update_git_manifest()
         log = 'Checkout ' if not update else 'Updating '
         logger.info(log + 'of git repo %r (using branch %r) complete', self.name, branch)
+
+    def validate_checkout(self):
+        if not SSH_SOURCE_REGEX.findall(self.origin):
+            return
+
+        if not self.identity_file_path:
+            raise CallError(
+                'Identity file path ("identity_file_path" attribute) must be specified '
+                f'in order to checkout {self.name!r}'
+            )
+
+        if not os.path.exists(self.identity_file_path):
+            raise CallError(f'{self.identity_file_path!r} identity file path does not exist')
+
+        if oct(os.stat(self.identity_file_path).st_mode & 0o777) != '0o600':
+            raise CallError(f'{self.identity_file_path!r} identity file path should have 0o600 permissions')
 
     @property
     def existing_branch(self):
