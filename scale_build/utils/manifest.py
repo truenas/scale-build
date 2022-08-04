@@ -179,7 +179,9 @@ def validate_manifest():
     invalid_packages = []
     for package in manifest['sources']:
         url = urlparse(package['repo'])
-        if url.hostname not in ['github.com', 'www.github.com'] or not url.path.startswith('/truenas/'):
+        if url.hostname not in ['github.com', 'www.github.com'] or not url.path.lower().startswith((
+            '/truenas/', '/ixsystems/'
+        )):
             invalid_packages.append(package['name'])
 
     if invalid_packages:
