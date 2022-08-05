@@ -7,7 +7,10 @@ _VERS = '22.12-MASTER'
 
 
 def get_env_variable(key, _type, default_value=None):
-    value = environ.get(key)
+    return get_normalized_value(environ.get(key), _type, default_value)
+
+
+def get_normalized_value(value, _type, default_value=None):
     if value:
         if _type == bool:
             if value.isdigit():

@@ -4,4 +4,7 @@ from .manifest import get_manifest
 
 
 def get_packages():
-    return [Package(**pkg) for pkg in get_manifest()['sources']]
+    return [
+        pkg for pkg in map(lambda p: Package(**p), get_manifest()['sources'])
+        if pkg.to_build
+    ]

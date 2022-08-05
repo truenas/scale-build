@@ -90,6 +90,27 @@ MANIFEST_SCHEMA = {
                         'type': 'array',
                         'items': [{'type': 'string'}],
                     },
+                    'build_constraints': {
+                        'type': 'array',
+                        'items': [{
+                            'type': 'object',
+                            'properties': {
+                                'name': {'type': 'string'},
+                                'value': {
+                                    'anyOf': [
+                                        {'type': 'string'},
+                                        {'type': 'integer'},
+                                        {'type': 'boolean'},
+                                    ],
+                                },
+                                'type': {
+                                    'type': 'string',
+                                    'enum': ['bool', 'string', 'integer'],
+                                },
+                                'required': ['name', 'value', 'type'],
+                            }
+                        }],
+                    },
                     'buildcmd': {
                         'type': 'array',
                         'items': [{'type': 'string'}],
