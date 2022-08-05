@@ -38,4 +38,4 @@ def get_normalized_specified_build_constraint_value(value_schema):
 
 
 def get_normalized_build_constraint_value(value_schema):
-    return get_normalized_value(value_schema['value'], CONSTRAINT_MAPPING[value_schema['type']])
+    return get_normalized_value(str(value_schema['value']), CONSTRAINT_MAPPING[value_schema['type']])
