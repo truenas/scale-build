@@ -14,7 +14,7 @@ def get_normalized_value(value, _type, default_value=None):
     if value:
         if _type == bool:
             if value.isdigit():
-                return _type(value)
+                return _type(int(value))
             elif value.lower()[0] == 'y':
                 return True
             elif value.lower()[0] == 'n':
