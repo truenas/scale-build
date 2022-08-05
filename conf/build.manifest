@@ -95,6 +95,8 @@ base-packages:
 - squashfs-tools
 - sysstat
 - truecommand-stats
+- libssl1.1
+- openssl
 - truenas
 - wireguard-dkms
 - wireguard-tools
