@@ -105,10 +105,10 @@ MANIFEST_SCHEMA = {
                                 },
                                 'type': {
                                     'type': 'string',
-                                    'enum': ['bool', 'string', 'integer'],
+                                    'enum': ['boolean', 'string', 'integer'],
                                 },
-                                'required': ['name', 'value', 'type'],
-                            }
+                            },
+                            'required': ['name', 'value', 'type'],
                         }],
                     },
                     'buildcmd': {
@@ -204,7 +204,7 @@ def validate_manifest():
     for package in manifest['sources']:
         repo_source = package['repo']
         if url := SSH_SOURCE_REGEX.findall(repo_source):
-            hostname, repo_path = url
+            hostname, repo_path = url[0]
         else:
             url = urlparse(repo_source)
             hostname = url.hostname
