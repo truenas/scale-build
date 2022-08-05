@@ -258,6 +258,10 @@ sources:
   repo: git@github.com:iXsystems/corssl.git
   branch: master
   generate_version: false
+  build_constraints:
+    - name: FIPS
+      value: true
+      type: boolean
 - name: docker
   repo: https://github.com/truenas/moby
   branch: truenas/20.10
