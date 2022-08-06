@@ -139,7 +139,7 @@ class GitPackageMixin:
         path = (PACKAGE_IDENTITY_FILE_PATH_OVERRIDES.get(self.name) or
                 self.identity_file_path or
                 get_manifest()['identity_file_path_default'])
-        return os.path.abspath(path) if path else None
+        return os.path.abspath(os.path.expanduser(path)) if path else None
 
     @property
     def ssh_based_source(self):
