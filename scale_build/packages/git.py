@@ -13,7 +13,7 @@ from scale_build.utils.git_utils import (
     retrieve_git_remote_and_sha, retrieve_git_branch, update_git_manifest
 )
 from scale_build.utils.logger import LoggingContext
-from scale_build.utils.manifest import SSH_SOURCE_REGEX
+from scale_build.utils.manifest import get_manifest, SSH_SOURCE_REGEX
 from scale_build.utils.paths import GIT_LOG_DIR_NAME, GIT_LOG_DIR
 from scale_build.utils.run import run
 
@@ -136,7 +136,9 @@ class GitPackageMixin:
     @property
     def get_identity_file_path(self):
         # We need to use absolute path as git changes it's working directory with -C
-        path = PACKAGE_IDENTITY_FILE_PATH_OVERRIDES.get(self.name) or self.identity_file_path
+        path = (PACKAGE_IDENTITY_FILE_PATH_OVERRIDES.get(self.name) or
+                self.identity_file_path or
+                get_manifest()['identity_file_path_default'])
         return os.path.abspath(path) if path else None
 
     @property

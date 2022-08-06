@@ -18,6 +18,7 @@ MANIFEST_SCHEMA = {
     'properties': {
         'code_name': {'type': 'string'},
         'debian_release': {'type': 'string'},
+        'identity_file_path_default': {'type': 'string'},
         'apt-repos': {
             'type': 'object',
             'properties': {

@@ -1,6 +1,7 @@
 ---
 code_name: "Bluefin"
 debian_release: "bullseye"
+identity_file_path_default: "~/.ssh/id_rsa"
 #
 # List of apt repositories that are used and setup inside the build environment
 # for TrueNAS SCALE. These are used to pull additional packages or depend packages
