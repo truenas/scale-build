@@ -1,6 +1,7 @@
 ---
 code_name: "Bluefin"
 debian_release: "bullseye"
+identity_file_path_default: "~/.ssh/id_rsa"
 #
 # List of apt repositories that are used and setup inside the build environment
 # for TrueNAS SCALE. These are used to pull additional packages or depend packages
@@ -95,6 +96,8 @@ base-packages:
 - squashfs-tools
 - sysstat
 - truecommand-stats
+- libssl1.1
+- openssl
 - truenas
 - wireguard-dkms
 - wireguard-tools
@@ -154,12 +157,18 @@ apt_preferences:
 - Package: "librrd*"
   Pin: "version 1.99*"
   Pin-Priority: 950
+- Package: "libssl1.1"
+  Pin:  "origin \"\""
+  Pin-Priority: 1100
 - Package: "*node*"
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
+- Package: "openssl"
+  Pin:  "origin \"\""
+  Pin-Priority: 1100
 - Package: "*policykit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
@@ -248,6 +257,14 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: corssl
+  repo: git@github.com:iXsystems/corssl.git
+  branch: master
+  generate_version: false
+  build_constraints:
+    - name: FIPS
+      value: true
+      type: boolean
 - name: docker
   repo: https://github.com/truenas/moby
   branch: truenas/20.10

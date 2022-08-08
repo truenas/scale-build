@@ -13,7 +13,8 @@ from .clean import BuildCleanMixin
 from .git import GitPackageMixin
 from .overlay import OverlayMixin
 from .utils import (
-    DEPENDS_SCRIPT_PATH, gather_build_time_dependencies, normalize_build_depends, normalize_bin_packages_depends
+    DEPENDS_SCRIPT_PATH, gather_build_time_dependencies, get_normalized_build_constraint_value,
+    get_normalized_specified_build_constraint_value, normalize_build_depends, normalize_bin_packages_depends,
 )
 
 
@@ -24,19 +25,22 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
     def __init__(
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
-        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None,
+        buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
+        build_constraints=None,
     ):
         self.name = name
         self.branch = branch
         self.origin = repo
         self.prebuildcmd = prebuildcmd or []
         self.buildcmd = buildcmd or []
+        self.build_constraints = build_constraints or []
         self.kernel_module = kernel_module
         self.explicit_deps = set(explicit_deps or set())
         self.generate_version = generate_version
         self.predepscmd = predepscmd or []
         self.deps_path = deps_path
         self.subdir = subdir
+        self.identity_file_path = identity_file_path
         self.deoptions = deoptions
         self.jobs = jobs
         self.tmpfs = tmpfs
@@ -157,3 +161,11 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
     @property
     def pkglist_hash_file_path(self):
         return os.path.join(HASH_DIR, f'{self.name}.pkglist')
+
+    @property
+    def to_build(self):
+        return all(
+            get_normalized_build_constraint_value(constraint) == get_normalized_specified_build_constraint_value(
+                constraint
+            ) for constraint in self.build_constraints
+        ) if self.build_constraints else True

@@ -11,11 +11,14 @@ from scale_build.utils.paths import MANIFEST
 
 
 BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.-]+\b')
+SSH_SOURCE_REGEX = re.compile(r'^[\w]+@(\w.+):(\w.+)')
+
 MANIFEST_SCHEMA = {
     'type': 'object',
     'properties': {
         'code_name': {'type': 'string'},
         'debian_release': {'type': 'string'},
+        'identity_file_path_default': {'type': 'string'},
         'apt-repos': {
             'type': 'object',
             'properties': {
@@ -81,11 +84,33 @@ MANIFEST_SCHEMA = {
                 'properties': {
                     'name': {'type': 'string'},
                     'repo': {'type': 'string'},
+                    'identity_file_path': {'type': 'string'},
                     'branch': {'type': 'string'},
                     'batch_priority': {'type': 'integer'},
                     'predepscmd': {
                         'type': 'array',
                         'items': [{'type': 'string'}],
+                    },
+                    'build_constraints': {
+                        'type': 'array',
+                        'items': [{
+                            'type': 'object',
+                            'properties': {
+                                'name': {'type': 'string'},
+                                'value': {
+                                    'anyOf': [
+                                        {'type': 'string'},
+                                        {'type': 'integer'},
+                                        {'type': 'boolean'},
+                                    ],
+                                },
+                                'type': {
+                                    'type': 'string',
+                                    'enum': ['boolean', 'string', 'integer'],
+                                },
+                            },
+                            'required': ['name', 'value', 'type'],
+                        }],
                     },
                     'buildcmd': {
                         'type': 'array',
@@ -178,8 +203,17 @@ def validate_manifest():
     # We would like to make sure that each package source we build from is from our fork and not another one
     invalid_packages = []
     for package in manifest['sources']:
-        url = urlparse(package['repo'])
-        if url.hostname not in ['github.com', 'www.github.com'] or not url.path.startswith('/truenas/'):
+        repo_source = package['repo']
+        if url := SSH_SOURCE_REGEX.findall(repo_source):
+            hostname, repo_path = url[0]
+        else:
+            url = urlparse(repo_source)
+            hostname = url.hostname
+            repo_path = url.path
+
+        if hostname not in ['github.com', 'www.github.com'] or not repo_path.lower().strip('/').startswith((
+            'truenas/', 'ixsystems/'
+        )):
             invalid_packages.append(package['name'])
 
     if invalid_packages:
