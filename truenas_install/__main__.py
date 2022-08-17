@@ -372,15 +372,6 @@ def main():
                 if IS_FREEBSD:
                     install_grub_freebsd(input, manifest, pool_name, dataset_name, disks)
                 else:
-                    if password is not None:
-                        run_command(["chroot", root, "/etc/netcli", "reset_root_pw", password])
-
-                    if sql is not None:
-                        run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
-
-                    if configure_serial:
-                        configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
-
                     undo = []
                     try:
                         run_command(["mount", "-t", "devtmpfs", "udev", f"{root}/dev"])
@@ -394,6 +385,15 @@ def main():
 
                         run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                         undo.append(["umount", f"{root}/boot/grub"])
+
+                        if password is not None:
+                            run_command(["chroot", root, "/etc/netcli", "reset_root_pw", password])
+
+                        if sql is not None:
+                            run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
+
+                        if configure_serial:
+                            configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
 
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
