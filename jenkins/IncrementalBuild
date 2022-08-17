@@ -6,6 +6,7 @@ pipeline {
   }
   environment {
     BDIR = "/root/truenas-build"
+    FIPS="1"
   }
   stages {
     stage('SCM') {
