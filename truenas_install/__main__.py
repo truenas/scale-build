@@ -407,8 +407,8 @@ def main():
                                 cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
                             )
 
+                        run_command(["chroot", root, "/usr/local/bin/truenas-nvdimm.py"])
                         run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
-
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
                         run_command(["chroot", root, "update-grub"])
 
