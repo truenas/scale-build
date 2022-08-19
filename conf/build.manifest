@@ -227,6 +227,10 @@ additional-packages:
   comment: requested by community (NAS-113898)
 - package: pv
   comment: requested by community (NAS-115638)
+- package: ndctl
+  comment: requested by community (NAS-108490)
+- package: ipmctl
+  comment: requested by community (NAS-108490)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
