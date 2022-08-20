@@ -330,7 +330,7 @@ sources:
   generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: SCALE-v4-15-stable
+  branch: SCALE-v4-17-stable
   generate_version: false
   batch_priority: 0
   explicit_deps:
