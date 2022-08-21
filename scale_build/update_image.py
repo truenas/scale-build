@@ -8,11 +8,9 @@ from .image.bootstrap import clean_mounts, setup_chroot_basedir, umount_tmpfs_an
 from .image.manifest import update_file_path
 from .image.update import install_rootfs_packages, build_rootfs_image
 from .utils.logger import LoggingContext
-from .utils.paths import CHROOT_BASEDIR, LOG_DIR, REFERENCE_FILES_DIR, RELEASE_DIR
+from .utils.paths import CHROOT_BASEDIR, LOG_DIR, REFERENCE_FILES, REFERENCE_FILES_DIR, RELEASE_DIR
 
 logger = logging.getLogger(__name__)
-
-REFERENCE_FILES = ('etc/group', 'etc/passwd')
 
 
 def compare_reference_files(cut_nonexistent_user_group_membership=False):
