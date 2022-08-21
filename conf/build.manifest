@@ -164,7 +164,7 @@ apt_preferences:
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
 - Package: "*nvidia*"
-  Pin: "release n=bullseye-backports"
+  Pin: "version 515*
   Pin-Priority: 1000
 - Package: "openssl"
   Pin:  "origin \"\""
@@ -188,6 +188,9 @@ apt_preferences:
   Pin: "version 7.99*"
   Pin-Priority: 950
 - Package: "*ssl*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*tls*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 - Package: "*truenas-samba*"
