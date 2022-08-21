@@ -140,7 +140,7 @@ apt_preferences:
   Pin: "version 5.99*"
   Pin-Priority: 950
 - Package: "*cuda*"
-  Pin: "release n=bullseye-backports"
+  Pin: "version 515*"
   Pin-Priority: 1000
 - Package: "*docker*"
   Pin: "origin \"\""
@@ -155,7 +155,7 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*libnvcuvid*"
-  Pin: "release n=bullseye-backports"
+  Pin: "version 515*"
   Pin-Priority: 1000
 - Package: "librrd*"
   Pin: "version 1.99*"
