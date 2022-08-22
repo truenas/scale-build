@@ -4,7 +4,7 @@ import shutil
 
 from scale_build.clean import clean_packages
 from scale_build.utils.manifest import get_manifest
-from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR
+from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, REFERENCE_FILES, REFERENCE_FILES_DIR
 from scale_build.utils.run import run
 
 from .cache import CacheMixin
@@ -28,6 +28,16 @@ class BootstrapDir(CacheMixin, HashMixin):
         finally:
             self.clean_setup()
 
+    def debootstrap_debian(self):
+        manifest = get_manifest()
+        run(
+            ['debootstrap'] + self.deopts + [
+                '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
+                manifest['debian_release'],
+                self.chroot_basedir, manifest['apt-repos']['url']
+            ]
+        )
+
     def setup_impl(self):
         if self.mirror_cache_intact:
             # Mirror cache is intact, we do not need to re-create the bootstrap directory
@@ -35,14 +45,8 @@ class BootstrapDir(CacheMixin, HashMixin):
             return
 
         self.add_trusted_apt_key()
-        manifest = get_manifest()
-        apt_repos = manifest['apt-repos']
-        run(
-            ['debootstrap'] + self.deopts + [
-                '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', manifest['debian_release'],
-                self.chroot_basedir, apt_repos['url']
-            ]
-        )
+        apt_repos = get_manifest()['apt-repos']
+        self.debootstrap_debian()
         self.setup_mounts()
 
         self.logger.debug('Updating apt preferences')
@@ -144,6 +148,22 @@ class PackageBootstrapDirectory(BootstrapDir):
     def after_extra_packages_installation_steps(self):
         if self.installed_packages_in_cache_changed:
             clean_packages()
+
+    def debootstrap_debian(self):
+        manifest = get_manifest()
+        run(
+            ['debootstrap'] + self.deopts + [
+                '--foreign', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
+                manifest['debian_release'],
+                self.chroot_basedir, manifest['apt-repos']['url']
+            ]
+        )
+        for reference_file in REFERENCE_FILES:
+            shutil.copyfile(
+                os.path.join(REFERENCE_FILES_DIR, reference_file),
+                os.path.join(self.chroot_basedir, reference_file)
+            )
+        run(['chroot', self.chroot_basedir, '/debootstrap/debootstrap', '--second-stage'])
 
 
 class CdromBootstrapDirectory(BootstrapDir):
