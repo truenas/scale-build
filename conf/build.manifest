@@ -51,6 +51,9 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/yarn/
     distribution: stable
     component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nvidia/
+    distribution: bullseye
+    component: main
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -62,7 +65,7 @@ base-packages:
 - linux-headers-amd64
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
-- linux-perf-5.15
+- linux-perf
 - avahi-daemon
 - nfs-kernel-server
 - bpftrace
@@ -137,7 +140,7 @@ apt_preferences:
   Pin: "version 5.99*"
   Pin-Priority: 950
 - Package: "*cuda*"
-  Pin: "release n=bullseye-backports"
+  Pin: "version 515*"
   Pin-Priority: 1000
 - Package: "*docker*"
   Pin: "origin \"\""
@@ -152,7 +155,7 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*libnvcuvid*"
-  Pin: "release n=bullseye-backports"
+  Pin: "version 515*"
   Pin-Priority: 1000
 - Package: "librrd*"
   Pin: "version 1.99*"
@@ -164,7 +167,7 @@ apt_preferences:
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
 - Package: "*nvidia*"
-  Pin: "release n=bullseye-backports"
+  Pin: "version 515*"
   Pin-Priority: 1000
 - Package: "openssl"
   Pin:  "origin \"\""
@@ -188,6 +191,9 @@ apt_preferences:
   Pin: "version 7.99*"
   Pin-Priority: 950
 - Package: "*ssl*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*tls*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 - Package: "*truenas-samba*"
