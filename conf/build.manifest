@@ -345,10 +345,6 @@ sources:
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
   generate_version: false
-- name: nss_pam_ldapd
-  repo: https://github.com/truenas/nss-pam-ldapd
-  branch: master
-  generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
   branch: master
