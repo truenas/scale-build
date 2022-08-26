@@ -363,6 +363,10 @@ def main():
 
                     setup_machine_id = configure_serial = True
 
+                # We do not want /data directory to be world readable
+                # Doing this here is important so that we cover both fresh install and upgrade case
+                run_command(["chmod", "-R", "u=rwX,g=,o=", f"{root}/data"])
+
                 if setup_machine_id:
                     with contextlib.suppress(FileNotFoundError):
                         os.unlink(f"{root}/etc/machine-id")
