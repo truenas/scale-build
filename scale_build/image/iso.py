@@ -167,6 +167,7 @@ def make_iso_file():
             ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')], log=False
         ).stdout.replace(f'{RELEASE_DIR}/', '').strip())
 
+        
 def prune_cd_basedir():
     for path in filter(os.path.exists, itertools.chain([
         os.path.join(CHROOT_BASEDIR, 'var/cache/apt'),
