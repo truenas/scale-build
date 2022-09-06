@@ -174,5 +174,9 @@ def prune_cd_basedir():
         os.path.join(CHROOT_BASEDIR, 'var/lib/apt'),
         os.path.join(CHROOT_BASEDIR, 'usr/share/doc'),
         os.path.join(CHROOT_BASEDIR, 'usr/share/man'),
+        os.path.join(CHROOT_BASEDIR, 'etc/resolv.conf'),
     ] + glob.glob(os.path.join(CHROOT_BASEDIR, 'lib/modules/*-amd64/kernel/sound')))):
-        shutil.rmtree(path)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.unlink(path)
