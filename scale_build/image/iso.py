@@ -164,8 +164,8 @@ def make_iso_file():
 
     with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso.sha256'), 'w') as f:
         f.write(run(
-            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')], log=False).stdout.replace(f'{RELEASE_DIR}/', '').strip())
-
+            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')], log=False
+        ).stdout.replace(f'{RELEASE_DIR}/', '').strip())
 
 def prune_cd_basedir():
     for path in filter(os.path.exists, itertools.chain([
