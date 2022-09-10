@@ -57,12 +57,14 @@ def make_iso_file():
         shutil.rmtree(CD_DIR)
     os.makedirs(CD_DIR, exist_ok=True)
 
-    # Prune away the fat
-    prune_cd_basedir()
-
-    # Lets make squashfs now
+    # Let's make squashfs now while pruning away the fat
     tmp_truenas_path = os.path.join(TMP_DIR, 'truenas.squashfs')
-    run(['mksquashfs', CHROOT_BASEDIR, tmp_truenas_path, '-comp', 'xz'])
+    with tempfile.NamedTemporaryFile(mode='w') as exclude_file:
+        exclude_file.write('\n'.join(pruning_cd_basedir_contents()))
+        exclude_file.flush()
+
+        run(['mksquashfs', CHROOT_BASEDIR, tmp_truenas_path, '-comp', 'xz', '-wildcards', '-ef', exclude_file.name])
+
     os.makedirs(os.path.join(CD_DIR, 'live'), exist_ok=True)
     shutil.move(tmp_truenas_path, os.path.join(CD_DIR, 'live/filesystem.squashfs'))
 
@@ -168,15 +170,12 @@ def make_iso_file():
         ).stdout.strip().split()[0])
 
 
-def prune_cd_basedir():
-    for path in filter(os.path.exists, itertools.chain([
-        os.path.join(CHROOT_BASEDIR, 'var/cache/apt'),
-        os.path.join(CHROOT_BASEDIR, 'var/lib/apt'),
-        os.path.join(CHROOT_BASEDIR, 'usr/share/doc'),
-        os.path.join(CHROOT_BASEDIR, 'usr/share/man'),
-        os.path.join(CHROOT_BASEDIR, 'etc/resolv.conf'),
-    ] + glob.glob(os.path.join(CHROOT_BASEDIR, 'lib/modules/*-amd64/kernel/sound')))):
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-        else:
-            os.unlink(path)
+def pruning_cd_basedir_contents():
+    return [
+        'var/cache/apt',
+        'var/lib/apt',
+        'usr/share/doc',
+        'usr/share/man',
+        'etc/resolv.conf',
+        'lib/modules/*-amd64/kernel/sound',
+    ]
