@@ -177,5 +177,5 @@ def pruning_cd_basedir_contents():
         'usr/share/doc',
         'usr/share/man',
         'etc/resolv.conf',
-        'lib/modules/*-amd64/kernel/sound',
+        'lib/modules/*+truenas/kernel/sound',
     ]
