@@ -63,7 +63,7 @@ def make_iso_file():
         exclude_file.write('\n'.join(pruning_cd_basedir_contents()))
         exclude_file.flush()
 
-        run(['mksquashfs', CHROOT_BASEDIR, tmp_truenas_path, '-comp', 'xz', '-wildcards', '-ef', exclude_file.name])
+        run(['mksquashfs', CHROOT_BASEDIR, tmp_truenas_path, '-comp', 'xz', '-ef', exclude_file.name])
 
     os.makedirs(os.path.join(CD_DIR, 'live'), exist_ok=True)
     shutil.move(tmp_truenas_path, os.path.join(CD_DIR, 'live/filesystem.squashfs'))
@@ -171,11 +171,15 @@ def make_iso_file():
 
 
 def pruning_cd_basedir_contents():
-    return [
-        'var/cache/apt',
-        'var/lib/apt',
-        'usr/share/doc',
-        'usr/share/man',
-        'etc/resolv.conf',
-        'lib/modules/*+truenas/kernel/sound',
-    ]
+    return itertools.chain(
+        [
+            'var/cache/apt',
+            'var/lib/apt',
+            'usr/share/doc',
+            'usr/share/man',
+            'etc/resolv.conf',
+        ], map(
+            lambda path: path.removeprefix(f'{CHROOT_BASEDIR}/'),
+            glob.glob(os.path.join(CHROOT_BASEDIR, 'lib/modules/*truenas/kernel/sound'))
+        )
+    )
