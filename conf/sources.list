@@ -1,11 +1,11 @@
 # Default APT sources.list for TrueNAS SCALE
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/gluster/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/docker/ buster stable
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/libnvidia/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-container/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/ bullseye main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-debug/ bullseye-debug main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-security/ bullseye-security main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-backports/ bullseye-backports main contrib non-free
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/ all main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/gluster/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/docker/ buster stable
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/libnvidia/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/nvidia-container/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/nvidia-docker/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/debian/ bullseye main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/debian-debug/ bullseye-debug main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/debian-security/ bullseye-security main
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/debian-backports/ bullseye-backports main contrib non-free
+deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.4/helm/ all main
