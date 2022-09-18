@@ -7,6 +7,5 @@ deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/nvidia-docker/ bu
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian/ bullseye main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-debug/ bullseye-debug main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-security/ bullseye-security main
-deb http://apt.tn.ixsystems.com/apt-direct/angelfish/22.02.3/debian-security-22.02.3/ bullseye-security main
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/debian-backports/ bullseye-backports main contrib non-free
 deb http://apt.tn.ixsystems.com/apt-direct/angelfish/nightlies/helm/ all main
