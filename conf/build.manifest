@@ -237,6 +237,8 @@ additional-packages:
   comment: requested by community (NAS-108490)
 - package: ipmctl
   comment: requested by community (NAS-108490)
+- package: sysfsutils
+  comment: requested by community (NAS-118248)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
