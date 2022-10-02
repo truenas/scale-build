@@ -269,7 +269,7 @@ iso-packages:
 sources:
 - name: corssl
   repo: git@github.com:iXsystems/corssl.git
-  branch: master
+  branch: release/22.12-BETA.2
   generate_version: false
   build_constraints:
     - name: FIPS
@@ -277,23 +277,23 @@ sources:
       type: boolean
 - name: docker
   repo: https://github.com/truenas/moby
-  branch: truenas/20.10
+  branch: release/22.12-BETA.2
   generate_version: false
 - name: waagent
   repo: https://github.com/truenas/WALinuxAgent.git
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
-  branch: master
+  branch: release/22.12-BETA.2
 - name: openseachest
-  branch: truenas/master
+  branch: release/22.12-BETA.2
   repo: https://github.com/truenas/openseachest
 - name: inadyn
-  branch: master
+  branch: release/22.12-BETA.2
   repo: https://github.com/truenas/inadyn.git
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-5.15
+  branch: release/22.12-BETA.2
   batch_priority: 0
   env:
     CONFIG_DEBUG_INFO: "Y"
@@ -324,11 +324,11 @@ sources:
     - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: master
+  branch: release/22.12-BETA.2
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: truenas/zfs-2.1-release
+  branch: release/22.12-BETA.2
   predepscmd:
     - "cp -r contrib/truenas debian"
   deps_path: contrib/truenas
@@ -336,29 +336,29 @@ sources:
   generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: SCALE-v4-17-stable
+  branch: release/22.12-BETA.2
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: SCALE-v0.8
+  branch: release/22.12-BETA.2
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: master
+  branch: release/22.12-BETA.2
   explicit_deps:
     - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
-  branch: master
+  branch: release/22.12-BETA.2
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
-  branch: master
+  branch: release/22.12-BETA.2
 - name: migrate113
   repo: https://github.com/truenas/freenas-migrate113
-  branch: master
+  branch: release/22.12-BETA.2
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -372,55 +372,55 @@ sources:
     - "make scst-dist-gzip"
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
   kernel_module: true
-  branch: master
+  branch: release/22.12-BETA.2
   explicit_deps:
     - openzfs
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
-  branch: master
+  branch: release/22.12-BETA.2
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   prebuildcmd:
     - "yarn install"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: master
+  branch: release/22.12-BETA.2
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: master
+  branch: release/22.12-BETA.2
 - name: pydevd
   repo: https://github.com/truenas/pydevd.git
-  branch: master
+  branch: release/22.12-BETA.2
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
-  branch: master
+  branch: release/22.12-BETA.2
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: master
+  branch: release/22.12-BETA.2
 - name: throttle
   repo: https://github.com/truenas/throttle
-  branch: master
+  branch: release/22.12-BETA.2
 - name: aiorwlock
   repo: https://github.com/truenas/aiorwlock
-  branch: master
+  branch: release/22.12-BETA.2
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: master
+  branch: release/22.12-BETA.2
 - name: migrate93
   repo: https://github.com/truenas/freenas-migrate93
-  branch: truenas/scale
+  branch: release/22.12-BETA.2
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
-  branch: master
+  branch: release/22.12-BETA.2
 - name: intel_pcm
   repo: https://github.com/truenas/intel-pcm
-  branch: master
+  branch: release/22.12-BETA.2
 - name: minio
   repo: https://github.com/truenas/minio
-  branch: master
+  branch: release/22.12-BETA.2
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: master
+  branch: release/22.12-BETA.2
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -428,58 +428,58 @@ sources:
     - openzfs
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
-  branch: master
+  branch: release/22.12-BETA.2
 - name: plugins
   repo: https://github.com/truenas/plugins
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: multus_cni
   repo: https://github.com/truenas/multus-cni
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: kube_router
   repo: https://github.com/truenas/kube-router
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: kubernetes_asyncio
   repo: https://github.com/truenas/kubernetes_asyncio
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: aiodocker
   repo: https://github.com/truenas/aiodocker
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: k3s
   repo: https://github.com/truenas/k3s
-  branch: truenas/master
+  branch: release/22.12-BETA.2
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: master
+  branch: release/22.12-BETA.2
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: master
+  branch: release/22.12-BETA.2
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: master
+  branch: release/22.12-BETA.2
 - name: swagger
   repo: https://github.com/truenas/swagger
-  branch: main
+  branch: release/22.12-BETA.2
 - name: truenas_files
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: release/22.12-BETA.2
   subdir: src/freenas
 - name: middlewared
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: release/22.12-BETA.2
   subdir: src/middlewared
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: master
+  branch: release/22.12-BETA.2
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: release/22.12-BETA.2
   subdir: debian
 - name: truecommand_stats
   repo: https://github.com/truenas/truecommand-stats
-  branch: master
+  branch: release/22.12-BETA.2
 - name: collectd
   repo: https://github.com/truenas/collectd
-  branch: master
+  branch: release/22.12-BETA.2
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -487,7 +487,7 @@ sources:
   generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: master
+  branch: release/22.12-BETA.2
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -497,12 +497,12 @@ sources:
   batch_priority: 150
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: master
+  branch: release/22.12-BETA.2
   deoptions: nocheck
   generate_version: false
 - name: rrdcached
   repo: https://github.com/truenas/rrdtool
-  branch: master
+  branch: release/22.12-BETA.2
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -510,7 +510,7 @@ sources:
   generate_version: false
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
-  branch: master
+  branch: release/22.12-BETA.2
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
