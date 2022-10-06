@@ -67,6 +67,7 @@ base-packages:
 - linux-image-truenas-amd64
 - linux-perf
 - avahi-daemon
+- avahi-utils
 - nfs-kernel-server
 - bpftrace
 - bpfcc-tools
