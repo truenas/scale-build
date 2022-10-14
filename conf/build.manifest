@@ -134,6 +134,9 @@ apt_preferences:
 - Package: "*"
   Pin: "release n=bullseye"
   Pin-Priority: 900
+- Package: "*"
+  Pin: "origin \"\""
+  Pin-Priority: 950
 - Package: "*avahi*"
   Pin: "version 0.8+ix*"
   Pin-Priority: 950
