@@ -134,33 +134,18 @@ apt_preferences:
 - Package: "*"
   Pin: "release n=bullseye"
   Pin-Priority: 900
-- Package: "*avahi*"
-  Pin: "version 0.8+ix*"
-  Pin-Priority: 950
-- Package: "collectd*"
-  Pin: "version 5.99*"
+- Package: "*"
+  Pin: "origin \"\""
   Pin-Priority: 950
 - Package: "*cuda*"
   Pin: "version 515*"
   Pin-Priority: 1000
-- Package: "*docker*"
-  Pin: "origin \"\""
-  Pin-Priority: 950
 - Package: "*golang*"
   Pin: "release n=bullseye-backports"
-  Pin-Priority: 1000
-- Package: "grub*"
-  Pin: "version 2.99*"
-  Pin-Priority: 950
-- Package: "*inadyn*"
-  Pin: "origin \"\""
   Pin-Priority: 1000
 - Package: "*libnvcuvid*"
   Pin: "version 515*"
   Pin-Priority: 1000
-- Package: "librrd*"
-  Pin: "version 1.99*"
-  Pin-Priority: 950
 - Package: "libssl1.1"
   Pin:  "origin \"\""
   Pin-Priority: 1100
@@ -179,30 +164,12 @@ apt_preferences:
 - Package: "*polkit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
-- Package: "python3-*"
-  Pin: "origin \"\""
-  Pin-Priority: 950
-- Package: "rclone"
-  Pin: "origin \"\""
-  Pin-Priority: 950
-- Package: "rrd*"
-  Pin: "version 1.99*"
-  Pin-Priority: 950
-- Package: "smartmontools*"
-  Pin: "version 7.99*"
-  Pin-Priority: 950
 - Package: "*ssl*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 - Package: "*tls*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
-- Package: "*truenas-samba*"
-  Pin: "version 4.15.*"
-  Pin-Priority: 950
-- Package: "waagent"
-  Pin: "origin \"\""
-  Pin-Priority: 950
 - Package: "*zfs*"
   Pin: "version 2.1.*"
   Pin-Priority: 1000
