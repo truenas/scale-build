@@ -448,9 +448,6 @@ sources:
   repo: https://github.com/truenas/middleware
   branch: master
   subdir: debian
-- name: truecommand_stats
-  repo: https://github.com/truenas/truecommand-stats
-  branch: master
 - name: collectd
   repo: https://github.com/truenas/collectd
   branch: master
