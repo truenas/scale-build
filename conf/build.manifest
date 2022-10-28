@@ -99,7 +99,6 @@ base-packages:
 - qemu-guest-agent
 - squashfs-tools
 - sysstat
-- truecommand-stats
 - libssl1.1
 - openssl
 - truenas
