@@ -487,6 +487,3 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
- -- name: truecommand_stats
--  repo: https://github.com/truenas/truecommand-stats
--  branch: master
