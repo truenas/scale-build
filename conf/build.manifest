@@ -62,7 +62,6 @@ apt-repos:
 base-packages:
 - dosfstools
 - linux-truenas-libc-dev
-- linux-headers-amd64
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
 - linux-perf
