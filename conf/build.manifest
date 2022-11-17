@@ -485,3 +485,11 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
+- name: ndctl
+  repo: https://github.com/truenas/ndctl
+  branch: main
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
