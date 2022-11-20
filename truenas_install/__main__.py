@@ -246,7 +246,7 @@ def main():
     if input.get("json"):
         is_json_output = True
     old_root = input.get("old_root", None)
-    password = input.get("password", None)
+    authentication_method = input.get("authentication_method", None)
     pool_name = input["pool_name"]
     sql = input.get("sql", None)
     src = input["src"]
@@ -390,8 +390,9 @@ def main():
                         run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                         undo.append(["umount", f"{root}/boot/grub"])
 
-                        if password is not None:
-                            run_command(["chroot", root, "/etc/netcli", "reset_root_pw", password])
+                        if authentication_method is not None:
+                            run_command(["chroot", root, "/usr/local/bin/truenas-set-authentication-method.py"],
+                                        input=json.dumps(authentication_method))
 
                         if sql is not None:
                             run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
