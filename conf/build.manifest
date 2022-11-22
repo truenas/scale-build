@@ -410,9 +410,6 @@ sources:
 - name: kube_router
   repo: https://github.com/truenas/kube-router
   branch: truenas/master
-- name: kubernetes_asyncio
-  repo: https://github.com/truenas/kubernetes_asyncio
-  branch: truenas/master
 - name: aiodocker
   repo: https://github.com/truenas/aiodocker
   branch: truenas/master
