@@ -446,6 +446,7 @@ sources:
 - name: collectd
   repo: https://github.com/truenas/collectd
   branch: master
+  debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -454,6 +455,7 @@ sources:
 - name: grub2
   repo: https://github.com/truenas/grub2
   branch: master
+  debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -469,6 +471,7 @@ sources:
 - name: rrdcached
   repo: https://github.com/truenas/rrdtool
   branch: master
+  debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -477,6 +480,7 @@ sources:
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
   branch: master
+  debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"

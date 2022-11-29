@@ -130,8 +130,10 @@ MANIFEST_SCHEMA = {
                     'subdir': {'type': 'string'},
                     'deoptions': {'type': 'string'},
                     'jobs': {'type': 'integer'},
+                    'debian_fork': {'type': 'boolean'},
                 },
                 'required': ['name', 'branch', 'repo'],
+                'additionalProperties': False,
             }]
         },
     },

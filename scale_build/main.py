@@ -7,6 +7,7 @@ from .branch_out import branch_out_repos, validate_branch_out_config
 from .checkout import checkout_sources
 from .clean import complete_cleanup
 from .config import BRANCH_OVERRIDES
+from .upstream_package_updates import check_upstream_package_updates
 from .epoch import check_epoch
 from .exceptions import CallError
 from .iso import build_iso
@@ -53,6 +54,7 @@ def main():
     subparsers = parser.add_subparsers(help='sub-command help', dest='action')
 
     subparsers.add_parser('checkout', help='Checkout TrueNAS Scale repositories')
+    subparsers.add_parser('check_upstream_package_updates', help='Check that all forked Debian packages are up-to-date')
     subparsers.add_parser('clean', help='Clean build package(s) / cloned source(s) / image(s) of TrueNAS Scale')
     packages_parser = subparsers.add_parser('packages', help='Build TrueNAS Scale packages')
     packages_parser.add_argument(
@@ -76,6 +78,8 @@ def main():
     if args.action == 'checkout':
         check_epoch()
         checkout_sources()
+    if args.action == 'check_upstream_package_updates':
+        check_upstream_package_updates()
     elif args.action == 'packages':
         validate()
         check_epoch()
