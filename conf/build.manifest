@@ -1,5 +1,5 @@
 ---
-code_name: "Bluefin"
+code_name: "Cobia"
 debian_release: "bullseye"
 identity_file_path_default: "~/.ssh/id_rsa"
 #
