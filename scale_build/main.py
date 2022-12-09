@@ -78,7 +78,7 @@ def main():
     if args.action == 'checkout':
         check_epoch()
         checkout_sources()
-    if args.action == 'check_upstream_package_updates':
+    elif args.action == 'check_upstream_package_updates':
         check_upstream_package_updates()
     elif args.action == 'packages':
         validate()
