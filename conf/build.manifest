@@ -103,8 +103,8 @@ base-packages:
 - truenas
 - wireguard-dkms
 - wireguard-tools
-- zfs-test
-- zfs-initramfs
+- openzfs-zfs-test
+- openzfs-zfs-initramfs
 - nvme-cli
 - convmv
 
@@ -301,9 +301,20 @@ sources:
   repo: https://github.com/truenas/zfs
   batch_priority: 0
   branch: truenas/zfs-2.1-release
+  env:
+    KVERS: "$(shell apt info linux-headers-truenas-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+    KSRC: "/usr/src/linux-headers-$(KVERS)"
+    KOBJ: "$(KSRC)"
   predepscmd:
-    - "cp -r contrib/truenas debian"
-  deps_path: contrib/truenas
+    - "cp -r contrib/debian debian"
+  deps_path: contrib/debian
+  prebuildcmd:
+    - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
+    - "chmod +x debian/rules"
+  buildcmd:
+    - "dpkg-buildpackage -us -uc -b"
+    - "rm ../openzfs-zfs-dkms*.deb ../openzfs-zfs-dracut*.deb"
+    - "debian/rules override_dh_binary-modules"
   kernel_module: true
   generate_version: false
 - name: truenas_samba
