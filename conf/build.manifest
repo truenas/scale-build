@@ -12,10 +12,6 @@ apt-repos:
   distribution: bullseye
   components: main
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/docker/
-    distribution: buster
-    component: stable
-    key: keys/docker.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/gluster/
     distribution: bullseye
     component: main
@@ -244,10 +240,6 @@ sources:
     - name: FIPS
       value: true
       type: boolean
-- name: docker
-  repo: https://github.com/truenas/moby
-  branch: truenas/20.10
-  generate_version: false
 - name: waagent
   repo: https://github.com/truenas/WALinuxAgent.git
   branch: truenas/master
@@ -421,9 +413,6 @@ sources:
   branch: truenas/master
 - name: kube_router
   repo: https://github.com/truenas/kube-router
-  branch: truenas/master
-- name: aiodocker
-  repo: https://github.com/truenas/aiodocker
   branch: truenas/master
 - name: k3s
   repo: https://github.com/truenas/k3s
