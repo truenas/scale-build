@@ -238,7 +238,7 @@ iso-packages:
 sources:
 - name: corssl
   repo: git@github.com:iXsystems/corssl.git
-  branch: stable/bluefin
+  branch: release/22.12.1
   generate_version: false
   build_constraints:
     - name: FIPS
@@ -246,26 +246,26 @@ sources:
       type: boolean
 - name: docker
   repo: https://github.com/truenas/moby
-  branch: stable/bluefin
+  branch: release/22.12.1
   generate_version: false
 - name: waagent
   repo: https://github.com/truenas/WALinuxAgent.git
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: openseachest
-  branch: stable/bluefin
+  branch: release/22.12.1
   repo: https://github.com/truenas/openseachest
 - name: inadyn
-  branch: stable/bluefin
+  branch: release/22.12.1
   repo: https://github.com/truenas/inadyn.git
 - name: pyglfs
-  branch: stable/bluefin
+  branch: release/22.12.1
   repo: https://github.com/truenas/pyglfs.git
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: stable/bluefin
+  branch: release/22.12.1
   batch_priority: 0
   env:
     CONFIG_DEBUG_INFO: "Y"
@@ -296,11 +296,11 @@ sources:
     - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "cp -r contrib/truenas debian"
   deps_path: contrib/truenas
@@ -308,29 +308,29 @@ sources:
   generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: stable/bluefin
+  branch: release/22.12.1
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: stable/bluefin
+  branch: release/22.12.1
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: stable/bluefin
+  branch: release/22.12.1
   explicit_deps:
     - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: migrate113
   repo: https://github.com/truenas/freenas-migrate113
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -345,55 +345,55 @@ sources:
     - "make scst-dist-gzip"
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
   kernel_module: true
-  branch: stable/bluefin
+  branch: release/22.12.1
   explicit_deps:
     - openzfs
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   prebuildcmd:
     - "yarn install"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: pydevd
   repo: https://github.com/truenas/pydevd.git
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: throttle
   repo: https://github.com/truenas/throttle
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: aiorwlock
   repo: https://github.com/truenas/aiorwlock
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: migrate93
   repo: https://github.com/truenas/freenas-migrate93
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: intel_pcm
   repo: https://github.com/truenas/intel-pcm
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: minio
   repo: https://github.com/truenas/minio
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -401,52 +401,52 @@ sources:
     - openzfs
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: plugins
   repo: https://github.com/truenas/plugins
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: multus_cni
   repo: https://github.com/truenas/multus-cni
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: kube_router
   repo: https://github.com/truenas/kube-router
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: aiodocker
   repo: https://github.com/truenas/aiodocker
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: k3s
   repo: https://github.com/truenas/k3s
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: swagger
   repo: https://github.com/truenas/swagger
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: truenas_files
   repo: https://github.com/truenas/middleware
-  branch: stable/bluefin
+  branch: release/22.12.1
   subdir: src/freenas
 - name: middlewared
   repo: https://github.com/truenas/middleware
-  branch: stable/bluefin
+  branch: release/22.12.1
   subdir: src/middlewared
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: stable/bluefin
+  branch: release/22.12.1
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: stable/bluefin
+  branch: release/22.12.1
   subdir: debian
 - name: collectd
   repo: https://github.com/truenas/collectd
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -454,7 +454,7 @@ sources:
   generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -464,12 +464,12 @@ sources:
   batch_priority: 150
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: stable/bluefin
+  branch: release/22.12.1
   deoptions: nocheck
   generate_version: false
 - name: rrdcached
   repo: https://github.com/truenas/rrdtool
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -477,7 +477,7 @@ sources:
   generate_version: false
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -485,7 +485,7 @@ sources:
   generate_version: false
 - name: ndctl
   repo: https://github.com/truenas/ndctl
-  branch: stable/bluefin
+  branch: release/22.12.1
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
