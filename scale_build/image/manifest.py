@@ -43,7 +43,7 @@ def build_manifest():
             'checksums': checksums,
             'kernel_version': glob.glob(
                 os.path.join(CHROOT_BASEDIR, 'boot/vmlinuz-*')
-            )[0].split('/')[-1][len('vmlinuz-'):],
+            )[1].split('/')[-1][len('vmlinuz-'):],
         }))
 
     return version
