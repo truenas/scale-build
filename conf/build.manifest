@@ -80,6 +80,7 @@ base-packages:
 - grub-efi-amd64-bin
 - htop
 - ifstat
+- bison
 - nvidia-kernel-dkms
 - nslcd
 - nvidia-container-toolkit
