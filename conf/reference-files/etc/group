@@ -12,6 +12,7 @@ news:x:9:
 uucp:x:10:
 man:x:12:
 proxy:x:13:
+ftp:x:14:
 kmem:x:15:
 dialout:x:20:nut
 fax:x:21:
