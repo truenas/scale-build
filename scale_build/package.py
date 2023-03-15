@@ -84,7 +84,7 @@ def build_package(package_queue, to_build, failed, in_progress, built):
                     with LoggingContext(os.path.join('packages', package.name)):
                         logger.debug('Building local APT repo Packages.gz...')
                         run(
-                            f'cd {PKG_DIR} && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz',
+                            f'cd {PKG_DIR} && dpkg-scanpackages --multiversion . /dev/null | gzip -9c > Packages.gz',
                             shell=True
                         )
                 in_progress.pop(package.name)

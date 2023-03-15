@@ -57,9 +57,11 @@ apt-repos:
 ############################################################################
 base-packages:
 - dosfstools
-- linux-truenas-libc-dev
-- linux-headers-truenas-amd64
-- linux-image-truenas-amd64
+- linux-truenas-production-libc-dev
+- linux-headers-truenas-production-amd64
+- linux-headers-truenas-debug-amd64
+- linux-image-truenas-production-amd64
+- linux-image-truenas-debug-amd64
 - linux-perf
 - avahi-daemon
 - avahi-utils
@@ -92,6 +94,7 @@ base-packages:
 - nfs4xdr-acl-tools
 - nfs4-acl-tools
 - qemu-guest-agent
+- scst-dbg
 - squashfs-tools
 - sysstat
 - libssl1.1
@@ -99,6 +102,7 @@ base-packages:
 - truenas
 - wireguard-dkms
 - wireguard-tools
+- openzfs-zfs-modules-dbg
 - openzfs-zfs-test
 - openzfs-zfs-initramfs
 - nvme-cli
@@ -210,7 +214,7 @@ additional-packages:
 iso-packages:
 - curl
 - bzip2
-- linux-image-truenas-amd64
+- linux-image-truenas-production-amd64
 - dialog
 - iproute2
 - jq
@@ -260,31 +264,42 @@ sources:
   branch: truenas/linux-5.15
   batch_priority: 0
   env:
-    CONFIG_DEBUG_INFO: "Y"
-    CONFIG_LOCALVERSION: "+truenas"
+    EXTRAVERSION: "-production"
   predepscmd:
-    - "apt install -y flex bison dwarves libssl-dev"
+    - "apt install -y flex bison dwarves libssl-dev devscripts"
     # We remove git files because kernel makefile tries to interact with git for determining version
     # which results in misconfigured version due to our debian based changes
     - "rm -rf .git .gitattributes .gitignore"
     - "make defconfig"
     - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/debian_amd64.config"
     - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/truenas.config"
-    - env_checks:
-        - key: DEBUG_KERNEL
-          value: true
-      command: "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/debug.config"
-    - env_checks:
-        - key: EXTRA_KERNEL_CONFIG
-          value: true
-      command: "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/extra.config"
+    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/tn-production.config"
     - "make syncconfig"
     - "make archprepare"
     - "./scripts/package/mkdebian"
   buildcmd:
-    - "cp -a .config /"
-    - "make distclean"
-    - "cp -a  /.config .config"
+    - "rm -rf .config.old"
+    - "make -j$(nproc) bindeb-pkg"
+- name: kernel-dbg
+  repo: https://github.com/truenas/linux
+  branch: truenas/linux-5.15
+  batch_priority: 0
+  env:
+    EXTRAVERSION: "-debug"
+  predepscmd:
+    - "apt install -y flex bison dwarves libssl-dev devscripts"
+    # We remove git files because kernel makefile tries to interact with git for determining version
+    # which results in misconfigured version due to our debian based changes
+    - "rm -rf .git .gitattributes .gitignore"
+    - "make defconfig"
+    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/debian_amd64.config"
+    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/truenas.config"
+    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/tn-debug.config"
+    - "make syncconfig"
+    - "make archprepare"
+    - "./scripts/package/mkdebian"
+  buildcmd:
+    - "rm -rf .config.old"
     - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
@@ -294,7 +309,7 @@ sources:
   batch_priority: 0
   branch: truenas/zfs-2.1-release
   env:
-    KVERS: "$(shell apt info linux-headers-truenas-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+    KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
     KOBJ: "$(KSRC)"
   predepscmd:
@@ -308,6 +323,29 @@ sources:
     - "rm ../openzfs-zfs-dkms*.deb ../openzfs-zfs-dracut*.deb"
     - "debian/rules override_dh_binary-modules"
   kernel_module: true
+  generate_version: false
+- name: openzfs-dbg
+  repo: https://github.com/truenas/zfs
+  batch_priority: 0
+  branch: truenas/zfs-2.1-release
+  env:
+    KVERS: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+    KSRC: "/usr/src/linux-headers-$(KVERS)"
+    KOBJ: "$(KSRC)"
+  predepscmd:
+    - "cp -r contrib/debian debian"
+  deps_path: contrib/debian
+  prebuildcmd:
+    - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
+    - "chmod +x debian/rules"
+    - "sed  -i 's/Provides: openzfs-zfs-modules/Provides: openzfs-zfs-modules-dbg/'  debian/control.modules.in"
+  buildcmd:
+    - "sh autogen.sh"
+    - "./scripts/make_gitrev.sh"
+    - "debian/rules override_dh_binary-modules"
+  kernel_module: true
+  explicit_deps:
+    - kernel-dbg
   generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
@@ -338,7 +376,7 @@ sources:
   repo: https://github.com/truenas/scst
   generate_version: false
   env:
-    KVER: "$(shell apt info linux-headers-truenas-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+    KVER: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KDIR: "/lib/modules/$(KVER)/build"
   prebuildcmd:
     - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
@@ -351,6 +389,24 @@ sources:
   branch: truenas-3.7.x
   explicit_deps:
     - openzfs
+- name: scst-dbg
+  repo: https://github.com/truenas/scst
+  generate_version: false
+  env:
+    KVER: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+    KDIR: "/lib/modules/$(KVER)/build"
+  prebuildcmd:
+    - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
+    - "cat debian/control.dbgmodules > debian/control"
+    - "make debian/changelog"
+  buildcmd:
+    - "make 2debug"
+    - "make scst-dist-gzip"
+    - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
+  kernel_module: true
+  branch: truenas-3.7.x
+  explicit_deps:
+    - openzfs-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
   branch: master
