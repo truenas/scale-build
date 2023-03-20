@@ -206,6 +206,8 @@ additional-packages:
   comment: requested by community (NAS-108490)
 - package: acpica-tools
   comment: requested by platform team (NAS-118432)
+- package: freeipmi
+  comment: requested by engineering (NAS-121050)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
