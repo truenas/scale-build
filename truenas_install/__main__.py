@@ -390,6 +390,10 @@ def main():
                         run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                         undo.append(["umount", f"{root}/boot/grub"])
 
+                        # It will legitimately exit with code 2 if initramfs must be updated (which we'll do anyway)
+                        run_command(["chroot", root, "/usr/local/bin/truenas-autotune.py", "--skip-unknown"],
+                                    check=False)
+
                         if authentication_method is not None:
                             run_command(["chroot", root, "/usr/local/bin/truenas-set-authentication-method.py"],
                                         input=json.dumps(authentication_method))
