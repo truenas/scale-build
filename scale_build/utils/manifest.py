@@ -17,9 +17,7 @@ INDIVIDUAL_REPO_SCHEMA = {
     'type': 'object',
     'properties': {
         'name': {'type': 'string'},
-        'repo': {'type': 'string'},
         'identity_file_path': {'type': 'string'},
-        'branch': {'type': 'string'},
         'batch_priority': {'type': 'integer'},
         'predepscmd': {
             'type': 'array',
@@ -66,7 +64,6 @@ INDIVIDUAL_REPO_SCHEMA = {
         'jobs': {'type': 'integer'},
         'debian_fork': {'type': 'boolean'},
     },
-    'required': ['name', 'branch', 'repo'],
     'additionalProperties': False,
 }
 MANIFEST_SCHEMA = {
@@ -139,8 +136,12 @@ MANIFEST_SCHEMA = {
                 **INDIVIDUAL_REPO_SCHEMA,
                 'subpackages': {
                     'type': 'array',
-                    'items': [INDIVIDUAL_REPO_SCHEMA],
-                }
+                    'items': [{
+                        **INDIVIDUAL_REPO_SCHEMA,
+                        'required': ['name', 'subdir'],
+                    }],
+                },
+                'required': ['name', 'branch', 'repo'],
             }]
         },
     },
