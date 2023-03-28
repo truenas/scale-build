@@ -134,6 +134,8 @@ MANIFEST_SCHEMA = {
             'type': 'array',
             'items': [{
                 **INDIVIDUAL_REPO_SCHEMA,
+                'branch': {'type': 'string'},
+                'repo': {'type': 'string'},
                 'subpackages': {
                     'type': 'array',
                     'items': [{
