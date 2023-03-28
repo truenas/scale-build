@@ -13,6 +13,62 @@ from scale_build.utils.paths import MANIFEST
 BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.-]+\b')
 SSH_SOURCE_REGEX = re.compile(r'^[\w]+@(\w.+):(\w.+)')
 
+INDIVIDUAL_REPO_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'name': {'type': 'string'},
+        'repo': {'type': 'string'},
+        'identity_file_path': {'type': 'string'},
+        'branch': {'type': 'string'},
+        'batch_priority': {'type': 'integer'},
+        'predepscmd': {
+            'type': 'array',
+            'items': [{'type': 'string'}],
+        },
+        'build_constraints': {
+            'type': 'array',
+            'items': [{
+                'type': 'object',
+                'properties': {
+                    'name': {'type': 'string'},
+                    'value': {
+                        'anyOf': [
+                            {'type': 'string'},
+                            {'type': 'integer'},
+                            {'type': 'boolean'},
+                        ],
+                    },
+                    'type': {
+                        'type': 'string',
+                        'enum': ['boolean', 'string', 'integer'],
+                    },
+                },
+                'required': ['name', 'value', 'type'],
+            }],
+        },
+        'buildcmd': {
+            'type': 'array',
+            'items': [{'type': 'string'}],
+        },
+        'prebuildcmd': {
+            'type': 'array',
+            'items': [{'type': 'string'}],
+        },
+        'deps_path': {'type': 'string'},
+        'kernel_module': {'type': 'boolean'},
+        'generate_version': {'type': 'boolean'},
+        'explicit_deps': {
+            'type': 'array',
+            'items': [{'type': 'string'}],
+        },
+        'subdir': {'type': 'string'},
+        'deoptions': {'type': 'string'},
+        'jobs': {'type': 'integer'},
+        'debian_fork': {'type': 'boolean'},
+    },
+    'required': ['name', 'branch', 'repo'],
+    'additionalProperties': False,
+}
 MANIFEST_SCHEMA = {
     'type': 'object',
     'properties': {
@@ -80,60 +136,11 @@ MANIFEST_SCHEMA = {
         'sources': {
             'type': 'array',
             'items': [{
-                'type': 'object',
-                'properties': {
-                    'name': {'type': 'string'},
-                    'repo': {'type': 'string'},
-                    'identity_file_path': {'type': 'string'},
-                    'branch': {'type': 'string'},
-                    'batch_priority': {'type': 'integer'},
-                    'predepscmd': {
-                        'type': 'array',
-                        'items': [{'type': 'string'}],
-                    },
-                    'build_constraints': {
-                        'type': 'array',
-                        'items': [{
-                            'type': 'object',
-                            'properties': {
-                                'name': {'type': 'string'},
-                                'value': {
-                                    'anyOf': [
-                                        {'type': 'string'},
-                                        {'type': 'integer'},
-                                        {'type': 'boolean'},
-                                    ],
-                                },
-                                'type': {
-                                    'type': 'string',
-                                    'enum': ['boolean', 'string', 'integer'],
-                                },
-                            },
-                            'required': ['name', 'value', 'type'],
-                        }],
-                    },
-                    'buildcmd': {
-                        'type': 'array',
-                        'items': [{'type': 'string'}],
-                    },
-                    'prebuildcmd': {
-                        'type': 'array',
-                        'items': [{'type': 'string'}],
-                    },
-                    'deps_path': {'type': 'string'},
-                    'kernel_module': {'type': 'boolean'},
-                    'generate_version': {'type': 'boolean'},
-                    'explicit_deps': {
-                        'type': 'array',
-                        'items': [{'type': 'string'}],
-                    },
-                    'subdir': {'type': 'string'},
-                    'deoptions': {'type': 'string'},
-                    'jobs': {'type': 'integer'},
-                    'debian_fork': {'type': 'boolean'},
-                },
-                'required': ['name', 'branch', 'repo'],
-                'additionalProperties': False,
+                **INDIVIDUAL_REPO_SCHEMA,
+                'subpackages': {
+                    'type': 'array',
+                    'items': [INDIVIDUAL_REPO_SCHEMA],
+                }
             }]
         },
     },
