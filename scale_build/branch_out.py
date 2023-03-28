@@ -7,7 +7,7 @@ from .exceptions import CallError
 from .utils.git_utils import push_changes, safe_checkout
 from .utils.logger import LoggingContext
 from .utils.manifest import update_packages_branch
-from .utils.package import get_packages
+from .utils.package import get_sources
 from .utils.paths import BRANCH_OUT_LOG_DIR
 
 
@@ -28,7 +28,7 @@ def branch_out_repos(push_branched_out_repos):
 
     logger.info('Starting branch out of source using %r branch', BRANCH_OUT_NAME)
 
-    for package in get_packages():
+    for package in get_sources():
         logger.debug('Branching out %r', package.name)
         skip_log = None
         with LoggingContext(os.path.join('branchout', package.name), 'w'):

@@ -3,7 +3,7 @@ import concurrent.futures
 
 from .exceptions import CallError
 from .utils.git_utils import retrieve_git_remote_and_sha, update_git_manifest
-from .utils.package import get_packages
+from .utils.package import get_sources
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def checkout_sources():
             'checkout_method': pkg.checkout,
             'get_branch_override_method': pkg.get_branch_override,
             'branch_override': None,
-        } for pkg in get_packages()
+        } for pkg in get_sources()
     }
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS) as exc:
         logger.info('Getting override for branches')
