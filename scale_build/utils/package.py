@@ -23,6 +23,7 @@ def get_packages():
                     **sub_pkg,
                     'branch': pkg.branch,
                     'repo': pkg.origin,
+                    'source_name': pkg.source_name,
                 })
                 if sub_pkg.to_build:
                     pkgs.append(sub_pkg)

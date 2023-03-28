@@ -26,9 +26,10 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
         buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
-        build_constraints=None, debian_fork=False,
+        build_constraints=None, debian_fork=False, source_name=None,
     ):
         self.name = name
+        self.source_name = source_name or name
         self.branch = branch
         self.origin = repo
         self.prebuildcmd = prebuildcmd or []
@@ -82,7 +83,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
 
     @property
     def source_path(self):
-        return os.path.join(SOURCES_DIR, self.name)
+        return os.path.join(SOURCES_DIR, self.source_name)
 
     @property
     def binary_packages(self):
