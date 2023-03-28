@@ -133,15 +133,18 @@ MANIFEST_SCHEMA = {
         'sources': {
             'type': 'array',
             'items': [{
-                **INDIVIDUAL_REPO_SCHEMA,
-                'branch': {'type': 'string'},
-                'repo': {'type': 'string'},
-                'subpackages': {
-                    'type': 'array',
-                    'items': [{
-                        **INDIVIDUAL_REPO_SCHEMA,
-                        'required': ['name', 'subdir'],
-                    }],
+                **{k: v for k, v in INDIVIDUAL_REPO_SCHEMA.items() if k != 'properties'},
+                'properties': {
+                    **INDIVIDUAL_REPO_SCHEMA['properties'],
+                    'branch': {'type': 'string'},
+                    'repo': {'type': 'string'},
+                    'subpackages': {
+                        'type': 'array',
+                        'items': [{
+                            **INDIVIDUAL_REPO_SCHEMA,
+                            'required': ['name', 'subdir'],
+                        }],
+                    },
                 },
                 'required': ['name', 'branch', 'repo'],
             }]
