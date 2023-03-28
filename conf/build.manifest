@@ -493,21 +493,18 @@ sources:
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: main
-- name: truenas_files
-  repo: https://github.com/truenas/middleware
-  branch: master
-  subdir: src/freenas
-- name: middlewared
-  repo: https://github.com/truenas/middleware
-  branch: master
-  subdir: src/middlewared
-- name: midcli
-  repo: https://github.com/truenas/midcli
-  branch: master
 - name: truenas
   repo: https://github.com/truenas/middleware
   branch: master
   subdir: debian
+  subpackages:
+    - name: middlewared
+      subdir: src/middlewared
+    - name: truenas_files
+      subdir: src/freenas
+- name: midcli
+  repo: https://github.com/truenas/midcli
+  branch: master
 - name: collectd
   repo: https://github.com/truenas/collectd
   branch: master
