@@ -208,6 +208,14 @@ additional-packages:
   comment: requested by platform team (NAS-118432)
 - package: freeipmi
   comment: requested by engineering (NAS-121050)
+- package: cu
+  comment: requested by platform team (NAS-120155)
+- package: lrzsz
+  comment: requested by platform team (NAS-120155)
+- package: minicom
+  comment: requested by platform team (NAS-120155)
+- package: i2c-tools
+  comment: requested by platform team (NAS-120155)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
