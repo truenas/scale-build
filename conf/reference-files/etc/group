@@ -78,3 +78,4 @@ docker:x:999:
 libvirt-qemu:x:64055:libvirt-qemu
 haproxy:x:130:
 uuidd:x:131:
+i2c:x:132:
