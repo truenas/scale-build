@@ -210,6 +210,8 @@ additional-packages:
   comment: requested by engineering (NAS-121050)
 - package: cu
   comment: requested by platform team (NAS-120155)
+- package: lsscsi
+  comment: requested by platform team (NAS-120155)
 - package: lrzsz
   comment: requested by platform team (NAS-120155)
 - package: minicom
