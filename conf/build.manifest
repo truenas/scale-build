@@ -200,8 +200,6 @@ additional-packages:
   comment: requested by community (NAS-113898)
 - package: pv
   comment: requested by community (NAS-115638)
-- package: ndctl
-  comment: requested by community (NAS-108490)
 - package: ipmctl
   comment: requested by community (NAS-108490)
 - package: acpica-tools
@@ -557,14 +555,6 @@ sources:
   repo: https://github.com/truenas/smartmontools
   branch: master
   debian_fork: true
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
-  deoptions: nocheck
-  generate_version: false
-- name: ndctl
-  repo: https://github.com/truenas/ndctl
-  branch: main
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
