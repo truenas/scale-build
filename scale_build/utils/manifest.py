@@ -142,7 +142,7 @@ MANIFEST_SCHEMA = {
                         'type': 'array',
                         'items': [{
                             **INDIVIDUAL_REPO_SCHEMA,
-                            'required': ['name', 'subdir'],
+                            'required': ['name'],
                         }],
                     },
                 },
