@@ -19,14 +19,13 @@ def get_packages():
         pkg = Package(**pkg)
         if pkg.to_build:
             pkgs.append(pkg)
-        if sub_packages:
-            for sub_pkg in sub_packages:
-                sub_pkg = Package(**{
-                    **sub_pkg,
-                    'branch': pkg.branch,
-                    'repo': pkg.origin,
-                    'source_name': pkg.source_name,
-                })
-                if sub_pkg.to_build:
-                    pkgs.append(sub_pkg)
+        for sub_pkg in sub_packages:
+            sub_pkg = Package(**{
+                **sub_pkg,
+                'branch': pkg.branch,
+                'repo': pkg.origin,
+                'source_name': pkg.source_name,
+            })
+            if sub_pkg.to_build:
+                pkgs.append(sub_pkg)
     return pkgs
