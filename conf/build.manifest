@@ -452,9 +452,6 @@ sources:
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
   branch: master
-- name: intel_pcm
-  repo: https://github.com/truenas/intel-pcm
-  branch: master
 - name: minio
   repo: https://github.com/truenas/minio
   branch: master
