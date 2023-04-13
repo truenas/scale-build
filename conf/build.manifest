@@ -249,14 +249,6 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
-- name: corssl
-  repo: git@github.com:iXsystems/corssl.git
-  branch: master
-  generate_version: false
-  build_constraints:
-    - name: FIPS
-      value: true
-      type: boolean
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
   branch: master
