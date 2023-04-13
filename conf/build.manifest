@@ -290,27 +290,26 @@ sources:
   buildcmd:
     - "rm -rf .config.old"
     - "make -j$(nproc) bindeb-pkg"
-- name: kernel-dbg
-  repo: https://github.com/truenas/linux
-  branch: truenas/linux-5.15
-  batch_priority: 0
-  env:
-    EXTRAVERSION: "-debug"
-  predepscmd:
-    - "apt install -y flex bison dwarves libssl-dev devscripts"
-    # We remove git files because kernel makefile tries to interact with git for determining version
-    # which results in misconfigured version due to our debian based changes
-    - "rm -rf .git .gitattributes .gitignore"
-    - "make defconfig"
-    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/debian_amd64.config"
-    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/truenas.config"
-    - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/tn-debug.config"
-    - "make syncconfig"
-    - "make archprepare"
-    - "./scripts/package/mkdebian"
-  buildcmd:
-    - "rm -rf .config.old"
-    - "make -j$(nproc) bindeb-pkg"
+  subpackages:
+    - name: kernel-dbg
+      batch_priority: 0
+      env:
+        EXTRAVERSION: "-debug"
+      predepscmd:
+        - "apt install -y flex bison dwarves libssl-dev devscripts"
+        # We remove git files because kernel makefile tries to interact with git for determining version
+        # which results in misconfigured version due to our debian based changes
+        - "rm -rf .git .gitattributes .gitignore"
+        - "make defconfig"
+        - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/debian_amd64.config"
+        - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/truenas.config"
+        - "./scripts/kconfig/merge_config.sh .config scripts/package/truenas/tn-debug.config"
+        - "make syncconfig"
+        - "make archprepare"
+        - "./scripts/package/mkdebian"
+      buildcmd:
+        - "rm -rf .config.old"
+        - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
   branch: master
@@ -334,29 +333,28 @@ sources:
     - "debian/rules override_dh_binary-modules"
   kernel_module: true
   generate_version: false
-- name: openzfs-dbg
-  repo: https://github.com/truenas/zfs
-  batch_priority: 0
-  branch: truenas/zfs-2.1-release
-  env:
-    KVERS: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
-    KSRC: "/usr/src/linux-headers-$(KVERS)"
-    KOBJ: "$(KSRC)"
-  predepscmd:
-    - "cp -r contrib/debian debian"
-  deps_path: contrib/debian
-  prebuildcmd:
-    - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
-    - "chmod +x debian/rules"
-    - "sed  -i 's/Provides: openzfs-zfs-modules/Provides: openzfs-zfs-modules-dbg/'  debian/control.modules.in"
-  buildcmd:
-    - "sh autogen.sh"
-    - "./scripts/make_gitrev.sh"
-    - "debian/rules override_dh_binary-modules"
-  kernel_module: true
-  explicit_deps:
-    - kernel-dbg
-  generate_version: false
+  subpackages:
+    - name: openzfs-dbg
+      batch_priority: 0
+      env:
+        KVERS: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+        KSRC: "/usr/src/linux-headers-$(KVERS)"
+        KOBJ: "$(KSRC)"
+      predepscmd:
+        - "cp -r contrib/debian debian"
+      deps_path: contrib/debian
+      prebuildcmd:
+        - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
+        - "chmod +x debian/rules"
+        - "sed  -i 's/Provides: openzfs-zfs-modules/Provides: openzfs-zfs-modules-dbg/'  debian/control.modules.in"
+      buildcmd:
+        - "sh autogen.sh"
+        - "./scripts/make_gitrev.sh"
+        - "debian/rules override_dh_binary-modules"
+      kernel_module: true
+      explicit_deps:
+        - kernel-dbg
+      generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-18-stable
@@ -399,24 +397,24 @@ sources:
   branch: truenas-3.7.x
   explicit_deps:
     - openzfs
-- name: scst-dbg
-  repo: https://github.com/truenas/scst
-  generate_version: false
-  env:
-    KVER: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
-    KDIR: "/lib/modules/$(KVER)/build"
-  prebuildcmd:
-    - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
-    - "cat debian/control.dbgmodules > debian/control"
-    - "make debian/changelog"
-  buildcmd:
-    - "make 2debug"
-    - "make scst-dist-gzip"
-    - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
-  kernel_module: true
-  branch: truenas-3.7.x
-  explicit_deps:
-    - openzfs-dbg
+  subpackages:
+    - name: scst-dbg
+      generate_version: false
+      env:
+        KVER: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
+        KDIR: "/lib/modules/$(KVER)/build"
+      prebuildcmd:
+        - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
+        - "cat debian/control.dbgmodules > debian/control"
+        - "make debian/changelog"
+      buildcmd:
+        - "make 2debug"
+        - "make scst-dist-gzip"
+        - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
+      kernel_module: true
+      branch: truenas-3.7.x
+      explicit_deps:
+        - openzfs-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
   branch: master
@@ -495,21 +493,18 @@ sources:
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: main
-- name: truenas_files
-  repo: https://github.com/truenas/middleware
-  branch: master
-  subdir: src/freenas
-- name: middlewared
-  repo: https://github.com/truenas/middleware
-  branch: master
-  subdir: src/middlewared
-- name: midcli
-  repo: https://github.com/truenas/midcli
-  branch: master
 - name: truenas
   repo: https://github.com/truenas/middleware
   branch: master
   subdir: debian
+  subpackages:
+    - name: middlewared
+      subdir: src/middlewared
+    - name: truenas_files
+      subdir: src/freenas
+- name: midcli
+  repo: https://github.com/truenas/midcli
+  branch: master
 - name: collectd
   repo: https://github.com/truenas/collectd
   branch: master
