@@ -50,6 +50,9 @@ apt-repos:
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/nvidia/
     distribution: bookworm
     component: main
+  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/pcm/
+    distribution: bookworm
+    component: main
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
