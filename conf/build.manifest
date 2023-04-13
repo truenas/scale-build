@@ -428,9 +428,6 @@ sources:
 - name: sedutil
   repo: https://github.com/truenas/sedutil
   branch: master
-- name: pydevd
-  repo: https://github.com/truenas/pydevd.git
-  branch: master
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
   branch: master
