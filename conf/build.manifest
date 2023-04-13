@@ -17,15 +17,15 @@ apt-repos:
     component: main
     key: keys/gluster.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/libnvidia/
-    distribution: bullseye
+    distribution: bookworm
     component: main
     key: keys/docker.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/nvidia-container/
-    distribution: bullseye
+    distribution: bookworm
     component: main
     key: keys/docker.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/nvidia-docker/
-    distribution: bullseye
+    distribution: bookworm
     component: main
     key: keys/docker.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/helm/
@@ -48,7 +48,7 @@ apt-repos:
     distribution: stable
     component: main
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/nvidia/
-    distribution: bullseye
+    distribution: bookworm
     component: main
 
 #
