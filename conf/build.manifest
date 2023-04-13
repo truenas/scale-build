@@ -553,12 +553,3 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: smartmontools
-  repo: https://github.com/truenas/smartmontools
-  branch: master
-  debian_fork: true
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
-  deoptions: nocheck
-  generate_version: false
