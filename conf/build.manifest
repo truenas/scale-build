@@ -257,9 +257,6 @@ sources:
     - name: FIPS
       value: true
       type: boolean
-- name: waagent
-  repo: https://github.com/truenas/WALinuxAgent.git
-  branch: truenas/master
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
   branch: master
