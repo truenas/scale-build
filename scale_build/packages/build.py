@@ -167,4 +167,4 @@ class BuildPackageMixin:
 
     @property
     def deflags(self):
-        return [f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
+        return ['--no-lintian', f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
