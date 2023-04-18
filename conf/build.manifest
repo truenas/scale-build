@@ -133,7 +133,7 @@ build-epoch: 6
 ############################################################################
 apt_preferences:
 - Package: "*"
-  Pin: "release n=bullseye"
+  Pin: "release n=bookworm"
   Pin-Priority: 900
 - Package: "*"
   Pin: "origin \"\""
@@ -141,15 +141,9 @@ apt_preferences:
 - Package: "*cuda*"
   Pin: "version 515*"
   Pin-Priority: 1000
-- Package: "*golang*"
-  Pin: "release n=bullseye-backports"
-  Pin-Priority: 1000
 - Package: "*libnvcuvid*"
   Pin: "version 515*"
   Pin-Priority: 1000
-- Package: "libssl1.1"
-  Pin:  "origin \"\""
-  Pin-Priority: 1100
 - Package: "*node*"
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
