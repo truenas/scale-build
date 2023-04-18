@@ -92,8 +92,6 @@ base-packages:
 - scst-dbg
 - squashfs-tools
 - sysstat
-- libssl1.1
-- openssl
 - truenas
 - wireguard-dkms
 - wireguard-tools
