@@ -93,7 +93,6 @@ base-packages:
 - squashfs-tools
 - sysstat
 - truenas
-- wireguard-dkms
 - wireguard-tools
 - openzfs-zfs-modules-dbg
 - openzfs-zfs-test
