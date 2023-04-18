@@ -70,8 +70,7 @@ base-packages:
 - avahi-utils
 - nfs-kernel-server
 - bpftrace
-- bpfcc-tools
-- consul
+- bpfcc-tools 
 - firmware-bnx2
 - firmware-bnx2x
 - firmware-cavium
