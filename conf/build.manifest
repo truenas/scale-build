@@ -463,6 +463,9 @@ sources:
   deps_path: packaging/debian
   explicit_deps:
     - openzfs
+- name: ixdiagnose
+  repo: https://github.com/truenas/ixdiagnose
+  branch: master
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
   branch: master
