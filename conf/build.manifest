@@ -20,10 +20,6 @@ apt-repos:
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/nvidia-docker/
-    distribution: bookworm
-    component: main
-    key: keys/docker.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/helm/
     distribution: all
     component: main
