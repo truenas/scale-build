@@ -1,6 +1,7 @@
 import contextlib
 import glob
 import itertools
+import logging
 import os
 import textwrap
 import shutil
@@ -14,6 +15,9 @@ from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 from .bootstrap import umount_chroot_basedir
 from .manifest import build_manifest, build_release_manifest, update_file_path, update_file_checksum_path
 from .utils import run_in_chroot
+
+
+logger == logging.getLogger(__name__)
 
 
 def build_rootfs_image():
@@ -78,6 +82,7 @@ def install_rootfs_packages_impl():
     for package in itertools.chain(
         manifest['base-packages'], map(lambda d: d['package'], manifest['additional-packages'])
     ):
+        logger.debug('Installing %r', package)
         run_in_chroot(['apt', 'install', '--no-install-recommends', '-V', '-y', package])
 
     # Do any custom rootfs setup
