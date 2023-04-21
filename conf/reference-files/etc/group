@@ -81,3 +81,7 @@ uuidd:x:131:
 i2c:x:132:
 sgx:x:133:
 _ssh:x:134:
+ntpsec:x:135:
+tss:x:136:
+iperf3:x:137:
+polkitd:x:998:
