@@ -83,7 +83,7 @@ def install_rootfs_packages_impl():
         manifest['base-packages'], map(lambda d: d['package'], manifest['additional-packages'])
     ):
         logger.debug('Installing %r', package)
-        run_in_chroot(['apt', 'install', '--no-install-recommends', '-V', '-y', package])
+        run_in_chroot(['apt', 'install', '-V', '-y', package])
 
     # Do any custom rootfs setup
     custom_rootfs_setup()
