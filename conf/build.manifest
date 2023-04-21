@@ -121,13 +121,13 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 950
 - Package: "*cuda*"
-  Pin: "version 515.89*"
+  Pin: "version 525.89*"
   Pin-Priority: 1000
 - Package: "*libnvcuvid*"
-  Pin: "version 515.89*"
+  Pin: "version 525.89*"
   Pin-Priority: 1000
 - Package: "*nvidia*"
-  Pin: "version 515.89*"
+  Pin: "version 525.89*"
   Pin-Priority: 1000
 - Package: "*policykit*"
   Pin: "release n=bookworm-security"
