@@ -17,7 +17,7 @@ from .manifest import build_manifest, build_release_manifest, update_file_path, 
 from .utils import run_in_chroot
 
 
-logger == logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def build_rootfs_image():
