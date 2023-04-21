@@ -78,7 +78,7 @@ def install_rootfs_packages_impl():
     for package in itertools.chain(
         manifest['base-packages'], map(lambda d: d['package'], manifest['additional-packages'])
     ):
-        run_in_chroot(['apt', 'install', '-V', '-y', package])
+        run_in_chroot(['apt', 'install', '--no-install-recommends', '-V', '-y', package])
 
     # Do any custom rootfs setup
     custom_rootfs_setup()
