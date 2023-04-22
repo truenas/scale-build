@@ -109,6 +109,7 @@ def make_iso_file():
         iso = os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')
         run_in_chroot(['grub-mkrescue', '-o', iso, CD_DIR])
 
+        '''
         # Installed grub EFI image does not support `search` command which we need to make TrueNAS ISO working in
         # Rufus "ISO Image mode".
         # Let's just replace it with pre-built Debian GRUB EFI image that the official Debian ISO installer uses.
@@ -159,6 +160,7 @@ def make_iso_file():
                         run(['losetup', '-d', lo])
                 finally:
                     run(['umount', td])
+        ''' # noqa
     finally:
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, CD_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
