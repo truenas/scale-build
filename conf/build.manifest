@@ -402,7 +402,7 @@ sources:
   branch: master
 - name: migrate93
   repo: https://github.com/truenas/freenas-migrate93
-  branch: truenas/scale
+  branch: stable/cobia
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
   branch: master
