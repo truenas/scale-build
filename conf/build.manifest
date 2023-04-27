@@ -397,9 +397,6 @@ sources:
 - name: throttle
   repo: https://github.com/truenas/throttle
   branch: master
-- name: aiorwlock
-  repo: https://github.com/truenas/aiorwlock
-  branch: master
 - name: licenselib
   repo: https://github.com/truenas/licenselib
   branch: master
