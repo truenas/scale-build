@@ -120,6 +120,10 @@ base-prune:
 - libgdk-pixbuf2.0-0
 - x11-common
 - python-is-python2
+# dependency tree openvpn->easy-rsa->opensc
+# we don't need this package since it's for dealing with smart cards
+# but more importantly, removes a category of potentical CVE exposure
+- opensc
 
 #
 # Update build-epoch when you want to force the next build to be
