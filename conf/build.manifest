@@ -207,6 +207,7 @@ iso-packages:
 - truenas-installer
 - pciutils
 - python3-libzfs
+- python3-licenselib
 - python3-pyudev
 - setserial
 - udhcpc

@@ -1,5 +1,6 @@
 # -*- coding=utf-8 -*-
 import contextlib
+from datetime import datetime
 import itertools
 import json
 import logging
@@ -14,6 +15,8 @@ import tempfile
 import textwrap
 
 import psutil
+
+from licenselib.license import ContractType, License
 
 logger = logging.getLogger(__name__)
 
@@ -79,14 +82,14 @@ def dict_factory(cursor, row):
     return d
 
 
-def query_config_table(table, database_path, prefix=None):
+def query_row(query, database_path, prefix=None):
     database_path = database_path
     conn = sqlite3.connect(database_path)
     try:
         conn.row_factory = dict_factory
         c = conn.cursor()
         try:
-            c.execute(f"SELECT * FROM {table}")
+            c.execute(query)
             result = c.fetchone()
         finally:
             c.close()
@@ -95,6 +98,10 @@ def query_config_table(table, database_path, prefix=None):
     if prefix:
         result = {k.replace(prefix, ""): v for k, v in result.items()}
     return result
+
+
+def query_config_table(table, database_path, prefix=None):
+    return query_config_table(f"SELECT * FROM {table}", database_path, prefix)
 
 
 def configure_serial_port(root, db_path):
@@ -109,8 +116,12 @@ def configure_serial_port(root, db_path):
         )
 
 
+def database_path(root):
+    return os.path.join(root, "data/freenas-v1.db")
+
+
 def enable_system_user_services(root, old_root):
-    configure_serial_port(root, os.path.join(old_root, "data/freenas-v1.db"))
+    configure_serial_port(root, database_path(old_root))
     enable_user_services(root, old_root)
 
 
@@ -235,17 +246,68 @@ def configure_system_for_zectl(boot_pool):
         run_command(["zfs", "set", "org.zectl:bootloader=grub", root_ds])
 
 
+def read_license(root):
+    license_path = os.path.join(root, "data/license")
+    try:
+        with open(license_path) as f:
+            return License.load(f.read().strip('\n'))
+    except Exception:
+        return None
+
+
+def precheck(old_root):
+    if old_root is not None:
+        if licenseobj := read_license(old_root):
+            if ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold]:
+                if licenseobj.contract_end > datetime.utcnow().date():
+                    db_path = database_path(old_root)
+                    if os.path.exists(db_path):
+                        try:
+                            if query_row(
+                                "SELECT * FROM services_services WHERE srv_service = 's3' AND srv_enable = 1",
+                                db_path,
+                            ) is not None:
+                                return (
+                                    "You have built-in S3 service enabled in your configuration. This is not supported "
+                                    "anymore. Please, contact our support team."
+                                )
+                        except Exception:
+                            pass
+
+                    for p in psutil.process_iter():
+                        if p.name() == "minio":
+                            try:
+                                with open(f"/proc/{p.pid}/cgroup") as f:
+                                    cgroups = f.read()
+                            except FileNotFoundError:
+                                cgroups = ""
+
+                            if "kubepods.slice" not in cgroups:
+                                return (
+                                    "Built-in S3 service is running. This is not supported anymore. Please, contact "
+                                    "our support team."
+                                )
+
+
 def main():
     global is_json_output
 
     input = json.loads(sys.stdin.read())
 
-    cleanup = input.get("cleanup", True)
-    disks = input["disks"]
-    force_grub_install = input.get("force_grub_install", False)
     if input.get("json"):
         is_json_output = True
     old_root = input.get("old_root", None)
+
+    if input.get("precheck"):
+        if error := precheck(old_root):
+            write_error(error)
+            sys.exit(2)
+        else:
+            sys.exit(0)
+
+    cleanup = input.get("cleanup", True)
+    disks = input["disks"]
+    force_grub_install = input.get("force_grub_install", False)
     authentication_method = input.get("authentication_method", None)
     pool_name = input["pool_name"]
     sql = input.get("sql", None)
