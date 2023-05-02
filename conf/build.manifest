@@ -410,9 +410,6 @@ sources:
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
   branch: master
-- name: minio
-  repo: https://github.com/truenas/minio
-  branch: master
 - name: zectl
   repo: https://github.com/truenas/zectl
   branch: master
