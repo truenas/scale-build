@@ -327,6 +327,7 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
+    - openzfs-dbg
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
@@ -336,6 +337,7 @@ sources:
   branch: master
   explicit_deps:
     - openzfs
+    - openzfs-dbg
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
   branch: master
@@ -362,6 +364,7 @@ sources:
   branch: truenas-3.7.x
   explicit_deps:
     - openzfs
+    - openzfs-dbg
   subpackages:
     - name: scst-dbg
       generate_version: false
@@ -419,6 +422,7 @@ sources:
   deps_path: packaging/debian
   explicit_deps:
     - openzfs
+    - openzfs-dbg
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
   branch: master
