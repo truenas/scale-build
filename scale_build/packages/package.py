@@ -90,7 +90,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         if self._binary_packages:
             return self._binary_packages
 
-        if self.name == 'kernel' or (self.predepscmd and not self.deps_path):
+        if self.name in ('kernel', 'kernel-dbg') or (self.predepscmd and not self.deps_path):
             # We cannot determine dependency of this package because it does not probably have a control file
             # in it's current state - the only example we have is grub right now. Let's improve this if there are
             # more examples
@@ -99,7 +99,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
 
         cp = run([DEPENDS_SCRIPT_PATH, self.debian_control_file_path], log=False)
         info = json.loads(cp.stdout)
-        default_dependencies = {'kernel'} if self.kernel_module else set()
+        default_dependencies = {'kernel', 'kernel-dbg'} if self.kernel_module else set()
         self.build_depends = set(
             normalize_build_depends(info['source_package']['build_depends'])
         ) | default_dependencies
