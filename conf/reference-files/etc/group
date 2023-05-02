@@ -68,7 +68,6 @@ nut:x:126:
 ladvd:x:127:
 libvirt:x:128:
 nova:x:129:
-minio:x:473:
 builtin_administrators:x:544:
 builtin_users:x:545:
 builtin_guests:x:546:
