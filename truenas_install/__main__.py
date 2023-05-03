@@ -98,7 +98,7 @@ def query_row(query, database_path, prefix=None):
 
 
 def query_config_table(table, database_path, prefix=None):
-    return query_config_table(f"SELECT * FROM {table}", database_path, prefix)
+    return query_row(f"SELECT * FROM {table}", database_path, prefix)
 
 
 def configure_serial_port(root, db_path):
