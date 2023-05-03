@@ -79,14 +79,14 @@ def dict_factory(cursor, row):
     return d
 
 
-def query_config_table(table, database_path, prefix=None):
+def query_row(query, database_path, prefix=None):
     database_path = database_path
     conn = sqlite3.connect(database_path)
     try:
         conn.row_factory = dict_factory
         c = conn.cursor()
         try:
-            c.execute(f"SELECT * FROM {table}")
+            c.execute(query)
             result = c.fetchone()
         finally:
             c.close()
@@ -95,6 +95,10 @@ def query_config_table(table, database_path, prefix=None):
     if prefix:
         result = {k.replace(prefix, ""): v for k, v in result.items()}
     return result
+
+
+def query_config_table(table, database_path, prefix=None):
+    return query_config_table(f"SELECT * FROM {table}", database_path, prefix)
 
 
 def configure_serial_port(root, db_path):
@@ -109,8 +113,12 @@ def configure_serial_port(root, db_path):
         )
 
 
+def database_path(root):
+    return os.path.join(root, "data/freenas-v1.db")
+
+
 def enable_system_user_services(root, old_root):
-    configure_serial_port(root, os.path.join(old_root, "data/freenas-v1.db"))
+    configure_serial_port(root, database_path(old_root))
     enable_user_services(root, old_root)
 
 
@@ -235,17 +243,29 @@ def configure_system_for_zectl(boot_pool):
         run_command(["zfs", "set", "org.zectl:bootloader=grub", root_ds])
 
 
+def precheck(old_root):
+    pass
+
+
 def main():
     global is_json_output
 
     input = json.loads(sys.stdin.read())
 
-    cleanup = input.get("cleanup", True)
-    disks = input["disks"]
-    force_grub_install = input.get("force_grub_install", False)
     if input.get("json"):
         is_json_output = True
     old_root = input.get("old_root", None)
+
+    if input.get("precheck"):
+        if error := precheck(old_root):
+            write_error(error)
+            sys.exit(2)
+        else:
+            sys.exit(0)
+
+    cleanup = input.get("cleanup", True)
+    disks = input["disks"]
+    force_grub_install = input.get("force_grub_install", False)
     authentication_method = input.get("authentication_method", None)
     pool_name = input["pool_name"]
     sql = input.get("sql", None)
