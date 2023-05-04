@@ -3,6 +3,8 @@ import coloredlogs
 import logging
 import sys
 
+from pathlib import Path
+
 from .branch_out import branch_out_repos, validate_branch_out_config
 from .checkout import checkout_sources
 from .clean import complete_cleanup
@@ -60,6 +62,9 @@ def main():
     packages_parser.add_argument(
         '--packages', '-p', help='Specify specific packages to be built', default=[], nargs='+'
     )
+    packages_parser.add_argument(
+        '--ccache_dir', help='Specify ccache directory', default='', nargs='?'
+    )
     subparsers.add_parser('update', help='Create TrueNAS Scale update image')
     subparsers.add_parser('iso', help='Create TrueNAS Scale iso installation file')
     branchout_parser = subparsers.add_parser('branchout', help='Checkout new branch for all packages')
@@ -83,7 +88,13 @@ def main():
     elif args.action == 'packages':
         validate()
         check_epoch()
-        build_packages(args.packages)
+        ccache = {}
+        if args.ccache_dir:
+            p = Path(args.ccache_dir)
+            if not p.is_dir():
+                raise ValueError("Supplied ccache_dir does not exist", args.ccache_dir)
+            ccache['ccache_dir'] = args.ccache_dir
+        build_packages(args.packages, ccache)
     elif args.action == 'update':
         validate()
         build_update_image()

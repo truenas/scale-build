@@ -10,6 +10,7 @@ from scale_build.utils.paths import HASH_DIR, PKG_LOG_DIR, SOURCES_DIR
 from .binary_package import BinaryPackage
 from .bootstrap import BootstrapMixin
 from .build import BuildPackageMixin
+from .ccache import CcacheMixin
 from .clean import BuildCleanMixin
 from .git import GitPackageMixin
 from .overlay import OverlayMixin
@@ -22,7 +23,7 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
-class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixin, OverlayMixin):
+class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixin, OverlayMixin, CcacheMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,

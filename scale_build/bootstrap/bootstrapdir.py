@@ -21,10 +21,10 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.logger = logger
         self.chroot_basedir = CHROOT_BASEDIR
 
-    def setup(self):
+    def setup(self, ccache_enabled=False):
         self.clean_setup()
         try:
-            self.setup_impl()
+            self.setup_impl(ccache_enabled)
         finally:
             self.clean_setup()
 
@@ -38,7 +38,7 @@ class BootstrapDir(CacheMixin, HashMixin):
             ]
         )
 
-    def setup_impl(self):
+    def setup_impl(self, ccache_enabled=False):
         if self.mirror_cache_intact:
             # Mirror cache is intact, we do not need to re-create the bootstrap directory
             self.logger.debug('Basechroot cache is intact and does not need to be changed')
@@ -84,6 +84,11 @@ class BootstrapDir(CacheMixin, HashMixin):
 
         if self.extra_packages_to_install:
             run(['chroot', self.chroot_basedir, 'apt', 'install', '-y'] + self.extra_packages_to_install)
+
+        if ccache_enabled:
+            run(['chroot', self.chroot_basedir, 'apt', 'install', '-y', 'ccache'])
+            with open(os.path.join(self.chroot_basedir, 'root/.bashrc'), 'a') as bashrc:
+                bashrc.write('export PATH=/usr/lib/ccache:$PATH\n')
 
         installed_packages = self.get_packages()
 
