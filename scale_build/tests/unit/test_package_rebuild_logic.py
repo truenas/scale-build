@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from scale_build.packages.order import get_to_build_packages
 from scale_build.packages.package import Package, BinaryPackage
+from scale_build.tests.unit.utils import get_asset
 
 
 BUILD_MANIFEST = {
@@ -74,19 +75,13 @@ BUILD_MANIFEST = {
 }
 
 
-def add_binary_dependencies(pkg: Package):
-    binary_packages = []
-    for bin_pkg in get_binary_packages().get(pkg.name, []):
-        binary_packages.append(BinaryPackage(bin_pkg['name'], set(), bin_pkg['source_package'], pkg.name, set()))
-    pkg._binary_packages = binary_packages
-
-
 def all_packages():
+    binary_packages = get_asset('binary_packages')
     pkgs = []
     for pkg in copy.deepcopy(BUILD_MANIFEST)['sources']:
         sub_packages = pkg.pop('subpackages', [])
         pkg = Package(**pkg)
-        add_binary_dependencies(pkg)
+        pkg._binary_packages = [BinaryPackage(**bin_pkg) for bin_pkg in binary_packages[pkg.name]]
         pkgs.append(pkg)
         for sub_pkg in sub_packages:
             sub_pkg = Package(**{
@@ -95,7 +90,7 @@ def all_packages():
                 'repo': pkg.origin,
                 'source_name': pkg.source_name,
             })
-            add_binary_dependencies(sub_pkg)
+            sub_pkg._binary_packages = [BinaryPackage(**bin_pkg) for bin_pkg in binary_packages[pkg.name]]
             pkgs.append(sub_pkg)
     return pkgs
 
@@ -119,10 +114,6 @@ def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping, 
                 Package, '_hash_changed', autospec=True, side_effect=mock_hash_changed(changed_hashes_mapping)
             ):
                 to_build_packages = get_to_build_packages()
-                if 'kernel' in to_build_packages:
-                    print('\n\n', to_build_packages['kernel'].children)
-                    print(to_build_packages['kernel'].binary_packages)
-                    print(to_build_packages['kernel'].build_depends)
                 for package in packages_to_be_rebuilt:
                     if rebuild:
                         assert package in to_build_packages, to_build_packages.keys()
