@@ -360,8 +360,6 @@ sources:
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
   kernel_module: true
   branch: truenas-3.7.x
-  explicit_deps:
-    - openzfs
   subpackages:
     - name: scst-dbg
       generate_version: false
@@ -377,8 +375,6 @@ sources:
         - "make scst-dist-gzip"
         - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
       kernel_module: true
-      explicit_deps:
-        - openzfs-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
   branch: master
