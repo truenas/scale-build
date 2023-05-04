@@ -1,5 +1,4 @@
 import copy
-import functools
 import pytest
 
 from unittest.mock import patch
@@ -75,117 +74,6 @@ BUILD_MANIFEST = {
 }
 
 
-@functools.cache
-def get_binary_packages() -> dict:
-    binary_packages = {
-        'openzfs': [
-            {
-                'name': 'openzfs-libnvpair3',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-libpam-zfs',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-libuutil3',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-libzfs-dev',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-libzfs4',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-libzfsbootenv1',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-libzpool5',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-python3-pyzfs',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-pyzfs-doc',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-zfs-dkms',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-zfs-initramfs',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-zfs-dracut',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-zfsutils',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-zfs-zed',
-                'source_package': 'openzfs-linux',
-            },
-            {
-                'name': 'openzfs-zfs-test',
-                'source_package': 'openzfs-linux',
-            }
-        ],
-        'py_libzfs': [
-            {
-                'name': 'python3-libzfs',
-                'source_package': 'py-libzfs',
-            }
-        ],
-        'scst': [
-            {
-                'name': 'scst',
-                'source_package': 'scst',
-            },
-            {
-                'name': 'scst-dkms',
-                'source_package': 'scst',
-            },
-            {
-                'name': 'scst-dev',
-                'source_package': 'scst',
-            },
-            {
-                'name': 'scstadmin',
-                'source_package': 'scst',
-            },
-            {
-                'name': 'iscsi-scst',
-                'source_package': 'scst',
-            }
-        ],
-        'zectl': [
-            {
-                'name': 'zectl',
-                'source_package': 'zectl',
-            }
-        ],
-        'truenas_samba': [
-            {
-                'name': 'truenas-samba',
-                'source_package': 'samba',
-            }
-        ]
-    }
-    for key in ('openzfs', 'scst'):
-        binary_packages[f'{key}-dbg'] = copy.deepcopy(binary_packages[key])
-    return binary_packages
-
-
 def add_binary_dependencies(pkg: Package):
     binary_packages = []
     for bin_pkg in get_binary_packages().get(pkg.name, []):
@@ -220,7 +108,7 @@ def mock_hash_changed(hash_changed_packages: set):
 
 @pytest.mark.parametrize('packages_to_be_rebuilt,changed_hashes_mapping,rebuild', [
     (['zectl', 'py_libzfs'], {'openzfs'}, True),
-    (['zectl', 'py_libzfs'], {'kernel'}, True),
+    (['zectl', 'py_libzfs', 'openzfs'], {'kernel'}, True),
     (['py_libzfs'], {'zectl'}, False),
 ])
 def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping, rebuild):
@@ -231,8 +119,12 @@ def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping, 
                 Package, '_hash_changed', autospec=True, side_effect=mock_hash_changed(changed_hashes_mapping)
             ):
                 to_build_packages = get_to_build_packages()
+                if 'kernel' in to_build_packages:
+                    print('\n\n', to_build_packages['kernel'].children)
+                    print(to_build_packages['kernel'].binary_packages)
+                    print(to_build_packages['kernel'].build_depends)
                 for package in packages_to_be_rebuilt:
                     if rebuild:
-                        assert package in to_build_packages
+                        assert package in to_build_packages, to_build_packages.keys()
                     else:
-                        assert package not in to_build_packages
+                        assert package not in to_build_packages, to_build_packages.keys()
