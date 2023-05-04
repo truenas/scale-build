@@ -127,6 +127,9 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
 
     @property
     def hash_changed(self):
+        return self._hash_changed()
+
+    def _hash_changed(self):
         if self.name == 'truenas':
             # truenas is special and we want to rebuild it always
             # TODO: Do see why that is so
