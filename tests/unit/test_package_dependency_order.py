@@ -2,7 +2,7 @@ import copy
 import functools
 import pytest
 
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch
 
 from scale_build.packages.order import get_initialized_packages
 from scale_build.packages.package import Package, BinaryPackage
