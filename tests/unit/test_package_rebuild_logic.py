@@ -4,7 +4,7 @@ import pytest
 
 from unittest.mock import patch
 
-from scale_build.packages.order import get_initialized_packages
+from scale_build.packages.order import get_to_build_packages
 from scale_build.packages.package import Package, BinaryPackage
 
 
@@ -212,18 +212,21 @@ def all_packages():
     return pkgs
 
 
-@pytest.mark.parametrize('package_name,children,parent_changed', [
-    ('openzfs', {'py_libzfs', 'scst', 'zectl', 'truenas_samba'}, True),
-    ('kernel-dbg', {'openzfs-dbg', 'scst-dbg'}, False),
-    ('openzfs-dbg', {'scst-dbg'}, True)
+def hash_changed(hash_changed_packages: set):
+    def hash_changed_internal(pkg: Package):
+        return pkg.name in hash_changed_packages
+    return hash_changed_internal
+
+
+@pytest.mark.parametrize('packages_to_be_rebuilt,changed_hashes_mapping', [
+    (['zectl', 'py_libzfs'], {'openzfs'}),
+    (['zectl', 'py_libzfs'], {'kernel'}),
 ])
-def test_children_rebuild_flag(package_name, children, parent_changed):
-    with patch.object('scale_build.packages.order', 'get_packages', return_value=all_packages()):
-        with patch.object('scale_build.packages.package.Package', 'exists', return_value=True):
-            with patch.object('scale_build.packages.package.Package', 'hash_changed', return_value=True):
-                initialized_packages = get_initialized_packages()
-                assert initialized_packages[package_name].children == children
-                assert initialized_packages[package_name].parent_changed == parent_changed
-                for package_child in children:
-                    assert initialized_packages[package_child].parent_changed is True
-                    assert initialized_packages[package_child].rebuild is True
+def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping):
+    with patch('scale_build.packages.order.get_packages') as get_packages:
+        get_packages.return_value = all_packages()
+        with patch.object(Package, 'exists', return_value=True):
+            with patch.object(Package, 'hash_changed', side_effect=hash_changed(changed_hashes_mapping)):
+                to_build_packages = get_to_build_packages()
+                for package in packages_to_be_rebuilt:
+                    assert package in to_build_packages
