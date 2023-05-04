@@ -212,21 +212,27 @@ def all_packages():
     return pkgs
 
 
-def hash_changed(hash_changed_packages: set):
+def mock_hash_changed(hash_changed_packages: set):
     def hash_changed_internal(pkg: Package):
         return pkg.name in hash_changed_packages
     return hash_changed_internal
 
 
-@pytest.mark.parametrize('packages_to_be_rebuilt,changed_hashes_mapping', [
-    (['zectl', 'py_libzfs'], {'openzfs'}),
-    (['zectl', 'py_libzfs'], {'kernel'}),
+@pytest.mark.parametrize('packages_to_be_rebuilt,changed_hashes_mapping,rebuild', [
+    (['zectl', 'py_libzfs'], {'openzfs'}, True),
+    (['zectl', 'py_libzfs'], {'kernel'}, True),
+    (['py_libzfs'], {'zectl'}, False),
 ])
-def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping):
+def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping, rebuild):
     with patch('scale_build.packages.order.get_packages') as get_packages:
         get_packages.return_value = all_packages()
         with patch.object(Package, 'exists', return_value=True):
-            with patch.object(Package, 'hash_changed', side_effect=hash_changed(changed_hashes_mapping)):
+            with patch.object(Package, 'hash_changed', side_effect=mock_hash_changed(changed_hashes_mapping)):
                 to_build_packages = get_to_build_packages()
+                # print('\n\n\n', to_build_packages.keys())
+                # print(to_build_packages['py_libzfs'].hash_changed)
                 for package in packages_to_be_rebuilt:
-                    assert package in to_build_packages
+                    if rebuild:
+                        assert package in to_build_packages
+                    else:
+                        assert package not in to_build_packages
