@@ -227,11 +227,10 @@ def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping, 
     with patch('scale_build.packages.order.get_packages') as get_packages:
         get_packages.return_value = all_packages()
         with patch.object(Package, 'exists', return_value=True):
-            with patch.object(Package, '_hash_changed', autospec=True,
-                              side_effect=mock_hash_changed(changed_hashes_mapping)):
+            with patch.object(
+                Package, '_hash_changed', autospec=True, side_effect=mock_hash_changed(changed_hashes_mapping)
+            ):
                 to_build_packages = get_to_build_packages()
-                # print('\n\n\n', to_build_packages.keys())
-                # print(to_build_packages['py_libzfs'].hash_changed)
                 for package in packages_to_be_rebuilt:
                     if rebuild:
                         assert package in to_build_packages
