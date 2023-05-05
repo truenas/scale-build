@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 import shutil
@@ -168,3 +169,14 @@ class BuildPackageMixin:
     @property
     def deflags(self):
         return ['--no-lintian', f'-j{self.jobs if self.jobs else os.cpu_count()}', '-us', '-uc', '-b']
+
+    @contextlib.contextmanager
+    def build_dir(self):
+        try:
+            self.delete_overlayfs()
+            self.setup_chroot_basedir()
+            self.make_overlayfs()
+            shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)
+            yield
+        finally:
+            self.delete_overlayfs()
