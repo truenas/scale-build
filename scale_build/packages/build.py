@@ -114,12 +114,6 @@ class BuildPackageMixin:
             with open(os.path.join(self.package_source_with_chroot, 'etc/version'), 'w') as f:
                 f.write(VERSION)
 
-        for dependency_command in self.depscmd:
-            self.logger.debug('Running depcmd: %r', dependency_command)
-            self.run_in_chroot(
-                f'cd {self.package_source} && {dependency_command}', 'Failed to execute dependency command'
-            )
-
         for prebuild_command in self.prebuildcmd:
             self.logger.debug('Running prebuildcmd: %r', prebuild_command)
             self.run_in_chroot(
