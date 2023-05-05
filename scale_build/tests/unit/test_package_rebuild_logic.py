@@ -73,6 +73,36 @@ BUILD_MANIFEST = {
         },
     ],
 }
+BUILD_DEPENDS_MAPPING = {
+    'openzfs': {
+        'libaio-dev', 'python3-cffi', 'libssl1.0-dev', 'dh-python', 'debhelper-compat', 'libblkid-dev',
+        'kernel', 'python3-setuptools', 'lsb-release', 'libpam0g-dev', 'uuid-dev', 'libtool', 'libelf-dev',
+        'libssl-dev', 'po-debconf', 'python3-all-dev', 'libudev-dev', 'python3-sphinx', 'zlib1g-dev',
+        'dh-sequence-dkms', 'kernel-dbg'
+    },
+    'openzfs-dbg': {'dkms', 'libtool', 'debhelper-compat', 'kernel', 'kernel-dbg'},
+    'truenas_samba': {
+        'libreadline-dev', 'python3-testtools', 'libzfs5', 'liburing-dev', 'dh-python', 'debhelper-compat',
+        'libglusterfs-dev [linux-any]', 'libicu-dev', 'docbook-xml', 'libpcap-dev [hurd-i386 kfreebsd-any]',
+        'po-debconf', 'python3-dev', 'libbsd-dev', 'pkg-config', 'libnvpair3', 'flex', 'libtasn1-bin',
+        'libzfs5-devel', 'python3', 'xfslibs-dev [linux-any]', 'libjansson-dev', 'docbook-xsl',
+        'libsystemd-dev [linux-any]', 'python3-etcd', 'libgpgme11-dev', 'libbison-dev', 'libblkid-dev',
+        'libgnutls28-dev', 'libdbus-1-dev', 'perl', 'python3-dnspython', 'libcmocka-dev', 'libpam0g-dev',
+        'libuutil3', 'libcap-dev [linux-any]', 'libldap2-dev', 'libncurses5-dev', 'bison', 'libparse-yapp-perl',
+        'libacl1-dev', 'libkrb5-dev', 'libarchive-dev', 'zlib1g-dev', 'libtasn1-6-dev', 'libpopt-dev',
+        'dh-exec', 'xsltproc'
+    },
+    'py_libzfs': {
+        'libuutil3', 'libzfs5-devel', 'python3-all-dev', 'libzfs5', 'cython3', 'libnvpair3', 'dh-python',
+        'debhelper-compat', 'python3-setuptools'
+    },
+    'scst': {'dpkg-dev', 'quilt', 'kernel-dbg', 'kernel', 'debhelper'},
+    'scst-dbg': {'dpkg-dev', 'quilt', 'kernel-dbg', 'kernel', 'debhelper'},
+    'zectl': {
+        'libuutil3', 'libzpool5', 'cmake', 'libzfs5-devel', 'pkgconf', 'libzfs5', 'libbsd-dev', 'libnvpair3',
+        'debhelper-compat'
+    },
+}
 
 
 def get_binary_packages_of_pkg(pkg_name, all_binary_packages):
@@ -88,6 +118,7 @@ def all_packages():
         pkg._binary_packages = [
             BinaryPackage(**bin_pkg) for bin_pkg in get_binary_packages_of_pkg(pkg.name, binary_packages)
         ]
+        pkg.build_depends = BUILD_DEPENDS_MAPPING.get(pkg.name, set())
         pkgs.append(pkg)
         for sub_pkg in sub_packages:
             sub_pkg = Package(**{
@@ -99,6 +130,7 @@ def all_packages():
             sub_pkg._binary_packages = [
                 BinaryPackage(**bin_pkg) for bin_pkg in get_binary_packages_of_pkg(sub_pkg.name, binary_packages)
             ]
+            sub_pkg.build_depends = BUILD_DEPENDS_MAPPING.get(sub_pkg.name, set())
             pkgs.append(sub_pkg)
     return pkgs
 
