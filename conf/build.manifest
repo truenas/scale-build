@@ -289,10 +289,6 @@ sources:
   predepscmd:
     - "cp -r contrib/debian debian"
   deps_path: contrib/debian
-  depscmd:
-    - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
-    - "chmod +x debian/rules"
-    - "debian/rules override_dh_prep-deb-files"
   prebuildcmd:
     - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
     - "chmod +x debian/rules"
