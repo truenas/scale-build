@@ -289,6 +289,10 @@ sources:
   predepscmd:
     - "cp -r contrib/debian debian"
   deps_path: contrib/debian
+  depscmd:
+    - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
+    - "chmod +x debian/rules"
+    - "debian/rules override_dh_prep-deb-files"
   prebuildcmd:
     - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
     - "chmod +x debian/rules"
@@ -308,6 +312,11 @@ sources:
       predepscmd:
         - "cp -r contrib/debian debian"
       deps_path: contrib/debian
+      depscmd:
+        - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
+        - "chmod +x debian/rules"
+        - "sed  -i 's/Provides: openzfs-zfs-modules/Provides: openzfs-zfs-modules-dbg/'  debian/control.modules.in"
+        - "debian/rules override_dh_prep-deb-files"
       prebuildcmd:
         - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
         - "chmod +x debian/rules"
@@ -366,6 +375,8 @@ sources:
       env:
         KVER: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
         KDIR: "/lib/modules/$(KVER)/build"
+      depscmd:
+        - "cat debian/control.dbgmodules > debian/control"
       prebuildcmd:
         - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
         - "cat debian/control.dbgmodules > debian/control"
