@@ -7,6 +7,16 @@ from scale_build.utils.package import get_packages
 logger = logging.getLogger(__name__)
 
 
+def update_package_changes(packages):
+    changed = False
+    for package in filter(lambda i: i.hash_changed or i.parent_changed, packages.values()):
+        for child in filter(lambda c: not packages[c].parent_changed, package.children):
+            packages[child].parent_changed = True
+            changed = True
+    if changed:
+        update_package_changes(packages)
+
+
 def get_initialized_packages(desired_packages=None):
     binary_packages = {}
     desired_packages = desired_packages or []
@@ -34,9 +44,7 @@ def get_initialized_packages(desired_packages=None):
         ):
             package.force_build = pkg_name in desired_packages or package.hash_changed
     else:
-        for pkg_name, package in filter(lambda i: i[1].hash_changed, packages.items()):
-            for child in package.children:
-                packages[child].parent_changed = True
+        update_package_changes(packages)
 
     return {package.name: package for package in packages.values()}
 
