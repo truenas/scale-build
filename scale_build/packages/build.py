@@ -71,28 +71,7 @@ class BuildPackageMixin:
             self.run_in_chroot('apt install -y /packages/linux-image-truenas-production-amd64_*.deb')
             self.run_in_chroot('apt install -y /packages/linux-image-truenas-debug-amd64_*.deb')
 
-        for predep_entry in self.predepscmd:
-            if isinstance(predep_entry, dict):
-                predep_cmd = predep_entry['command']
-                skip_cmd = False
-                build_env = self._get_build_env()
-                for env_var in predep_entry['env_checks']:
-                    if build_env.get(env_var['key']) != env_var['value']:
-                        self.logger.debug(
-                            'Skipping %r predep command because %r does not match %r',
-                            predep_cmd, env_var['key'], env_var['value']
-                        )
-                        skip_cmd = True
-                        break
-                if skip_cmd:
-                    continue
-            else:
-                predep_cmd = predep_entry
-
-            self.logger.debug('Running predepcmd: %r', predep_cmd)
-            self.run_in_chroot(
-                f'cd {self.package_source} && {predep_cmd}', 'Failed to execute predep command'
-            )
+        self.execute_pre_depends_commands()
 
         if not os.path.exists(os.path.join(self.package_source_with_chroot, 'debian/control')):
             raise CallError(
@@ -153,6 +132,30 @@ class BuildPackageMixin:
             f.write(self.source_hash)
 
         self.delete_overlayfs()
+
+    def execute_pre_depends_commands(self):
+        for predep_entry in self.predepscmd:
+            if isinstance(predep_entry, dict):
+                predep_cmd = predep_entry['command']
+                skip_cmd = False
+                build_env = self._get_build_env()
+                for env_var in predep_entry['env_checks']:
+                    if build_env.get(env_var['key']) != env_var['value']:
+                        self.logger.debug(
+                            'Skipping %r predep command because %r does not match %r',
+                            predep_cmd, env_var['key'], env_var['value']
+                        )
+                        skip_cmd = True
+                        break
+                if skip_cmd:
+                    continue
+            else:
+                predep_cmd = predep_entry
+
+            self.logger.debug('Running predepcmd: %r', predep_cmd)
+            self.run_in_chroot(
+                f'cd {self.package_source} && {predep_cmd}', 'Failed to execute predep command'
+            )
 
     @property
     def build_command(self):
