@@ -75,13 +75,19 @@ BUILD_MANIFEST = {
 }
 
 
+def get_binary_packages_of_pkg(pkg_name, all_binary_packages):
+    return [bin_pkg for bin_pkg in all_binary_packages.values() if bin_pkg['source_name'] == pkg_name]
+
+
 def all_packages():
     binary_packages = get_asset('binary_packages')
     pkgs = []
     for pkg in copy.deepcopy(BUILD_MANIFEST)['sources']:
         sub_packages = pkg.pop('subpackages', [])
         pkg = Package(**pkg)
-        pkg._binary_packages = [BinaryPackage(**bin_pkg) for bin_pkg in binary_packages[pkg.name]]
+        pkg._binary_packages = [
+            BinaryPackage(**bin_pkg) for bin_pkg in get_binary_packages_of_pkg(pkg.name, binary_packages)
+        ]
         pkgs.append(pkg)
         for sub_pkg in sub_packages:
             sub_pkg = Package(**{
@@ -90,7 +96,9 @@ def all_packages():
                 'repo': pkg.origin,
                 'source_name': pkg.source_name,
             })
-            sub_pkg._binary_packages = [BinaryPackage(**bin_pkg) for bin_pkg in binary_packages[pkg.name]]
+            sub_pkg._binary_packages = [
+                BinaryPackage(**bin_pkg) for bin_pkg in get_binary_packages_of_pkg(sub_pkg.name, binary_packages)
+            ]
             pkgs.append(sub_pkg)
     return pkgs
 
