@@ -143,8 +143,11 @@ def mock_hash_changed(hash_changed_packages: set):
 
 @pytest.mark.parametrize('packages_to_be_rebuilt,changed_hashes_mapping,rebuild', [
     (['zectl', 'py_libzfs'], {'openzfs'}, True),
-    (['zectl', 'py_libzfs', 'openzfs'], {'kernel'}, True),
+    (['zectl', 'py_libzfs', 'openzfs', 'scst', 'scst-dbg'], {'kernel'}, True),
     (['py_libzfs'], {'zectl'}, False),
+    (['py_libzfs'], {'openzfs-dbg'}, False),
+    (['py_libzfs'], {'truenas_samba'}, False),
+    (['openzfs'], {'scst'}, False),
 ])
 def test_children_rebuild_logic(packages_to_be_rebuilt, changed_hashes_mapping, rebuild):
     with patch('scale_build.packages.order.get_packages') as get_packages:
