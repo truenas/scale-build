@@ -73,11 +73,6 @@ class BuildPackageMixin:
 
         self.execute_pre_depends_commands()
 
-        if not os.path.exists(os.path.join(self.package_source_with_chroot, 'debian/control')):
-            raise CallError(
-                f'Missing debian/control file for {self.name} in {self.package_source_with_chroot}'
-            )
-
         self.run_in_chroot(f'cd {self.package_source} && mk-build-deps --build-dep', 'Failed mk-build-deps')
         self.run_in_chroot(f'cd {self.package_source} && apt install -y ./*.deb', 'Failed install build deps')
 
@@ -155,6 +150,11 @@ class BuildPackageMixin:
             self.logger.debug('Running predepcmd: %r', predep_cmd)
             self.run_in_chroot(
                 f'cd {self.package_source} && {predep_cmd}', 'Failed to execute predep command'
+            )
+
+        if not os.path.exists(os.path.join(self.package_source_with_chroot, 'debian/control')):
+            raise CallError(
+                f'Missing debian/control file for {self.name} in {self.package_source_with_chroot}'
             )
 
     @property
