@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 import os
@@ -98,22 +99,37 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
             self._binary_packages.append(BinaryPackage(self.name, self.build_depends, self.name, self.name, set()))
             return self._binary_packages
 
-        cp = run([DEPENDS_SCRIPT_PATH, self.debian_control_file_path], log=False)
-        info = json.loads(cp.stdout)
-        default_dependencies = {'kernel', 'kernel-dbg'} if self.kernel_module else set()
-        self.build_depends = set(
-            normalize_build_depends(info['source_package']['build_depends'])
-        ) | default_dependencies
-        self.source_package = info['source_package']['name']
-        for bin_package in info['binary_packages']:
-            self._binary_packages.append(BinaryPackage(
-                bin_package['name'], self.build_depends, self.source_package, self.name,
-                set(normalize_bin_packages_depends(bin_package['depends'] or ''))
-            ))
-            if self.name == 'truenas':
-                self._binary_packages[-1].build_dependencies |= self._binary_packages[-1].install_dependencies
+        with (self.build_dir() if self.depscmd else contextlib.nullcontext()):
+            if self.depscmd:
+                self.setup_control_file_for_dependency_ordering()
+                control_file_path = os.path.join(self.package_source_with_chroot, 'debian/control')
+            else:
+                control_file_path = self.debian_control_file_path
+
+            cp = run([DEPENDS_SCRIPT_PATH, control_file_path], log=False)
+            info = json.loads(cp.stdout)
+            default_dependencies = {'kernel', 'kernel-dbg'} if self.kernel_module else set()
+            self.build_depends = set(
+                normalize_build_depends(info['source_package']['build_depends'])
+            ) | default_dependencies
+            self.source_package = info['source_package']['name']
+            for bin_package in info['binary_packages']:
+                self._binary_packages.append(BinaryPackage(
+                    bin_package['name'], self.build_depends, self.source_package, self.name,
+                    set(normalize_bin_packages_depends(bin_package['depends'] or ''))
+                ))
+                if self.name == 'truenas':
+                    self._binary_packages[-1].build_dependencies |= self._binary_packages[-1].install_dependencies
 
         return self._binary_packages
+
+    def setup_control_file_for_dependency_ordering(self):
+        self.execute_pre_depends_commands()
+        for dependency_command in self.depscmd:
+            self.logger.debug('Running depscmd: %r', dependency_command)
+            self.run_in_chroot(
+                f'cd {self.package_source} && {dependency_command}', 'Failed to execute depscmd command'
+            )
 
     def build_time_dependencies(self, all_binary_packages=None):
         if self._build_time_dependencies is not None:
