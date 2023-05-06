@@ -117,8 +117,10 @@ def _build_packages_impl(desired_packages=None):
         shutil.rmtree(PKG_LOG_DIR)
     os.makedirs(PKG_LOG_DIR)
 
-    all_packages = get_initialized_packages(desired_packages)
-    to_build = get_to_build_packages(all_packages, desired_packages)
+    with LoggingContext('package_ordering', 'w'):
+        all_packages = get_initialized_packages(desired_packages)
+        to_build = get_to_build_packages(all_packages, desired_packages)
+
     package_queue = queue.Queue()
     in_progress = {}
     failed = {}
