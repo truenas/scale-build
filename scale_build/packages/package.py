@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 import os
@@ -26,7 +27,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
         buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
-        build_constraints=None, debian_fork=False, source_name=None,
+        build_constraints=None, debian_fork=False, source_name=None, depscmd=None,
     ):
         self.name = name
         self.source_name = source_name or name
@@ -35,6 +36,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self.prebuildcmd = prebuildcmd or []
         self.buildcmd = buildcmd or []
         self.build_constraints = build_constraints or []
+        self.depscmd = depscmd or []
         self.kernel_module = kernel_module
         self.explicit_deps = set(explicit_deps or set())
         self.generate_version = generate_version
@@ -90,29 +92,44 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         if self._binary_packages:
             return self._binary_packages
 
-        if self.name == 'kernel' or (self.predepscmd and not self.deps_path):
+        if self.name in ('kernel', 'kernel-dbg') or (self.predepscmd and not self.deps_path):
             # We cannot determine dependency of this package because it does not probably have a control file
             # in it's current state - the only example we have is grub right now. Let's improve this if there are
             # more examples
             self._binary_packages.append(BinaryPackage(self.name, self.build_depends, self.name, self.name, set()))
             return self._binary_packages
 
-        cp = run([DEPENDS_SCRIPT_PATH, self.debian_control_file_path], log=False)
-        info = json.loads(cp.stdout)
-        default_dependencies = {'kernel'} if self.kernel_module else set()
-        self.build_depends = set(
-            normalize_build_depends(info['source_package']['build_depends'])
-        ) | default_dependencies
-        self.source_package = info['source_package']['name']
-        for bin_package in info['binary_packages']:
-            self._binary_packages.append(BinaryPackage(
-                bin_package['name'], self.build_depends, self.source_package, self.name,
-                set(normalize_bin_packages_depends(bin_package['depends'] or ''))
-            ))
-            if self.name == 'truenas':
-                self._binary_packages[-1].build_dependencies |= self._binary_packages[-1].install_dependencies
+        with (self.build_dir() if self.depscmd else contextlib.nullcontext()):
+            if self.depscmd:
+                self.setup_control_file_for_dependency_ordering()
+                control_file_path = os.path.join(self.package_source_with_chroot, 'debian/control')
+            else:
+                control_file_path = self.debian_control_file_path
+
+            cp = run([DEPENDS_SCRIPT_PATH, control_file_path], log=False)
+            info = json.loads(cp.stdout)
+            default_dependencies = {'kernel', 'kernel-dbg'} if self.kernel_module else set()
+            self.build_depends = set(
+                normalize_build_depends(info['source_package']['build_depends'])
+            ) | default_dependencies
+            self.source_package = info['source_package']['name']
+            for bin_package in info['binary_packages']:
+                self._binary_packages.append(BinaryPackage(
+                    bin_package['name'], self.build_depends, self.source_package, self.name,
+                    set(normalize_bin_packages_depends(bin_package['depends'] or ''))
+                ))
+                if self.name == 'truenas':
+                    self._binary_packages[-1].build_dependencies |= self._binary_packages[-1].install_dependencies
 
         return self._binary_packages
+
+    def setup_control_file_for_dependency_ordering(self):
+        self.execute_pre_depends_commands()
+        for dependency_command in self.depscmd:
+            self.logger.debug('Running depscmd: %r', dependency_command)
+            self.run_in_chroot(
+                f'cd {self.package_source} && {dependency_command}', 'Failed to execute depscmd command'
+            )
 
     def build_time_dependencies(self, all_binary_packages=None):
         if self._build_time_dependencies is not None:
@@ -127,6 +144,9 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
 
     @property
     def hash_changed(self):
+        return self._hash_changed()
+
+    def _hash_changed(self):
         if self.name == 'truenas':
             # truenas is special and we want to rebuild it always
             # TODO: Do see why that is so
