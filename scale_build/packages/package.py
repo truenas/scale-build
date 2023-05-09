@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixin, OverlayMixin):
     def __init__(
-        self, name, branch, repo, prebuildcmd=None, kernel_module=False, explicit_deps=None,
+        self, name, branch, repo, prebuildcmd=None, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
         buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
         build_constraints=None, debian_fork=False, source_name=None, depscmd=None,
@@ -37,7 +37,6 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self.buildcmd = buildcmd or []
         self.build_constraints = build_constraints or []
         self.depscmd = depscmd or []
-        self.kernel_module = kernel_module
         self.explicit_deps = set(explicit_deps or set())
         self.generate_version = generate_version
         self.predepscmd = predepscmd or []
