@@ -108,10 +108,9 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
 
             cp = run([DEPENDS_SCRIPT_PATH, control_file_path], log=False)
             info = json.loads(cp.stdout)
-            default_dependencies = {'kernel', 'kernel-dbg'} if self.kernel_module else set()
             self.build_depends = set(
                 normalize_build_depends(info['source_package']['build_depends'])
-            ) | default_dependencies
+            ) | self.explicit_deps
             self.source_package = info['source_package']['name']
             for bin_package in info['binary_packages']:
                 self._binary_packages.append(BinaryPackage(
