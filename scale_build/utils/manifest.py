@@ -57,7 +57,6 @@ INDIVIDUAL_REPO_SCHEMA = {
             'items': [{'type': 'string'}],
         },
         'deps_path': {'type': 'string'},
-        'kernel_module': {'type': 'boolean'},
         'generate_version': {'type': 'boolean'},
         'explicit_deps': {
             'type': 'array',
