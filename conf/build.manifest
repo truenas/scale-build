@@ -296,7 +296,9 @@ sources:
     - "dpkg-buildpackage -us -uc -b"
     - "rm ../openzfs-zfs-dkms*.deb ../openzfs-zfs-dracut*.deb"
     - "debian/rules override_dh_binary-modules"
-  kernel_module: true
+  explicit_deps:
+    - kernel
+    - kernel-dbg
   generate_version: false
   subpackages:
     - name: openzfs-dbg
@@ -321,8 +323,8 @@ sources:
         - "sh autogen.sh"
         - "./scripts/make_gitrev.sh"
         - "debian/rules override_dh_binary-modules"
-      kernel_module: true
       explicit_deps:
+        - kernel
         - kernel-dbg
       generate_version: false
 - name: truenas_samba
