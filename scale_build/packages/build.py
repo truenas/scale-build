@@ -64,13 +64,6 @@ class BuildPackageMixin:
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
             self.run_in_chroot('apt update')
 
-        if self.kernel_module:
-            self.logger.debug('Installing truenas linux headers')
-            self.run_in_chroot('apt install -y /packages/linux-headers-truenas-production-amd64_*.deb')
-            self.run_in_chroot('apt install -y /packages/linux-headers-truenas-debug-amd64_*.deb')
-            self.run_in_chroot('apt install -y /packages/linux-image-truenas-production-amd64_*.deb')
-            self.run_in_chroot('apt install -y /packages/linux-image-truenas-debug-amd64_*.deb')
-
         self.execute_pre_depends_commands()
 
         self.run_in_chroot(f'cd {self.package_source} && mk-build-deps --build-dep', 'Failed mk-build-deps')

@@ -296,7 +296,9 @@ sources:
     - "dpkg-buildpackage -us -uc -b"
     - "rm ../openzfs-zfs-dkms*.deb ../openzfs-zfs-dracut*.deb"
     - "debian/rules override_dh_binary-modules"
-  kernel_module: true
+  explicit_deps:
+    - kernel
+    - kernel-dbg
   generate_version: false
   subpackages:
     - name: openzfs-dbg
@@ -321,8 +323,8 @@ sources:
         - "sh autogen.sh"
         - "./scripts/make_gitrev.sh"
         - "debian/rules override_dh_binary-modules"
-      kernel_module: true
       explicit_deps:
+        - kernel
         - kernel-dbg
       generate_version: false
 - name: truenas_samba
@@ -363,7 +365,9 @@ sources:
     - "make 2perf"
     - "make scst-dist-gzip"
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
-  kernel_module: true
+  explicit_deps:
+    - kernel
+    - kernel-dbg
   branch: truenas-3.7.x
   subpackages:
     - name: scst-dbg
@@ -381,7 +385,9 @@ sources:
         - "make 2debug"
         - "make scst-dist-gzip"
         - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
-      kernel_module: true
+      explicit_deps:
+        - kernel
+        - kernel-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
   branch: master

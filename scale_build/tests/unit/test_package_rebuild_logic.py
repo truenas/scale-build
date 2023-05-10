@@ -18,10 +18,10 @@ BUILD_MANIFEST = {
                 {
                     'name': 'openzfs-dbg',
                     'deps_path': 'contrib/debian',
-                    'kernel_module': True,
+                    'explicit_deps': ['kernel', 'kernel-dbg'],
                 }
             ],
-            'kernel_module': True,
+            'explicit_deps': ['kernel', 'kernel-dbg'],
         },
         {
             'name': 'kernel',
@@ -38,12 +38,12 @@ BUILD_MANIFEST = {
             'name': 'scst',
             'repo': 'https://github.com/truenas/scst',
             'branch': 'truenas-3.7.x',
-            'kernel_module': True,
+            'explicit_deps': ['kernel', 'kernel-dbg'],
             'subpackages': [
                 {
                     'name': 'scst-dbg',
                     'branch': 'truenas-3.7.x',
-                    'kernel_module': True,
+                    'explicit_deps': ['kernel', 'kernel-dbg'],
                 }
             ]
         },
