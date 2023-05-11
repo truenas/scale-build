@@ -288,6 +288,7 @@ sources:
     KOBJ: "$(KSRC)"
   predepscmd:
     - "cp -r contrib/debian debian"
+    - "sed -i 's/libtool,/libtool, linux-image-truenas-production-amd64, linux-headers-truenas-production-amd64,/' debian/control"
   deps_path: contrib/debian
   prebuildcmd:
     - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
@@ -309,12 +310,8 @@ sources:
         KOBJ: "$(KSRC)"
       predepscmd:
         - "cp -r contrib/debian debian"
+        - "sed -i 's/libtool,/libtool, linux-image-truenas-debug-amd64, linux-headers-truenas-debug-amd64,/' debian/control"
       deps_path: contrib/debian
-      depscmd:
-        - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
-        - "chmod +x debian/rules"
-        - "sed  -i 's/Provides: openzfs-zfs-modules/Provides: openzfs-zfs-modules-dbg/'  debian/control.modules.in"
-        - "debian/rules override_dh_prep-deb-files"
       prebuildcmd:
         - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
         - "chmod +x debian/rules"
