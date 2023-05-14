@@ -349,9 +349,6 @@ sources:
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
   branch: master
-- name: migrate113
-  repo: https://github.com/truenas/freenas-migrate113
-  branch: master
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -413,9 +410,6 @@ sources:
 - name: licenselib
   repo: https://github.com/truenas/licenselib
   branch: master
-- name: migrate93
-  repo: https://github.com/truenas/freenas-migrate93
-  branch: stable/cobia
 - name: glustercli_python
   repo: https://github.com/truenas/glustercli-python
   branch: master
