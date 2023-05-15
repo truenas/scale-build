@@ -105,14 +105,20 @@ def get_apt_sources():
     return apt_sources
 
 
+def should_rem_execute_bit(binary):
+    if binary.is_file() and any((binary.name in ('dpkg', 'apt'), binary.name.startswith('apt-'))):
+        # disable apt related binaries so that users can avoid footshooting themselves
+        # also disable dpkg since you can do the same type of footshooting
+        return True
+
+    return False
+
+
 def post_rootfs_setup():
-    # We want to disable apt related binaries so that users can avoid footshooting themselves as
-    # using apt is not advised/recommended
-    binaries_path = os.path.join(CHROOT_BASEDIR, 'usr/bin')
     no_executable_flag = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
-    for binary in filter(lambda s: s == 'apt' or s.startswith('apt-'), os.listdir(binaries_path)):
-        binary_path = os.path.join(binaries_path, binary)
-        os.chmod(binary_path, stat.S_IMODE(os.lstat(binary_path).st_mode) & no_executable_flag)
+    with os.scandir(os.path.join(CHROOT_BASEDIR, 'usr/bin')) as binaries:
+        for binary in filter(lambda x: should_rem_execute_bit(x), binaries):
+            os.chmod(binary.path, stat.S_IMODE(binary.stat(follow_symlinks=False).st_mode) & no_executable_flag)
 
 
 def custom_rootfs_setup():
