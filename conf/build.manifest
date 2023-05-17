@@ -140,6 +140,9 @@ apt_preferences:
 - Package: "*"
   Pin: "origin \"\""
   Pin-Priority: 950
+- Package: "*apache*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*cuda*"
   Pin: "version 515*"
   Pin-Priority: 1000
