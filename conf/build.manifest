@@ -90,6 +90,7 @@ base-packages:
 - openzfs-zfs-initramfs
 - nvme-cli
 - convmv
+- open-iscsi
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
@@ -362,7 +363,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: truenas-3.7.x
+  branch: truenas-pre-3.8.x
   subpackages:
     - name: scst-dbg
       generate_version: false
