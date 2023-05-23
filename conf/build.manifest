@@ -64,7 +64,7 @@ base-packages:
 - linux-truenas-libc-dev
 - linux-headers-truenas-amd64
 - linux-image-truenas-amd64
-- linux-perf
+- linux-perf-truenas
 - avahi-daemon
 - avahi-utils
 - nfs-kernel-server
@@ -291,6 +291,8 @@ sources:
     CONFIG_LOCALVERSION: "+truenas"
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev"
+    # Install dependencies to build perf
+    - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-11-jdk"
     # We remove git files because kernel makefile tries to interact with git for determining version
     # which results in misconfigured version due to our debian based changes
     - "rm -rf .git .gitattributes .gitignore"
