@@ -50,7 +50,7 @@ base-packages:
 - linux-headers-truenas-debug-amd64
 - linux-image-truenas-production-amd64
 - linux-image-truenas-debug-amd64
-- linux-perf
+- linux-perf-truenas
 - avahi-daemon
 - avahi-utils
 - nfs-kernel-server
@@ -241,8 +241,11 @@ sources:
   batch_priority: 0
   env:
     EXTRAVERSION: "-production"
+    PYTHON: "python3"
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev devscripts"
+    # Install dependencies to build perf
+    - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3 python3-setuptools python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-17-jdk"
     # We remove git files because kernel makefile tries to interact with git for determining version
     # which results in misconfigured version due to our debian based changes
     - "rm -rf .git .gitattributes .gitignore"
