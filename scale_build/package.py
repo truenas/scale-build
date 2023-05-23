@@ -48,7 +48,7 @@ def update_queue(package_queue, to_build_orig, failed, in_progress, built):
         package_queue.put(to_build_orig.pop(item))
 
 
-def build_package(package_queue, to_build, failed, in_progress, built, ccache={}):
+def build_package(package_queue, to_build, failed, in_progress, built):
     while True:
         if not failed and (to_build or package_queue.queue):
             try:
@@ -65,8 +65,6 @@ def build_package(package_queue, to_build, failed, in_progress, built, ccache={}
         if package:
             try:
                 logger.debug('Building %r package', package.name)
-                # Set the ccache state, we will pick it up in a couple of places
-                package.set_ccache_state(ccache)
                 with LoggingContext(os.path.join('packages', package.name), 'w'):
                     package.delete_overlayfs()
                     package.setup_chroot_basedir()
@@ -74,11 +72,7 @@ def build_package(package_queue, to_build, failed, in_progress, built, ccache={}
                     with APT_LOCK:
                         package.clean_previous_packages()
                         shutil.copytree(PKG_DIR, package.dpkg_overlay_packages_path)
-                    if package.ccache_enabled():
-                        with package.setup_ccache(package.dpkg_overlay, ccache):
-                            package._build_impl()
-                    else:
-                        package._build_impl()
+                    package._build_impl()
             except Exception as e:
                 logger.error('Failed to build %r package', package.name)
                 failed[package.name] = {'package': package, 'exception': e}
@@ -105,17 +99,17 @@ def build_package(package_queue, to_build, failed, in_progress, built, ccache={}
                 update_queue(package_queue, to_build, failed, in_progress, built)
 
 
-def build_packages(desired_packages=None, ccache={}):
+def build_packages(desired_packages=None):
     clean_bootstrap_logs()
-    _build_packages_impl(desired_packages, ccache)
+    _build_packages_impl(desired_packages)
 
 
-def _build_packages_impl(desired_packages=None, ccache={}):
+def _build_packages_impl(desired_packages=None):
     logger.info('Building packages (%s/build_packages.log)', LOG_DIR)
     logger.debug('Setting up bootstrap directory')
 
     with LoggingContext('build_packages', 'w'):
-        PackageBootstrapDirectory().setup('ccache_dir' in ccache)
+        PackageBootstrapDirectory().setup()
 
     logger.debug('Successfully setup bootstrap directory')
 
@@ -140,7 +134,7 @@ def _build_packages_impl(desired_packages=None, ccache={}):
     threads = [
         threading.Thread(
             name=f'build_packages_thread_{i + 1}', target=build_package,
-            args=(package_queue, to_build, failed, in_progress, built, ccache)
+            args=(package_queue, to_build, failed, in_progress, built)
         ) for i in range(no_of_tasks)
     ]
     for thread in threads:

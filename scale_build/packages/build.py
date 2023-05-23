@@ -53,17 +53,11 @@ class BuildPackageMixin:
         self._build_impl()
 
     def _get_build_env(self):
-        result = {
+        return {
             **os.environ,
             **APT_ENV,
             **self.env,
         }
-        if self.ccache_enabled():
-            if not self.ccache_in_path(result['PATH']):
-                result['PATH'] = self.add_ccache_to_path(result['PATH'])
-            # Remove any ambiguity
-            result['CCACHE_DIR'] = self.ccache_directory()
-        return result
 
     def _build_impl(self):
         shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)

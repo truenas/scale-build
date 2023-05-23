@@ -6,10 +6,6 @@ COMMIT_HASH=$(shell git rev-parse --short HEAD)
 PACKAGES?=""
 REPO_CHANGED=$(shell if [ -d "./venv-$(COMMIT_HASH)" ]; then git status --porcelain | grep -c "scale_build/"; else echo "1"; fi)
 
-# ccache settings
-CCACHE_DIR?=""
-# CCACHE_DIR=${HOME}/.ccache
-
 .DEFAULT_GOAL := all
 
 check:
@@ -35,17 +31,9 @@ iso: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build iso
 packages: check
 ifeq ($(PACKAGES),"")
-ifeq ($(CCACHE_DIR),"")
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages
 else
-	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages --ccache_dir ${CCACHE_DIR}
-endif
-else
-ifeq ($(CCACHE_DIR),"")
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages --packages ${PACKAGES}
-else
-	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages --packages ${PACKAGES} --ccache_dir ${CCACHE_DIR}
-endif
 endif
 update: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build update
