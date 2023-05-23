@@ -1,4 +1,5 @@
 # -*- coding=utf-8 -*-
+from collections import defaultdict
 import contextlib
 from datetime import datetime
 import itertools
@@ -41,11 +42,11 @@ def write_progress(progress, message):
     sys.stdout.flush()
 
 
-def write_error(error, raise_=False):
+def write_error(error, raise_=False, prefix="Error: "):
     if is_json_output:
         sys.stdout.write(json.dumps({"error": error}) + "\n")
     else:
-        sys.stdout.write(f"Error: {error}\n")
+        sys.stdout.write(f"{prefix}{error}\n")
     sys.stdout.flush()
 
     if raise_:
@@ -255,38 +256,84 @@ def read_license(root):
         return None
 
 
+def andjoin(l, singular, plural):
+    if len(l) == 1:
+        return f"{l[0]} {singular}"
+
+    if len(l) == 2:
+        return f"{l[0]} and {l[1]} {plural}"
+
+    return ", ".join(l[:-1]) + f" and {l[-1]} {plural}"
+
+
 def precheck(old_root):
+    services = [
+        ("dynamicdns", "Dynamic DNS", "inadyn"),
+        ("s3", "S3", "minio"),
+        ("tftp", "TFTP", "in.tftpd"),
+        ("webdav", "WebDAV", "apache2"),
+    ]
+
     if old_root is not None:
-        if licenseobj := read_license(old_root):
-            if ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold]:
-                if licenseobj.contract_end > datetime.utcnow().date():
-                    db_path = database_path(old_root)
-                    if os.path.exists(db_path):
+        enabled_services = []
+        db_path = database_path(old_root)
+        if os.path.exists(db_path):
+            for service, title, process_name in services:
+                try:
+                    if query_row(
+                        f"SELECT * FROM services_services WHERE srv_service = '{service}' AND srv_enable = 1",
+                        db_path,
+                    ) is not None:
+                        enabled_services.append(title)
+                except Exception:
+                    pass
+
+        processes = defaultdict(list)
+        for p in psutil.process_iter():
+            processes[p.name()].append(p.pid)
+        running_services = []
+        for service, title, process_name in services:
+            if process_name in processes:
+                # If we report an enabled service, we don't want to report the same service running.
+                if title not in enabled_services:
+                    for pid in processes[process_name]:
                         try:
-                            if query_row(
-                                "SELECT * FROM services_services WHERE srv_service = 's3' AND srv_enable = 1",
-                                db_path,
-                            ) is not None:
-                                return (
-                                    "You have built-in S3 service enabled in your configuration. This is not supported "
-                                    "anymore. Please, contact our support team."
-                                )
-                        except Exception:
-                            pass
+                            with open(f"/proc/{pid}/cgroup") as f:
+                                cgroups = f.read()
+                        except FileNotFoundError:
+                            cgroups = ""
 
-                    for p in psutil.process_iter():
-                        if p.name() == "minio":
-                            try:
-                                with open(f"/proc/{p.pid}/cgroup") as f:
-                                    cgroups = f.read()
-                            except FileNotFoundError:
-                                cgroups = ""
+                        if "kubepods.slice" not in cgroups:
+                            running_services.append(title)
+                            break
 
-                            if "kubepods.slice" not in cgroups:
-                                return (
-                                    "Built-in S3 service is running. This is not supported anymore. Please, contact "
-                                    "our support team."
-                                )
+        if enabled_services or running_services:
+            if enabled_services and running_services:
+                text = (
+                    f"You have built-in {andjoin(enabled_services, 'service', 'services')} enabled in your "
+                    f"configuration. Also, built-in {andjoin(running_services, 'service is', 'services are')} "
+                    "running."
+                )
+            elif enabled_services:
+                text = (
+                    f"You have built-in {andjoin(enabled_services, 'service', 'services')} enabled in your "
+                    f"configuration."
+                )
+            else:
+                text = (
+                    f"Built-in {andjoin(running_services, 'service is', 'services are')} running."
+                )
+
+            text += " This is not supported anymore."
+
+            fatal = False
+            if licenseobj := read_license(old_root):
+                if ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold]:
+                    if licenseobj.contract_end > datetime.utcnow().date():
+                        fatal = True
+                        text += " Please, contact our support team."
+
+            return fatal, text
 
 
 def main():
@@ -299,11 +346,15 @@ def main():
     old_root = input.get("old_root", None)
 
     if input.get("precheck"):
-        if error := precheck(old_root):
-            write_error(error)
-            sys.exit(2)
-        else:
-            sys.exit(0)
+        if precheck_result := precheck(old_root):
+            fatal, text = precheck_result
+            if fatal:
+                write_error(text)
+                sys.exit(2)
+            else:
+                write_error(text, prefix="")
+
+        sys.exit(0)
 
     cleanup = input.get("cleanup", True)
     disks = input["disks"]
