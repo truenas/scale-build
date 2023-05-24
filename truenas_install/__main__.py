@@ -268,17 +268,20 @@ def andjoin(l, singular, plural):
 
 def precheck(old_root):
     services = [
-        ("dynamicdns", "Dynamic DNS", "inadyn"),
-        ("s3", "S3", "minio"),
-        ("tftp", "TFTP", "in.tftpd"),
-        ("webdav", "WebDAV", "apache2"),
+        ("dynamicdns", "Dynamic DNS", "inadyn", None),
+        ("openvpn_client", "OpenVPN Client", "openvpn", "client.conf"),
+        ("openvpn_server", "OpenVPN Server", "openvpn", "server.conf"),
+        ("rsync", "Rsync", "rsync", "--daemon"),
+        ("s3", "S3", "minio", None),
+        ("tftp", "TFTP", "in.tftpd", None),
+        ("webdav", "WebDAV", "apache2", None),
     ]
 
     if old_root is not None:
         enabled_services = []
         db_path = database_path(old_root)
         if os.path.exists(db_path):
-            for service, title, process_name in services:
+            for service, title, process_name, cmdline in services:
                 try:
                     if query_row(
                         f"SELECT * FROM services_services WHERE srv_service = '{service}' AND srv_enable = 1",
@@ -292,20 +295,29 @@ def precheck(old_root):
         for p in psutil.process_iter():
             processes[p.name()].append(p.pid)
         running_services = []
-        for service, title, process_name in services:
+        for service, title, process_name, cmdline in services:
             if process_name in processes:
                 # If we report an enabled service, we don't want to report the same service running.
                 if title not in enabled_services:
                     for pid in processes[process_name]:
+                        if cmdline is not None:
+                            try:
+                                if cmdline not in psutil.Process(pid).cmdline():
+                                    continue
+                            except psutil.NoSuchProcess:
+                                continue
+
                         try:
                             with open(f"/proc/{pid}/cgroup") as f:
                                 cgroups = f.read()
                         except FileNotFoundError:
                             cgroups = ""
 
-                        if "kubepods.slice" not in cgroups:
-                            running_services.append(title)
-                            break
+                        if "kubepods.slice" in cgroups:
+                            continue
+
+                        running_services.append(title)
+                        break
 
         if enabled_services or running_services:
             if enabled_services and running_services:
