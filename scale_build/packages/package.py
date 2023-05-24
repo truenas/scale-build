@@ -27,12 +27,13 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixi
         self, name, branch, repo, prebuildcmd=None, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
         buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
-        build_constraints=None, debian_fork=False, source_name=None, depscmd=None,
+        build_constraints=None, debian_fork=False, source_name=None, depscmd=None, ccache=False,
     ):
         self.name = name
         self.source_name = source_name or name
         self.branch = branch
         self.origin = repo
+        self.ccache = ccache
         self.prebuildcmd = prebuildcmd or []
         self.buildcmd = buildcmd or []
         self.build_constraints = build_constraints or []
