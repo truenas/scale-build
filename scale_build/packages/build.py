@@ -66,6 +66,7 @@ class BuildPackageMixin:
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
             self.run_in_chroot('apt update')
 
+        self.setup_ccache()
         self.execute_pre_depends_commands()
 
         self.run_in_chroot(f'cd {self.package_source} && mk-build-deps --build-dep', 'Failed mk-build-deps')

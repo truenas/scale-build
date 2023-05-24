@@ -28,3 +28,10 @@ class CCacheMixin:
             env['PATH'] = f'{self.CCACHE_PATH}:{existing_env["PATH"]}'
 
         return env
+
+    def setup_ccache(self) -> None:
+        if not self.ccache_enabled:
+            return
+
+        self.logger.debug('Setting up ccache')
+        self.run_in_chroot('apt install -y ccache')
