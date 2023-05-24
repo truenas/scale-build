@@ -239,7 +239,7 @@ sources:
   repo: https://github.com/truenas/linux
   branch: truenas/linux-6.1
   batch_priority: 0
-  ccache: true
+  supports_ccache: true
   env:
     EXTRAVERSION: "-production"
   predepscmd:
@@ -260,7 +260,7 @@ sources:
   subpackages:
     - name: kernel-dbg
       batch_priority: 0
-      ccache: true
+      supports_ccache: true
       env:
         EXTRAVERSION: "-debug"
       predepscmd:

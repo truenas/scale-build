@@ -9,7 +9,7 @@ class CCacheMixin:
 
     @property
     def ccache_enabled(self) -> bool:
-        return self.ccache and CCACHE_ENABLED
+        return self.supports_ccache and CCACHE_ENABLED
 
     @property
     def ccache_with_chroot_path(self) -> str:
