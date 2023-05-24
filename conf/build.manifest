@@ -138,11 +138,11 @@ apt_preferences:
   Pin: "release n=bullseye"
   Pin-Priority: 900
 - Package: "*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 920
+- Package: "*"
   Pin: "origin \"\""
   Pin-Priority: 950
-- Package: "*apache*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
 - Package: "*cuda*"
   Pin: "version 515*"
   Pin-Priority: 1000
@@ -164,18 +164,6 @@ apt_preferences:
 - Package: "openssl"
   Pin:  "origin \"\""
   Pin-Priority: 1100
-- Package: "*policykit*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
-- Package: "*polkit*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
-- Package: "*ssl*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
-- Package: "*tls*"
-  Pin: "release n=bullseye-security"
-  Pin-Priority: 1000
 - Package: "*zfs*"
   Pin: "version 2.1.*"
   Pin-Priority: 1000
