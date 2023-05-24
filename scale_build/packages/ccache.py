@@ -18,3 +18,13 @@ class CCacheMixin:
     @property
     def ccache_in_chroot(self) -> str:
         return '/root/.ccache'
+
+    def ccache_env(self, existing_env: dict) -> dict:
+        if not self.ccache_enabled:
+            return {}
+
+        env = {'CCACHE_DIR': self.ccache_in_chroot}
+        if self.CCACHE_PATH not in existing_env['PATH'].split(':'):
+            env['PATH'] = f'{self.CCACHE_PATH}:{existing_env["PATH"]}'
+
+        return env

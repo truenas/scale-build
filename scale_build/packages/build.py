@@ -53,11 +53,13 @@ class BuildPackageMixin:
         self._build_impl()
 
     def _get_build_env(self):
-        return {
+        env = {
             **os.environ,
             **APT_ENV,
             **self.env,
         }
+        env.update(self.ccache_env(env))
+        return env
 
     def _build_impl(self):
         shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)
