@@ -256,14 +256,14 @@ def read_license(root):
         return None
 
 
-def andjoin(l, singular, plural):
-    if len(l) == 1:
-        return f"{l[0]} {singular}"
+def andjoin(array, singular, plural):
+    if len(array) == 1:
+        return f"{array[0]} {singular}"
 
-    if len(l) == 2:
-        return f"{l[0]} and {l[1]} {plural}"
+    if len(array) == 2:
+        return f"{array[0]} and {array[1]} {plural}"
 
-    return ", ".join(l[:-1]) + f" and {l[-1]} {plural}"
+    return ", ".join(array[:-1]) + f" and {array[-1]} {plural}"
 
 
 def precheck(old_root):
