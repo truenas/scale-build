@@ -239,6 +239,7 @@ sources:
   repo: https://github.com/truenas/linux
   branch: truenas/linux-6.1
   batch_priority: 0
+  ccache: true
   env:
     EXTRAVERSION: "-production"
   predepscmd:
