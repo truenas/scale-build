@@ -260,6 +260,7 @@ sources:
   subpackages:
     - name: kernel-dbg
       batch_priority: 0
+      ccache: true
       env:
         EXTRAVERSION: "-debug"
       predepscmd:
