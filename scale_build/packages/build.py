@@ -53,17 +53,20 @@ class BuildPackageMixin:
         self._build_impl()
 
     def _get_build_env(self):
-        return {
+        env = {
             **os.environ,
             **APT_ENV,
             **self.env,
         }
+        env.update(self.ccache_env(env))
+        return env
 
     def _build_impl(self):
         shutil.copytree(self.source_path, self.source_in_chroot, dirs_exist_ok=True, symlinks=True)
         if os.path.exists(os.path.join(self.dpkg_overlay_packages_path, 'Packages.gz')):
             self.run_in_chroot('apt update')
 
+        self.setup_ccache()
         self.execute_pre_depends_commands()
 
         self.run_in_chroot(f'cd {self.package_source} && mk-build-deps --build-dep', 'Failed mk-build-deps')

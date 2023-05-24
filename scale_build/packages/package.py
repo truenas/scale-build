@@ -10,6 +10,7 @@ from scale_build.utils.paths import HASH_DIR, PKG_LOG_DIR, SOURCES_DIR
 from .binary_package import BinaryPackage
 from .bootstrap import BootstrapMixin
 from .build import BuildPackageMixin
+from .ccache import CCacheMixin
 from .clean import BuildCleanMixin
 from .git import GitPackageMixin
 from .overlay import OverlayMixin
@@ -22,17 +23,18 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
-class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, GitPackageMixin, OverlayMixin):
+class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, CCacheMixin, GitPackageMixin, OverlayMixin):
     def __init__(
         self, name, branch, repo, prebuildcmd=None, explicit_deps=None,
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
         buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
-        build_constraints=None, debian_fork=False, source_name=None, depscmd=None,
+        build_constraints=None, debian_fork=False, source_name=None, depscmd=None, supports_ccache=False,
     ):
         self.name = name
         self.source_name = source_name or name
         self.branch = branch
         self.origin = repo
+        self.supports_ccache = supports_ccache
         self.prebuildcmd = prebuildcmd or []
         self.buildcmd = buildcmd or []
         self.build_constraints = build_constraints or []

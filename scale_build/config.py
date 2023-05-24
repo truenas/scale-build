@@ -34,6 +34,7 @@ BUILD_TIME_OBJ = datetime.fromtimestamp(BUILD_TIME)
 BUILDER_DIR = get_env_variable('BUILDER_DIR', str, './')
 BRANCH_OUT_NAME = get_env_variable('NEW_BRANCH_NAME', str)
 BRANCH_OVERRIDES = {}
+CCACHE_ENABLED = get_env_variable('CCACHE', bool, 0)
 FORCE_CLEANUP_WITH_EPOCH_CHANGE = get_env_variable('FORCE_CLEANUP_WITH_EPOCH_CHANGE', bool)
 GITHUB_TOKEN = get_env_variable('GITHUB_TOKEN', str)
 PACKAGE_IDENTITY_FILE_PATH_OVERRIDES = {}

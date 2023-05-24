@@ -57,6 +57,7 @@ INDIVIDUAL_REPO_SCHEMA = {
             'items': [{'type': 'string'}],
         },
         'deps_path': {'type': 'string'},
+        'supports_ccache': {'type': 'boolean'},
         'generate_version': {'type': 'boolean'},
         'explicit_deps': {
             'type': 'array',
