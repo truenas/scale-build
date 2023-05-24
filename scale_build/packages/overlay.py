@@ -2,7 +2,7 @@ import os
 import shutil
 
 from scale_build.utils.run import run
-from scale_build.utils.paths import TMP_DIR, TMPFS
+from scale_build.utils.paths import CCACHE_DIR, TMP_DIR, TMPFS
 
 
 class OverlayMixin:
@@ -39,7 +39,7 @@ class OverlayMixin:
         for path in (self.chroot_overlay, self.dpkg_overlay, self.sources_overlay, self.workdir_overlay):
             os.makedirs(path, exist_ok=True)
 
-        for entry in (
+        for entry in [
             ([
                  'mount', '-t', 'overlay', '-o',
                  f'lowerdir={self.chroot_base_directory},upperdir={self.chroot_overlay},workdir={self.workdir_overlay}',
@@ -51,7 +51,10 @@ class OverlayMixin:
                 ['mount', '--bind', self.sources_overlay, self.source_in_chroot],
                 'Failed mount --bind /dpkg-src', self.source_in_chroot
             )
-        ):
+        ] + ([
+            (['mount', '--bind', CCACHE_DIR, self.ccache_with_chroot_path],
+             'Failed to mount --bind ccache', self.ccache_with_chroot_path),
+        ] if self.ccache_enabled else []):
             if len(entry) == 2:
                 command, msg = entry
             else:
@@ -64,6 +67,7 @@ class OverlayMixin:
         for command in (
             ['umount', '-f', os.path.join(self.dpkg_overlay, 'proc')],
             ['umount', '-f', os.path.join(self.dpkg_overlay, 'sys')],
+            ['umount', '-f', self.ccache_with_chroot_path],
             ['umount', '-f', self.dpkg_overlay],
             ['umount', '-R', '-f', self.dpkg_overlay],
             ['umount', '-R', '-f', self.tmpfs_path],
