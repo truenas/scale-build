@@ -146,7 +146,28 @@ apt_preferences:
 - Package: "*cuda*"
   Pin: "version 515*"
   Pin-Priority: 1000
+- Package: "*curl*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*dbus*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*e2fsprogs*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*git*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "*golang*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "*haproxy*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "keepalived"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "less"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
 - Package: "*libnvcuvid*"
@@ -155,25 +176,49 @@ apt_preferences:
 - Package: "libssl1.1"
   Pin:  "origin \"\""
   Pin-Priority: 1100
+- Package: "*libxml2*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*node*"
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
 - Package: "*nvidia*"
   Pin: "version 515*"
   Pin-Priority: 1000
+- Package: "*open-vm-tools*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "openssl"
   Pin:  "origin \"\""
   Pin-Priority: 1100
+- Package: "openvpn"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "*policykit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 - Package: "*polkit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*rsync*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "*ssl*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*sudo*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*syslog-ng*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "*systemd*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "*tls*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
+- Package: "xz-utils"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
 - Package: "*zfs*"
