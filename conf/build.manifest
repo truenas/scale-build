@@ -191,6 +191,9 @@ apt_preferences:
 - Package: "*polkit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*rsync*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "*ssl*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
