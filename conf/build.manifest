@@ -287,6 +287,7 @@ iso-packages:
 - jq
 - live-boot
 - truenas-installer
+- parted
 - pciutils
 - python3-libzfs
 - python3-pyudev
