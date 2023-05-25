@@ -152,6 +152,9 @@ apt_preferences:
 - Package: "*golang*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
+- Package: "keepalived"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "less"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
