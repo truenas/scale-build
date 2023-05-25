@@ -173,6 +173,9 @@ apt_preferences:
 - Package: "openssl"
   Pin:  "origin \"\""
   Pin-Priority: 1100
+- Package: "openvpn"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "*policykit*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
