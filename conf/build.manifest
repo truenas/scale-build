@@ -176,6 +176,9 @@ apt_preferences:
 - Package: "libssl1.1"
   Pin:  "origin \"\""
   Pin-Priority: 1100
+- Package: "*libxml2*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*node*"
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
