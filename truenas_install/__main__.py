@@ -320,30 +320,25 @@ def precheck(old_root):
                         break
 
         if enabled_services or running_services:
-            if enabled_services and running_services:
+            if (
+                (licenseobj := read_license(old_root)) and
+                ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold] and
+                licenseobj.contract_end > datetime.utcnow().date()
+            ):
+                fatal = True
                 text = (
-                    f"You have built-in {andjoin(enabled_services, 'service', 'services')} enabled in your "
-                    f"configuration. Also, built-in {andjoin(running_services, 'service is', 'services are')} "
-                    "running."
-                )
-            elif enabled_services:
-                text = (
-                    f"You have built-in {andjoin(enabled_services, 'service', 'services')} enabled in your "
-                    f"configuration."
+                    "There are active configured services on this system that are not present in the new version. To "
+                    "avoid any loss of system services, please contact iXsystems Support to schedule a guided upgrade. "
+                    "Additional details are available from https://www.truenas.com/docs/scale/scaledeprecatedfeatures/."
                 )
             else:
+                fatal = False
                 text = (
-                    f"Built-in {andjoin(running_services, 'service is', 'services are')} running."
+                    "There are active configured services on this system that are not present in the new version. "
+                    "Upgrading this system deletes these services and saved settings: "
+                    f"{andjoin(sorted(enabled_services + running_services), 'service', 'services')}. "
+                    "This disrupts any system usage that relies on these active services."
                 )
-
-            text += " This is not supported anymore."
-
-            fatal = False
-            if licenseobj := read_license(old_root):
-                if ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold]:
-                    if licenseobj.contract_end > datetime.utcnow().date():
-                        fatal = True
-                        text += " Please, contact our support team."
 
             return fatal, text
 
