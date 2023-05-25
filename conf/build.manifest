@@ -149,6 +149,9 @@ apt_preferences:
 - Package: "*curl*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
+- Package: "*dbus*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*e2fsprogs*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
