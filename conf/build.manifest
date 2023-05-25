@@ -146,10 +146,13 @@ apt_preferences:
 - Package: "*cuda*"
   Pin: "version 515*"
   Pin-Priority: 1000
-_ Package: "*curl*"
+- Package: "*curl*"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
 - Package: "*golang*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
+- Package: "less"
   Pin: "release n=bullseye-backports"
   Pin-Priority: 1000
 - Package: "*libnvcuvid*"
