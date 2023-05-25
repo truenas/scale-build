@@ -206,6 +206,9 @@ apt_preferences:
 - Package: "*ssl*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*sudo*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*syslog-ng*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
