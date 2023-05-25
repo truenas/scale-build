@@ -30,6 +30,9 @@ RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+\]\s+(?P<extracted>[0-9]+)/(?P<total>[
 run_kw = dict(check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", errors="ignore")
 
 IS_FREEBSD = platform.system().upper() == "FREEBSD"
+LD_LOAD_PATHS = [
+    '/usr/lib/x86_64-linux-gnu'
+]
 is_json_output = False
 
 
@@ -472,7 +475,13 @@ def main():
                             if old_bootfs_prop != "-":
                                 run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
+                        for p in LD_LOAD_PATHS:
+                            if not os.path.exists(f'{root}/{p}'):
+                                write_error(f"{root}/{p}: library path does not exist.", raise_=True)
+
+                        os.environ['LD_LIBRARY_PATH'] = ':'.join([f'{root}/{p}' for p in LD_LOAD_PATHS])
                         cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
+                        os.environ.pop('LD_LIBRARY_PATH', None)
                         if cp.returncode > 1:
                             raise subprocess.CalledProcessError(
                                 cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
