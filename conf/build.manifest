@@ -188,6 +188,9 @@ apt_preferences:
 - Package: "*tls*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "xz-utils"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*zfs*"
   Pin: "version 2.1.*"
   Pin-Priority: 1000
