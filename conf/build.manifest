@@ -179,6 +179,9 @@ apt_preferences:
 - Package: "*libxml2*"
   Pin: "release n=bullseye-security"
   Pin-Priority: 1000
+- Package: "*nginx*"
+  Pin: "release n=bullseye-security"
+  Pin-Priority: 1000
 - Package: "*node*"
   Pin: "origin apt.tn.ixsystems.com/apt-direct/bluefin/nightlies/nodejs"
   Pin-Priority: 1000
