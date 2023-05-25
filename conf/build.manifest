@@ -173,6 +173,9 @@ apt_preferences:
 - Package: "*nvidia*"
   Pin: "version 515*"
   Pin-Priority: 1000
+- Package: "*open-vm-tools*"
+  Pin: "release n=bullseye-backports"
+  Pin-Priority: 1000
 - Package: "openssl"
   Pin:  "origin \"\""
   Pin-Priority: 1100
