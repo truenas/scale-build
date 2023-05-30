@@ -408,9 +408,6 @@ sources:
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
   branch: master
-- name: throttle
-  repo: https://github.com/truenas/throttle
-  branch: master
 - name: licenselib
   repo: https://github.com/truenas/licenselib
   branch: master
