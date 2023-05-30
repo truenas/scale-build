@@ -1,4 +1,5 @@
 # -*- coding=utf-8 -*-
+from collections import defaultdict
 import contextlib
 from datetime import datetime
 import itertools
@@ -44,11 +45,11 @@ def write_progress(progress, message):
     sys.stdout.flush()
 
 
-def write_error(error, raise_=False):
+def write_error(error, raise_=False, prefix="Error: "):
     if is_json_output:
         sys.stdout.write(json.dumps({"error": error}) + "\n")
     else:
-        sys.stdout.write(f"Error: {error}\n")
+        sys.stdout.write(f"{prefix}{error}\n")
     sys.stdout.flush()
 
     if raise_:
@@ -258,38 +259,91 @@ def read_license(root):
         return None
 
 
+def andjoin(array, singular, plural):
+    if len(array) == 1:
+        return f"{array[0]} {singular}"
+
+    if len(array) == 2:
+        return f"{array[0]} and {array[1]} {plural}"
+
+    return ", ".join(array[:-1]) + f" and {array[-1]} {plural}"
+
+
 def precheck(old_root):
+    services = [
+        ("dynamicdns", "Dynamic DNS", "inadyn", None),
+        ("openvpn_client", "OpenVPN Client", "openvpn", "client.conf"),
+        ("openvpn_server", "OpenVPN Server", "openvpn", "server.conf"),
+        ("rsync", "Rsync", "rsync", "--daemon"),
+        ("s3", "S3", "minio", None),
+        ("tftp", "TFTP", "in.tftpd", None),
+        ("webdav", "WebDAV", "apache2", None),
+    ]
+
     if old_root is not None:
-        if licenseobj := read_license(old_root):
-            if ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold]:
-                if licenseobj.contract_end > datetime.utcnow().date():
-                    db_path = database_path(old_root)
-                    if os.path.exists(db_path):
-                        try:
-                            if query_row(
-                                "SELECT * FROM services_services WHERE srv_service = 's3' AND srv_enable = 1",
-                                db_path,
-                            ) is not None:
-                                return (
-                                    "You have built-in S3 service enabled in your configuration. This is not supported "
-                                    "anymore. Please, contact our support team."
-                                )
-                        except Exception:
-                            pass
+        enabled_services = []
+        db_path = database_path(old_root)
+        if os.path.exists(db_path):
+            for service, title, process_name, cmdline in services:
+                try:
+                    if query_row(
+                        f"SELECT * FROM services_services WHERE srv_service = '{service}' AND srv_enable = 1",
+                        db_path,
+                    ) is not None:
+                        enabled_services.append(title)
+                except Exception:
+                    pass
 
-                    for p in psutil.process_iter():
-                        if p.name() == "minio":
+        processes = defaultdict(list)
+        for p in psutil.process_iter():
+            processes[p.name()].append(p.pid)
+        running_services = []
+        for service, title, process_name, cmdline in services:
+            if process_name in processes:
+                # If we report an enabled service, we don't want to report the same service running.
+                if title not in enabled_services:
+                    for pid in processes[process_name]:
+                        if cmdline is not None:
                             try:
-                                with open(f"/proc/{p.pid}/cgroup") as f:
-                                    cgroups = f.read()
-                            except FileNotFoundError:
-                                cgroups = ""
+                                if cmdline not in psutil.Process(pid).cmdline():
+                                    continue
+                            except psutil.NoSuchProcess:
+                                continue
 
-                            if "kubepods.slice" not in cgroups:
-                                return (
-                                    "Built-in S3 service is running. This is not supported anymore. Please, contact "
-                                    "our support team."
-                                )
+                        try:
+                            with open(f"/proc/{pid}/cgroup") as f:
+                                cgroups = f.read()
+                        except FileNotFoundError:
+                            cgroups = ""
+
+                        if "kubepods.slice" in cgroups:
+                            continue
+
+                        running_services.append(title)
+                        break
+
+        if enabled_services or running_services:
+            if (
+                (licenseobj := read_license(old_root)) and
+                ContractType(licenseobj.contract_type) in [ContractType.silver, ContractType.gold] and
+                licenseobj.contract_end > datetime.utcnow().date()
+            ):
+                fatal = True
+                text = (
+                    "There are active configured services on this system that are not present in the new version. To "
+                    "avoid any loss of system services, please contact iXsystems Support to schedule a guided upgrade. "
+                    "Additional details are available from https://www.truenas.com/docs/scale/scaledeprecatedfeatures/."
+                )
+            else:
+                fatal = False
+                text = (
+                    "There are active configured services on this system that are not present in the new version. "
+                    "Upgrading this system deletes these services and saved settings: "
+                    f"{andjoin(sorted(enabled_services + running_services), 'service', 'services')}. "
+                    "This disrupts any system usage that relies on these active services."
+                )
+
+            return fatal, text
 
 
 def main():
@@ -302,11 +356,15 @@ def main():
     old_root = input.get("old_root", None)
 
     if input.get("precheck"):
-        if error := precheck(old_root):
-            write_error(error)
-            sys.exit(2)
-        else:
-            sys.exit(0)
+        if precheck_result := precheck(old_root):
+            fatal, text = precheck_result
+            if fatal:
+                write_error(text)
+                sys.exit(2)
+            else:
+                write_error(text, prefix="")
+
+        sys.exit(0)
 
     cleanup = input.get("cleanup", True)
     disks = input["disks"]
