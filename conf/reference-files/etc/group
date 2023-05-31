@@ -83,4 +83,5 @@ _ssh:x:134:
 ntpsec:x:135:
 tss:x:136:
 iperf3:x:137:
+_chrony:x:138:
 polkitd:x:998:
