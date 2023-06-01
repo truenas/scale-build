@@ -85,6 +85,8 @@ base-packages:
 - squashfs-tools
 - sysstat
 - truenas
+- name: wireguard-tools
+  install_recommends: false
 - openzfs-zfs-modules-dbg
 - openzfs-zfs-test
 - openzfs-zfs-initramfs
