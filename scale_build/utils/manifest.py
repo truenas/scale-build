@@ -100,20 +100,15 @@ MANIFEST_SCHEMA = {
         },
         'base-packages': {
             'type': 'array',
-            'items': {
-                'oneOf': [
-                    {'type': 'string'},
-                    {
-                        'type': 'object',
-                        'properties': {
-                            'install_recommends': {'type': 'boolean'},
-                            'name': {'type': 'string'},
-                        },
-                        'required': ['install_recommends', 'name'],
-                        'additionalProperties': False,
-                    },
-                ],
-            },
+            'items': [{
+                'type': 'object',
+                'properties': {
+                    'install_recommends': {'type': 'boolean'},
+                    'name': {'type': 'string'},
+                },
+                'required': ['install_recommends', 'name'],
+                'additionalProperties': False,
+            }],
         },
         'base-prune': {
             'type': 'array',
