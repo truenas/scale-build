@@ -134,8 +134,10 @@ MANIFEST_SCHEMA = {
                 'properties': {
                     'package': {'type': 'string'},
                     'comment': {'type': 'string'},
+                    'install_recommends': {'type': 'boolean'},
                 },
-                'required': ['package', 'comment'],
+                'required': ['package', 'comment', 'install_recommends'],
+                'additionalProperties': False,
             }]
         },
         'iso-packages': {
