@@ -100,7 +100,15 @@ MANIFEST_SCHEMA = {
         },
         'base-packages': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': [{
+                'type': 'object',
+                'properties': {
+                    'install_recommends': {'type': 'boolean'},
+                    'name': {'type': 'string'},
+                },
+                'required': ['install_recommends', 'name'],
+                'additionalProperties': False,
+            }],
         },
         'base-prune': {
             'type': 'array',
@@ -124,10 +132,12 @@ MANIFEST_SCHEMA = {
             'items': [{
                 'type': 'object',
                 'properties': {
-                    'package': {'type': 'string'},
+                    'name': {'type': 'string'},
                     'comment': {'type': 'string'},
+                    'install_recommends': {'type': 'boolean'},
                 },
-                'required': ['package', 'comment'],
+                'required': ['name', 'comment', 'install_recommends'],
+                'additionalProperties': False,
             }]
         },
         'iso-packages': {
