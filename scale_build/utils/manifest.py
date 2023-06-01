@@ -136,7 +136,7 @@ MANIFEST_SCHEMA = {
                     'comment': {'type': 'string'},
                     'install_recommends': {'type': 'boolean'},
                 },
-                'required': ['package', 'comment', 'install_recommends'],
+                'required': ['name', 'comment', 'install_recommends'],
                 'additionalProperties': False,
             }]
         },
