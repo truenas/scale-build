@@ -132,7 +132,7 @@ MANIFEST_SCHEMA = {
             'items': [{
                 'type': 'object',
                 'properties': {
-                    'package': {'type': 'string'},
+                    'name': {'type': 'string'},
                     'comment': {'type': 'string'},
                     'install_recommends': {'type': 'boolean'},
                 },
