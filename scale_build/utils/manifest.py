@@ -13,6 +13,7 @@ from scale_build.utils.paths import MANIFEST
 BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.-]+\b')
 SSH_SOURCE_REGEX = re.compile(r'^[\w]+@(\w.+):(\w.+)')
 
+
 INDIVIDUAL_REPO_SCHEMA = {
     'type': 'object',
     'properties': {
@@ -100,7 +101,20 @@ MANIFEST_SCHEMA = {
         },
         'base-packages': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {
+                'oneOf': [
+                    {'type': 'string'},
+                    {
+                        'type': 'object',
+                        'properties': {
+                            'install_recommends': {'type': 'boolean'},
+                            'name': {'type': 'string'},
+                        },
+                        'required': ['install_recommends', 'name'],
+                        'additionalProperties': False,
+                    },
+                ],
+            },
         },
         'base-prune': {
             'type': 'array',
