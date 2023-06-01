@@ -79,20 +79,15 @@ def install_rootfs_packages_impl():
     run_in_chroot(['apt', 'update'])
 
     manifest = get_manifest()
-    for package_entry in itertools.chain(
-        manifest['base-packages'], map(lambda d: d['package'], manifest['additional-packages'])
-    ):
-        if isinstance(package_entry, str):
-            package = package_entry
-            install_recommends = True
-        else:
-            package = package_entry['name']
-            install_recommends = package_entry.get('install_recommends', True)
+    for package_entry in itertools.chain(manifest['base-packages'], manifest['additional-packages']):
+        log_message = f'Installing {package_entry}'
+        install_cmd = ['apt', 'install', '-V', '-y', package_entry['name']]
+        if not package_entry['install_recommends']:
+            install_cmd.insert(3, '--no-install-recommends')
+            log_message += ' (no recommends)'
 
-        logger.debug('Installing %r%s', package, '' if install_recommends else ' (no recommends)')
-        run_in_chroot(
-            ['apt', 'install', '-V'] + (['--no-install-recommends'] if not install_recommends else []) + ['-y', package]
-        )
+        logger.debug(log_message)
+        run_in_chroot(install_cmd)
 
     # Do any custom rootfs setup
     custom_rootfs_setup()
