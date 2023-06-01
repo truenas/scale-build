@@ -89,7 +89,7 @@ def install_rootfs_packages_impl():
             package = package_entry['name']
             install_recommends = package_entry.get('install_recommends', True)
 
-        logger.debug('Installing %r', package)
+        logger.debug('Installing %r%s', package, '' if install_recommends else ' (no recommends)')
         run_in_chroot(
             ['apt', 'install', '-V'] + (['--no-install-recommends'] if not install_recommends else []) + ['-y', package]
         )
