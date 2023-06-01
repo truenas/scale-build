@@ -44,55 +44,102 @@ apt-repos:
 # NOTE: Installed in the order listed
 ############################################################################
 base-packages:
-- dosfstools
-- linux-truenas-production-libc-dev
-- linux-headers-truenas-production-amd64
-- linux-headers-truenas-debug-amd64
-- linux-image-truenas-production-amd64
-- linux-image-truenas-debug-amd64
-- linux-perf-truenas
-- avahi-daemon
-- avahi-utils
-- nfs-kernel-server
-- bpftrace
-- bpfcc-tools 
-- firmware-bnx2
-- firmware-bnx2x
-- firmware-cavium
-- firmware-linux
-- firmware-myricom
-- firmware-netronome
-- firmware-netxen
-- firmware-qlogic
-- firmware-realtek
-- grub-pc-bin
-- grub-efi-amd64-bin
-- htop
-- ifstat
-- nvidia-kernel-dkms
-- nslcd
-- nvidia-container-toolkit
-- nvidia-smi
-- openzfs
-- open-vm-tools
-- libnvidia-encode1
-- linux-cpupower
-- truenas-samba
-- nfs4xdr-acl-tools
-- nfs4-acl-tools
-- qemu-guest-agent
-- scst-dbg
-- squashfs-tools
-- sysstat
-- truenas
+- name: dosfstools
+  install_recommends: true
+- name: linux-truenas-production-libc-dev
+  install_recommends: true
+- name: linux-headers-truenas-production-amd64
+  install_recommends: true
+- name: linux-headers-truenas-debug-amd64
+  install_recommends: true
+- name: linux-image-truenas-production-amd64
+  install_recommends: true
+- name: linux-image-truenas-debug-amd64
+  install_recommends: true
+- name: linux-perf-truenas
+  install_recommends: true
+- name: avahi-daemon
+  install_recommends: true
+- name: avahi-utils
+  install_recommends: true
+- name: nfs-kernel-server
+  install_recommends: true
+- name: bpftrace
+  install_recommends: true
+- name: bpfcc-tools
+  install_recommends: true
+- name: firmware-bnx2
+  install_recommends: true
+- name: firmware-bnx2x
+  install_recommends: true
+- name: firmware-cavium
+  install_recommends: true
+- name: firmware-linux
+  install_recommends: true
+- name: firmware-myricom
+  install_recommends: true
+- name: firmware-netronome
+  install_recommends: true
+- name: firmware-netxen
+  install_recommends: true
+- name: firmware-qlogic
+  install_recommends: true
+- name: firmware-realtek
+  install_recommends: true
+- name: grub-pc-bin
+  install_recommends: true
+- name: grub-efi-amd64-bin
+  install_recommends: true
+- name: htop
+  install_recommends: true
+- name: ifstat
+  install_recommends: true
+- name: nvidia-kernel-dkms
+  install_recommends: true
+- name: nslcd
+  install_recommends: true
+- name: nvidia-container-toolkit
+  install_recommends: true
+- name: nvidia-smi
+  install_recommends: true
+- name: openzfs
+  install_recommends: true
+- name: open-vm-tools
+  install_recommends: true
+- name: libnvidia-encode1
+  install_recommends: true
+- name: linux-cpupower
+  install_recommends: true
+- name: truenas-samba
+  install_recommends: true
+- name: nfs4xdr-acl-tools
+  install_recommends: true
+- name: nfs4-acl-tools
+  install_recommends: true
+- name: qemu-guest-agent
+  install_recommends: true
+- name: scst-dbg
+  install_recommends: true
+- name: squashfs-tools
+  install_recommends: true
+- name: sysstat
+  install_recommends: true
+- name: truenas
+  install_recommends: true
 - name: wireguard-tools
   install_recommends: false
-- openzfs-zfs-modules-dbg
-- openzfs-zfs-test
-- openzfs-zfs-initramfs
-- nvme-cli
-- convmv
-- open-iscsi
+- name: openzfs-zfs-modules-dbg
+  install_recommends: true
+- name: openzfs-zfs-test
+  install_recommends: true
+- name: openzfs-zfs-initramfs
+  install_recommends: true
+- name: nvme-cli
+  install_recommends: true
+- name: convmv
+  install_recommends: true
+- name: open-iscsi
+  install_recommends: true
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
