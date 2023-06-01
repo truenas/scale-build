@@ -205,42 +205,61 @@ apt_preferences:
 additional-packages:
 - package: xtail
   comment: used by support (NAS-108788)
+  install_recommends: true
 - package: iperf3
   comment: requested by sales (NAS-108787)
+  install_recommends: true
 - package: fio
   comment: requested by sales (NAS-108787)
+  install_recommends: true
 - package: dnsutils
   comment: requested by community (NAS-109391)
+  install_recommends: true
 - package: traceroute
   comment: requested by platform and perf (NAS-110493)
+  install_recommends: true
 - package: openseachest
   comment: requested by performance team (NAS-106154)
+  install_recommends: true
 - package: cxgbtool
   comment: requested by OS team (NAS-111041)
+  install_recommends: true
 - package: python-is-python3
   comment: NAS-111358 (symlinks /usr/bin/python to python3)
+  install_recommends: true
 - package: sdparm
   comment: NAS-114723
+  install_recommends: true
 - package: powertop
   comment: requested by community (NAS-113898)
+  install_recommends: true
 - package: pv
   comment: requested by community (NAS-115638)
+  install_recommends: true
 - package: ndctl
   comment: requested by community (NAS-108490)
+  install_recommends: true
 - package: ipmctl
   comment: requested by community (NAS-108490)
+  install_recommends: true
 - package: acpica-tools
   comment: requested by platform team (NAS-118432)
+  install_recommends: true
 - package: freeipmi
   comment: requested by engineering (NAS-121050)
+  install_recommends: true
 - package: cu
   comment: requested by platform team (NAS-120155)
+  install_recommends: true
 - package: lrzsz
   comment: requested by platform team (NAS-120155)
+  install_recommends: true
 - package: minicom
   comment: requested by platform team (NAS-120155)
+  install_recommends: true
 - package: i2c-tools
   comment: requested by platform team (NAS-120155)
+  install_recommends: true
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
