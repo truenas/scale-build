@@ -443,7 +443,8 @@ def main():
                     os.unlink(f"{root}/var/lib/dbus/machine-id")
 
                 is_freebsd_upgrade = False
-                setup_machine_id = configure_serial = False
+                setup_machine_id = False
+                configure_serial = False
                 if old_root is not None:
                     if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         is_freebsd_upgrade = True
@@ -485,6 +486,21 @@ def main():
                         pass
 
                     setup_machine_id = configure_serial = True
+
+                is_freebsd_loader_upgrade = is_freebsd_upgrade
+                if not is_freebsd_loader_upgrade and old_root is None and old_bootfs_prop != "-":
+                    # Probably installing SCALE on CORE-formatted pool
+                    with tempfile.TemporaryDirectory() as td:
+                        try:
+                            run_command(["mount", "-t", "zfs", old_bootfs_prop, td])
+                        except Exception:
+                            pass
+                        else:
+                            try:
+                                if os.path.exists(f"{td}/bin/freebsd-version"):
+                                    is_freebsd_loader_upgrade = True
+                            finally:
+                                run_command(["umount", td])
 
                 # We do not want /data directory to be world readable
                 # Doing this here is important so that we cover both fresh install and upgrade case
@@ -529,7 +545,7 @@ def main():
 
                         # Set bootfs before running update-grub
                         run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
-                        if is_freebsd_upgrade:
+                        if is_freebsd_loader_upgrade:
                             if old_bootfs_prop != "-":
                                 run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
@@ -568,7 +584,7 @@ def main():
                                 efi_partition_number = 2
                                 format_efi_partition = True
                                 copy_bsd_loader = False
-                                if is_freebsd_upgrade:
+                                if is_freebsd_loader_upgrade:
                                     first_partition_guid = get_partition_guid(disk, 1)
                                     if first_partition_guid == EFI_SYSTEM_PARTITION_GUID:
                                         install_grub_i386 = False
