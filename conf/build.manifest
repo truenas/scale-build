@@ -12,6 +12,10 @@ apt-repos:
   distribution: bookworm
   components: main
   additional:
+  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/gluster/
+    distribution: bookworm
+    component: main
+    key: keys/gluster.gpg
   - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/libnvidia/
     distribution: bookworm
     component: main
