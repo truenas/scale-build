@@ -296,8 +296,13 @@ sources:
   repo: https://github.com/truenas/chelsiouwire
   branch: master
 - name: openseachest
-  branch: truenas/master
+  branch: master
   repo: https://github.com/truenas/openseachest
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
 - name: inadyn
   branch: master
   repo: https://github.com/truenas/inadyn.git
