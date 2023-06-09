@@ -325,6 +325,11 @@ sources:
 - name: openseachest
   branch: release/22.12.3
   repo: https://github.com/truenas/openseachest
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
 - name: inadyn
   branch: release/22.12.3
   repo: https://github.com/truenas/inadyn.git
