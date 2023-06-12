@@ -44,6 +44,10 @@ apt-repos:
 # NOTE: Installed in the order listed
 ############################################################################
 base-packages:
+- name: libssl3
+  install_recommends: true
+- name: openssl
+  install_recommends: true
 - name: dosfstools
   install_recommends: true
 - name: linux-truenas-production-libc-dev
