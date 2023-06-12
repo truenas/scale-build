@@ -292,6 +292,9 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: openssl
+  repo: https://github.com/truenas/openssl
+  branch: truenas/cobia
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
   branch: master
