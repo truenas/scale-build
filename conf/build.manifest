@@ -307,7 +307,7 @@ iso-packages:
 sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
-  branch: truenas/cobia
+  branch: master
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
