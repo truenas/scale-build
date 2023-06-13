@@ -308,6 +308,9 @@ sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
   branch: truenas/cobia
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
 - name: chelsio_uwire
   repo: https://github.com/truenas/chelsiouwire
   branch: master
