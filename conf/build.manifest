@@ -310,6 +310,7 @@ sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
   branch: master
+  generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
