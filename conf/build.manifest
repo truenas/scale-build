@@ -470,6 +470,7 @@ sources:
       env:
         KVER: "$(shell apt info linux-headers-truenas-debug-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
         KDIR: "/lib/modules/$(KVER)/build"
+        PKG_BUILD_MODE: 2debug
       depscmd:
         - "cat debian/control.dbgmodules > debian/control"
       prebuildcmd:
