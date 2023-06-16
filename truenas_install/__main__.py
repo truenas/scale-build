@@ -566,6 +566,9 @@ def main():
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
                         run_command(["chroot", root, "update-grub"])
 
+                        # We would like to configure fips bit as well here
+                        run_command(["chroot", root, "/usr/bin/configure_fips"])
+
                         if old_root is None or force_grub_install:
                             if os.path.exists("/sys/firmware/efi"):
                                 run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
