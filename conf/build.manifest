@@ -144,8 +144,6 @@ base-packages:
   install_recommends: true
 - name: open-iscsi
   install_recommends: true
-- name: py-sg3
-  install_recommends: true
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
@@ -602,6 +600,6 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: py-sg3
+- name: py_sg3
   repo: https://github.com/truenas/py-sg3
   branch: master
