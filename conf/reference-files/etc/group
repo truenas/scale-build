@@ -3,7 +3,7 @@ wheel:x:0:
 daemon:x:1:
 bin:x:2:
 sys:x:3:
-adm:x:4:
+adm:x:4:netdata
 tty:x:5:
 disk:x:6:
 lp:x:7:
@@ -85,3 +85,4 @@ tss:x:136:
 iperf3:x:137:
 _chrony:x:138:
 polkitd:x:998:
+netdata:x:997:
