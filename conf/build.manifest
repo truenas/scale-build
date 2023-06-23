@@ -134,8 +134,6 @@ base-packages:
   install_recommends: false
 - name: openzfs-zfs-modules-dbg
   install_recommends: true
-- name: openzfs-zfs-test
-  install_recommends: true
 - name: openzfs-zfs-initramfs
   install_recommends: true
 - name: nvme-cli
