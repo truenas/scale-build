@@ -506,18 +506,18 @@ sources:
   branch: release/22.12.3
 - name: truenas_files
   repo: https://github.com/truenas/middleware
-  branch: release/22.12.3.1
+  branch: release/22.12.3.2
   subdir: src/freenas
 - name: middlewared
   repo: https://github.com/truenas/middleware
-  branch: release/22.12.3.1
+  branch: release/22.12.3.2
   subdir: src/middlewared
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: release/22.12.3
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: release/22.12.3.1
+  branch: release/22.12.3.2
   subdir: debian
 - name: collectd
   repo: https://github.com/truenas/collectd
