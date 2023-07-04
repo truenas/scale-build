@@ -273,6 +273,8 @@ additional-packages:
   comment: requested by platform team (NAS-120155)
 - package: i2c-tools
   comment: requested by platform team (NAS-120155)
+- name: socat
+  comment: requested by community (NAS-122785)
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
