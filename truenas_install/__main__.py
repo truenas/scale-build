@@ -377,17 +377,21 @@ def main():
     with open(os.path.join(src, "manifest.json")) as f:
         manifest = json.load(f)
 
-    dataset_name = f"{pool_name}/ROOT/{manifest['version']}"
     old_bootfs_prop = run_command(["zpool", "get", "-H", "-o", "value", "bootfs", pool_name]).stdout.strip()
 
     write_progress(0, "Creating dataset")
-    existing_datasets = set(filter(None, run_command(["zfs", "list", "-H", "-o", "name"]).stdout.split("\n")))
-    if dataset_name in existing_datasets:
-        for i in itertools.count(1):
-            probe_dataset_name = f"{dataset_name}-{i}"
-            if probe_dataset_name not in existing_datasets:
-                dataset_name = probe_dataset_name
-                break
+    if input.get("dataset_name"):
+        dataset_name = input["dataset_name"]
+    else:
+        dataset_name = f"{pool_name}/ROOT/{manifest['version']}"
+
+        existing_datasets = set(filter(None, run_command(["zfs", "list", "-H", "-o", "name"]).stdout.split("\n")))
+        if dataset_name in existing_datasets:
+            for i in itertools.count(1):
+                probe_dataset_name = f"{dataset_name}-{i}"
+                if probe_dataset_name not in existing_datasets:
+                    dataset_name = probe_dataset_name
+                    break
     run_command([
         "zfs", "create",
         "-o", "mountpoint=legacy",
