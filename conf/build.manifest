@@ -98,7 +98,7 @@ base-packages:
   install_recommends: true
 - name: ifstat
   install_recommends: true
-- name: nvidia-kernel-dkms
+- name: nvidia-kernel
   install_recommends: true
 - name: nslcd
   install_recommends: true
@@ -602,3 +602,13 @@ sources:
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
   branch: master
+- name: nvidia
+  repo: https://github.com/truenas/nvidia
+  batch_priority: 0
+  branch: master
+  predepscmd:
+    - "./pull.sh"
+  explicit_deps:
+    - kernel
+    - kernel-dbg
+  generate_version: false

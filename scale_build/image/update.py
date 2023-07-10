@@ -1,4 +1,3 @@
-import contextlib
 import glob
 import itertools
 import logging
@@ -168,16 +167,6 @@ def clean_rootfs():
 
     # Remove any temp build depends
     run_in_chroot(['apt', 'autoremove', '-y'])
-
-    # We install the nvidia-kernel-dkms package which causes a modprobe file to be written
-    # (i.e /etc/modprobe.d/nvidia.conf). This file tries to modprobe all the associated
-    # nvidia drivers at boot whether or not your system has an nvidia card installed.
-    # For all truenas certified and truenas enterprise hardware, we do not include nvidia GPUS.
-    # So to prevent a bunch of systemd "Failed" messages to be barfed to the console during boot,
-    # we remove this file because the linux kernel dynamically loads the modules based on whether
-    # or not you have the actual hardware installed in the system.
-    with contextlib.suppress(FileNotFoundError):
-        os.unlink(os.path.join(CHROOT_BASEDIR, 'etc/modprobe.d/nvidia.conf'))
 
     # OpenSSH generates its server keys on installation, we don't want all SCALE builds
     # of the same version to have the same keys. middleware will generate these keys on
