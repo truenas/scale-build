@@ -320,7 +320,7 @@ def main():
                     if buffer and buffer[0:1] == b"\r" and buffer[-1:] == b"%":
                         if m := RE_UNSQUASHFS_PROGRESS.match(buffer[1:].decode("utf-8", "ignore")):
                             write_progress(
-                                int(m.group("extracted")) / int(m.group("total")) * 0.9,
+                                int(m.group("extracted")) / int(m.group("total")) * 0.5,
                                 "Extracting",
                             )
 
@@ -331,7 +331,7 @@ def main():
                     write_error({"error": f"unsquashfs failed with exit code {p.returncode}: {stdout}"})
                     raise subprocess.CalledProcessError(p.returncode, cmd, stdout)
 
-                write_progress(0.9, "Performing post-install tasks")
+                write_progress(0.5, "Performing post-install tasks")
 
                 with contextlib.suppress(FileNotFoundError):
                     # We want to remove this for fresh installation + upgrade both
@@ -430,13 +430,16 @@ def main():
                         undo.append(["umount", f"{root}/boot/grub"])
 
                         if authentication_method is not None:
+                            write_progress(0.56, "Setting up authentication")
                             run_command(["chroot", root, "/usr/local/bin/truenas-set-authentication-method.py"],
                                         input=json.dumps(authentication_method))
 
                         if sql is not None:
+                            write_progress(0.57, "Upgrading database")
                             run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
 
                         if configure_serial:
+                            write_progress(0.58, "Configuring serial port")
                             configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
 
                         # Set bootfs before running update-grub
@@ -449,6 +452,7 @@ def main():
                             if not os.path.exists(f'{root}/{p}'):
                                 write_error(f"{root}/{p}: library path does not exist.", raise_=True)
 
+                        write_progress(0.6, "Preparing initramfs configuration")
                         os.environ['LD_LIBRARY_PATH'] = ':'.join([f'{root}/{p}' for p in LD_LOAD_PATHS])
                         cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
                         os.environ.pop('LD_LIBRARY_PATH', None)
@@ -457,12 +461,18 @@ def main():
                                 cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
                             )
 
+                        write_progress(0.7, "Preparing NVDIMM configuration")
                         run_command(["chroot", root, "/usr/local/bin/truenas-nvdimm.py"])
+                        write_progress(0.71, "Preparing GRUB configuration")
                         run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
+                        write_progress(0.8, "Updating initramfs")
                         run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
+                        write_progress(0.9, "Updating GRUB")
                         run_command(["chroot", root, "update-grub"])
 
                         if old_root is None or force_grub_install:
+                            write_progress(0.96, "Installing GRUB")
+
                             if os.path.exists("/sys/firmware/efi"):
                                 run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
                                 undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
