@@ -131,7 +131,7 @@ class BootstrapDir(CacheMixin, HashMixin):
             shutil.rmtree(self.chroot_basedir)
 
 
-class PackageBootstrapDirectory(BootstrapDir):
+class RootfsBootstrapDir(BootstrapDir):
 
     @property
     def deopts(self):
@@ -139,11 +139,11 @@ class PackageBootstrapDirectory(BootstrapDir):
 
     @property
     def extra_packages_to_install(self):
-        return ['build-essential', 'dh-make', 'devscripts', 'fakeroot']
+        return []
 
     @property
     def cache_filename(self):
-        return 'basechroot-package.squashfs'
+        return 'basechroot-rootfs.squashfs'
 
     def after_extra_packages_installation_steps(self):
         if self.installed_packages_in_cache_changed:
@@ -164,6 +164,17 @@ class PackageBootstrapDirectory(BootstrapDir):
                 os.path.join(self.chroot_basedir, reference_file)
             )
         run(['chroot', self.chroot_basedir, '/debootstrap/debootstrap', '--second-stage'])
+
+
+class PackageBootstrapDir(RootfsBootstrapDir):
+
+    @property
+    def extra_packages_to_install(self):
+        return ['build-essential', 'dh-make', 'devscripts', 'fakeroot']
+
+    @property
+    def cache_filename(self):
+        return 'basechroot-package.squashfs'
 
 
 class CdromBootstrapDirectory(BootstrapDir):
