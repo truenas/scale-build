@@ -17,15 +17,19 @@ class CacheMixin:
         return os.path.join(CACHE_DIR, self.cache_filename)
 
     @property
+    def extra_cache_files(self):
+        return []
+
+    @property
     def cache_exists(self):
         return all(
-            os.path.exists(p) for p in (self.cache_file_path, self.saved_packages_file_path, self.cache_hash_file_path)
+            os.path.exists(p) for p in [self.cache_file_path, self.cache_hash_file_path] + self.extra_cache_files
         )
 
     def remove_cache(self):
         for path in filter(
             lambda p: os.path.exists(p),
-            (self.cache_file_path, self.saved_packages_file_path, self.cache_hash_file_path)
+            [self.cache_file_path, self.cache_hash_file_path] + self.extra_cache_files
         ):
             os.unlink(path)
 
@@ -37,7 +41,6 @@ class CacheMixin:
     def save_build_cache(self, installed_packages):
         self.logger.debug('Caching CHROOT_BASEDIR for future runs...')
         run(['mksquashfs', self.chroot_basedir, self.cache_file_path])
-        self.update_saved_packages_list(installed_packages)
         self.update_mirror_cache()
 
     @property
@@ -56,10 +59,6 @@ class CacheMixin:
             self.remove_cache()
 
         return intact
-
-    @property
-    def installed_packages_in_cache_changed(self):
-        return self.installed_packages_in_cache != self.get_packages()
 
     def restore_cache(self, chroot_basedir):
         run(['unsquashfs', '-f', '-d', chroot_basedir, self.cache_file_path])

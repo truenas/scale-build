@@ -145,10 +145,6 @@ class RootfsBootstrapDir(BootstrapDir):
     def cache_filename(self):
         return 'basechroot-rootfs.squashfs'
 
-    def after_extra_packages_installation_steps(self):
-        if self.installed_packages_in_cache_changed:
-            clean_packages()
-
     def debootstrap_debian(self):
         manifest = get_manifest()
         run(
@@ -172,9 +168,25 @@ class PackageBootstrapDir(RootfsBootstrapDir):
     def extra_packages_to_install(self):
         return ['build-essential', 'dh-make', 'devscripts', 'fakeroot']
 
+    def after_extra_packages_installation_steps(self):
+        if self.installed_packages_in_cache_changed:
+            clean_packages()
+
     @property
     def cache_filename(self):
         return 'basechroot-package.squashfs'
+
+    @property
+    def extra_cache_files(self):
+        return [self.saved_packages_file_path]
+
+    @property
+    def installed_packages_in_cache_changed(self):
+        return self.installed_packages_in_cache != self.get_packages()
+
+    def save_build_cache(self, installed_packages):
+        super().save_build_cache(installed_packages)
+        self.update_saved_packages_list(installed_packages)
 
 
 class CdromBootstrapDirectory(BootstrapDir):
