@@ -248,6 +248,6 @@ def validate_manifest():
     if invalid_packages:
         raise CallError(
             f'{",".join(invalid_packages)!r} are using repos from unsupported git upstream. Scale-build only '
-            'accepts packages from github.com/truenas organisation (To skip this for dev '
+            'accepts packages from github.com/truenas organization (To skip this for dev '
             'purposes, please set "SKIP_SOURCE_REPO_VALIDATION" in your environment).'
         )
