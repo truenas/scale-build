@@ -1,6 +1,6 @@
 import os
 
-from scale_build.bootstrap.bootstrapdir import PackageBootstrapDirectory
+from scale_build.bootstrap.bootstrapdir import PackageBootstrapDir
 from scale_build.utils.run import run
 
 
@@ -10,4 +10,4 @@ class BootstrapMixin:
         os.makedirs(self.tmpfs_path, exist_ok=True)
         if self.tmpfs:
             run(['mount', '-t', 'tmpfs', '-o', f'size={self.tmpfs_size}G', 'tmpfs', self.tmpfs_path])
-        PackageBootstrapDirectory().restore_cache(self.chroot_base_directory)
+        PackageBootstrapDir().restore_cache(self.chroot_base_directory)

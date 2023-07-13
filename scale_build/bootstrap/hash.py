@@ -54,7 +54,7 @@ class HashMixin:
 
     @property
     def saved_packages_file_path(self):
-        return os.path.join(HASH_DIR, 'packages_in_bootstrapdir.json')
+        return os.path.join(HASH_DIR, f'{os.path.splitext(self.cache_filename)[0]}_packages.json')
 
     @property
     def installed_packages_in_cache(self):

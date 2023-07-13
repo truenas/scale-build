@@ -2,7 +2,7 @@ import difflib
 import logging
 import os
 
-from .bootstrap.bootstrapdir import PackageBootstrapDirectory
+from .bootstrap.bootstrapdir import RootfsBootstrapDir
 from .exceptions import CallError
 from .image.bootstrap import (
     clean_mounts, setup_chroot_basedir, umount_chroot_basedir, umount_tmpfs_and_clean_chroot_dir
@@ -54,7 +54,7 @@ def build_update_image_impl():
     logger.debug('Bootstrapping TrueNAS rootfs [UPDATE] (%s/rootfs-bootstrap.log)', LOG_DIR)
 
     with LoggingContext('rootfs-bootstrap', 'w'):
-        package_bootstrap_obj = PackageBootstrapDirectory()
+        package_bootstrap_obj = RootfsBootstrapDir()
         package_bootstrap_obj.setup()
 
     logger.debug('Installing TrueNAS rootfs package [UPDATE] (%s/rootfs-packages.log)', LOG_DIR)
