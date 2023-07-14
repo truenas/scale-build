@@ -167,6 +167,9 @@ base-prune:
 # we don't need this package since it's for dealing with smart cards
 # but more importantly, removes a category of potentical CVE exposure
 - opensc
+# remove gnupg to remove class of potential CVEs and also because we
+# don't use it
+- gnupg
 
 #
 # Update build-epoch when you want to force the next build to be
