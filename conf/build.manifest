@@ -375,7 +375,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: release/22.12.3
+  branch: release/22.12.3.3
   predepscmd:
     - "cp -r contrib/truenas debian"
   deps_path: contrib/truenas
