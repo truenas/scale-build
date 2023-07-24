@@ -557,7 +557,7 @@ sources:
   branch: main
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: NAS-122934
   subdir: debian
   subpackages:
     - name: middlewared
