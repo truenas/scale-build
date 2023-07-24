@@ -567,15 +567,6 @@ sources:
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: master
-- name: collectd
-  repo: https://github.com/truenas/collectd
-  branch: master
-  debian_fork: true
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
-  deoptions: nocheck
-  generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
   branch: master
@@ -599,15 +590,6 @@ sources:
 - name: rclone
   repo: https://github.com/truenas/rclone
   branch: master
-  deoptions: nocheck
-  generate_version: false
-- name: rrdcached
-  repo: https://github.com/truenas/rrdtool
-  branch: master
-  debian_fork: true
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
   deoptions: nocheck
   generate_version: false
 - name: py_sg3

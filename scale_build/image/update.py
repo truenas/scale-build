@@ -153,7 +153,7 @@ def custom_rootfs_setup():
 
     for f in os.listdir(os.path.join(tmp_systemd, 'multi-user.target.wants')):
         file_path = os.path.join(tmp_systemd, f)
-        if os.path.isfile(file_path) and not os.path.islink(file_path) and f != 'rrdcached.service':
+        if os.path.isfile(file_path) and not os.path.islink(file_path):
             os.unlink(file_path)
 
     run_in_chroot(['rsync', '-av', '/tmp/systemd/', '/usr/lib/systemd/system/'])
