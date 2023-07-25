@@ -1,4 +1,4 @@
-certifi==2023.05.07
+certifi==2023.7.22
 chardet==4.0.0
 coloredlogs==15.0
 humanfriendly==9.1
