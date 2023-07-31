@@ -435,14 +435,14 @@ sources:
       generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: SCALE-v4-18-stable
+  branch: stable/cobia
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: SCALE-v0.8
+  branch: stable/cobia
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
@@ -471,7 +471,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: truenas-pre-3.8.x
+  branch: stable/cobia
   subpackages:
     - name: scst-dbg
       generate_version: false
