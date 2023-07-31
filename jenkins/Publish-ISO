@@ -10,8 +10,8 @@ pipeline {
         echo '*** Grabbing artifact from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
         copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.sha256', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
-        sh 'ssh truenas@cdn1.tn.ixsystems.com mkdir -p /cdn/download.truenas.com/truenas-scale-cobia-nightly/ || true'
-        sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 truenas@cdn1.tn.ixsystems.com:/cdn/download.truenas.com/truenas-scale-cobia-nightly/'
+        sh 'ssh truenas@cdn1.tn.ixsystems.com mkdir -p /cdn/download.truenas.com/truenas-scale-dragonfish-nightly/ || true'
+        sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 truenas@cdn1.tn.ixsystems.com:/cdn/download.truenas.com/truenas-scale-dragonfish-nightly/'
         sh 'rm -rf upload/files'
       }
     }
