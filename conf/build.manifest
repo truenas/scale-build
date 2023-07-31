@@ -340,7 +340,7 @@ sources:
   repo: https://github.com/truenas/pyglfs.git
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-6.1
+  branch: stable/cobia
   batch_priority: 0
   supports_ccache: true
   env:
@@ -390,7 +390,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: truenas/zfs-2.2-release
+  branch: stable/cobia
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
