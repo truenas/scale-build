@@ -107,6 +107,11 @@ base-packages:
 - zfs-initramfs
 - nvme-cli
 - convmv
+- lustre-server-utils
+- lustre-server-modules
+- lustre-tests
+- lustre-dev
+- lustre-iokit
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
@@ -375,12 +380,31 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
+  preserve_sources: true
   branch: stable/bluefin
   predepscmd:
     - "cp -r contrib/truenas debian"
   deps_path: contrib/truenas
   kernel_module: true
   generate_version: false
+- name: truenas_lustre
+  repo: git://git.whamcloud.com/fs/lustre-release.git
+  branch: v2_15_57
+  generate_version: false
+  kernel_module: true
+  predepscmd:
+    - "apt install -y python3-dev libkeyutils-dev libnl-genl-3-dev libyaml-dev flex bison openzfs libzfs5-devel"
+    - "apt install -y module-assistant libsnmp-dev mpi-default-dev quilt rsync swig ed patchutils"
+    - "mkdir /extracted; tar -xzf /packages/openzfs.tar.gz -C /extracted"
+    - "mv /extracted/tmp/dpkg-overlay_openzfs/dpkg-src /zfs"
+    - "mv /dpkg-src/debian/changelog.in /dpkg-src/debian/changelog"
+  buildcmd:
+    - "sh autogen.sh"
+    - "./configure --disable-ldiskfs --disable-gss-keyring --with-zfs=yes --disable-client"
+    - "make debs"
+    - "mv debs/* ../"
+  explicit_deps:
+    - openzfs
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: stable/bluefin

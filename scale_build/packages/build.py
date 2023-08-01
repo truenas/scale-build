@@ -8,7 +8,7 @@ from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
 from scale_build.utils.manifest import get_truenas_train
 from scale_build.utils.run import run
-from scale_build.utils.paths import PKG_DIR
+from scale_build.utils.paths import PKG_DIR, SOURCES_DIR
 
 
 class BuildPackageMixin:
@@ -148,6 +148,10 @@ class BuildPackageMixin:
 
         with open(self.hash_path, 'w') as f:
             f.write(self.source_hash)
+
+        if self.preserve_sources:
+            cmd = ['tar', '-czf', os.path.join(PKG_DIR, f'{self.name}.tar.gz'), self.source_in_chroot]
+            run(cmd)
 
         self.delete_overlayfs()
 
