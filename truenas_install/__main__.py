@@ -313,7 +313,7 @@ def precheck(old_root):
                         except FileNotFoundError:
                             cgroups = ""
 
-                        if "kubepods.slice" in cgroups:
+                        if "kubepods" in cgroups:
                             continue
 
                         running_services.append(title)
