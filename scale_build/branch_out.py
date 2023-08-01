@@ -63,7 +63,7 @@ def branch_out_repos(push_branched_out_repos):
 
     logger.debug('Creating a new branch for scale-build for adding new changes')
     with LoggingContext(os.path.join('branchout', 'scale-build'), 'w'):
-        safe_checkout('.', f'dev-{BRANCH_OUT_NAME}-{str(uuid.uuid4()[:4])}')
+        safe_checkout('.', f'dev-{BRANCH_OUT_NAME}-{str(uuid.uuid4())[:4]}')
 
     logger.debug('Updating scale-build manifest')
     # Now that we have checked out the branch we should update the manifest
