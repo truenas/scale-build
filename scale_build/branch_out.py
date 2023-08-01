@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import uuid
 
 from .config import BRANCH_OUT_NAME, GITHUB_TOKEN
 from .exceptions import CallError
@@ -59,6 +60,10 @@ def branch_out_repos(push_branched_out_repos):
     logger.debug('Pushing scale-build %r branch', BRANCH_OUT_NAME)
     with LoggingContext(os.path.join('branchout', 'scale-build'), 'a+'):
         push_changes('.', GITHUB_TOKEN, BRANCH_OUT_NAME)
+
+    logger.debug('Creating a new branch for scale-build for adding new changes')
+    with LoggingContext(os.path.join('branchout', 'scale-build'), 'w'):
+        safe_checkout('.', f'dev-{BRANCH_OUT_NAME}-{str(uuid.uuid4()[:4])}')
 
     logger.debug('Updating scale-build manifest')
     # Now that we have checked out the branch we should update the manifest
