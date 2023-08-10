@@ -8,34 +8,34 @@ identity_file_path_default: "~/.ssh/id_rsa"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/debian/
+  url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/libnvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/libnvidia/
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/helm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/helm/
     distribution: all
     component: main
     key: keys/helm.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/debian-security/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian-security/
     distribution: bookworm-security
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/debian-backports/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free"
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/debian-debug/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/yarn/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/yarn/
     distribution: stable
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/nvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/nvidia/
     distribution: bookworm
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/cobia/nightlies/pcm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/pcm/
     distribution: bookworm
     component: main
 
