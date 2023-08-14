@@ -282,6 +282,9 @@ additional-packages:
 - name: i2c-tools
   comment: requested by platform team (NAS-120155)
   install_recommends: true
+- name: systemd-container
+  comment: requested by community (NAS-123533)
+  install_recommends: true
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
