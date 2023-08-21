@@ -5,6 +5,8 @@ PYTHON?=/usr/bin/python3
 COMMIT_HASH=$(shell git rev-parse --short HEAD)
 PACKAGES?=""
 REPO_CHANGED=$(shell if [ -d "./venv-$(COMMIT_HASH)" ]; then git status --porcelain | grep -c "scale_build/"; else echo "1"; fi)
+# Check if --break-system-packages flag is supported by pip
+BREAK_SYS_PKGS_FLAG=$(shell ${PYTHON} -m pip help install | grep -q -- '--break-system-packages' && echo "--break-system-packages" || echo "")
 
 .DEFAULT_GOAL := all
 
@@ -12,7 +14,7 @@ check:
 ifneq ($(REPO_CHANGED),0)
 	@echo "Setting up new virtual environment"
 	@rm -rf venv-*
-	@${PYTHON} -m pip install --break-system-packages -U virtualenv >/dev/null || { echo "Failed to install/upgrade virtualenv package"; exit 1; }
+	@${PYTHON} -m pip install $(BREAK_SYS_PKGS_FLAG) -U virtualenv >/dev/null || { echo "Failed to install/upgrade virtualenv package"; exit 1; }
 	@${PYTHON} -m venv venv-${COMMIT_HASH} || { echo "Failed to create virutal environment"; exit 1; }
 	@{ . ./venv-${COMMIT_HASH}/bin/activate && \
 		python3 -m pip install -r requirements.txt >/dev/null 2>&1 && \
