@@ -7,7 +7,7 @@ jsonschema==3.2.0
 pexpect==4.8.0
 psutil==5.8.0
 ptyprocess==0.7.0
-PyYAML==5.4.1
+PyYAML==6.0.1
 requests==2.25.1
 toposort==1.6
 urllib3==1.26.5
