@@ -391,6 +391,11 @@ def main():
                     break
     run_command([
         "zfs", "create",
+        "-o", "mountpoint=/var/log",
+        "{pool_name}/logs"
+    ], check=False)
+    run_command([
+        "zfs", "create",
         "-o", "mountpoint=legacy",
         "-o", f"truenas:kernel_version={manifest['kernel_version']}",
         "-o", "zectl:keep=False",
