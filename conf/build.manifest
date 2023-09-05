@@ -442,7 +442,7 @@ sources:
     - openzfs
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: SCALE-v0.8
+  branch: add-shutdown
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
