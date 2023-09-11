@@ -18,6 +18,7 @@ import textwrap
 import psutil
 
 from licenselib.license import ContractType, License
+from .fhs import TRUENAS_DATASETS
 
 logger = logging.getLogger(__name__)
 
@@ -389,6 +390,7 @@ def main():
                 if probe_dataset_name not in existing_datasets:
                     dataset_name = probe_dataset_name
                     break
+
     run_command([
         "zfs", "create",
         "-o", "mountpoint=legacy",
@@ -396,9 +398,40 @@ def main():
         "-o", "zectl:keep=False",
         dataset_name,
     ])
+
+    for entry in TRUENAS_DATASETS:
+        cmd = ["zfs", "create", "-u", "-o", "mountpoint=legacy", "-o", "canmount=noauto"]
+        if "NOSUID" in entry["options"]:
+            cmd.extend(["-o", "setuid=off", "-o", "devices=off"])
+        if "NOEXEC" in entry["options"]:
+            cmd.extend(["-o", "exec=off"])
+        if "NODEV" in entry["options"]:
+            cmd.extend(["-o", "devices=off"])
+        if "NOACL" in entry['options']:
+            cmd.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
+        if "NOATIME" in entry["options"]:
+            cmd.extend(["-o", "atime=off"])
+
+        cmd.append(f"{dataset_name}/{entry['name']}")
+        run_command(cmd)
+
     try:
         with tempfile.TemporaryDirectory() as root:
+            undo = []
+            ds_info = []
             run_command(["mount", "-t", "zfs", dataset_name, root])
+            for entry in TRUENAS_DATASETS:
+                this_ds = entry['name']
+                ds_name = f"{dataset_name}/{this_ds}"
+                ds_path = entry.get("mp") or entry["name"]
+                ds_guid = run_command(["zfs", "list", "-o", "guid", "-H", ds_name])
+
+                mp = os.path.join(root, ds_path[1:] if ds_path.startswith('/') else ds_path)
+                os.makedirs(mp, exist_ok=True)
+                run_command(["mount", "-t", "zfs", f"{dataset_name}/{this_ds}", mp])
+                ds_info.append({"ds": ds_name, "guid": ds_guid.stdout.strip(), "fhs_entry": entry})
+                undo.append(["umount", mp])
+
             try:
                 write_progress(0, "Extracting")
                 cmd = [
@@ -424,7 +457,6 @@ def main():
                                 int(m.group("extracted")) / int(m.group("total")) * 0.5,
                                 "Extracting",
                             )
-
                             buffer = b""
 
                 p.wait()
@@ -433,6 +465,21 @@ def main():
                     raise subprocess.CalledProcessError(p.returncode, cmd, stdout)
 
                 write_progress(0.5, "Performing post-install tasks")
+
+                for entry in TRUENAS_DATASETS:
+                    if not (force_mode := entry.get("mode")):
+                        continue
+
+                    os.chmod(f"{root}/{entry['name']}", force_mode)
+
+                # /usr will be readonly and so we want the ca-certificates directory to symlink
+                # to writeable location in /var/local
+                os.makedirs(f"{root}/usr/local/share", exist_ok=True)
+                shutil.rmtree(f"{root}/usr/local/share/ca-certificates", ignore_errors=True)
+                os.symlink("/var/local/ca-certificates", f"{root}/usr/local/share/ca-certificates")
+
+                with open(f"{root}/conf/truenas_root_ds.conf", "w") as f:
+                    f.write(json.dumps(ds_info, indent=4))
 
                 with contextlib.suppress(FileNotFoundError):
                     # We want to remove this for fresh installation + upgrade both
@@ -516,7 +563,6 @@ def main():
                 if IS_FREEBSD:
                     install_grub_freebsd(input, manifest, pool_name, dataset_name, disks)
                 else:
-                    undo = []
                     try:
                         run_command(["mount", "-t", "devtmpfs", "udev", f"{root}/dev"])
                         undo.append(["umount", f"{root}/dev"])
@@ -649,11 +695,24 @@ def main():
                             run_command(cmd)
             finally:
                 run_command(["umount", root])
+
+        for entry in TRUENAS_DATASETS:
+            this_ds = f"{dataset_name}/{entry['name']}"
+            mp = entry.get('mp') or f"/{entry['name']}"
+            ro = "on" if "RO" in entry["options"] else "off"
+            run_command(["zfs", "set", f"readonly={ro}", this_ds])
+
+            if entry.get("snap", False):
+                run_command(["zfs", "snapshot", f"{this_ds}@pristine"])
+
+            run_command(["zfs", "set", f"mountpoint={mp}", this_ds])
+            run_command(["zfs", "set", 'org.zectl:bootloader=""', this_ds])
+
     except Exception:
         if old_bootfs_prop != "-":
             run_command(["zpool", "set", f"bootfs={old_bootfs_prop}", pool_name])
         if cleanup:
-            run_command(["zfs", "destroy", dataset_name])
+            run_command(["zfs", "destroy", "-r", dataset_name])
         raise
 
     configure_system_for_zectl(pool_name)
