@@ -17,7 +17,7 @@ The following keys are supported:
          name related components
 `options` - Dataset configuration options (explained below)
 `mode` - permissions to set on the dataset's mountpoint during installation
-`mp` - dataset mountpoint.
+`mountpoint` - dataset mountpoint.
 `snap` - Take a snapshot named "pristine" after creating the dataset.
 
 OPTIONS
@@ -96,7 +96,7 @@ TRUENAS_DATASETS = [
     {
         'name':  'var/ca-certificates',
         'options': ['NOSUID', 'NOACL', 'NOEXEC'],
-        'mp': '/var/local/ca-certificates'
+        'mountpoint': '/var/local/ca-certificates'
     },
     {
         'name':  'var/log',

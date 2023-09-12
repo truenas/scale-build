@@ -423,13 +423,13 @@ def main():
             for entry in TRUENAS_DATASETS:
                 this_ds = entry['name']
                 ds_name = f"{dataset_name}/{this_ds}"
-                ds_path = entry.get("mp") or entry["name"]
-                ds_guid = run_command(["zfs", "list", "-o", "guid", "-H", ds_name])
+                ds_path = entry.get("mountpoint") or f"/{entry['name']}"
+                ds_guid = run_command(["zfs", "list", "-o", "guid", "-H", ds_name]).stdout.strip()
 
-                mp = os.path.join(root, ds_path[1:] if ds_path.startswith('/') else ds_path)
+                mp = os.path.join(root, ds_path[1:])
                 os.makedirs(mp, exist_ok=True)
                 run_command(["mount", "-t", "zfs", f"{dataset_name}/{this_ds}", mp])
-                ds_info.append({"ds": ds_name, "guid": ds_guid.stdout.strip(), "fhs_entry": entry})
+                ds_info.append({"ds": ds_name, "guid": ds_guid, "fhs_entry": entry})
                 undo.append(["umount", mp])
 
             try:
@@ -472,13 +472,7 @@ def main():
 
                     os.chmod(f"{root}/{entry['name']}", force_mode)
 
-                # /usr will be readonly and so we want the ca-certificates directory to symlink
-                # to writeable location in /var/local
-                os.makedirs(f"{root}/usr/local/share", exist_ok=True)
-                shutil.rmtree(f"{root}/usr/local/share/ca-certificates", ignore_errors=True)
-                os.symlink("/var/local/ca-certificates", f"{root}/usr/local/share/ca-certificates")
-
-                with open(f"{root}/conf/truenas_root_ds.conf", "w") as f:
+                with open(f"{root}/conf/truenas_root_ds.json", "w") as f:
                     f.write(json.dumps(ds_info, indent=4))
 
                 with contextlib.suppress(FileNotFoundError):
@@ -698,7 +692,7 @@ def main():
 
         for entry in TRUENAS_DATASETS:
             this_ds = f"{dataset_name}/{entry['name']}"
-            mp = entry.get('mp') or f"/{entry['name']}"
+            mp = entry.get('mountpoint') or f"/{entry['name']}"
             ro = "on" if "RO" in entry["options"] else "off"
             run_command(["zfs", "set", f"readonly={ro}", this_ds])
 
