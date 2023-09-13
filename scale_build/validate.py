@@ -34,7 +34,10 @@ def validate_system_state():
 
 
 def validate_datasets():
-    jsonschema.validate(fhs.TRUENAS_DATASETS, fhs.TRUENAS_DATASET_SCHEMA)
+    try:
+        jsonschema.validate(fhs.TRUENAS_DATASETS, fhs.TRUENAS_DATASET_SCHEMA)
+    except jsonschema.ValidationError as e:
+        raise CallError(f'Provided dataset schema is invalid: {e}')
 
 
 def validate(system_state_flag=True, manifest_flag=True, datasets_flag=True):
