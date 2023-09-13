@@ -58,7 +58,7 @@ var/ca-certificates - administrator-provided CA certificates, symlinked
 TRUENAS_DATASET_SCHEMA = {
     'type': 'array',
     'items': {
-    'type': 'object',
+        'type': 'object',
         'properties': {
             'name': {'type': 'string'},
             'options': {
