@@ -69,7 +69,7 @@ def main():
     )
 
     validate_parser = subparsers.add_parser('validate', help='Validate TrueNAS Scale build manifest and system state')
-    for action in ('manifest', 'system_state'):
+    for action in ('datasets', 'manifest', 'system_state'):
         validate_parser.add_argument(f'--validate-{action}', dest=action, action='store_true')
         validate_parser.add_argument(f'--no-validate-{action}', dest=action, action='store_false')
         validate_parser.set_defaults(**{action: True})
@@ -93,7 +93,7 @@ def main():
     elif args.action == 'clean':
         complete_cleanup()
     elif args.action == 'validate':
-        validate(args.system_state, args.manifest)
+        validate(args.system_state, args.manifest, args.datasets)
     elif args.action == 'branchout':
         validate_branch_out_config(not args.skip_push)
         branch_out_repos(not args.skip_push)

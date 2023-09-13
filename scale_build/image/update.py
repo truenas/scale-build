@@ -160,6 +160,13 @@ def custom_rootfs_setup():
     shutil.rmtree(tmp_systemd)
     run_in_chroot(['depmod'], check=False)
 
+    # /usr will be readonly and so we want the ca-certificates directory to
+    # symlink to writeable location in /var/local
+    local_cacerts = os.path.join(CHROOT_BASEDIR, "usr/local/share/ca-certificates")
+    os.makedirs(os.path.join(CHROOT_BASEDIR, "usr/local/share"), exist_ok=True)
+    shutil.rmtree(local_cacerts, ignore_errors=True)
+    os.symlink("/var/local/ca-certificates", local_cacerts)
+
 
 def clean_rootfs():
     to_remove = get_manifest()['base-prune']
