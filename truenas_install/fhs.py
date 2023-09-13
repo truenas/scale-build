@@ -13,12 +13,16 @@ present.
 KEYS
 --------------
 The following keys are supported:
-`name` - the name of the dataset (will be appended to other dataset
-         name related components
-`options` - Dataset configuration options (explained below)
+`name` - the name of the dataset (will be appended to other dataset name
+    related components
+`options` - Dataset configuration options (explained below). There is no
+    default.
 `mode` - permissions to set on the dataset's mountpoint during installation
-`mountpoint` - dataset mountpoint.
+    default is 0o755
+`mountpoint` - dataset mountpoint. If no mountpoint is specified then it
+    /`name` will be assumed.
 `snap` - Take a snapshot named "pristine" after creating the dataset.
+    default is False
 
 OPTIONS
 --------------
@@ -46,6 +50,41 @@ var/log - separate dataset for system logs. This is to provide flexibility to
 var/ca-certificates - administrator-provided CA certificates, symlinked
     from /usr/local/share/ca-certificates.
 """
+
+
+# Following schema is used for validation (e.g. "make validate") in scale-build
+# If any changes are made to OPTIONS or KEYS above then schema must be updated
+# accordingly.
+TRUENAS_DATASET_SCHEMA = {
+    'type': 'array',
+    'items': {
+    'type': 'object',
+        'properties': {
+            'name': {'type': 'string'},
+            'options': {
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'enum': [
+                        'NOSUID',
+                        'NOEXEC',
+                        'NOACL',
+                        'NOATIME',
+                        'RO',
+                        'NODEV',
+                    ]
+                },
+                'uniqueItems': True,
+            },
+            'mode': {'type': 'integer'},
+            'mountpoint': {'type': 'string'},
+            'snap': {'type': 'boolean'},
+        },
+        'required': ['name', 'options'],
+        'additionalProperties': False,
+    }
+}
+
 
 TRUENAS_DATASETS = [
     {

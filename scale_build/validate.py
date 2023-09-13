@@ -1,9 +1,11 @@
 import os
+import jsonschema
 import logging
 import shutil
 
 from .exceptions import CallError, MissingPackagesException
 from .utils.manifest import validate_manifest
+from truenas_install import fhs
 
 
 logger = logging.getLogger(__name__)
@@ -31,10 +33,18 @@ def validate_system_state():
         raise MissingPackagesException(missing_packages)
 
 
-def validate(system_state_flag=True, manifest_flag=True):
+def validate_datasets():
+    jsonschema.validate(fhs.TRUENAS_DATASETS, fhs.TRUENAS_DATASET_SCHEMA)
+
+
+def validate(system_state_flag=True, manifest_flag=True, datasets_flag=True):
     if system_state_flag:
         validate_system_state()
         logger.debug('System state Validated')
     if manifest_flag:
         validate_manifest()
         logger.debug('Manifest Validated')
+
+    if datasets_flag:
+        validate_datasets()
+        logger.debug('Dataset schema Validated')
