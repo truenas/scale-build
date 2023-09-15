@@ -124,7 +124,7 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'usr',
-        'options': ['NOSUID', 'NOACL', 'RO', 'NOATIME'],
+        'options': ['NOACL', 'RO', 'NOATIME'],
         'snap': True
     },
     {
