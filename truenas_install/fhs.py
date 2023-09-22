@@ -119,7 +119,13 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'opt',
+        'options': ['NOSUID', 'NOACL', 'RO'],
+        'snap': True
+    },
+    {
+        'name':  'root',
         'options': ['NOSUID', 'NOACL'],
+        'mode': 0o700,
         'snap': True
     },
     {
