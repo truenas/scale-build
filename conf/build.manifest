@@ -390,7 +390,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: truenas/zfs-2.2-release
+  branch: NAS-124189-1
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
@@ -446,7 +446,7 @@ sources:
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: master
+  branch: NAS-124189
   explicit_deps:
     - openzfs
 - name: zettarepl
@@ -519,7 +519,7 @@ sources:
   branch: master
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: master
+  branch: NAS-124189
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
