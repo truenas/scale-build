@@ -702,6 +702,9 @@ def main():
             run_command(["zfs", "set", f"mountpoint={mp}", this_ds])
             run_command(["zfs", "set", 'org.zectl:bootloader=""', this_ds])
 
+        run_command(["zfs", "set", "readonly=on", dataset_name])
+        run_command(["zfs", "snapshot", f"{dataset_name}@pristine"])
+
     except Exception:
         if old_bootfs_prop != "-":
             run_command(["zpool", "set", f"bootfs={old_bootfs_prop}", pool_name])
