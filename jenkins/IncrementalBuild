@@ -42,7 +42,7 @@ pipeline {
     }
     stage('Upload') {
       steps {
-        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE-*.update scale@update-master.freenas.org:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
+        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE-*.update scale@update-master.tn.ixsystems.net:/tank/www/scale/TrueNAS-SCALE-Angelfish-Nightlies/'
       }
     }
   }
