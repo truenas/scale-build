@@ -93,6 +93,10 @@ TRUENAS_DATASETS = [
         'mode': 0o700
     },
     {
+        'name':  'cluster',
+        'options': ['NOSUID', 'NOEXEC', 'NOATIME', 'NOACL'],
+    },
+    {
         'name':  'conf',
         'options': ['NOSUID', 'NOEXEC', 'RO', 'NOACL'],
         'mode': 0o700,
