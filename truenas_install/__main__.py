@@ -453,6 +453,7 @@ def main():
                     rsync = [
                         "etc/hostid",
                         "data",
+                        "home",
                         "root",
                     ]
                     if is_freebsd_upgrade:
