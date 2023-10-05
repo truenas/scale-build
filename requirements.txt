@@ -12,4 +12,4 @@ pyparsing==3.0.9
 PyYAML==6.0.1
 requests==2.31.0
 toposort==1.6
-urllib3==1.26.5
+urllib3==1.26.17
