@@ -453,14 +453,16 @@ def main():
                     rsync = [
                         "etc/hostid",
                         "data",
-                        "home",
                         "root",
                     ]
                     if is_freebsd_upgrade:
                         if not IS_FREEBSD:
                             setup_machine_id = True
                     else:
-                        rsync.append("etc/machine-id")
+                        rsync.extend([
+                            "etc/machine-id",
+                            "home"
+                        ])
 
                     run_command([
                         "rsync", "-aRx",
