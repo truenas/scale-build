@@ -9,15 +9,20 @@ logger = logging.getLogger(__name__)
 
 
 def clean_bootstrap_logs():
-    for f in filter(lambda f: f.startswith('bootstrap'), os.listdir(LOG_DIR)):
-        os.unlink(os.path.join(LOG_DIR, f))
+    with os.scandir(LOG_DIR) as logdir:
+        for i in logdir:
+            if i.is_file() and i.name.startswith('bootstrap'):
+                os.unlink(i.path)
 
 
 def clean_packages():
-    for d in (HASH_DIR, PKG_DIR):
-        if os.path.exists(d):
-            shutil.rmtree(d)
-        os.makedirs(d)
+    for path in (HASH_DIR, PKG_DIR):
+        try:
+            shutil.rmtree(path)
+        except OSError:
+            continue
+        else:
+            os.makedirs(path)
 
 
 def complete_cleanup():
