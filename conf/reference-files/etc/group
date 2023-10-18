@@ -60,7 +60,6 @@ ssl-cert:x:118:
 ntp:x:119:
 Debian-exim:x:120:
 tftp:x:121:
-debian-inadyn:x:122:
 tcpdump:x:123:
 rdma:x:124:
 gluster:x:125:
