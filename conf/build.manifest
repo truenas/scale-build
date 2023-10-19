@@ -332,9 +332,6 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: inadyn
-  branch: master
-  repo: https://github.com/truenas/inadyn.git
 - name: pyglfs
   branch: master
   repo: https://github.com/truenas/pyglfs.git
