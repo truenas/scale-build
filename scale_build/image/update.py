@@ -122,6 +122,12 @@ def post_rootfs_setup():
     with os.scandir(os.path.join(CHROOT_BASEDIR, 'usr/bin')) as binaries:
         for binary in filter(lambda x: should_rem_execute_bit(x), binaries):
             os.chmod(binary.path, stat.S_IMODE(binary.stat(follow_symlinks=False).st_mode) & no_executable_flag)
+    # Make pkg_mgmt_disabled executable
+    executable_flag = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    pkg_mgmt_disabled_path = os.path.join(CHROOT_BASEDIR, 'usr/local/bin/pkg_mgmt_disabled')
+    if os.path.isfile(pkg_mgmt_disabled_path):
+        old_mode = os.stat(pkg_mgmt_disabled_path).st_mode
+        os.chmod(pkg_mgmt_disabled_path, old_mode | executable_flag)
 
 
 def custom_rootfs_setup():
