@@ -406,6 +406,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
+    - openssl
   generate_version: false
   subpackages:
     - name: openzfs-dbg
@@ -429,6 +430,7 @@ sources:
       explicit_deps:
         - kernel
         - kernel-dbg
+        - openssl
       generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
