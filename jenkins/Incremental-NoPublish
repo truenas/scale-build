@@ -17,7 +17,7 @@ pipeline {
     }
     stage('Checkout') {
       steps {
-        sh 'cd ${BDIR} && make checkout'
+        sh 'cd ${BDIR} && env FORCE_CLEANUP_WITH_EPOCH_CHANGE=y make checkout'
       }
     }
     stage('Packages') {
