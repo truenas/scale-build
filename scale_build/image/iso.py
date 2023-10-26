@@ -4,9 +4,11 @@ import os
 import shutil
 import tarfile
 import tempfile
+import time
 
 import requests
 
+from scale_build.exceptions import CallError
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
@@ -141,7 +143,21 @@ def make_iso_file():
         run(['losetup', '-P', lo, iso])
         try:
             with tempfile.TemporaryDirectory() as td:
-                run(['mount', f'{lo}p2', td])
+                for i in itertools.count():
+                    try:
+                        run(['mount', f'{lo}p2', td])
+                        break
+                    except CallError:
+                        if i >= 10:
+                            raise
+                        else:
+                            # losetup --partscan instructs the kernel to scan the partition table and add separate
+                            # partition devices for each of the partitions it finds. However, this operation is
+                            # asynchronous which means losetup will return before all partition devices have been
+                            # initialized. This can result in a race condition where we try to access a partition device
+                            # before it's been initialized by the kernel.
+                            time.sleep(1)
+
                 try:
                     grub_cfg_path = os.path.join(td, 'EFI/debian/grub.cfg')
                     with open(grub_cfg_path) as f:
