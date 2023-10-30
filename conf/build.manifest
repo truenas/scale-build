@@ -551,13 +551,13 @@ sources:
   branch: release/23.10.0
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: release/23.10.0
+  branch: release/23.10.0.1
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: release/23.10.0
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: release/23.10.0
+  branch: release/23.10.0.1
   subdir: debian
   subpackages:
     - name: middlewared
