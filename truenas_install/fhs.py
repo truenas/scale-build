@@ -93,6 +93,12 @@ TRUENAS_DATASETS = [
         'mode': 0o700
     },
     {
+        'name':  'boot',
+        'options': ['NOACL'],
+        'mode': 0o755,
+        'snap': True
+    },
+    {
         'name':  'cluster',
         'options': ['NOSUID', 'NOEXEC', 'NOATIME', 'NOACL'],
     },
