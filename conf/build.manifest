@@ -397,6 +397,9 @@ sources:
     - "sed -i 's/libtool,/libtool, linux-image-truenas-production-amd64, linux-headers-truenas-production-amd64,/' debian/control"
   deps_path: contrib/debian
   prebuildcmd:
+    - "sh autogen.sh"
+    - "./configure"
+    - "cp contrib/debian/changelog debian/changelog"
     - "sed 's/@CFGOPTS@/--enable-debuginfo/g' debian/rules.in > debian/rules"
     - "chmod +x debian/rules"
   buildcmd:
@@ -419,6 +422,9 @@ sources:
         - "sed -i 's/libtool,/libtool, linux-image-truenas-debug-amd64, linux-headers-truenas-debug-amd64,/' debian/control"
       deps_path: contrib/debian
       prebuildcmd:
+        - "sh autogen.sh"
+        - "./configure"
+        - "cp contrib/debian/changelog debian/changelog"
         - "sed 's/@CFGOPTS@/--enable-debug --enable-debuginfo/g' debian/rules.in > debian/rules"
         - "chmod +x debian/rules"
         - "sed  -i 's/Provides: openzfs-zfs-modules/Provides: openzfs-zfs-modules-dbg/'  debian/control.modules.in"
