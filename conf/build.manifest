@@ -337,7 +337,7 @@ sources:
   repo: https://github.com/truenas/pyglfs.git
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-6.1
+  branch: truenas/linux-6.6
   batch_priority: 0
   supports_ccache: true
   env:
