@@ -170,6 +170,12 @@ base-prune:
 # remove gnupg to remove class of potential CVEs and also because we
 # don't use it
 - gnupg
+# The functionality that lvm2 provides is mutually exclusive with
+# ZFS so remove it. NOTE: We've also seen a well-known piece of
+# software (in the wild) that will SSH into us, use lvm tools to
+# create volumes on-top of ZVOLs to _explicitly_ "lock" the
+# underlying zvol preventing us from doing anything with it.
+- lvm2
 
 #
 # Update build-epoch when you want to force the next build to be
