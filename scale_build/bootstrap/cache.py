@@ -1,6 +1,8 @@
 import os
+import shutil
 
 from scale_build.utils.paths import CACHE_DIR
+from scale_build.utils.reference_files import compare_reference_files
 from scale_build.utils.run import run
 
 from .hash import get_all_repo_hash
@@ -51,6 +53,18 @@ class CacheMixin:
         elif get_all_repo_hash() != self.get_mirror_cache():
             self.logger.debug('Upstream repo changed! Removing squashfs cache to re-create.')
             intact = False
+
+        if intact:
+            self.restore_cache(self.chroot_basedir)
+            if os.path.exists(
+                os.path.join(self.chroot_basedir, 'etc/passwd')
+            ) and os.path.exists(os.path.join(self.chroot_basedir, 'etc/group')):
+                for _, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
+                    if diff:
+                        intact = False
+                        break
+            else:
+                intact = False
 
         if not intact:
             self.remove_cache()
