@@ -66,6 +66,9 @@ class CacheMixin:
             else:
                 intact = False
 
+            # Remove the temporary restored cached directory
+            shutil.rmtree(self.chroot_basedir, ignore_errors=True)
+
         if not intact:
             self.remove_cache()
 
