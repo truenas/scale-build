@@ -3,9 +3,11 @@ import jsonschema
 import logging
 import shutil
 
+from truenas_install import fhs
+
 from .exceptions import CallError, MissingPackagesException
 from .utils.manifest import validate_manifest
-from truenas_install import fhs
+from .utils.paths import REFERENCE_FILES, REFERENCE_FILES_DIR
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,11 @@ def validate_system_state():
     missing_packages = retrieve_missing_packages()
     if missing_packages:
         raise MissingPackagesException(missing_packages)
+
+    if missing_files := [
+        f for f in map(lambda f: os.path.join(REFERENCE_FILES_DIR, f), REFERENCE_FILES) if not os.path.exists(f)
+    ]:
+        raise CallError(f'Missing reference files: {", ".join(missing_files)!r}')
 
 
 def validate_datasets():
