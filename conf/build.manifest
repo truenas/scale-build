@@ -338,9 +338,6 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: pyglfs
-  branch: master
-  repo: https://github.com/truenas/pyglfs.git
 - name: kernel
   repo: https://github.com/truenas/linux
   branch: truenas/linux-6.6
@@ -524,9 +521,6 @@ sources:
   branch: master
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: master
-- name: glustercli_python
-  repo: https://github.com/truenas/glustercli-python
   branch: master
 - name: zectl
   repo: https://github.com/truenas/zectl
