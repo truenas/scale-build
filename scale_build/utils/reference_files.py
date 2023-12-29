@@ -1,6 +1,8 @@
 import os
 import difflib
 
+from scale_build.exceptions import CallError
+
 from .paths import REFERENCE_FILES_DIR, REFERENCE_FILES, CHROOT_BASEDIR
 
 
@@ -8,6 +10,9 @@ def compare_reference_files(cut_nonexistent_user_group_membership=False):
     for reference_file in REFERENCE_FILES:
         with open(os.path.join(REFERENCE_FILES_DIR, reference_file)) as f:
             reference = f.readlines()
+
+        if not os.path.exists(os.path.join(CHROOT_BASEDIR, reference_file)):
+            raise CallError(f'File {reference_file!r} does not exist in cached chroot')
 
         if cut_nonexistent_user_group_membership:
             if reference_file == 'etc/group':
