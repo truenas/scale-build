@@ -63,7 +63,6 @@ Debian-exim:x:120:
 tftp:x:121:
 tcpdump:x:123:
 rdma:x:124:
-gluster:x:125:
 nut:x:126:
 ladvd:x:127:
 libvirt:x:128:
