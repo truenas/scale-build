@@ -56,15 +56,10 @@ class CacheMixin:
 
         if intact:
             self.restore_cache(self.chroot_basedir)
-            if os.path.exists(
-                os.path.join(self.chroot_basedir, 'etc/passwd')
-            ) and os.path.exists(os.path.join(self.chroot_basedir, 'etc/group')):
-                for _, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
-                    if diff:
-                        intact = False
-                        break
-            else:
-                intact = False
+            for _, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
+                if diff:
+                    intact = False
+                    break
 
             # Remove the temporary restored cached directory
             shutil.rmtree(self.chroot_basedir, ignore_errors=True)
