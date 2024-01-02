@@ -560,7 +560,7 @@ sources:
   branch: release/23.10.1
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: release/23.10.1
+  branch: release/23.10.1.1
   subdir: debian
   subpackages:
     - name: middlewared
