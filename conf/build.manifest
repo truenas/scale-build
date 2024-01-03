@@ -530,7 +530,7 @@ sources:
     - openzfs
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
-  branch: release/23.10.1
+  branch: release/23.10.1.1
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
   branch: release/23.10.1
