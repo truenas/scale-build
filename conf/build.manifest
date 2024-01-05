@@ -325,7 +325,7 @@ sources:
   repo: https://github.com/truenas/chelsiouwire
   branch: release/23.10.1
 - name: openseachest
-  branch: release/23.10.1
+  branch: release/23.10.1.1
   repo: https://github.com/truenas/openseachest
   predepscmd:
     - "apt install -y wget xz-utils"
