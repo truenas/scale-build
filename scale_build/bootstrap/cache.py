@@ -56,9 +56,14 @@ class CacheMixin:
 
         if intact:
             self.restore_cache(self.chroot_basedir)
-            for _, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
+            for reference_file, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
                 if diff:
                     intact = False
+                    self.logger.debug(
+                        'Reference file %r changed, removing squashfs cache to re-create with it '
+                        'having following diff:\n%s',
+                        reference_file, '\n'.join(diff)
+                    )
                     break
 
             # Remove the temporary restored cached directory
