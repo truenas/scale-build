@@ -60,8 +60,9 @@ class CacheMixin:
                 if diff:
                     intact = False
                     self.logger.debug(
-                        'Reference file %r changed, removing squashfs cache to re-create (with it having %r diff)',
-                        reference_file, ''.join(diff)
+                        'Reference file %r changed, removing squashfs cache to re-create with it '
+                        'having following diff:\n%s',
+                        reference_file, '\n'.join(diff)
                     )
                     break
 
