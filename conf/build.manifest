@@ -483,7 +483,8 @@ sources:
   repo: https://github.com/truenas/truenas-installer
   branch: master
 - name: scst
-  repo: https://github.com/truenas/scst
+  # repo: https://github.com/truenas/scst
+  repo: https://github.com/bmeagherix/scst
   generate_version: false
   env:
     KVER: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
@@ -498,7 +499,8 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: truenas-3.8.x
+  # branch: truenas-3.8.x
+  branch: testing
   subpackages:
     - name: scst-dbg
       generate_version: false
