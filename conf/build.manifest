@@ -504,7 +504,7 @@ sources:
     - "yarn install"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: release/23.10.1
+  branch: release/23.10.1.1
 - name: sedutil
   repo: https://github.com/truenas/sedutil
   branch: release/23.10.1
