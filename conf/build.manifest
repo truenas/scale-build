@@ -216,6 +216,9 @@ apt_preferences:
 - Package: "*polkit*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
+- Package: "*ssh*"
+  Pin: "release n=bookworm-security"
+  Pin-Priority: 1000
 - Package: "*ssl*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
