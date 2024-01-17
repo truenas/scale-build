@@ -72,6 +72,8 @@ builtin_users:x:545:
 builtin_guests:x:546:
 apps:x:568:
 webdav:x:666:
+truenas_readonly_administrators:x:951:
+truenas_sharing_administrators:x:952:
 docker:x:999:
 libvirt-qemu:x:64055:libvirt-qemu
 haproxy:x:130:
