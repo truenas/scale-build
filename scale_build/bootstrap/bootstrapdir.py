@@ -160,6 +160,11 @@ class RootfsBootstrapDir(BootstrapDir):
                 os.path.join(self.chroot_basedir, reference_file)
             )
         run(['chroot', self.chroot_basedir, '/debootstrap/debootstrap', '--second-stage'])
+        # For some reason debootstrap --second stage is removing ftp group, it does get added back by some
+        # other package later on but currently it results in base cache not reflecting reference files
+        # so we add it back here
+        # FIXME: Figure out why debootstrap --second-stage is removing ftp group
+        shutil.copyfile(os.path.join(REFERENCE_FILES_DIR, 'etc/group'), os.path.join(self.chroot_basedir, 'etc/group'))
 
 
 class PackageBootstrapDir(RootfsBootstrapDir):
