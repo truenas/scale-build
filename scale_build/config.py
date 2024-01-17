@@ -3,7 +3,7 @@ from time import time
 from datetime import datetime
 
 IDENTITY_FILE_PATH_OVERRIDE_SUFFIX = '_OVERRIDE_IDENTITY_FILE_PATH'
-_VERS = '24.04.0-MASTER'
+_VERS = '24.10.0-MASTER'
 
 
 def get_env_variable(key, _type, default_value=None):
