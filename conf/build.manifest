@@ -387,7 +387,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: stable/cobia
+  branch: stable/bluefin
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
@@ -449,7 +449,7 @@ sources:
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: stable/cobia
+  branch: bluefin-scale-cobia
   explicit_deps:
     - openzfs
 - name: zettarepl
