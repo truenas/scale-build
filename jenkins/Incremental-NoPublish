@@ -25,11 +25,6 @@ pipeline {
         sh 'cd ${BDIR} && make packages'
       }
     }
-    stage('Upload Packages') {
-      steps {
-        sh 'scp ${BDIR}/tmp/pkgdir/*.deb pkgupload@apt-mirror.tn.ixsystems.net:repo/'
-      }
-    }
     stage('Update') {
       steps {
         sh 'cd ${BDIR} && make update'
