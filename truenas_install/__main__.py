@@ -464,6 +464,15 @@ def main():
                             "home"
                         ])
 
+                        try:
+                            logs = os.listdir(f"{old_root}/var/log")
+                        except Exception:
+                            pass
+                        else:
+                            for log in logs:
+                                if log.startswith(("failover.log", "fenced.log", "middlewared.log")):
+                                    rsync.append(f"var/log/{log}")
+
                     run_command([
                         "rsync", "-aRx",
                         "--exclude", "data/factory-v1.db",
