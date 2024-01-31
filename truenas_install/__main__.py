@@ -406,6 +406,7 @@ def main():
         dataset_name,
     ])
 
+    cloned_datasets = set()
     for entry in TRUENAS_DATASETS:
         entry_dataset_name = f"{dataset_name}/{entry['name']}"
 
@@ -416,6 +417,7 @@ def main():
                 result = run_command(["zfs", "snapshot", snapshot_name], check=False)
                 if result.returncode == 0:
                     run_command(["zfs", "clone", snapshot_name, entry_dataset_name])
+                    cloned_datasets.add(entry["name"])
                     continue
 
         cmd = ["zfs", "create", "-u", "-o", "mountpoint=legacy", "-o", "canmount=noauto"]
@@ -509,37 +511,51 @@ def main():
                     if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         is_freebsd_upgrade = True
 
-                    rsync = [
-                        "etc/hostid",
-                        "data",
-                        "root",
-                    ]
+                    rsync = ["etc/hostid"]
+                    if "data" not in cloned_datasets:
+                        rsync.append("data")
+                    if "root" not in cloned_datasets:
+                        rsync.append("root")
                     if is_freebsd_upgrade:
                         if not IS_FREEBSD:
                             setup_machine_id = True
                     else:
-                        rsync.extend([
-                            "etc/machine-id",
-                            "home"
-                        ])
-                        if os.path.exists(f'{old_root}/var/lib/libvirt/qemu/nvram'):
-                            rsync.append('var/lib/libvirt/qemu/nvram')
+                        rsync.append("etc/machine-id")
+                        if "home" not in cloned_datasets:
+                            rsync.append("home")
+                        if "var/log" not in cloned_datasets:
+                            try:
+                                logs = os.listdir(f"{old_root}/var/log")
+                            except Exception:
+                                pass
+                            else:
+                                for log in logs:
+                                    if log.startswith(("failover.log", "fenced.log", "middlewared.log")):
+                                        rsync.append(f"var/log/{log}")
 
-                        try:
-                            logs = os.listdir(f"{old_root}/var/log")
-                        except Exception:
-                            pass
-                        else:
-                            for log in logs:
-                                if log.startswith(("failover.log", "fenced.log", "middlewared.log")):
-                                    rsync.append(f"var/log/{log}")
+                    data_exclude = [
+                        "data/factory-v1.db",
+                        "data/manifest.json",
+                        "data/sentinels",
+                    ]
+
+                    if "data" in cloned_datasets:
+                        for excluded in data_exclude:
+                            remove = f"{root}/{excluded}"
+                            try:
+                                shutil.rmtree(remove, True)
+                            except NotADirectoryError:
+                                try:
+                                    os.unlink(remove)
+                                except FileNotFoundError:
+                                    pass
 
                     run_command([
                         "rsync", "-aRx",
-                        "--exclude", "data/factory-v1.db",
-                        "--exclude", "data/manifest.json",
-                        "--exclude", "data/sentinels",
-                    ] + rsync + [
+                    ] + sum([
+                        ["--exclude", excluded]
+                        for excluded in data_exclude
+                    ], []) + rsync + [
                         f"{root}/",
                     ], cwd=old_root)
 
