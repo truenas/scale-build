@@ -550,6 +550,8 @@ def main():
                         rsync.append("etc/machine-id")
                         if "home" not in cloned_datasets:
                             rsync.append("home")
+                        if os.path.exists(f"{old_root}/var/lib/libvirt/qemu/nvram"):
+                            rsync.append("var/lib/libvirt/qemu/nvram")
                         if "var/log" not in cloned_datasets:
                             try:
                                 logs = os.listdir(f"{old_root}/var/log")
