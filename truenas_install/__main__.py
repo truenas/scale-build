@@ -504,6 +504,8 @@ def main():
                             "etc/machine-id",
                             "home"
                         ])
+                        if os.path.exists(f'{old_root}/var/lib/libvirt/qemu/nvram'):
+                            rsync.append('var/lib/libvirt/qemu/nvram')
 
                     run_command([
                         "rsync", "-aRx",
