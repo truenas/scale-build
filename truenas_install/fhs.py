@@ -103,7 +103,8 @@ TRUENAS_DATASETS = [
         'name':  'data',
         'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
         'mode': 0o700,
-        'snap': True
+        'snap': True,
+        'clone': True,
     },
     {
         'name':  'mnt',
@@ -116,7 +117,8 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'home',
-        'options': ['NOSUID', 'NOACL', 'NOEXEC']
+        'options': ['NOSUID', 'NOACL', 'NOEXEC'],
+        'clone': True,
     },
     {
         'name':  'opt',
@@ -127,7 +129,8 @@ TRUENAS_DATASETS = [
         'name':  'root',
         'options': ['NOSUID', 'NOACL'],
         'mode': 0o700,
-        'snap': True
+        'snap': True,
+        'clone': True,
     },
     {
         'name':  'usr',
@@ -147,6 +150,6 @@ TRUENAS_DATASETS = [
     {
         'name':  'var/log',
         'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
-        'clone': True
+        'clone': True,
     },
 ]
