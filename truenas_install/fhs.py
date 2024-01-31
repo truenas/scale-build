@@ -80,6 +80,7 @@ TRUENAS_DATASET_SCHEMA = {
             'mode': {'type': 'integer'},
             'mountpoint': {'type': 'string'},
             'snap': {'type': 'boolean'},
+            'clone': {'type': 'boolean'},
         },
         'required': ['name', 'options'],
         'additionalProperties': False,
