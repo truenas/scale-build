@@ -377,6 +377,13 @@ def main():
 
     old_bootfs_prop = run_command(["zpool", "get", "-H", "-o", "value", "bootfs", pool_name]).stdout.strip()
 
+    old_root_dataset = None
+    if old_root is not None:
+        try:
+            old_root_dataset = next(p for p in psutil.disk_partitions() if p.mountpoint == old_root).device
+        except StopIteration:
+            pass
+
     write_progress(0, "Creating dataset")
     if input.get("dataset_name"):
         dataset_name = input["dataset_name"]
@@ -400,6 +407,17 @@ def main():
     ])
 
     for entry in TRUENAS_DATASETS:
+        entry_dataset_name = f"{dataset_name}/{entry['name']}"
+
+        if entry.get("clone"):
+            if old_root_dataset is not None:
+                old_dataset = f"{old_root_dataset}/{entry['name']}"
+                snapshot_name = f"{old_dataset}@install-{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}"
+                result = run_command(["zfs", "snapshot", snapshot_name], check=False)
+                if result.returncode == 0:
+                    run_command(["zfs", "clone", snapshot_name, entry_dataset_name])
+                    continue
+
         cmd = ["zfs", "create", "-u", "-o", "mountpoint=legacy", "-o", "canmount=noauto"]
         if "NOSUID" in entry["options"]:
             cmd.extend(["-o", "setuid=off", "-o", "devices=off"])
@@ -412,7 +430,7 @@ def main():
         if "NOATIME" in entry["options"]:
             cmd.extend(["-o", "atime=off"])
 
-        cmd.append(f"{dataset_name}/{entry['name']}")
+        cmd.append(entry_dataset_name)
         run_command(cmd)
 
     try:
