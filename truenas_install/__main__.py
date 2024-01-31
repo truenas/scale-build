@@ -406,36 +406,36 @@ def main():
         dataset_name,
     ])
 
-    cloned_datasets = set()
-    for entry in TRUENAS_DATASETS:
-        entry_dataset_name = f"{dataset_name}/{entry['name']}"
-
-        if entry.get("clone"):
-            if old_root_dataset is not None:
-                old_dataset = f"{old_root_dataset}/{entry['name']}"
-                snapshot_name = f"{old_dataset}@install-{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}"
-                result = run_command(["zfs", "snapshot", snapshot_name], check=False)
-                if result.returncode == 0:
-                    run_command(["zfs", "clone", snapshot_name, entry_dataset_name])
-                    cloned_datasets.add(entry["name"])
-                    continue
-
-        cmd = ["zfs", "create", "-u", "-o", "mountpoint=legacy", "-o", "canmount=noauto"]
-        if "NOSUID" in entry["options"]:
-            cmd.extend(["-o", "setuid=off", "-o", "devices=off"])
-        if "NOEXEC" in entry["options"]:
-            cmd.extend(["-o", "exec=off"])
-        if "NODEV" in entry["options"]:
-            cmd.extend(["-o", "devices=off"])
-        if "NOACL" in entry['options']:
-            cmd.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
-        if "NOATIME" in entry["options"]:
-            cmd.extend(["-o", "atime=off"])
-
-        cmd.append(entry_dataset_name)
-        run_command(cmd)
-
     try:
+        cloned_datasets = set()
+        for entry in TRUENAS_DATASETS:
+            entry_dataset_name = f"{dataset_name}/{entry['name']}"
+
+            if entry.get("clone"):
+                if old_root_dataset is not None:
+                    old_dataset = f"{old_root_dataset}/{entry['name']}"
+                    snapshot_name = f"{old_dataset}@install-{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}"
+                    result = run_command(["zfs", "snapshot", snapshot_name], check=False)
+                    if result.returncode == 0:
+                        run_command(["zfs", "clone", snapshot_name, entry_dataset_name])
+                        cloned_datasets.add(entry["name"])
+                        continue
+
+            cmd = ["zfs", "create", "-u", "-o", "mountpoint=legacy", "-o", "canmount=noauto"]
+            if "NOSUID" in entry["options"]:
+                cmd.extend(["-o", "setuid=off", "-o", "devices=off"])
+            if "NOEXEC" in entry["options"]:
+                cmd.extend(["-o", "exec=off"])
+            if "NODEV" in entry["options"]:
+                cmd.extend(["-o", "devices=off"])
+            if "NOACL" in entry['options']:
+                cmd.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
+            if "NOATIME" in entry["options"]:
+                cmd.extend(["-o", "atime=off"])
+
+            cmd.append(entry_dataset_name)
+            run_command(cmd)
+
         with tempfile.TemporaryDirectory() as root:
             undo = []
             ds_info = []
