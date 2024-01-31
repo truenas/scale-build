@@ -23,6 +23,7 @@ The following keys are supported:
     /`name` will be assumed.
 `snap` - Take a snapshot named "pristine" after creating the dataset.
     default is False
+`clone` - Clone the dataset when updating existing installation.
 
 OPTIONS
 --------------
@@ -145,6 +146,7 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'var/log',
-        'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME']
+        'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
+        'clone': True
     },
 ]
