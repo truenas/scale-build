@@ -757,7 +757,10 @@ def main():
             run_command(["zfs", "set", f"readonly={ro}", this_ds])
 
             if entry.get("snap", False):
-                run_command(["zfs", "snapshot", f"{this_ds}@pristine"])
+                # Do not create `pristine` snapshot for cloned datasets as this will cause snapshot name conflicts
+                # when promoting the clone.
+                if entry["name"] not in cloned_datasets:
+                    run_command(["zfs", "snapshot", f"{this_ds}@pristine"])
 
             run_command(["zfs", "set", f"mountpoint={mp}", this_ds])
             run_command(["zfs", "set", 'org.zectl:bootloader=""', this_ds])
