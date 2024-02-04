@@ -195,7 +195,7 @@ apt_preferences:
 - Package: "*cuda*"
   Pin: "version 525.89*"
   Pin-Priority: 1000
-- Package: "*libc6*"
+- Package: "*libc*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
 - Package: "*libcrypto*"
