@@ -353,6 +353,14 @@ def main():
         is_json_output = True
     old_root = input.get("old_root", None)
 
+    if IS_FREEBSD:
+        write_error("""
+            Upgrading TrueNAS CORE to TrueNAS SCALE 24.04 (or later) using update file upload is not supported. Please,
+            use the update file of the latest 23.10 release or backup your TrueNAS configuration, perform fresh install
+            and then upload the configuration backup.
+        """)
+        sys.exit(2)
+
     if input.get("precheck"):
         if precheck_result := precheck(old_root):
             fatal, text = precheck_result
