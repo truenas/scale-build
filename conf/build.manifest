@@ -560,6 +560,9 @@ sources:
 - name: k3s
   repo: https://github.com/truenas/k3s
   branch: truenas/master
+- name: py_cryptit
+  repo: https://github.com/truenas/py-cryptit
+  branch: master
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
   branch: master
