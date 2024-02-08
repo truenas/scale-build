@@ -23,6 +23,7 @@ The following keys are supported:
     /`name` will be assumed.
 `snap` - Take a snapshot named "pristine" after creating the dataset.
     default is False
+`clone` - Clone the dataset when updating existing installation.
 
 OPTIONS
 --------------
@@ -79,6 +80,7 @@ TRUENAS_DATASET_SCHEMA = {
             'mode': {'type': 'integer'},
             'mountpoint': {'type': 'string'},
             'snap': {'type': 'boolean'},
+            'clone': {'type': 'boolean'},
         },
         'required': ['name', 'options'],
         'additionalProperties': False,
@@ -102,7 +104,7 @@ TRUENAS_DATASETS = [
         'name':  'data',
         'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
         'mode': 0o700,
-        'snap': True
+        'clone': True,
     },
     {
         'name':  'mnt',
@@ -115,7 +117,8 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'home',
-        'options': ['NOSUID', 'NOACL', 'NOEXEC']
+        'options': ['NOSUID', 'NOACL', 'NOEXEC'],
+        'clone': True,
     },
     {
         'name':  'opt',
@@ -126,7 +129,7 @@ TRUENAS_DATASETS = [
         'name':  'root',
         'options': ['NOSUID', 'NOACL'],
         'mode': 0o700,
-        'snap': True
+        'clone': True,
     },
     {
         'name':  'usr',
@@ -145,6 +148,7 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'var/log',
-        'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME']
+        'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
+        'clone': True,
     },
 ]
