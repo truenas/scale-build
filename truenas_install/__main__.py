@@ -377,6 +377,13 @@ def main():
 
     old_bootfs_prop = run_command(["zpool", "get", "-H", "-o", "value", "bootfs", pool_name]).stdout.strip()
 
+    old_root_dataset = None
+    if old_root is not None:
+        try:
+            old_root_dataset = next(p for p in psutil.disk_partitions() if p.mountpoint == old_root).device
+        except StopIteration:
+            pass
+
     write_progress(0, "Creating dataset")
     if input.get("dataset_name"):
         dataset_name = input["dataset_name"]
@@ -399,70 +406,110 @@ def main():
         dataset_name,
     ])
 
-    for entry in TRUENAS_DATASETS:
-        cmd = ["zfs", "create", "-u", "-o", "mountpoint=legacy", "-o", "canmount=noauto"]
-        if "NOSUID" in entry["options"]:
-            cmd.extend(["-o", "setuid=off", "-o", "devices=off"])
-        if "NOEXEC" in entry["options"]:
-            cmd.extend(["-o", "exec=off"])
-        if "NODEV" in entry["options"]:
-            cmd.extend(["-o", "devices=off"])
-        if "NOACL" in entry['options']:
-            cmd.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
-        if "NOATIME" in entry["options"]:
-            cmd.extend(["-o", "atime=off"])
-
-        cmd.append(f"{dataset_name}/{entry['name']}")
-        run_command(cmd)
-
     try:
+        cloned_datasets = set()
+        for entry in TRUENAS_DATASETS:
+            entry_dataset_name = f"{dataset_name}/{entry['name']}"
+
+            options = ["-o", "mountpoint=legacy", "-o", "canmount=noauto"]
+            if "NOSUID" in entry["options"]:
+                options.extend(["-o", "setuid=off", "-o", "devices=off"])
+            if "NOEXEC" in entry["options"]:
+                options.extend(["-o", "exec=off"])
+            if "NODEV" in entry["options"]:
+                options.extend(["-o", "devices=off"])
+            if "NOACL" in entry['options']:
+                options.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
+            if "NOATIME" in entry["options"]:
+                options.extend(["-o", "atime=off"])
+
+            if entry.get("clone"):
+                if old_root_dataset is not None:
+                    old_dataset = f"{old_root_dataset}/{entry['name']}"
+                    snapshot_name = f"{old_dataset}@install-{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}"
+                    result = run_command(["zfs", "snapshot", snapshot_name], check=False)
+                    if result.returncode == 0:
+                        run_command(["zfs", "clone"] + options + [snapshot_name, entry_dataset_name])
+                        cloned_datasets.add(entry["name"])
+                        continue
+
+            run_command(["zfs", "create", "-u"] + options + [entry_dataset_name])
+
         with tempfile.TemporaryDirectory() as root:
             undo = []
             ds_info = []
             run_command(["mount", "-t", "zfs", dataset_name, root])
-            for entry in TRUENAS_DATASETS:
-                this_ds = entry['name']
-                ds_name = f"{dataset_name}/{this_ds}"
-                ds_path = entry.get("mountpoint") or f"/{entry['name']}"
-                ds_guid = run_command(["zfs", "list", "-o", "guid", "-H", ds_name]).stdout.strip()
-
-                mp = os.path.join(root, ds_path[1:])
-                os.makedirs(mp, exist_ok=True)
-                run_command(["mount", "-t", "zfs", f"{dataset_name}/{this_ds}", mp])
-                ds_info.append({"ds": ds_name, "guid": ds_guid, "fhs_entry": entry})
-                undo.append(["umount", mp])
-
             try:
                 write_progress(0, "Extracting")
-                cmd = [
-                    "unsquashfs",
-                    "-d", root,
-                    "-f",
-                    "-da", "16",
-                    "-fr", "16",
-                    os.path.join(src, "rootfs.squashfs"),
-                ]
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                stdout = ""
-                buffer = b""
-                for char in iter(lambda: p.stdout.read(1), b""):
-                    buffer += char
-                    if char == b"\n":
-                        stdout += buffer.decode("utf-8", "ignore")
-                        buffer = b""
 
-                    if buffer and buffer[0:1] == b"\r" and buffer[-1:] == b"%":
-                        if m := RE_UNSQUASHFS_PROGRESS.match(buffer[1:].decode("utf-8", "ignore")):
-                            write_progress(
-                                int(m.group("extracted")) / int(m.group("total")) * 0.5,
-                                "Extracting",
-                            )
+                for entry in TRUENAS_DATASETS:
+                    this_ds = entry['name']
+                    ds_name = f"{dataset_name}/{this_ds}"
+                    ds_path = entry.get("mountpoint") or f"/{entry['name']}"
+                    ds_guid = run_command(["zfs", "list", "-o", "guid", "-H", ds_name]).stdout.strip()
+
+                    mp = os.path.join(root, ds_path[1:])
+                    os.makedirs(mp, exist_ok=True)
+                    run_command(["mount", "-t", "zfs", f"{dataset_name}/{this_ds}", mp])
+                    ds_info.append({"ds": ds_name, "guid": ds_guid, "fhs_entry": entry})
+                    undo.append(["umount", mp])
+
+                data_exclude = [
+                    "data/factory-v1.db",
+                    "data/manifest.json",
+                    "data/sentinels",
+                ]
+
+                if "data" in cloned_datasets:
+                    for excluded in data_exclude:
+                        remove = f"{root}/{excluded}"
+                        try:
+                            shutil.rmtree(remove, True)
+                        except NotADirectoryError:
+                            try:
+                                os.unlink(remove)
+                            except FileNotFoundError:
+                                pass
+
+                exclude_list = []
+                for walk_root, dirs, files in os.walk(root):
+                    for file in files:
+                        exclude_list.append(os.path.relpath(os.path.join(walk_root, file), root))
+
+                with tempfile.NamedTemporaryFile() as exclude_list_file:
+                    exclude_list_file.write("\n".join(exclude_list).encode("utf-8"))
+                    exclude_list_file.flush()
+
+                    cmd = [
+                        "unsquashfs",
+                        "-d", root,
+                        "-f",
+                        "-da", "16",
+                        "-fr", "16",
+                        "-exclude-file", exclude_list_file.name,
+                        os.path.join(src, "rootfs.squashfs"),
+                    ]
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    stdout = ""
+                    buffer = b""
+                    for char in iter(lambda: p.stdout.read(1), b""):
+                        buffer += char
+                        if char == b"\n":
+                            stdout += buffer.decode("utf-8", "ignore")
                             buffer = b""
 
-                p.wait()
-                if p.returncode != 0:
-                    write_error({"error": f"unsquashfs failed with exit code {p.returncode}: {stdout}"})
-                    raise subprocess.CalledProcessError(p.returncode, cmd, stdout)
+                        if buffer and buffer[0:1] == b"\r" and buffer[-1:] == b"%":
+                            if m := RE_UNSQUASHFS_PROGRESS.match(buffer[1:].decode("utf-8", "ignore")):
+                                write_progress(
+                                    int(m.group("extracted")) / int(m.group("total")) * 0.5,
+                                    "Extracting",
+                                )
+                                buffer = b""
+
+                    p.wait()
+                    if p.returncode != 0:
+                        write_error({"error": f"unsquashfs failed with exit code {p.returncode}: {stdout}"})
+                        raise subprocess.CalledProcessError(p.returncode, cmd, stdout)
 
                 write_progress(0.5, "Performing post-install tasks")
 
@@ -491,28 +538,36 @@ def main():
                     if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         is_freebsd_upgrade = True
 
-                    rsync = [
-                        "etc/hostid",
-                        "data",
-                        "root",
-                    ]
+                    rsync = ["etc/hostid"]
+                    if "data" not in cloned_datasets:
+                        rsync.append("data")
+                    if "root" not in cloned_datasets:
+                        rsync.append("root")
                     if is_freebsd_upgrade:
                         if not IS_FREEBSD:
                             setup_machine_id = True
                     else:
-                        rsync.extend([
-                            "etc/machine-id",
-                            "home"
-                        ])
-                        if os.path.exists(f'{old_root}/var/lib/libvirt/qemu/nvram'):
-                            rsync.append('var/lib/libvirt/qemu/nvram')
+                        rsync.append("etc/machine-id")
+                        if "home" not in cloned_datasets:
+                            rsync.append("home")
+                        if os.path.exists(f"{old_root}/var/lib/libvirt/qemu/nvram"):
+                            rsync.append("var/lib/libvirt/qemu/nvram")
+                        if "var/log" not in cloned_datasets:
+                            try:
+                                logs = os.listdir(f"{old_root}/var/log")
+                            except Exception:
+                                pass
+                            else:
+                                for log in logs:
+                                    if log.startswith(("failover.log", "fenced.log", "middlewared.log")):
+                                        rsync.append(f"var/log/{log}")
 
                     run_command([
                         "rsync", "-aRx",
-                        "--exclude", "data/factory-v1.db",
-                        "--exclude", "data/manifest.json",
-                        "--exclude", "data/sentinels",
-                    ] + rsync + [
+                    ] + sum([
+                        ["--exclude", excluded]
+                        for excluded in data_exclude
+                    ], []) + rsync + [
                         f"{root}/",
                     ], cwd=old_root)
 
@@ -562,138 +617,137 @@ def main():
                 if IS_FREEBSD:
                     install_grub_freebsd(input, manifest, pool_name, dataset_name, disks)
                 else:
-                    try:
-                        run_command(["mount", "-t", "devtmpfs", "udev", f"{root}/dev"])
-                        undo.append(["umount", f"{root}/dev"])
+                    run_command(["mount", "-t", "devtmpfs", "udev", f"{root}/dev"])
+                    undo.append(["umount", f"{root}/dev"])
 
-                        run_command(["mount", "-t", "proc", "none", f"{root}/proc"])
-                        undo.append(["umount", f"{root}/proc"])
+                    run_command(["mount", "-t", "proc", "none", f"{root}/proc"])
+                    undo.append(["umount", f"{root}/proc"])
 
-                        run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
-                        undo.append(["umount", f"{root}/sys"])
+                    run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
+                    undo.append(["umount", f"{root}/sys"])
 
-                        run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
-                        undo.append(["umount", f"{root}/boot/grub"])
+                    run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
+                    undo.append(["umount", f"{root}/boot/grub"])
 
-                        # It will legitimately exit with code 2 if initramfs must be updated (which we'll do anyway)
-                        write_progress(0.55, "Running autotune")
-                        run_command(["chroot", root, "/usr/local/bin/truenas-autotune.py", "--skip-unknown"],
-                                    check=False)
+                    # It will legitimately exit with code 2 if initramfs must be updated (which we'll do anyway)
+                    write_progress(0.55, "Running autotune")
+                    run_command(["chroot", root, "/usr/local/bin/truenas-autotune.py", "--skip-unknown"],
+                                check=False)
 
-                        if authentication_method is not None:
-                            write_progress(0.56, "Setting up authentication")
-                            run_command(["chroot", root, "/usr/local/bin/truenas-set-authentication-method.py"],
-                                        input=json.dumps(authentication_method))
+                    if authentication_method is not None:
+                        write_progress(0.56, "Setting up authentication")
+                        run_command(["chroot", root, "/usr/local/bin/truenas-set-authentication-method.py"],
+                                    input=json.dumps(authentication_method))
 
-                        if sql is not None:
-                            write_progress(0.57, "Upgrading database")
-                            run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
+                    if sql is not None:
+                        write_progress(0.57, "Upgrading database")
+                        run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
 
-                        if configure_serial:
-                            write_progress(0.58, "Configuring serial port")
-                            configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
+                    if configure_serial:
+                        write_progress(0.58, "Configuring serial port")
+                        configure_serial_port(root, os.path.join(root, "data/freenas-v1.db"))
 
-                        # Set bootfs before running update-grub
-                        run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
-                        if is_freebsd_loader_upgrade:
-                            if old_bootfs_prop != "-":
-                                run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
+                    # Set bootfs before running update-grub
+                    run_command(["zpool", "set", f"bootfs={dataset_name}", pool_name])
+                    if is_freebsd_loader_upgrade:
+                        if old_bootfs_prop != "-":
+                            run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
-                        write_progress(0.6, "Preparing initramfs configuration")
-                        cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
-                        if cp.returncode > 1:
-                            raise subprocess.CalledProcessError(
-                                cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
-                            )
+                    write_progress(0.6, "Preparing initramfs configuration")
+                    cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
+                    if cp.returncode > 1:
+                        raise subprocess.CalledProcessError(
+                            cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
+                        )
 
-                        write_progress(0.7, "Preparing NVDIMM configuration")
-                        run_command(["chroot", root, "/usr/local/bin/truenas-nvdimm.py"])
-                        write_progress(0.71, "Preparing GRUB configuration")
-                        run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
-                        write_progress(0.8, "Updating initramfs")
-                        run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
-                        write_progress(0.9, "Updating GRUB")
-                        run_command(["chroot", root, "update-grub"])
+                    write_progress(0.7, "Preparing NVDIMM configuration")
+                    run_command(["chroot", root, "/usr/local/bin/truenas-nvdimm.py"])
+                    write_progress(0.71, "Preparing GRUB configuration")
+                    run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
+                    write_progress(0.8, "Updating initramfs")
+                    run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
+                    write_progress(0.9, "Updating GRUB")
+                    run_command(["chroot", root, "update-grub"])
 
-                        # We would like to configure fips bit as well here
-                        write_progress(0.95, "Configuring FIPS")
-                        run_command(["chroot", root, "/usr/bin/configure_fips"])
+                    # We would like to configure fips bit as well here
+                    write_progress(0.95, "Configuring FIPS")
+                    run_command(["chroot", root, "/usr/bin/configure_fips"])
 
-                        if old_root is None or force_grub_install:
-                            write_progress(0.96, "Installing GRUB")
+                    if old_root is None or force_grub_install:
+                        write_progress(0.96, "Installing GRUB")
 
-                            if os.path.exists("/sys/firmware/efi"):
-                                run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
-                                undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
+                        if os.path.exists("/sys/firmware/efi"):
+                            run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
+                            undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
 
-                                # Clean up dumps from NVRAM to prevent
-                                # "failed to register the EFI boot entry: No space left on device"
-                                for item in os.listdir("/sys/firmware/efi/efivars"):
-                                    if item.startswith("dump-"):
-                                        with contextlib.suppress(Exception):
-                                            os.unlink(os.path.join("/sys/firmware/efi/efivars", item))
+                            # Clean up dumps from NVRAM to prevent
+                            # "failed to register the EFI boot entry: No space left on device"
+                            for item in os.listdir("/sys/firmware/efi/efivars"):
+                                if item.startswith("dump-"):
+                                    with contextlib.suppress(Exception):
+                                        os.unlink(os.path.join("/sys/firmware/efi/efivars", item))
 
-                            os.makedirs(f"{root}/boot/efi", exist_ok=True)
-                            for i, disk in enumerate(disks):
-                                install_grub_i386 = True
-                                efi_partition_number = 2
-                                format_efi_partition = True
-                                copy_bsd_loader = False
-                                if is_freebsd_loader_upgrade:
-                                    first_partition_guid = get_partition_guid(disk, 1)
-                                    if first_partition_guid == EFI_SYSTEM_PARTITION_GUID:
-                                        install_grub_i386 = False
-                                        efi_partition_number = 1
-                                        format_efi_partition = False
-                                        copy_bsd_loader = True
-                                    if first_partition_guid == FREEBSD_BOOT_PARTITION_GUID:
-                                        run_command([
-                                            "sgdisk", "-t1:EF02", f"/dev/{disk}",
-                                        ])
-
-                                if install_grub_i386:
+                        os.makedirs(f"{root}/boot/efi", exist_ok=True)
+                        for i, disk in enumerate(disks):
+                            install_grub_i386 = True
+                            efi_partition_number = 2
+                            format_efi_partition = True
+                            copy_bsd_loader = False
+                            if is_freebsd_loader_upgrade:
+                                first_partition_guid = get_partition_guid(disk, 1)
+                                if first_partition_guid == EFI_SYSTEM_PARTITION_GUID:
+                                    install_grub_i386 = False
+                                    efi_partition_number = 1
+                                    format_efi_partition = False
+                                    copy_bsd_loader = True
+                                if first_partition_guid == FREEBSD_BOOT_PARTITION_GUID:
                                     run_command([
-                                        "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                                        "sgdisk", "-t1:EF02", f"/dev/{disk}",
                                     ])
 
-                                if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
-                                    continue
+                            if install_grub_i386:
+                                run_command([
+                                    "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                                ])
 
-                                partition = get_partition(disk, efi_partition_number)
-                                if format_efi_partition:
-                                    run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI",
-                                                 partition])
-                                run_command(["chroot", root, "mount", "-t", "vfat", partition, "/boot/efi"])
+                            if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
+                                continue
 
-                                if copy_bsd_loader:
-                                    if not os.path.exists(root + SCALE_BSD_LOADER_PATH):
-                                        shutil.copyfile(root + CORE_BSD_LOADER_PATH, root + SCALE_BSD_LOADER_PATH)
+                            partition = get_partition(disk, efi_partition_number)
+                            if format_efi_partition:
+                                run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI",
+                                             partition])
+                            run_command(["chroot", root, "mount", "-t", "vfat", partition, "/boot/efi"])
 
-                                try:
-                                    grub_cmd = ["chroot", root, "grub-install", "--target=x86_64-efi",
-                                                "--efi-directory=/boot/efi",
-                                                "--bootloader-id=debian",
-                                                "--recheck",
-                                                "--no-floppy",
-                                                "--no-nvram"]
-                                    run_command(grub_cmd)
+                            if copy_bsd_loader:
+                                if not os.path.exists(root + SCALE_BSD_LOADER_PATH):
+                                    shutil.copyfile(root + CORE_BSD_LOADER_PATH, root + SCALE_BSD_LOADER_PATH)
 
-                                    run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
-                                    run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
-                                                 "/boot/efi/EFI/boot/bootx64.efi"])
+                            try:
+                                grub_cmd = ["chroot", root, "grub-install", "--target=x86_64-efi",
+                                            "--efi-directory=/boot/efi",
+                                            "--bootloader-id=debian",
+                                            "--recheck",
+                                            "--no-floppy",
+                                            "--no-nvram"]
+                                run_command(grub_cmd)
 
-                                    if os.path.exists("/sys/firmware/efi"):
-                                        run_command(["chroot", root, "efibootmgr", "-c",
-                                                     "-d", f"/dev/{disk}",
-                                                     "-p", f"{efi_partition_number}",
-                                                     "-L", f"TrueNAS-{i}",
-                                                     "-l", "/EFI/debian/grubx64.efi"])
-                                finally:
-                                    run_command(["chroot", root, "umount", "/boot/efi"])
-                    finally:
-                        for cmd in reversed(undo):
-                            run_command(cmd)
+                                run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
+                                run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
+                                             "/boot/efi/EFI/boot/bootx64.efi"])
+
+                                if os.path.exists("/sys/firmware/efi"):
+                                    run_command(["chroot", root, "efibootmgr", "-c",
+                                                 "-d", f"/dev/{disk}",
+                                                 "-p", f"{efi_partition_number}",
+                                                 "-L", f"TrueNAS-{i}",
+                                                 "-l", "/EFI/debian/grubx64.efi"])
+                            finally:
+                                run_command(["chroot", root, "umount", "/boot/efi"])
             finally:
+                for cmd in reversed(undo):
+                    run_command(cmd)
+
                 run_command(["umount", root])
 
         for entry in TRUENAS_DATASETS:
@@ -703,7 +757,10 @@ def main():
             run_command(["zfs", "set", f"readonly={ro}", this_ds])
 
             if entry.get("snap", False):
-                run_command(["zfs", "snapshot", f"{this_ds}@pristine"])
+                # Do not create `pristine` snapshot for cloned datasets as this will cause snapshot name conflicts
+                # when promoting the clone.
+                if entry["name"] not in cloned_datasets:
+                    run_command(["zfs", "snapshot", f"{this_ds}@pristine"])
 
             run_command(["zfs", "set", f"mountpoint={mp}", this_ds])
             run_command(["zfs", "set", 'org.zectl:bootloader=""', this_ds])
