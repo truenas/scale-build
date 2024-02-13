@@ -589,6 +589,10 @@ def main():
 
                     setup_machine_id = configure_serial = True
 
+                # Making log dir for netdata
+                os.makedirs(os.path.join(root, "var/log/netdata"), exist_ok=True)
+                os.chown(os.path.join(root, "var/log/netdata"), 999, 997)
+
                 is_freebsd_loader_upgrade = is_freebsd_upgrade
                 if not is_freebsd_loader_upgrade and old_root is None and old_bootfs_prop != "-":
                     # Probably installing SCALE on CORE-formatted pool
