@@ -355,8 +355,8 @@ def main():
 
     if IS_FREEBSD:
         write_error(
-            "Migrating TrueNAS CORE to TrueNAS SCALE 24.04 (or later) using update file upload is not supported. "
-            "Please migrate with the latest 23.10 release update file or back up the TrueNAS configuration, perform a "
+            "Migrating TrueNAS CORE to TrueNAS SCALE 24.10 (or later) using update file upload is not supported. "
+            "Please migrate with the latest 24.04 release update file or back up the TrueNAS configuration, perform a "
             "fresh install, and restore from the configuration backup."
         )
         sys.exit(2)
