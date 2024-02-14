@@ -464,12 +464,14 @@ def main():
                     for excluded in data_exclude:
                         remove = f"{root}/{excluded}"
                         try:
-                            shutil.rmtree(remove, True)
+                            shutil.rmtree(remove)
                         except NotADirectoryError:
                             try:
                                 os.unlink(remove)
                             except FileNotFoundError:
                                 pass
+                        except FileNotFoundError:
+                            pass
 
                 exclude_list = []
                 for walk_root, dirs, files in os.walk(root):
