@@ -488,7 +488,11 @@ def main():
                         "-f",
                         "-da", "16",
                         "-fr", "16",
-                        "-exclude-file", exclude_list_file.name,
+                    ] + (
+                        ["-exclude-file", exclude_list_file.name]
+                        if not IS_FREEBSD
+                        else []
+                    ) + [
                         os.path.join(src, "rootfs.squashfs"),
                     ]
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
