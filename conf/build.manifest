@@ -545,6 +545,9 @@ sources:
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
   branch: master
+- name: ixhardware
+  repo: https://github.com/truenas/ixhardware
+  branch: master
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
   branch: master
