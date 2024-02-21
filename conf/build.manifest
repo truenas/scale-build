@@ -309,17 +309,10 @@ iso-packages:
 - curl
 - bzip2
 - linux-image-truenas-production-amd64
-- dialog
 - iproute2
-- jq
 - live-boot
-- truenas-installer
-- parted
 - pciutils
-- python3-libzfs
-- python3-licenselib
-- python3-pyudev
-- setserial
+- python3-truenas-installer
 - udhcpc
 - vim-tiny
 

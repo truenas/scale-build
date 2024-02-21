@@ -32,22 +32,15 @@ RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+]\s+(?P<extracted>[0-9]+)/(?P<total>[0
 run_kw = dict(check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", errors="ignore")
 
 IS_FREEBSD = platform.system().upper() == "FREEBSD"
-is_json_output = False
 
 
 def write_progress(progress, message):
-    if is_json_output:
-        sys.stdout.write(json.dumps({"progress": progress, "message": message}) + "\n")
-    else:
-        sys.stdout.write(f"[{int(progress * 100)}%] {message}\n")
+    sys.stdout.write(json.dumps({"progress": progress, "message": message}) + "\n")
     sys.stdout.flush()
 
 
 def write_error(error, raise_=False, prefix="Error: "):
-    if is_json_output:
-        sys.stdout.write(json.dumps({"error": error}) + "\n")
-    else:
-        sys.stdout.write(f"{prefix}{error}\n")
+    sys.stdout.write(json.dumps({"error": error}) + "\n")
     sys.stdout.flush()
 
     if raise_:
@@ -345,12 +338,8 @@ def precheck(old_root):
 
 
 def main():
-    global is_json_output
-
     input = json.loads(sys.stdin.read())
 
-    if input.get("json"):
-        is_json_output = True
     old_root = input.get("old_root", None)
 
     if input.get("precheck"):
