@@ -7,7 +7,7 @@ from datetime import datetime
 from scale_build.config import BUILD_TIME, VERSION
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
-from scale_build.utils.manifest import get_truenas_train
+from scale_build.utils.manifest import get_truenas_train, get_release_code_name
 from scale_build.utils.run import run
 from scale_build.utils.paths import PKG_DIR
 
@@ -79,6 +79,7 @@ class BuildPackageMixin:
                 f.write(json.dumps({
                     'buildtime': BUILD_TIME,
                     'train': get_truenas_train(),
+                    'codename': get_release_code_name(),
                     'version': VERSION,
                 }))
             os.makedirs(os.path.join(self.package_source_with_chroot, 'etc'), exist_ok=True)
