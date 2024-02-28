@@ -8,34 +8,34 @@ identity_file_path_default: "~/.ssh/id_rsa"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian/
+  url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/libnvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/libnvidia/
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/helm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/helm/
     distribution: all
     component: main
     key: keys/helm.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian-security/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/debian-security/
     distribution: bookworm-security
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian-backports/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free"
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/debian-debug/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/yarn/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/yarn/
     distribution: stable
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/nvidia/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/nvidia/
     distribution: bookworm
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/nightlies/pcm/
+  - url: http://apt.tn.ixsystems.com/apt-direct/dragonfish/24.04-RC.1/pcm/
     distribution: bookworm
     component: main
 
