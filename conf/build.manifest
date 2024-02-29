@@ -402,7 +402,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: stable/dragonfish
+  branch: truenas/zfs-2.3-release
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
