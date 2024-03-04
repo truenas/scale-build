@@ -42,8 +42,8 @@ pipeline {
     }
     stage('Upload') {
       steps {
-        sh 'ssh scale@update-master.tn.ixsystems.net mkdir -p /tank/www/scale/TrueNAS-SCALE-ElectricEel-Nightlies/ || true'
-        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE-*.update scale@update-master.tn.ixsystems.net:/tank/www/scale/TrueNAS-SCALE-ElectricEel-Nightlies/'
+        sh 'ssh jenkins@staging.sys.tn.ixsystems.net mkdir -p /zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-ElectricEel-Nightlies/ || true'
+        sh 'scp ${BDIR}/tmp/release/manifest.json ${BDIR}/tmp/release/TrueNAS-SCALE-*.update jenkins@dev-update.sys.truenas.net:/zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-ElectricEel-Nightlies/'
       }
     }
   }
