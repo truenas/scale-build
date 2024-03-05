@@ -466,7 +466,7 @@ sources:
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: stable/dragonfish
+  branch: NAS-127665
   explicit_deps:
     - openzfs
 - name: zettarepl
