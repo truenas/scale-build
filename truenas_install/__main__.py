@@ -541,6 +541,8 @@ def main():
                 setup_machine_id = False
                 configure_serial = False
                 if old_root is not None:
+                    write_progress(0.51, "Copying previous configuration")
+
                     if os.path.exists(f"{old_root}/bin/freebsd-version"):
                         is_freebsd_upgrade = True
 
@@ -577,8 +579,8 @@ def main():
                         f"{root}/",
                     ], cwd=old_root)
 
-                    with open(f"{root}/data/need-update", "w"):
-                        pass
+                    write_progress(0.52, "Migrating configuration database")
+                    run_command(["chroot", root, "migrate"])
 
                     if is_freebsd_upgrade:
                         with open(f"{root}/data/freebsd-to-scale-update", "w"):
@@ -646,7 +648,7 @@ def main():
                                     input=json.dumps(authentication_method))
 
                     if sql is not None:
-                        write_progress(0.57, "Upgrading database")
+                        write_progress(0.57, "Persisting miscellaneous configuration")
                         run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
 
                     if configure_serial:
@@ -659,19 +661,16 @@ def main():
                         if old_bootfs_prop != "-":
                             run_command(["zfs", "set", "truenas:12=1", old_bootfs_prop])
 
-                    write_progress(0.6, "Preparing initramfs configuration")
-                    cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", root], check=False)
-                    if cp.returncode > 1:
-                        raise subprocess.CalledProcessError(
-                            cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
-                        )
-
                     write_progress(0.7, "Preparing NVDIMM configuration")
                     run_command(["chroot", root, "/usr/local/bin/truenas-nvdimm.py"])
                     write_progress(0.71, "Preparing GRUB configuration")
                     run_command(["chroot", root, "/usr/local/bin/truenas-grub.py"])
                     write_progress(0.8, "Updating initramfs")
-                    run_command(["chroot", root, "update-initramfs", "-k", "all", "-u"])
+                    cp = run_command([f"{root}/usr/local/bin/truenas-initrd.py", "-f", root], check=False)
+                    if cp.returncode > 1:
+                        raise subprocess.CalledProcessError(
+                            cp.returncode, f'Failed to execute truenas-initrd: {cp.stderr}'
+                        )
                     write_progress(0.9, "Updating GRUB")
                     run_command(["chroot", root, "update-grub"])
 
