@@ -463,6 +463,15 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
+- name: sssd
+  repo: https://github.com/mgrimesix/sssd
+  branch: main
+  generate_version: false
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  explicit_deps:
+    - truenas_samba
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
