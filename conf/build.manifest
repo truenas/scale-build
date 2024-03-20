@@ -195,6 +195,9 @@ apt_preferences:
 - Package: "*cuda*"
   Pin: "version 525.89*"
   Pin-Priority: 1000
+- Package: "*curl*"
+  Pin: "release n=bookworm-security"
+  Pin-Priority: 1000
 - Package: "*libc-*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
@@ -210,9 +213,6 @@ apt_preferences:
 - Package: "*libssl*"
   Pin: "origin \"\""
   Pin-Priority: 1050
-- Package: "*curl*"
-  Pin: "release n=bookworm-security"
-  Pin-Priority: 1000
 - Package: "*node*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
