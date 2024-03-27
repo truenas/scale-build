@@ -618,6 +618,11 @@ sources:
   branch: master
   deoptions: nocheck
   generate_version: false
+- name: restic
+  repo: https://github.com/truenas/restic
+  branch: master
+  deoptions: nocheck
+  generate_version: false
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
   branch: master
