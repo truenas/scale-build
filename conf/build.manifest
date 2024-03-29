@@ -515,7 +515,7 @@ sources:
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   prebuildcmd:
-    - "yarn install"
+    - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
   branch: stable/dragonfish
