@@ -469,7 +469,7 @@ sources:
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: master
+  branch: sync-upstream-zfs
   explicit_deps:
     - openzfs
 - name: zettarepl
