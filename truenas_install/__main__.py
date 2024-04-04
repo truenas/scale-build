@@ -441,6 +441,8 @@ def main():
                         rsync.append("home")
                     if os.path.exists(f"{old_root}/var/lib/libvirt/qemu/nvram"):
                         rsync.append("var/lib/libvirt/qemu/nvram")
+                    if os.path.exists(f"{old_root}/var/lib/netdata"):
+                        rsync.append("var/lib/netdata")
                     if "var/log" not in cloned_datasets:
                         try:
                             logs = os.listdir(f"{old_root}/var/log")
