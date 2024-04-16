@@ -262,6 +262,7 @@ def main():
     disks = input["disks"]
     authentication_method = input.get("authentication_method", None)
     pool_name = input["pool_name"]
+    post_install = input.get("post_install", None)
     sql = input.get("sql", None)
     src = input["src"]
 
@@ -508,9 +509,15 @@ def main():
                     run_command(["chroot", root, "/usr/local/bin/truenas-set-authentication-method.py"],
                                 input=json.dumps(authentication_method))
 
-                if sql is not None:
+                if post_install is not None or sql is not None:
                     write_progress(0.57, "Persisting miscellaneous configuration")
-                    run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
+
+                    if post_install is not None:
+                        with open(f"{root}/data/post-install.json", "w") as f:
+                            json.dump(post_install, f)
+
+                    if sql is not None:
+                        run_command(["chroot", root, "sqlite3", "/data/freenas-v1.db"], input=sql)
 
                 if configure_serial:
                     write_progress(0.58, "Configuring serial port")
