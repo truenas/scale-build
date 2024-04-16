@@ -2,7 +2,7 @@ certifi==2023.7.22
 chardet==4.0.0
 coloredlogs==15.0
 humanfriendly==9.1
-idna==2.10
+idna==3.7
 jsonschema==3.2.0
 packaging==21.3
 pexpect==4.8.0
