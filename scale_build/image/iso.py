@@ -43,6 +43,9 @@ def make_iso_file():
     # Set default PW to root
     run(fr'chroot {CHROOT_BASEDIR} /bin/bash -c "echo -e \"root\nroot\" | passwd root"', shell=True)
 
+    # Bring up network for the installer
+    run(f'chroot {CHROOT_BASEDIR} systemctl enable systemd-networkd', shell=True)
+
     # Create /etc/version
     with open(os.path.join(CHROOT_BASEDIR, 'etc/version'), 'w') as f:
         f.write(get_image_version())
