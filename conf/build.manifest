@@ -8,34 +8,34 @@ identity_file_path_default: "~/.ssh/id_rsa"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/debian/
+  url: https://apt.sys.truenas.net/electriceel/nightlies/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/libnvidia/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/libnvidia/
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/helm/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/helm/
     distribution: all
     component: main
     key: keys/helm.gpg
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/debian-security/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-security/
     distribution: bookworm-security
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/debian-backports/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free"
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/debian-debug/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/yarn/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/yarn/
     distribution: stable
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/nvidia/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/nvidia/
     distribution: bookworm
     component: main
-  - url: http://apt.tn.ixsystems.com/apt-direct/electriceel/nightlies/pcm/
+  - url: https://apt.sys.truenas.net/electriceel/nightlies/pcm/
     distribution: bookworm
     component: main
 
