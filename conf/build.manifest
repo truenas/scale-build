@@ -338,9 +338,6 @@ sources:
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
-- name: chelsio_uwire
-  repo: https://github.com/truenas/chelsiouwire
-  branch: master
 - name: openseachest
   branch: master
   repo: https://github.com/truenas/openseachest
