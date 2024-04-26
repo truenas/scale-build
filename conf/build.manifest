@@ -116,6 +116,8 @@ base-packages:
   install_recommends: true
 - name: truenas-samba
   install_recommends: true
+- name: truenas-sssd
+  install_recommends: true
 - name: nfs4xdr-acl-tools
   install_recommends: true
 - name: nfs4-acl-tools
@@ -194,6 +196,9 @@ apt_preferences:
   Pin-Priority: 950
 - Package: "*cuda*"
   Pin: "version 525.89*"
+  Pin-Priority: 1000
+- Package: "*curl*"
+  Pin: "release n=bookworm-security"
   Pin-Priority: 1000
 - Package: "*libc-*"
   Pin: "release n=bookworm-security"
@@ -453,6 +458,15 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
+- name: truenas_sssd
+  repo: https://github.com/truenas/sssd
+  branch: truenas/2.9
+  generate_version: false
+  predepscmd:
+    - "apt install -y wget xz-utils systemd-dev truenas-samba"
+  explicit_deps:
+    - openzfs
+    - truenas_samba
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
@@ -577,6 +591,9 @@ sources:
   subdir: debian
   subpackages:
     - name: middlewared
+      explicit_deps:
+        - truenas_samba
+        - truenas_sssd
       subdir: src/middlewared
     - name: truenas_files
       subdir: src/freenas
