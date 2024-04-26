@@ -1,10 +1,10 @@
 import argparse
 import json
-import os
 import pathlib
 import subprocess
 
 SCALE_BUILD_ROOT = pathlib.Path(__file__).parent.parent.resolve()
+SCALE_BUILD_SOURCES = pathlib.Path(SCALE_BUILD_ROOT, 'sources')
 
 
 def repo_json(dir, since):
@@ -51,19 +51,13 @@ def git_commits(dir, since, long=False):
     return result
 
 
-def git_directories():
-    dirlist = [str(SCALE_BUILD_ROOT)]
-    dirlist.extend([f.path for f in os.scandir(pathlib.Path(SCALE_BUILD_ROOT, 'sources')) if f.is_dir()])
-    return dirlist
-
-
 def generate(since):
     result = []
-    for dir in git_directories():
+    for dir in filter(lambda x: x.is_dir(), SCALE_BUILD_SOURCES.iterdir()):
         data = {
-            'name': os.path.split(dir)[-1],
-            'branch': git_branch(dir),
-            'commits': git_commits(dir, since),
+            'name': dir.name,
+            'branch': git_branch(dir.as_posix()),
+            'commits': git_commits(dir.as_posix(), since),
         }
         result.append(data)
     return result
