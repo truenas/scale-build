@@ -261,9 +261,6 @@ additional-packages:
 - name: openseachest
   comment: requested by performance team (NAS-106154)
   install_recommends: true
-- name: cxgbtool
-  comment: requested by OS team (NAS-111041)
-  install_recommends: true
 - name: python-is-python3
   comment: NAS-111358 (symlinks /usr/bin/python to python3)
   install_recommends: true
@@ -342,9 +339,6 @@ sources:
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
-- name: chelsio_uwire
-  repo: https://github.com/truenas/chelsiouwire
-  branch: stable/dragonfish
 - name: openseachest
   branch: stable/dragonfish
   repo: https://github.com/truenas/openseachest
