@@ -498,7 +498,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: truenas-3.8.x
+  branch: truenas-3.9.0-pre
   subpackages:
     - name: scst-dbg
       generate_version: false
