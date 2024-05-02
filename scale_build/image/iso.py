@@ -52,7 +52,7 @@ def make_iso_file():
 
     # Set /etc/hostname so that hostname of builder is not advertised
     with open(os.path.join(CHROOT_BASEDIR, 'etc/hostname'), 'w') as f:
-        f.write('truenas.local')
+        f.write('truenas-installer.local')
 
     # Copy the CD files
     run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
