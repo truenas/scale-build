@@ -477,9 +477,13 @@ def main():
 
                     setup_machine_id = configure_serial = True
 
-                # We do not want /data directory to be world readable
+                # We only want /data itself (without contents) and /data/subsystems to be 755
+                # whereas everything else should be 700
                 # Doing this here is important so that we cover both fresh install and upgrade case
                 run_command(["chmod", "-R", "u=rwX,g=,o=", f"{root}/data"])
+                run_command(["chmod", "u=rwx,g=rx,o=rx", os.path.join(root, "data")])
+                if os.path.exists(os.path.join(root, "data/subsystems")):
+                    run_command(["chmod", "-R", "u=rwx,g=rx,o=rx", os.path.join(root, "data/subsystems")])
 
                 if setup_machine_id:
                     with contextlib.suppress(FileNotFoundError):
