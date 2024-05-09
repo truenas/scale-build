@@ -103,7 +103,7 @@ TRUENAS_DATASETS = [
     {
         'name':  'data',
         'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
-        'mode': 0o700,
+        'mode': 0o755,
         'clone': True,
     },
     {
