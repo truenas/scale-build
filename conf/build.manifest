@@ -334,13 +334,13 @@ iso-packages:
 sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
-  branch: stable/dragonfish
+  branch: release/24.04.1
   generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
 - name: openseachest
-  branch: stable/dragonfish
+  branch: release/24.04.1
   repo: https://github.com/truenas/openseachest
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -349,7 +349,7 @@ sources:
   generate_version: false
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: stable/dragonfish
+  branch: release/24.04.1
   batch_priority: 0
   supports_ccache: true
   env:
@@ -395,11 +395,11 @@ sources:
         - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: stable/dragonfish
+  branch: release/24.04.1
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
@@ -452,26 +452,26 @@ sources:
       generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: stable/dragonfish
+  branch: release/24.04.1
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: stable/dragonfish
+  branch: release/24.04.1
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: stable/dragonfish
+  branch: release/24.04.1
   explicit_deps:
     - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -488,7 +488,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: stable/dragonfish
+  branch: release/24.04.1
   subpackages:
     - name: scst-dbg
       generate_version: false
@@ -511,29 +511,29 @@ sources:
         - kernel-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   prebuildcmd:
     - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: stable/dragonfish
+  branch: release/24.04.1
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -541,37 +541,37 @@ sources:
     - openzfs
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: catalog_validation
   repo: https://github.com/truenas/catalog_validation
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: plugins
   repo: https://github.com/truenas/plugins
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: multus_cni
   repo: https://github.com/truenas/multus-cni
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: kube_router
   repo: https://github.com/truenas/kube-router
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: k3s
   repo: https://github.com/truenas/k3s
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: swagger
   repo: https://github.com/truenas/swagger
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: stable/dragonfish
+  branch: release/24.04.1
   subdir: debian
   subpackages:
     - name: middlewared
@@ -580,10 +580,10 @@ sources:
       subdir: src/freenas
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: stable/dragonfish
+  branch: release/24.04.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -594,7 +594,7 @@ sources:
   batch_priority: 150
 - name: parted
   repo: https://github.com/truenas/parted
-  branch: stable/dragonfish
+  branch: release/24.04.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -603,16 +603,16 @@ sources:
   generate_version: false
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: stable/dragonfish
+  branch: release/24.04.1
   deoptions: nocheck
   generate_version: false
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
-  branch: stable/dragonfish
+  branch: release/24.04.1
 - name: nvidia
   repo: https://github.com/truenas/nvidia
   batch_priority: 0
-  branch: stable/dragonfish
+  branch: release/24.04.1
   predepscmd:
     - "./pull.sh"
   explicit_deps:
@@ -621,7 +621,7 @@ sources:
   generate_version: false
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
-  branch: stable/dragonfish
+  branch: release/24.04.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
