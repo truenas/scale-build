@@ -128,6 +128,9 @@ def post_rootfs_setup():
     if os.path.isfile(pkg_mgmt_disabled_path):
         old_mode = os.stat(pkg_mgmt_disabled_path).st_mode
         os.chmod(pkg_mgmt_disabled_path, old_mode | executable_flag)
+    # Ensure no avahi service files are present
+    for f in glob.glob(os.path.join(CHROOT_BASEDIR, 'etc/avahi/services/*.service*')):
+        os.unlink(f)
 
 
 def custom_rootfs_setup():
