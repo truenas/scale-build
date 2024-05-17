@@ -204,7 +204,8 @@ def precheck(old_root):
                         except FileNotFoundError:
                             cgroups = ""
 
-                        if "kubepods" in cgroups:
+                        # https://forums.truenas.com/t/disable-webdav-service-from-cli-or-by-modifying-config-db/2795/4
+                        if "kubepods" in cgroups or "/payload/" in cgroups:
                             continue
 
                         running_services.append(title)
