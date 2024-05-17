@@ -587,7 +587,7 @@ sources:
   branch: main
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: add-freeipa-client
   subdir: debian
   subpackages:
     - name: middlewared
@@ -598,6 +598,9 @@ sources:
     - name: truenas_files
       subdir: src/freenas
 - name: midcli
+  explicit_deps:
+    - truenas_samba
+    - truenas_sssd
   repo: https://github.com/truenas/midcli
   branch: master
 - name: grub2
