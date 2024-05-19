@@ -152,6 +152,8 @@ base-packages:
   # So until we can figure out how to mark packages as dependencies
   # without installing non-dependent packages, this will have to suffice
   install_recommends: false
+- name: at
+  install_recommends: true
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
