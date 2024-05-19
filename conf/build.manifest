@@ -323,6 +323,7 @@ iso-packages:
 - python3-truenas-installer
 - udhcpc
 - vim-tiny
+- freeipa-client
 
 #
 # List of Git source repositories the build will checkout and perform a debian
