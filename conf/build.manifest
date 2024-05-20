@@ -323,6 +323,8 @@ iso-packages:
 - python3-truenas-installer
 - udhcpc
 - vim-tiny
+- truenas-samba
+- truenas-sssd
 - freeipa-client
 
 #
