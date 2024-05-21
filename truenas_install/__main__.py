@@ -17,6 +17,8 @@ import tempfile
 import psutil
 
 from licenselib.license import ContractType, License
+
+from .dhs import TRUENAS_DATA_HIERARCHY
 from .fhs import TRUENAS_DATASETS
 
 logger = logging.getLogger(__name__)
@@ -482,9 +484,12 @@ def main():
                 # whereas everything else should be 700
                 # Doing this here is important so that we cover both fresh install and upgrade case
                 run_command(["chmod", "-R", "u=rwX,g=,o=", f"{root}/data"])
-                run_command(["chmod", "u=rwx,g=rx,o=rx", os.path.join(root, "data")])
-                if os.path.exists(os.path.join(root, "data/subsystems")):
-                    run_command(["chmod", "-R", "u=rwx,g=rx,o=rx", os.path.join(root, "data/subsystems")])
+                for entry in TRUENAS_DATA_HIERARCHY:
+                    entry_path = os.path.join(root, entry["dir_path"])
+                    os.makedirs(entry_path, exist_ok=True)
+                    if mode := entry.get("mode"):
+                        mode = f"u={mode['user']},g={mode['group']},o={mode['other']}"
+                        run_command(["chmod", *(["-R"] if entry["recursive"] else []), mode, entry_path])
 
                 if setup_machine_id:
                     with contextlib.suppress(FileNotFoundError):
