@@ -3,6 +3,5 @@
   <service>
     <type>_truenas_installer._tcp.</type>
     <port>80</port>
-    <txt-record>status=INIT,version=UNKNOWN</txt-record>
   </service>
 </service-group>
