@@ -118,6 +118,8 @@ base-packages:
   install_recommends: true
 - name: truenas-sssd
   install_recommends: true
+- name: truenas-ipaclient
+  install_recommends: true
 - name: cifs-utils
   install_recommends: true
 - name: nfs4xdr-acl-tools
@@ -469,6 +471,17 @@ sources:
   explicit_deps:
     - openzfs
     - truenas_samba
+- name: truenas_ipaclient
+  repo: https://github.com/truenas/freeipa
+  branch: main
+  generate_version: false
+  predepscmd:
+    - "apt install -y pkg-config truenas-samba truenas-sssd"
+    - "sh -x fetch.sh"
+  explicit_deps:
+    - openzfs
+    - truenas_samba
+    - truenas_sssd
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
