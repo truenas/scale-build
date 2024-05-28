@@ -524,7 +524,10 @@ sources:
   branch: master
 - name: truenas_webui
   repo: https://github.com/truenas/webui
-  prebuildcmd:
+  predepscmd:
+    - "apt -y install wget && apt -y install yarn --no-install-recommends"  # yarn recommends nodejs, which we don't want
+  preb$uildcmd:
+    - "sh -ex debian/fetch_node.sh"  # download and install pre-built nodejs
     - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
