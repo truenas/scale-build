@@ -531,7 +531,7 @@ sources:
     - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: master
+  branch: static-node
 - name: sedutil
   repo: https://github.com/truenas/sedutil
   branch: master
