@@ -3,7 +3,7 @@ import jsonschema
 import logging
 import shutil
 
-from truenas_install import fhs
+from truenas_install import dhs, fhs
 
 from .exceptions import CallError, MissingPackagesException
 from .utils.manifest import validate_manifest
@@ -47,7 +47,14 @@ def validate_datasets():
         raise CallError(f'Provided dataset schema is invalid: {e}')
 
 
-def validate(system_state_flag=True, manifest_flag=True, datasets_flag=True):
+def validate_data_dir_schema():
+    try:
+        jsonschema.validate(dhs.TRUENAS_DATA_HIERARCHY, dhs.TRUENAS_DATA_HIERARCHY_SCHEMA)
+    except jsonschema.ValidationError as e:
+        raise CallError(f'Provided data hierarchy schema is invalid: {e}')
+
+
+def validate(system_state_flag=True, manifest_flag=True, datasets_flag=True, data_flag=True):
     if system_state_flag:
         validate_system_state()
         logger.debug('System state Validated')
@@ -58,3 +65,7 @@ def validate(system_state_flag=True, manifest_flag=True, datasets_flag=True):
     if datasets_flag:
         validate_datasets()
         logger.debug('Dataset schema Validated')
+
+    if data_flag:
+        validate_data_dir_schema()
+        logger.debug('Data directory schema Validated')
