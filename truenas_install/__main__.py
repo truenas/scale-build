@@ -485,7 +485,7 @@ def main():
                 # Doing this here is important so that we cover both fresh install and upgrade case
                 run_command(["chmod", "-R", "u=rwX,g=,o=", f"{root}/data"])
                 for entry in TRUENAS_DATA_HIERARCHY:
-                    entry_path = os.path.join(root, entry["dir_path"])
+                    entry_path = os.path.join(root, entry["path"])
                     os.makedirs(entry_path, exist_ok=True)
                     if mode := entry.get("mode"):
                         mode = f"u={mode['user']},g={mode['group']},o={mode['other']}"
