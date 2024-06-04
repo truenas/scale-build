@@ -16,10 +16,6 @@ apt-repos:
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/helm/
-    distribution: all
-    component: main
-    key: keys/helm.gpg
   - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-security/
     distribution: bookworm-security
     component: main
