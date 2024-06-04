@@ -573,8 +573,8 @@ sources:
 - name: ixhardware
   repo: https://github.com/truenas/ixhardware
   branch: master
-- name: catalog_validation
-  repo: https://github.com/truenas/catalog_validation
+- name: apps_validation
+  repo: https://github.com/truenas/apps_validation
   branch: master
 - name: plugins
   repo: https://github.com/truenas/plugins
