@@ -576,18 +576,6 @@ sources:
 - name: apps_validation
   repo: https://github.com/truenas/apps_validation
   branch: master
-- name: plugins
-  repo: https://github.com/truenas/plugins
-  branch: truenas/master
-- name: multus_cni
-  repo: https://github.com/truenas/multus-cni
-  branch: truenas/master
-- name: kube_router
-  repo: https://github.com/truenas/kube-router
-  branch: truenas/master
-- name: k3s
-  repo: https://github.com/truenas/k3s
-  branch: truenas/master
 - name: py_cryptit
   repo: https://github.com/truenas/py-cryptit
   branch: master
