@@ -16,10 +16,6 @@ apt-repos:
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/helm/
-    distribution: all
-    component: main
-    key: keys/helm.gpg
   - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-security/
     distribution: bookworm-security
     component: main
@@ -187,7 +183,7 @@ base-prune:
 # Update build-epoch when you want to force the next build to be
 # non-incremental
 ############################################################################
-build-epoch: 11
+build-epoch: 12
 
 # Apt Preferences
 ############################################################################
@@ -573,21 +569,9 @@ sources:
 - name: ixhardware
   repo: https://github.com/truenas/ixhardware
   branch: master
-- name: catalog_validation
-  repo: https://github.com/truenas/catalog_validation
+- name: apps_validation
+  repo: https://github.com/truenas/apps_validation
   branch: master
-- name: plugins
-  repo: https://github.com/truenas/plugins
-  branch: truenas/master
-- name: multus_cni
-  repo: https://github.com/truenas/multus-cni
-  branch: truenas/master
-- name: kube_router
-  repo: https://github.com/truenas/kube-router
-  branch: truenas/master
-- name: k3s
-  repo: https://github.com/truenas/k3s
-  branch: truenas/master
 - name: py_cryptit
   repo: https://github.com/truenas/py-cryptit
   branch: master
