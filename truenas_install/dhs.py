@@ -67,6 +67,7 @@ TRUENAS_DATA_HIERARCHY = [
             'user': 'rwx',
             'group': '',
             'other': '',
-        }
+        },
+        'recursive': False,
     }
 ]
