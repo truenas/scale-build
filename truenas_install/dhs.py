@@ -63,5 +63,10 @@ TRUENAS_DATA_HIERARCHY = [
     },
     {
         'path': 'data/sentinels',
+        'mode': {
+            'user': 'rwx',
+            'group': '',
+            'other': '',
+        }
     }
 ]
