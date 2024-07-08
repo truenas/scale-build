@@ -9,7 +9,6 @@ REPO_CHANGED=$(shell if [ -d "./venv-$(COMMIT_HASH)" ]; then git status --porcel
 BREAK_SYS_PKGS_FLAG=$(shell ${PYTHON} -m pip help install | grep -q -- '--break-system-packages' && echo "--break-system-packages" || echo "")
 
 .DEFAULT_GOAL := all
-VENDOR?=truenas
 
 check:
 ifneq ($(REPO_CHANGED),0)

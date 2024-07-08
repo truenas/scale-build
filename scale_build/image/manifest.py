@@ -69,7 +69,7 @@ def get_image_version():
         raise CallError(f'{RELEASE_MANIFEST!r} does not exist')
 
     with open(RELEASE_MANIFEST) as f:
-        vendor = f"-{os.environ['VENDOR']}" if os.environ.get('VENDOR') else ""
+        vendor = f"-{os.environ['TRUENAS_VENDOR']}" if os.environ.get('TRUENAS_VENDOR') else ""
         return f"{json.load(f)['version']}{vendor}"
 
 
