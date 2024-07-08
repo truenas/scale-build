@@ -59,7 +59,7 @@ def make_iso_file():
     if vendor:
         os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'), exist_ok=True)
         with open(os.path.join(CHROOT_BASEDIR, 'data/.vendor'), 'w') as f:
-            f.write(json.dumps({'name': vendor}))   
+            f.write(json.dumps({'name': vendor}))
 
     # Copy the CD files
     run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
