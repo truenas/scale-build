@@ -66,12 +66,13 @@ def build_release_manifest(update_file, update_file_checksum):
         }, f)
 
 
-def get_image_version():
+def get_image_version(vendor=None):
+    """If vendor is set, append it to the version."""
     if not os.path.exists(RELEASE_MANIFEST):
         raise CallError(f'{RELEASE_MANIFEST!r} does not exist')
 
     with open(RELEASE_MANIFEST) as f:
-        vendor = f"-{TRUENAS_VENDOR}" if TRUENAS_VENDOR else ""
+        vendor = f"-{vendor}" if vendor else ""
         return f"{json.load(f)['version']}{vendor}"
 
 

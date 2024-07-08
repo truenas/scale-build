@@ -119,7 +119,7 @@ def make_iso_file():
         shutil.copy(os.path.join(CHROOT_BASEDIR, 'usr/share/grub/unicode.pf2'),
                     os.path.join(CD_DIR, 'EFI/debian/fonts/unicode.pf2'))
 
-        iso = os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')
+        iso = os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version(vendor=TRUENAS_VENDOR)}.iso')
 
         # Default grub EFI image does not support `search` command which we need to make TrueNAS ISO working in
         # Rufus "ISO Image mode".
@@ -191,9 +191,9 @@ def make_iso_file():
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'packages')])
 
-    with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso.sha256'), 'w') as f:
+    with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version(vendor=TRUENAS_VENDOR)}.iso.sha256'), 'w') as f:
         f.write(run(
-            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')], log=False
+            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version(vendor=TRUENAS_VENDOR)}.iso')], log=False
         ).stdout.replace(f'{RELEASE_DIR}/', '').strip())
 
 
