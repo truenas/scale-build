@@ -5,6 +5,7 @@ import shutil
 import tarfile
 import tempfile
 import time
+import json
 
 import requests
 
@@ -53,6 +54,12 @@ def make_iso_file():
     # Set /etc/hostname so that hostname of builder is not advertised
     with open(os.path.join(CHROOT_BASEDIR, 'etc/hostname'), 'w') as f:
         f.write('truenas-installer.local')
+
+    vendor = os.environ.get('VENDOR')
+    if vendor:
+        os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'), exist_ok=True)
+        with open(os.path.join(CHROOT_BASEDIR, 'data/.vendor'), 'w') as f:
+            f.write(json.dumps({'name': vendor}))   
 
     # Copy the CD files
     run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
