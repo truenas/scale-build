@@ -13,7 +13,9 @@ from scale_build.exceptions import CallError
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
-
+from scale_build.config import (
+    TRUENAS_VENDOR
+)
 from .bootstrap import umount_chroot_basedir
 from .manifest import get_image_version, update_file_path
 from .utils import run_in_chroot
@@ -55,11 +57,10 @@ def make_iso_file():
     with open(os.path.join(CHROOT_BASEDIR, 'etc/hostname'), 'w') as f:
         f.write('truenas-installer.local')
 
-    vendor = os.environ.get('TRUENAS_VENDOR')
-    if vendor:
+    if TRUENAS_VENDOR:
         os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'), exist_ok=True)
         with open(os.path.join(CHROOT_BASEDIR, 'data/.vendor'), 'w') as f:
-            f.write(json.dumps({'name': vendor}))
+            f.write(json.dumps({'name': TRUENAS_VENDOR}))
 
     # Copy the CD files
     run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)

@@ -7,7 +7,9 @@ import subprocess
 
 from scale_build.exceptions import CallError
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
-
+from scale_build.config import (
+    TRUENAS_VENDOR
+)
 
 RELEASE_MANIFEST = os.path.join(RELEASE_DIR, 'manifest.json')
 
@@ -69,7 +71,7 @@ def get_image_version():
         raise CallError(f'{RELEASE_MANIFEST!r} does not exist')
 
     with open(RELEASE_MANIFEST) as f:
-        vendor = f"-{os.environ['TRUENAS_VENDOR']}" if os.environ.get('TRUENAS_VENDOR') else ""
+        vendor = f"-{TRUENAS_VENDOR}" if TRUENAS_VENDOR else ""
         return f"{json.load(f)['version']}{vendor}"
 
 
