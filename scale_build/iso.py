@@ -26,7 +26,7 @@ def build_impl():
     for f in glob.glob(os.path.join(LOG_DIR, 'cdrom*')):
         os.unlink(f)
 
-    version = build_manifest() # Otherwise, it looks for a vendor in the filename. Update files never have a vendor.
+    version = build_manifest()  # Otherwise, it looks for a vendor in the filename. Update files never have a vendor.
     if not os.path.exists(update_file_path(version)):
         raise CallError(f'Missing rootfs image. Run \'make update\' first.{update_file_path()}')
 
