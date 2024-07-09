@@ -57,7 +57,7 @@ def make_iso_file():
         f.write('truenas-installer.local')
 
     if TRUENAS_VENDOR:
-        os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'), exist_ok=True)
+        os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'))
         with open(os.path.join(CHROOT_BASEDIR, 'data/.vendor'), 'w') as f:
             f.write('{"name": "%s"}', TRUENAS_VENDOR)
 
