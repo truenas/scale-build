@@ -5,6 +5,7 @@ import shutil
 import tarfile
 import tempfile
 import time
+import json
 
 import requests
 
@@ -59,7 +60,7 @@ def make_iso_file():
     if TRUENAS_VENDOR:
         os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'))
         with open(os.path.join(CHROOT_BASEDIR, 'data/.vendor'), 'w') as f:
-            f.write('{"name": "%s"}', TRUENAS_VENDOR)
+            f.write(json.dumps({'name': TRUENAS_VENDOR}))
 
     # Copy the CD files
     run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
