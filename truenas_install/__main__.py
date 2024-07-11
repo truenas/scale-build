@@ -480,6 +480,9 @@ def main():
 
                     setup_machine_id = configure_serial = True
 
+                    # Copy all files from ISO's data to new root's data (only includes .vendor right now)
+                    run_command(["cp", "-r", "/data/.", f"{root}/data/"])
+
                 # We only want /data itself (without contents) and /data/subsystems to be 755
                 # whereas everything else should be 700
                 # Doing this here is important so that we cover both fresh install and upgrade case

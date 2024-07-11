@@ -5,6 +5,7 @@ import shutil
 import tarfile
 import tempfile
 import time
+import json
 
 import requests
 
@@ -12,6 +13,7 @@ from scale_build.exceptions import CallError
 from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
+from scale_build.config import TRUENAS_VENDOR
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import get_image_version, update_file_path
@@ -53,6 +55,11 @@ def make_iso_file():
     # Set /etc/hostname so that hostname of builder is not advertised
     with open(os.path.join(CHROOT_BASEDIR, 'etc/hostname'), 'w') as f:
         f.write('truenas-installer.local')
+
+    os.makedirs(os.path.join(CHROOT_BASEDIR, 'data'))
+    if TRUENAS_VENDOR:
+        with open(os.path.join(CHROOT_BASEDIR, 'data/.vendor'), 'w') as f:
+            f.write(json.dumps({'name': TRUENAS_VENDOR}))
 
     # Copy the CD files
     run(f'rsync -aKv {CD_FILES_DIR}/ {CHROOT_BASEDIR}/', shell=True)
@@ -111,7 +118,7 @@ def make_iso_file():
         shutil.copy(os.path.join(CHROOT_BASEDIR, 'usr/share/grub/unicode.pf2'),
                     os.path.join(CD_DIR, 'EFI/debian/fonts/unicode.pf2'))
 
-        iso = os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')
+        iso = os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version(vendor=TRUENAS_VENDOR)}.iso')
 
         # Default grub EFI image does not support `search` command which we need to make TrueNAS ISO working in
         # Rufus "ISO Image mode".
@@ -183,9 +190,10 @@ def make_iso_file():
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, RELEASE_DIR)])
         run(['umount', '-f', os.path.join(CHROOT_BASEDIR, 'packages')])
 
-    with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso.sha256'), 'w') as f:
+    image_version = get_image_version(vendor=TRUENAS_VENDOR)
+    with open(os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{image_version}.iso.sha256'), 'w') as f:
         f.write(run(
-            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{get_image_version()}.iso')], log=False
+            ['sha256sum', os.path.join(RELEASE_DIR, f'TrueNAS-SCALE-{image_version}.iso')], log=False
         ).stdout.replace(f'{RELEASE_DIR}/', '').strip())
 
 
