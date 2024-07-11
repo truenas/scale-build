@@ -64,12 +64,13 @@ def build_release_manifest(update_file, update_file_checksum):
         }, f)
 
 
-def get_image_version():
+def get_image_version(vendor=None):
     if not os.path.exists(RELEASE_MANIFEST):
         raise CallError(f'{RELEASE_MANIFEST!r} does not exist')
 
     with open(RELEASE_MANIFEST) as f:
-        return json.load(f)['version']
+        vendor = f'-{vendor}' if vendor else ''
+        return f"{json.load(f)['version']}{vendor}"
 
 
 def update_file_path(version=None):
