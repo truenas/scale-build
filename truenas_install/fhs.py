@@ -73,6 +73,7 @@ TRUENAS_DATASET_SCHEMA = {
                         'NOATIME',
                         'RO',
                         'NODEV',
+                        'POSIXACL',
                     ]
                 },
                 'uniqueItems': True,
@@ -148,7 +149,7 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'var/log',
-        'options': ['NOSUID', 'NOEXEC', 'NOATIME'],
+        'options': ['NOSUID', 'NOEXEC', 'POSIXACL', 'NOATIME'],
         'clone': True,
     },
 ]
