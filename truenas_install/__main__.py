@@ -317,6 +317,8 @@ def main():
                 options.extend(["-o", "devices=off"])
             if "NOACL" in entry['options']:
                 options.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
+            if "POSIXACL" in entry["options"]:
+                options.extend(["-o", "acltype=posixacl", "-o", "aclmode=discard"])
             if "NOATIME" in entry["options"]:
                 options.extend(["-o", "atime=off"])
 
