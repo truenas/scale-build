@@ -37,8 +37,7 @@ def install_iso_packages_impl():
     # Inject vendor name into grub.cfg
     with open(CONF_GRUB, 'r') as f:
         grub_cfg = f.read()
-    if TRUENAS_VENDOR:
-        grub_cfg = grub_cfg.replace('TrueNAS SCALE', TRUENAS_VENDOR)
+    grub_cfg = grub_cfg.replace('$vendor', TRUENAS_VENDOR or 'TrueNAS SCALE')
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
     with open(os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'), 'w') as f:
