@@ -12,7 +12,8 @@ from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
 from .bootstrap import umount_chroot_basedir
-from .manifest import build_manifest, build_release_manifest, update_file_path, update_file_checksum_path
+from .manifest import build_manifest, build_release_manifest, get_version, update_file_path, update_file_checksum_path
+from .mtree import generate_mtree, mtree_update_file
 from .utils import run_in_chroot
 
 
@@ -28,6 +29,11 @@ def build_rootfs_image():
     os.makedirs(RELEASE_DIR, exist_ok=True)
     os.makedirs(UPDATE_DIR)
 
+    version = get_version()
+
+    mtree_file = generate_mtree(CHROOT_BASEDIR, mtree_update_file(version))
+    shutil.copyfile(mtree_file, os.path.join(CHROOT_BASEDIR, 'conf', 'rootfs.mtree.tgz'))
+
     # We are going to build a nested squashfs image.
 
     # Why nested? So that during update we can easily RO mount the outer image
@@ -37,8 +43,12 @@ def build_rootfs_image():
 
     # Create the inner image
     run(['mksquashfs', CHROOT_BASEDIR, os.path.join(UPDATE_DIR, 'rootfs.squashfs'), '-comp', 'xz'])
+
     # Build any MANIFEST information
-    version = build_manifest()
+    build_manifest()
+
+    # generate mtree of root filesystem
+    generate_mtree(CHROOT_BASEDIR, mtree_update_file(version))
 
     # Sign the image (if enabled)
     if SIGNING_KEY and SIGNING_PASSWORD:

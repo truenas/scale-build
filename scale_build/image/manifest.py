@@ -11,10 +11,16 @@ from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UP
 
 RELEASE_MANIFEST = os.path.join(RELEASE_DIR, 'manifest.json')
 
+MTREE_DIRS = ['boot', 'usr', 'opt', 'var']
+
+
+def get_version():
+    with open(os.path.join(CHROOT_BASEDIR, 'etc/version')) as f:
+        return f.read().strip()
+
 
 def build_manifest():
-    with open(os.path.join(CHROOT_BASEDIR, 'etc/version')) as f:
-        version = f.read().strip()
+    version = get_version()
 
     size = int(int(subprocess.run(
         ['du', '--block-size', '1', '-d', '0', '-x', CHROOT_BASEDIR],
