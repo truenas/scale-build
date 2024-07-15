@@ -377,8 +377,11 @@ def main():
                     for file in files:
                         exclude_list.append(os.path.relpath(os.path.join(walk_root, file), root))
 
-                with tempfile.NamedTemporaryFile() as exclude_list_file:
-                    exclude_list_file.write("\n".join(exclude_list).encode("utf-8"))
+                with tempfile.NamedTemporaryFile(
+                    encoding="utf-8",
+                    errors="surrogateescape"
+                ) as exclude_list_file:
+                    exclude_list_file.write("\n".join(exclude_list))
                     exclude_list_file.flush()
 
                     cmd = [
