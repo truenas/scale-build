@@ -34,8 +34,14 @@ def install_iso_packages_impl():
     for package in get_manifest()['iso-packages']:
         run_in_chroot(['apt', 'install', '-y', package])
 
+    # Inject vendor name into grub.cfg
+    with open(CONF_GRUB, 'r') as f:
+        grub_cfg = f.read()
+    grub_cfg = grub_cfg.replace('$vendor', TRUENAS_VENDOR or 'TrueNAS SCALE')
+
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
-    shutil.copy(CONF_GRUB, os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'))
+    with open(os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'), 'w') as f:
+        f.write(grub_cfg)
 
 
 def make_iso_file():
@@ -113,7 +119,7 @@ def make_iso_file():
 
         # Debian GRUB EFI searches for GRUB config in a different place
         os.makedirs(os.path.join(CD_DIR, 'EFI/debian'), exist_ok=True)
-        shutil.copy(CONF_GRUB, os.path.join(CD_DIR, 'EFI/debian/grub.cfg'))
+        shutil.copy(os.path.join(CHROOT_BASEDIR, 'boot/grub/grub.cfg'), os.path.join(CD_DIR, 'EFI/debian/grub.cfg'))
         os.makedirs(os.path.join(CD_DIR, 'EFI/debian/fonts'), exist_ok=True)
         shutil.copy(os.path.join(CHROOT_BASEDIR, 'usr/share/grub/unicode.pf2'),
                     os.path.join(CD_DIR, 'EFI/debian/fonts/unicode.pf2'))
