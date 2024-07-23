@@ -23,7 +23,7 @@ def generate_mtree(target_root_dir, mtree_file):
         ]
         run(cmd + MTREE_DIRS)
         run(['tar', '-cvzf', mt_tgz, mtree_file_path])
-        os.unlink(mtree_file)
+        os.unlink(mtree_file_path)
     finally:
         os.chdir(cwd)
 
