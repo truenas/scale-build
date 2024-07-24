@@ -147,6 +147,8 @@ base-packages:
   install_recommends: true
 - name: open-iscsi
   install_recommends: true
+- name: lsscsi
+  install_recommends: false
 - name: git
   # middleware actually has a hard dependency on the git binary
   # however, if we specify this in the debian/control file, all
