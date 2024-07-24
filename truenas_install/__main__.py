@@ -373,12 +373,13 @@ def main():
                             pass
 
                 exclude_list = []
-                for walk_root, dirs, files in os.walk(root):
+                root_as_bytes = root.encode()
+                for walk_root, dirs, files in os.walk(root_as_bytes):
                     for file in files:
-                        exclude_list.append(os.path.relpath(os.path.join(walk_root, file), root))
+                        exclude_list.append(os.path.relpath(os.path.join(walk_root, file), root_as_bytes))
 
                 with tempfile.NamedTemporaryFile() as exclude_list_file:
-                    exclude_list_file.write("\n".join(exclude_list).encode("utf-8"))
+                    exclude_list_file.write(b"\n".join(exclude_list))
                     exclude_list_file.flush()
 
                     cmd = [
