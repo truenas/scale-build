@@ -148,7 +148,7 @@ base-packages:
 - name: open-iscsi
   install_recommends: true
 - name: lsscsi
-  # requested by the supprt team (NAS-130189)
+  # requested by the support team (NAS-130189)
   install_recommends: false
 - name: git
   # middleware actually has a hard dependency on the git binary
