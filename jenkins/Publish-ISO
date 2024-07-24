@@ -10,7 +10,7 @@ pipeline {
         echo '*** Grabbing artifact from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
         copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.sha256', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
-        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-electriceel-nightly/ || true'
+        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-fangtooth-nightly/ || true'
         sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 jenkins@staging.sys.ixsystems.net:/zdata/download.sys.truenas.net/truenas-scale-electriceel-nightly/'
         sh 'rm -rf upload/files'
       }
