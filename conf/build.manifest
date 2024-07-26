@@ -31,9 +31,6 @@ apt-repos:
   - url: https://apt.sys.truenas.net/electriceel/nightlies/nvidia/
     distribution: bookworm
     component: main
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/pcm/
-    distribution: bookworm
-    component: main
   - url: https://apt.sys.truenas.net/electriceel/nightlies/docker/
     distribution: bookworm
     component: stable
