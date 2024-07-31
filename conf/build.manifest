@@ -224,9 +224,6 @@ apt_preferences:
 - Package: "*nvidia*"
   Pin: "version 525.89*"
   Pin-Priority: 1000
-- Package: "*openssl*"
-  Pin: "origin \"\""
-  Pin-Priority: 1050
 - Package: "*policykit*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
@@ -237,8 +234,8 @@ apt_preferences:
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
 - Package: "*ssl*"
-  Pin: "release n=bookworm-security"
-  Pin-Priority: 1000
+  Pin: "origin \"\""
+  Pin-Priority: 1050
 - Package: "*tls*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
