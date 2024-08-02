@@ -96,8 +96,6 @@ base-packages:
   install_recommends: true
 - name: nvidia-kernel
   install_recommends: true
-- name: nslcd
-  install_recommends: true
 - name: nvidia-container-toolkit
   install_recommends: true
 - name: nvidia-smi
