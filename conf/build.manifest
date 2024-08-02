@@ -308,6 +308,9 @@ additional-packages:
 - name: systemd-container
   comment: requested by community (NAS-123533)
   install_recommends: false
+- name: intel-gpu-tools
+  comment: requested by community (NAS-130356)
+  install_recommends: false
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
