@@ -193,6 +193,7 @@ def clean_rootfs():
         os.path.join(CHROOT_BASEDIR, 'usr/share/doc'),
         os.path.join(CHROOT_BASEDIR, 'var/cache/apt'),
         os.path.join(CHROOT_BASEDIR, 'var/lib/apt/lists'),
+        os.path.join(CHROOT_BASEDIR, 'var/trash'),
     ):
         shutil.rmtree(path)
         os.makedirs(path, exist_ok=True)
