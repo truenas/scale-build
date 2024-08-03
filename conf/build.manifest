@@ -109,7 +109,7 @@ base-packages:
 - name: linux-cpupower
   install_recommends: true
 - name: nscd
-  install_recommends: true
+  install_recommends: false
 - name: truenas-samba
   install_recommends: true
 - name: truenas-sssd
