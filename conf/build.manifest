@@ -230,6 +230,9 @@ apt_preferences:
 - Package: "*polkit*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
+- Package: "smartmontools"
+  Pin: "release n=bookworm-backports"
+  Pin-Priority: 1000
 - Package: "*ssh*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
@@ -642,13 +645,4 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  generate_version: false
-- name: smartmontools
-  repo: https://github.com/truenas/smartmontools
-  branch: master
-  debian_fork: true
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
-  deoptions: nocheck
   generate_version: false
