@@ -27,6 +27,7 @@ apt-repos:
   - url: https://apt.sys.truenas.net/electriceel/nightlies/docker/
     distribution: bookworm
     component: stable
+    key: keys/docker.gpg
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
