@@ -105,7 +105,7 @@ class GitPackageMixin:
                 for cmd in map(lambda c: self.git_args + c, cmds):
                     cp = run(cmd, check=False)
                     if cp.returncode:
-                        failed = (f'{" ".join(cmd)}', f'{cp.stderr}', f'{cp.returncode}')
+                        failed = (f'{" ".join(cmd)}', f'{cp.stdout}', f'{cp.returncode}')
                         break
 
             if failed:
