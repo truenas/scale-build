@@ -21,11 +21,11 @@ INDIVIDUAL_REPO_SCHEMA = {
         'batch_priority': {'type': 'integer'},
         'predepscmd': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'build_constraints': {
             'type': 'array',
-            'items': [{
+            'items': {
                 'type': 'object',
                 'properties': {
                     'name': {'type': 'string'},
@@ -42,31 +42,32 @@ INDIVIDUAL_REPO_SCHEMA = {
                     },
                 },
                 'required': ['name', 'value', 'type'],
-            }],
+            },
         },
         'buildcmd': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'prebuildcmd': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'depscmd': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'deps_path': {'type': 'string'},
         'supports_ccache': {'type': 'boolean'},
         'generate_version': {'type': 'boolean'},
         'explicit_deps': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'subdir': {'type': 'string'},
         'deoptions': {'type': 'string'},
         'jobs': {'type': 'integer'},
         'debian_fork': {'type': 'boolean'},
+        'env': {'type': 'object', 'patternProperties': {'^.+$': {'type': 'string'}}},
     },
     'additionalProperties': False,
 }
@@ -84,7 +85,7 @@ MANIFEST_SCHEMA = {
                 'components': {'type': 'string'},
                 'additional': {
                     'type': 'array',
-                    'items': [{
+                    'items': {
                         'type': 'object',
                         'properties': {
                             'url': {'type': 'string'},
@@ -92,15 +93,15 @@ MANIFEST_SCHEMA = {
                             'component': {'type': 'string'},
                             'key': {'type': 'string'},
                         },
-                        'required': ['url', 'distribution', 'component', 'key'],
-                    }]
+                        'required': ['url', 'distribution', 'component',],
+                    }
                 }
             },
             'required': ['url', 'distribution', 'components', 'additional'],
         },
         'base-packages': {
             'type': 'array',
-            'items': [{
+            'items': {
                 'type': 'object',
                 'properties': {
                     'install_recommends': {'type': 'boolean'},
@@ -108,16 +109,16 @@ MANIFEST_SCHEMA = {
                 },
                 'required': ['install_recommends', 'name'],
                 'additionalProperties': False,
-            }],
+            },
         },
         'base-prune': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'build-epoch': {'type': 'integer'},
         'apt_preferences': {
             'type': 'array',
-            'items': [{
+            'items': {
                 'type': 'object',
                 'properties': {
                     'Package': {'type': 'string'},
@@ -125,11 +126,11 @@ MANIFEST_SCHEMA = {
                     'Pin-Priority': {'type': 'integer'},
                 },
                 'required': ['Package', 'Pin', 'Pin-Priority'],
-            }]
+            }
         },
         'additional-packages': {
             'type': 'array',
-            'items': [{
+            'items': {
                 'type': 'object',
                 'properties': {
                     'name': {'type': 'string'},
@@ -138,15 +139,15 @@ MANIFEST_SCHEMA = {
                 },
                 'required': ['name', 'comment', 'install_recommends'],
                 'additionalProperties': False,
-            }]
+            }
         },
         'iso-packages': {
             'type': 'array',
-            'items': [{'type': 'string'}],
+            'items': {'type': 'string'},
         },
         'sources': {
             'type': 'array',
-            'items': [{
+            'items': {
                 **{k: v for k, v in INDIVIDUAL_REPO_SCHEMA.items() if k != 'properties'},
                 'properties': {
                     **INDIVIDUAL_REPO_SCHEMA['properties'],
@@ -154,14 +155,14 @@ MANIFEST_SCHEMA = {
                     'repo': {'type': 'string'},
                     'subpackages': {
                         'type': 'array',
-                        'items': [{
+                        'items': {
                             **INDIVIDUAL_REPO_SCHEMA,
                             'required': ['name'],
-                        }],
+                        },
                     },
                 },
                 'required': ['name', 'branch', 'repo'],
-            }]
+            }
         },
     },
     'required': [
