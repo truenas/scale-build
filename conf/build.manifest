@@ -12,10 +12,6 @@ apt-repos:
   distribution: bookworm
   components: main
   additional:
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/libnvidia/
-    distribution: bookworm
-    component: main
-    key: keys/docker.gpg
   - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-security/
     distribution: bookworm-security
     component: main
@@ -28,12 +24,10 @@ apt-repos:
   - url: https://apt.sys.truenas.net/fangtooth/nightlies/yarn/
     distribution: stable
     component: main
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/nvidia/
-    distribution: bookworm
-    component: main
   - url: https://apt.sys.truenas.net/fangtooth/nightlies/docker/
     distribution: bookworm
     component: stable
+    key: keys/docker.gpg
 
 #
 # Packages which are installed into the base TrueNAS SCALE System by default
@@ -94,17 +88,9 @@ base-packages:
   install_recommends: true
 - name: ifstat
   install_recommends: true
-- name: nvidia-kernel
-  install_recommends: true
-- name: nvidia-container-toolkit
-  install_recommends: true
-- name: nvidia-smi
-  install_recommends: true
 - name: openzfs
   install_recommends: true
 - name: open-vm-tools
-  install_recommends: true
-- name: libnvidia-encode1
   install_recommends: true
 - name: linux-cpupower
   install_recommends: true
@@ -223,9 +209,6 @@ apt_preferences:
   Pin-Priority: 1050
 - Package: "*node*"
   Pin: "release n=bookworm-security"
-  Pin-Priority: 1000
-- Package: "*nvidia*"
-  Pin: "version 525.89*"
   Pin-Priority: 1000
 - Package: "*policykit*"
   Pin: "release n=bookworm-security"
@@ -639,13 +622,3 @@ sources:
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
   branch: master
-- name: nvidia
-  repo: https://github.com/truenas/nvidia
-  batch_priority: 0
-  branch: master
-  predepscmd:
-    - "./pull.sh"
-  explicit_deps:
-    - kernel
-    - kernel-dbg
-  generate_version: false
