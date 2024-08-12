@@ -1,11 +1,5 @@
 from setuptools import find_packages, setup
 
-
-install_requires = [
-    'pyyaml',
-]
-
-
 setup(
     name='scale_build',
     description='A build framework for TrueNAS SCALE',
