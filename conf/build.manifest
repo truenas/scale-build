@@ -24,7 +24,7 @@ apt-repos:
   - url: https://apt.sys.truenas.net/electriceel/24.10-BETA.1/yarn/
     distribution: stable
     component: main
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/docker/
+  - url: https://apt.sys.truenas.net/electriceel/24.10-BETA.1/docker/
     distribution: bookworm
     component: stable
     key: keys/docker.gpg
