@@ -203,6 +203,9 @@ apt_preferences:
 - Package: "*curl*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
+- Package: "golang*"
+  Pin: "release n=bookworm-backports"
+  Pin-Priority: 1000
 - Package: "*libc-*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
