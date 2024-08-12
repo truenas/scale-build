@@ -8,30 +8,30 @@ identity_file_path_default: "~/.ssh/id_rsa"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: https://apt.sys.truenas.net/electriceel/nightlies/debian/
+  url: https://apt.sys.truenas.net/fangtooth/nightlies/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/libnvidia/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/libnvidia/
     distribution: bookworm
     component: main
     key: keys/docker.gpg
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-security/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-security/
     distribution: bookworm-security
     component: main
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-backports/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free"
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/debian-debug/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/yarn/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/yarn/
     distribution: stable
     component: main
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/nvidia/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/nvidia/
     distribution: bookworm
     component: main
-  - url: https://apt.sys.truenas.net/electriceel/nightlies/docker/
+  - url: https://apt.sys.truenas.net/fangtooth/nightlies/docker/
     distribution: bookworm
     component: stable
 
