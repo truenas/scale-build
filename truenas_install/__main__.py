@@ -207,7 +207,7 @@ def precheck(old_root):
                             cgroups = ""
 
                         # https://forums.truenas.com/t/disable-webdav-service-from-cli-or-by-modifying-config-db/2795/4
-                        if "kubepods" in cgroups or "/payload/" in cgroups:
+                        if "docker" in cgroups or "/payload/" in cgroups:
                             continue
 
                         running_services.append(title)
