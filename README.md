@@ -29,7 +29,7 @@ In addition to the host, you will want to pre-install the following packages:
 * unzip
 * libarchive-tools
 
-``` % sudo apt install build-essential debootstrap git python3-pip python3-venv squashfs-tools unzip libjson-perl rsync```
+``` % sudo apt install build-essential debootstrap git python3-pip python3-venv squashfs-tools unzip libjson-perl rsync libarchive-tools```
 
 ## Usage
 
