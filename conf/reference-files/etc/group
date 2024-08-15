@@ -88,3 +88,5 @@ _chrony:x:138:
 polkitd:x:998:
 netdata:x:997:
 sssd:x:122:
+incus:x:996:
+incus-admin:x:995:
