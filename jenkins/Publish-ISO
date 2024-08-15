@@ -7,7 +7,7 @@ pipeline {
   stages {
     stage('Upload') {
       steps {
-        echo '*** Grabbing artifact from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
+        echo '*** Grabbing artifact from Build - TrueNAS SCALE ElectricEel Nightly ***'
         copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE ElectricEel - Nightly', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.sha256', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE ElectricEel - Nightly', selector: lastSuccessful(), target: 'upload/files'
         sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-electriceel-nightly/ || true'
