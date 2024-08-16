@@ -586,6 +586,9 @@ sources:
 - name: truenas_api_client
   repo: https://github.com/truenas/api_client
   branch: stable/electriceel
+- name: truenas_verify
+  repo: https://github.com/truenas/truenas_verify
+  branch: stable/electriceel
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: stable/electriceel
