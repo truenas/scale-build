@@ -588,7 +588,7 @@ sources:
   branch: master
 - name: truenas_verify
   repo: https://github.com/truenas/truenas_verify
-  branch: master
+  branch: NAS-130590
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: master
