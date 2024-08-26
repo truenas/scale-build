@@ -16,7 +16,6 @@ from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_G
 from scale_build.config import TRUENAS_VENDOR
 from scale_build.config import PRESERVE_ISO
 
-
 from .bootstrap import umount_chroot_basedir
 from .manifest import get_image_version, update_file_path
 from .utils import run_in_chroot
