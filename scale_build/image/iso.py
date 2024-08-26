@@ -47,7 +47,7 @@ def install_iso_packages_impl():
 
 
 def make_iso_file():
-    if PRESERVE_ISO:
+    if not PRESERVE_ISO:
         for f in glob.glob(os.path.join(RELEASE_DIR, '*.iso*')):
             os.unlink(f)
 
