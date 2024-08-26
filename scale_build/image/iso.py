@@ -14,6 +14,8 @@ from scale_build.utils.manifest import get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
 from scale_build.config import TRUENAS_VENDOR
+from scale_build.config import PRESERVE_ISO
+
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import get_image_version, update_file_path
@@ -45,8 +47,9 @@ def install_iso_packages_impl():
 
 
 def make_iso_file():
-    for f in glob.glob(os.path.join(RELEASE_DIR, '*.iso*')):
-        os.unlink(f)
+    if PRESERVE_ISO:
+        for f in glob.glob(os.path.join(RELEASE_DIR, '*.iso*')):
+            os.unlink(f)
 
     # Set default PW to root
     run(fr'chroot {CHROOT_BASEDIR} /bin/bash -c "echo -e \"root\nroot\" | passwd root"', shell=True)
