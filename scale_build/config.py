@@ -48,6 +48,7 @@ TRUENAS_BRANCH_OVERRIDE = get_env_variable('TRUENAS_BRANCH_OVERRIDE', str)
 TRY_BRANCH_OVERRIDE = get_env_variable('TRY_BRANCH_OVERRIDE', str)
 VERSION = get_env_variable('TRUENAS_VERSION', str, f'{_VERS}-{BUILD_TIME_OBJ.strftime("%Y%m%d-%H%M%S")}')
 TRUENAS_VENDOR = get_env_variable('TRUENAS_VENDOR', str)
+PRESERVE_ISO = get_env_variable('PRESERVE_ISO', bool, False)
 
 
 # We will get branch overrides and identity file path overrides from here
