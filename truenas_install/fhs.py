@@ -93,7 +93,8 @@ TRUENAS_DATASETS = [
     {
         'name':  'audit',
         'options': ['NOSUID', 'NOEXEC', 'NOATIME', 'NOACL'],
-        'mode': 0o700
+        'mode': 0o700,
+        'clone': True,
     },
     {
         'name':  'conf',
