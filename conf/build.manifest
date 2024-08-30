@@ -586,6 +586,9 @@ sources:
 - name: truenas_api_client
   repo: https://github.com/truenas/api_client
   branch: master
+- name: truenas_verify
+  repo: https://github.com/truenas/truenas_verify
+  branch: master
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: master
