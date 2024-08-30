@@ -357,6 +357,7 @@ def main():
                     "data/factory-v1.db",
                     "data/manifest.json",
                     "data/sentinels",
+                    "data/uploaded.db",
                 ]
 
                 if "data" in cloned_datasets:
