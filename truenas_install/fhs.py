@@ -114,7 +114,7 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'etc',
-        'options': ['NOSUID', 'NOACL', 'NOEXEC'],
+        'options': ['NOSUID', 'NOACL'],
         'snap': True
     },
     {
