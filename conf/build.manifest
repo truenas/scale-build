@@ -86,6 +86,8 @@ base-packages:
   install_recommends: true
 - name: htop
   install_recommends: true
+- name: incus
+  install_recommends: false
 - name: ifstat
   install_recommends: true
 - name: openzfs
