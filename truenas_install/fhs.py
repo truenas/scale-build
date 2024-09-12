@@ -150,7 +150,11 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'var/log',
-        'options': ['NOSUID', 'NOEXEC', 'POSIXACL', 'NOATIME'],
+        'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
         'clone': True,
+    },
+    {
+        'name':  'var/log/journal',
+        'options': ['NOSUID', 'NOEXEC', 'POSIXACL', 'NOATIME'],
     },
 ]
