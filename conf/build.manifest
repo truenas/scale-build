@@ -1,5 +1,5 @@
 ---
-code_name: "FangTooth"
+code_name: "Fangtooth"
 debian_release: "bookworm"
 identity_file_path_default: "~/.ssh/id_rsa"
 #
