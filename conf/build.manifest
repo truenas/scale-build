@@ -17,7 +17,7 @@ apt-repos:
     component: main
   - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-backports/
     distribution: bookworm-backports
-    component: "main contrib non-free"
+    component: "main contrib non-free non-free-firmware"
   - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
