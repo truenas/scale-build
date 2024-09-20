@@ -17,7 +17,7 @@ apt-repos:
     component: main
   - url: https://apt.sys.truenas.net/electriceel/24.10-RC.1/debian-backports/
     distribution: bookworm-backports
-    component: "main contrib non-free"
+    component: "main contrib non-free non-free-firmware"
   - url: https://apt.sys.truenas.net/electriceel/24.10-RC.1/debian-debug/
     distribution: bookworm-debug
     component: main
