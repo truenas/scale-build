@@ -88,6 +88,9 @@ base-packages:
   install_recommends: true
 - name: incus
   install_recommends: false
+- name: incus-agent
+  # agent is required to get proper events in websockets and run commands on VMs
+  install_recommends: false
 - name: ifstat
   install_recommends: true
 - name: openzfs
