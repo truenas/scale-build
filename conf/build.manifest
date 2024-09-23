@@ -573,6 +573,8 @@ sources:
 - name: swagger
   repo: https://github.com/truenas/swagger
   branch: main
+  explicit_deps:
+    - openssl
 - name: truenas
   repo: https://github.com/truenas/middleware
   branch: master
