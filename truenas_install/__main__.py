@@ -202,12 +202,12 @@ def precheck(old_root):
 
                         try:
                             with open(f"/proc/{pid}/cgroup") as f:
-                                cgroups = f.read()
+                                cgroups = f.read().strip()
                         except FileNotFoundError:
                             cgroups = ""
 
                         # https://forums.truenas.com/t/disable-webdav-service-from-cli-or-by-modifying-config-db/2795/4
-                        if "docker" in cgroups or "/payload/" in cgroups:
+                        if cgroups and "kubepods" in cgroups or "docker" in cgroups or "/payload/" in cgroups:
                             continue
 
                         running_services.append(title)
