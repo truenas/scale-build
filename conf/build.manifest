@@ -333,14 +333,14 @@ iso-packages:
 sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   batch_priority: 0
   supports_ccache: true
   env:
@@ -386,11 +386,11 @@ sources:
         - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-$(KVERS)"
@@ -443,14 +443,14 @@ sources:
       generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: truenas_sssd
   repo: https://github.com/truenas/sssd
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils systemd-dev truenas-samba"
@@ -459,7 +459,7 @@ sources:
     - truenas_samba
 - name: truenas_ipaclient
   repo: https://github.com/truenas/freeipa
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   generate_version: false
   predepscmd:
     - "apt install -y pkg-config truenas-samba truenas-sssd"
@@ -470,19 +470,19 @@ sources:
     - truenas_sssd
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   explicit_deps:
     - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -499,7 +499,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   subpackages:
     - name: scst-dbg
       generate_version: false
@@ -522,7 +522,7 @@ sources:
         - kernel-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   predepscmd:
@@ -532,22 +532,22 @@ sources:
     - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -555,31 +555,31 @@ sources:
     - openzfs
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: ixhardware
   repo: https://github.com/truenas/ixhardware
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: apps_validation
   repo: https://github.com/truenas/apps_validation
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: py_cryptit
   repo: https://github.com/truenas/py-cryptit
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: swagger
   repo: https://github.com/truenas/swagger
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   subdir: debian
   subpackages:
     - name: middlewared
@@ -591,16 +591,16 @@ sources:
       subdir: src/freenas
 - name: truenas_api_client
   repo: https://github.com/truenas/api_client
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: truenas_verify
   repo: https://github.com/truenas/truenas_verify
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -611,7 +611,7 @@ sources:
   batch_priority: 150
 - name: parted
   repo: https://github.com/truenas/parted
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -620,14 +620,14 @@ sources:
   generate_version: false
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   deoptions: nocheck
   generate_version: false
 - name: restic
   repo: https://github.com/truenas/restic
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
   deoptions: nocheck
   generate_version: false
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
-  branch: release/24.10-RC.1
+  branch: release/24.10-RC.2
