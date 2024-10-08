@@ -340,7 +340,7 @@ sources:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
 - name: openseachest
-  branch: release/24.04.2.3
+  branch: NAS-131649 
   repo: https://github.com/truenas/openseachest
   predepscmd:
     - "apt install -y wget xz-utils"
