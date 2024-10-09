@@ -82,10 +82,10 @@ BUILD_DEPENDS_MAPPING = {
     },
     'openzfs-dbg': {'dkms', 'libtool', 'debhelper-compat', 'kernel', 'kernel-dbg'},
     'truenas_samba': {
-        'libreadline-dev', 'python3-testtools', 'libzfs5', 'liburing-dev', 'dh-python', 'debhelper-compat',
+        'libreadline-dev', 'python3-testtools', 'libzfs6', 'liburing-dev', 'dh-python', 'debhelper-compat',
         'libglusterfs-dev [linux-any]', 'libicu-dev', 'docbook-xml', 'libpcap-dev [hurd-i386 kfreebsd-any]',
         'po-debconf', 'python3-dev', 'libbsd-dev', 'pkg-config', 'libnvpair3', 'flex', 'libtasn1-bin',
-        'libzfs5-devel', 'python3', 'xfslibs-dev [linux-any]', 'libjansson-dev', 'docbook-xsl',
+        'libzfs6-devel', 'python3', 'xfslibs-dev [linux-any]', 'libjansson-dev', 'docbook-xsl',
         'libsystemd-dev [linux-any]', 'python3-etcd', 'libgpgme11-dev', 'libbison-dev', 'libblkid-dev',
         'libgnutls28-dev', 'libdbus-1-dev', 'perl', 'python3-dnspython', 'libcmocka-dev', 'libpam0g-dev',
         'libuutil3', 'libcap-dev [linux-any]', 'libldap2-dev', 'libncurses5-dev', 'bison', 'libparse-yapp-perl',
@@ -93,13 +93,13 @@ BUILD_DEPENDS_MAPPING = {
         'dh-exec', 'xsltproc'
     },
     'py_libzfs': {
-        'libuutil3', 'libzfs5-devel', 'python3-all-dev', 'libzfs5', 'cython3', 'libnvpair3', 'dh-python',
+        'libuutil3', 'libzfs6-devel', 'python3-all-dev', 'libzfs6', 'cython3', 'libnvpair3', 'dh-python',
         'debhelper-compat', 'python3-setuptools'
     },
     'scst': {'dpkg-dev', 'quilt', 'kernel-dbg', 'kernel', 'debhelper'},
     'scst-dbg': {'dpkg-dev', 'quilt', 'kernel-dbg', 'kernel', 'debhelper'},
     'zectl': {
-        'libuutil3', 'libzpool5', 'cmake', 'libzfs5-devel', 'pkgconf', 'libzfs5', 'libbsd-dev', 'libnvpair3',
+        'libuutil3', 'libzpool6', 'cmake', 'libzfs6-devel', 'pkgconf', 'libzfs6', 'libbsd-dev', 'libnvpair3',
         'debhelper-compat'
     },
 }
