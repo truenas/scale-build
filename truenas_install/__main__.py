@@ -36,7 +36,7 @@ def write_progress(progress, message):
     sys.stdout.flush()
 
 
-def write_error(error, raise_=False, prefix="Error: "):
+def write_error(error: str, raise_=False, prefix="Error: "):
     sys.stdout.write(json.dumps({"error": error}) + "\n")
     sys.stdout.flush()
 
@@ -411,7 +411,7 @@ def main():
 
                     p.wait()
                     if p.returncode != 0:
-                        write_error({"error": f"unsquashfs failed with exit code {p.returncode}: {stdout}"})
+                        write_error(f"unsquashfs failed with exit code {p.returncode}: {stdout}")
                         raise subprocess.CalledProcessError(p.returncode, cmd, stdout)
 
                 write_progress(0.5, "Performing post-install tasks")
