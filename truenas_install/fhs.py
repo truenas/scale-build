@@ -74,6 +74,7 @@ TRUENAS_DATASET_SCHEMA = {
                         'NOATIME',
                         'RO',
                         'NODEV',
+                        'DEV',
                         'POSIXACL',
                     ]
                 },
