@@ -315,6 +315,8 @@ def main():
                 options.extend(["-o", "exec=off"])
             if "NODEV" in entry["options"]:
                 options.extend(["-o", "devices=off"])
+            if "DEV" in entry["options"]:
+                options.extend(["-o", "devices=on"])
             if "NOACL" in entry['options']:
                 options.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
             if "POSIXACL" in entry["options"]:

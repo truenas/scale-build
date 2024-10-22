@@ -33,6 +33,7 @@ NOACL - sets acltype=off.
 NOATIME - sets atime=off.
 RO - sets readonly=on.
 NODEV - sets devices=off
+DEV - sets devices=on
 
 DATASETS
 --------------
@@ -147,6 +148,16 @@ TRUENAS_DATASETS = [
         'name':  'var/ca-certificates',
         'options': ['NOSUID', 'NOACL', 'NOEXEC'],
         'mountpoint': '/var/local/ca-certificates'
+    },
+    {
+        'name':  'var/lib',
+        'options': ['NOSUID', 'NOACL', 'NOATIME'],
+        'snap': True
+    },
+    {
+        'name':  'var/lib/incus',
+        'options': ['NOSUID', 'NOACL', 'NOATIME', 'DEV'],
+        'snap': True
     },
     {
         'name':  'var/log',
