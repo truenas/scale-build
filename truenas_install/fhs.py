@@ -28,6 +28,7 @@ The following keys are supported:
 OPTIONS
 --------------
 NOSUID - sets a combination of setuid=off and devices=off
+NOSETUID - sets setuid=off
 NOEXEC - sets exec=off
 NOACL - sets acltype=off.
 NOATIME - sets atime=off.
@@ -69,6 +70,7 @@ TRUENAS_DATASET_SCHEMA = {
                     'type': 'string',
                     'enum': [
                         'NOSUID',
+                        'NOSETUID',
                         'NOEXEC',
                         'NOACL',
                         'NOATIME',
@@ -157,7 +159,7 @@ TRUENAS_DATASETS = [
     },
     {
         'name':  'var/lib/incus',
-        'options': ['NOSUID', 'NOACL', 'NOATIME', 'DEV'],
+        'options': ['NOSETUID', 'NOACL', 'NOATIME', 'DEV'],
         'mode': 0o744,
     },
     {

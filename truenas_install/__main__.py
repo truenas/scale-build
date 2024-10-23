@@ -311,6 +311,8 @@ def main():
             options = ["-o", "mountpoint=legacy", "-o", "canmount=noauto"]
             if "NOSUID" in entry["options"]:
                 options.extend(["-o", "setuid=off", "-o", "devices=off"])
+            if "NOSETUID" in entry["options"]:
+                options.extend(["-o", "setuid=off"])
             if "NOEXEC" in entry["options"]:
                 options.extend(["-o", "exec=off"])
             if "NODEV" in entry["options"]:
