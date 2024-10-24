@@ -28,11 +28,13 @@ The following keys are supported:
 OPTIONS
 --------------
 NOSUID - sets a combination of setuid=off and devices=off
+NOSETUID - sets setuid=off
 NOEXEC - sets exec=off
 NOACL - sets acltype=off.
 NOATIME - sets atime=off.
 RO - sets readonly=on.
 NODEV - sets devices=off
+DEV - sets devices=on
 
 DATASETS
 --------------
@@ -68,11 +70,13 @@ TRUENAS_DATASET_SCHEMA = {
                     'type': 'string',
                     'enum': [
                         'NOSUID',
+                        'NOSETUID',
                         'NOEXEC',
                         'NOACL',
                         'NOATIME',
                         'RO',
                         'NODEV',
+                        'DEV',
                         'POSIXACL',
                     ]
                 },
@@ -147,6 +151,16 @@ TRUENAS_DATASETS = [
         'name':  'var/ca-certificates',
         'options': ['NOSUID', 'NOACL', 'NOEXEC'],
         'mountpoint': '/var/local/ca-certificates'
+    },
+    {
+        'name':  'var/lib',
+        'options': ['NOSUID', 'NOACL', 'NOATIME'],
+        'snap': True
+    },
+    {
+        'name':  'var/lib/incus',
+        'options': ['NOSETUID', 'NOACL', 'NOATIME', 'DEV'],
+        'mode': 0o744,
     },
     {
         'name':  'var/log',

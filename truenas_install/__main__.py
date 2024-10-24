@@ -311,10 +311,14 @@ def main():
             options = ["-o", "mountpoint=legacy", "-o", "canmount=noauto"]
             if "NOSUID" in entry["options"]:
                 options.extend(["-o", "setuid=off", "-o", "devices=off"])
+            if "NOSETUID" in entry["options"]:
+                options.extend(["-o", "setuid=off"])
             if "NOEXEC" in entry["options"]:
                 options.extend(["-o", "exec=off"])
             if "NODEV" in entry["options"]:
                 options.extend(["-o", "devices=off"])
+            if "DEV" in entry["options"]:
+                options.extend(["-o", "devices=on"])
             if "NOACL" in entry['options']:
                 options.extend(["-o", "acltype=off", "-o", "aclmode=discard"])
             if "POSIXACL" in entry["options"]:
