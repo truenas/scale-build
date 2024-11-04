@@ -573,11 +573,6 @@ sources:
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
   branch: master
-- name: swagger
-  repo: https://github.com/truenas/swagger
-  branch: main
-  explicit_deps:
-    - openssl
 - name: truenas
   repo: https://github.com/truenas/middleware
   branch: master
@@ -588,6 +583,8 @@ sources:
         - truenas_samba
         - truenas_sssd
       subdir: src/middlewared
+    - name: middlewared-docs
+      subdir: src/middlewared_docs
     - name: truenas_files
       subdir: src/freenas
 - name: truenas_api_client
