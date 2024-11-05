@@ -219,9 +219,6 @@ apt_preferences:
 - Package: "*polkit*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
-- Package: "smartmontools"
-  Pin: "release n=bookworm-backports"
-  Pin-Priority: 1000
 - Package: "*ssh*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
@@ -631,3 +628,12 @@ sources:
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
   branch: stable/electriceel
+- name: smartmontools
+  repo: https://github.com/truenas/smartmontools
+  branch: master
+  debian_fork: true
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
