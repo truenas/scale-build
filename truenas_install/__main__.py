@@ -500,6 +500,12 @@ def main():
                 for entry in TRUENAS_DATA_HIERARCHY:
                     entry_path = os.path.join(root, entry["path"])
                     os.makedirs(entry_path, exist_ok=True)
+                    if owner_config := entry.get("owner"):
+                        run_command([
+                            "chown", *(["-R"] if entry["recursive_ownership"] else []),
+                            f"{owner_config['uid']}:{owner_config['gid']}", entry_path
+                        ])
+
                     if mode := entry.get("mode"):
                         mode = f"u={mode['user']},g={mode['group']},o={mode['other']}"
                         run_command(["chmod", *(["-R"] if entry["recursive"] else []), mode, entry_path])

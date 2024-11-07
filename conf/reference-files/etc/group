@@ -75,7 +75,7 @@ webdav:x:666:
 truenas_readonly_administrators:x:951:
 truenas_sharing_administrators:x:952:
 docker:x:999:
-libvirt-qemu:x:64055:libvirt-qemu
+libvirt-qemu:x:986:libvirt-qemu
 haproxy:x:130:
 uuidd:x:131:
 i2c:x:132:

@@ -15,13 +15,25 @@ TRUENAS_DATA_HIERARCHY_SCHEMA = {
                 'required': ['user', 'group', 'other'],
                 'additionalProperties': False,
             },
+            'owner': {
+                'type': 'object',
+                'properties': {
+                    'uid': {'type': 'integer'},
+                    'gid': {'type': 'integer'},
+                },
+                'required': ['uid', 'gid'],
+                'additionalProperties': False,
+            },
             'recursive': {'type': 'boolean'},
+            'recursive_ownership': {'type': 'boolean'},
         },
         'required': ['path'],
         'additionalProperties': False,
         'dependencies': {
             'recursive': ['mode'],
-            'mode': ['recursive']
+            'mode': ['recursive'],
+            'owner': ['recursive_ownership'],
+            'recursive_ownership': ['owner'],
         },
     }
 }
@@ -51,6 +63,11 @@ TRUENAS_DATA_HIERARCHY = [
     },
     {
         'path': 'data/subsystems/vm/nvram',
+        'owner': {
+            'uid': 986,
+            'gid': 986,
+        },
+        'recursive_ownership': True,
     },
     {
         'path': 'data/zfs',
