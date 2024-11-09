@@ -6,7 +6,7 @@ import re
 import requests
 import urllib.parse
 
-from scale_build.utils.manifest import get_manifest
+from scale_build.utils.manifest import APT_BASE_URL get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CACHE_DIR, HASH_DIR
 
@@ -28,10 +28,10 @@ def get_repo_hash(repo_url, distribution):
 def get_all_repo_hash():
     apt_repos = get_manifest()['apt-repos']
     # Start by validating the main APT repo
-    all_repo_hash = get_repo_hash(apt_repos['url'], apt_repos['distribution'])
+    all_repo_hash = get_repo_hash(APT_BASE_URL + apt_repos['url'], apt_repos['distribution'])
 
     for repo_config in apt_repos['additional']:
-        all_repo_hash += get_repo_hash(repo_config['url'], repo_config['distribution'])
+        all_repo_hash += get_repo_hash(APT_BASE_URL + repo_config['url'], repo_config['distribution'])
 
     all_repo_hash += hashlib.sha256(get_apt_preferences().encode()).hexdigest()
 

@@ -5,7 +5,7 @@ import yaml
 
 from urllib.parse import urlparse
 
-from scale_build.config import SKIP_SOURCE_REPO_VALIDATION, TRAIN
+from scale_build.config import APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
 from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
 
@@ -77,6 +77,8 @@ MANIFEST_SCHEMA = {
         'code_name': {'type': 'string'},
         'debian_release': {'type': 'string'},
         'identity_file_path_default': {'type': 'string'},
+        'base-url': {'type': 'string'},
+        'base-url-internal': {'type': 'string'},
         'apt-repos': {
             'type': 'object',
             'properties': {
@@ -252,3 +254,12 @@ def validate_manifest():
             'accepts packages from github.com/truenas organization (To skip this for dev '
             'purposes, please set "SKIP_SOURCE_REPO_VALIDATION" in your environment).'
         )
+
+
+# Check and set the base APT url
+apt_repos = get_manifest()['apt-repos']
+APT_BASE_URL = ""
+if APT_INTERNAL_BUILD:
+    APT_BASE_URL = "{apt_repos['base-url-internal']}"
+else:
+    APT_BASE_URL = "{apt_repos['base-url']}"
