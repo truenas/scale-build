@@ -3,7 +3,7 @@ import os
 import shutil
 
 from scale_build.clean import clean_packages
-from scale_build.utils.manifest import APT_BASE_URL, get_manifest
+from scale_build.utils.manifest import apt_get_base_url, get_manifest
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, REFERENCE_FILES, REFERENCE_FILES_DIR
 from scale_build.utils.run import run
 
@@ -46,6 +46,7 @@ class BootstrapDir(CacheMixin, HashMixin):
 
         self.add_trusted_apt_key()
         apt_repos = get_manifest()['apt-repos']
+        apt_base_url = apt_get_base_url()
         self.debootstrap_debian()
         self.setup_mounts()
 
@@ -61,7 +62,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         run(['chroot', self.chroot_basedir, 'apt', 'install', '-y', 'gnupg'])
 
         # Save the correct repo in sources.list
-        apt_sources = [f'deb {APT_BASE_URL}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+        apt_sources = [f'deb {apt_base_url}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
 
         # Add additional repos
         for repo in apt_repos['additional']:
@@ -71,7 +72,7 @@ class BootstrapDir(CacheMixin, HashMixin):
                 run(['chroot', self.chroot_basedir, 'apt-key', 'add', '/apt.key'])
                 os.unlink(os.path.join(self.chroot_basedir, 'apt.key'))
 
-            apt_sources.append(f'deb {APT_BASE_URL}{repo["url"]} {repo["distribution"]} {repo["component"]}')
+            apt_sources.append(f'deb {apt_base_url}{repo["url"]} {repo["distribution"]} {repo["component"]}')
 
         with open(apt_sources_path, 'w') as f:
             f.write('\n'.join(apt_sources))

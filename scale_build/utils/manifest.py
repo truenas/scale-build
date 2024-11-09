@@ -256,10 +256,11 @@ def validate_manifest():
         )
 
 
-# Check and set the base APT url
-apt_repos = get_manifest()['apt-repos']
-APT_BASE_URL = ""
-if APT_INTERNAL_BUILD:
-    APT_BASE_URL = f'{apt_repos["base-url-internal"]}'
-else:
-    APT_BASE_URL = f'{apt_repos["base-url"]}'
+def get_apt_base_url():
+    apt_repos = get_manifest()['apt-repos']
+    APT_BASE_URL = ""
+    if APT_INTERNAL_BUILD:
+        APT_BASE_URL = f'{apt_repos["base-url-internal"]}'
+    else:
+        APT_BASE_URL = f'{apt_repos["base-url"]}'
+    return APT_BASE_URL

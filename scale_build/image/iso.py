@@ -10,7 +10,7 @@ import json
 import requests
 
 from scale_build.exceptions import CallError
-from scale_build.utils.manifest import APT_BASE_URL, get_manifest
+from scale_build.utils.manifest import apt_get_base_url, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
 from scale_build.config import TRUENAS_VENDOR
@@ -134,8 +134,9 @@ def make_iso_file():
         with tempfile.NamedTemporaryFile(dir=RELEASE_DIR) as efi_img:
             with tempfile.NamedTemporaryFile(suffix='.tar.gz') as f:
                 apt_repos = get_manifest()['apt-repos']
+                apt_base_url = apt_get_base_url()
                 r = requests.get(
-                    f'{APT_BASE_URL}{apt_repos["url"]}dists/{apt_repos["distribution"]}'
+                    f'{apt_base_url}{apt_repos["url"]}dists/{apt_repos["distribution"]}'
                     '/main/installer-amd64/current/images/cdrom/'
                     'debian-cd_info.tar.gz',
                     timeout=10,
