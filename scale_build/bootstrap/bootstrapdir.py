@@ -30,11 +30,12 @@ class BootstrapDir(CacheMixin, HashMixin):
 
     def debootstrap_debian(self):
         manifest = get_manifest()
+        apt_base_url = get_apt_base_url()
         run(
             ['debootstrap'] + self.deopts + [
                 '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
                 manifest['debian_release'],
-                self.chroot_basedir, manifest['apt-repos']['url']
+                self.chroot_basedir, apt_base_url + manifest['apt-repos']['url']
             ]
         )
 
