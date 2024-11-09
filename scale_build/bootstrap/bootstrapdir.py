@@ -3,7 +3,7 @@ import os
 import shutil
 
 from scale_build.clean import clean_packages
-from scale_build.utils.manifest import apt_get_base_url, get_manifest
+from scale_build.utils.manifest import get_apt_base_url, get_manifest
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, REFERENCE_FILES, REFERENCE_FILES_DIR
 from scale_build.utils.run import run
 
@@ -46,7 +46,7 @@ class BootstrapDir(CacheMixin, HashMixin):
 
         self.add_trusted_apt_key()
         apt_repos = get_manifest()['apt-repos']
-        apt_base_url = apt_get_base_url()
+        apt_base_url = get_apt_base_url()
         self.debootstrap_debian()
         self.setup_mounts()
 
