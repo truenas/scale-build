@@ -47,6 +47,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.add_trusted_apt_key()
         apt_repos = get_manifest()['apt-repos']
         apt_base_url = get_apt_base_url()
+        logger.info('Using apt base url (%s)', apt_base_url)
         self.debootstrap_debian()
         self.setup_mounts()
 
