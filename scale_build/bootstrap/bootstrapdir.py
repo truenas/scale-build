@@ -47,7 +47,6 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.add_trusted_apt_key()
         apt_repos = get_manifest()['apt-repos']
         apt_base_url = get_apt_base_url()
-        logger.info('Using apt base url (%s)', apt_base_url)
         self.debootstrap_debian()
         self.setup_mounts()
 
@@ -149,11 +148,12 @@ class RootfsBootstrapDir(BootstrapDir):
 
     def debootstrap_debian(self):
         manifest = get_manifest()
+        apt_base_url = get_apt_base_url()
         run(
             ['debootstrap'] + self.deopts + [
                 '--foreign', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
                 manifest['debian_release'],
-                self.chroot_basedir, manifest['apt-repos']['url']
+                self.chroot_basedir, apt_base_url + manifest['apt-repos']['url']
             ]
         )
         for reference_file in REFERENCE_FILES:
