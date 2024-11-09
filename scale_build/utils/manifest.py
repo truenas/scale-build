@@ -260,6 +260,6 @@ def validate_manifest():
 apt_repos = get_manifest()['apt-repos']
 APT_BASE_URL = ""
 if APT_INTERNAL_BUILD:
-    APT_BASE_URL = f"{apt_repos['base-url-internal']}"
+    APT_BASE_URL = f'{apt_repos["base-url-internal"]}'
 else:
-    APT_BASE_URL = f"{apt_repos['base-url']}"
+    APT_BASE_URL = f'{apt_repos["base-url"]}'
