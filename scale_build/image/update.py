@@ -7,7 +7,7 @@ import shutil
 import stat
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
-from scale_build.utils.manifest import APT_BASE_URL get_manifest
+from scale_build.utils.manifest import APT_BASE_URL, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 

@@ -3,7 +3,7 @@ import os
 import shutil
 
 from scale_build.clean import clean_packages
-from scale_build.utils.manifest import APT_BASE_URL get_manifest
+from scale_build.utils.manifest import APT_BASE_URL, get_manifest
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, REFERENCE_FILES, REFERENCE_FILES_DIR
 from scale_build.utils.run import run
 

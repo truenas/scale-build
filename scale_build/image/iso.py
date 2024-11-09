@@ -10,7 +10,7 @@ import json
 import requests
 
 from scale_build.exceptions import CallError
-from scale_build.utils.manifest import APT_BASE_URL get_manifest
+from scale_build.utils.manifest import APT_BASE_URL, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
 from scale_build.config import TRUENAS_VENDOR

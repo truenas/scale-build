@@ -6,7 +6,7 @@ import re
 import requests
 import urllib.parse
 
-from scale_build.utils.manifest import APT_BASE_URL get_manifest
+from scale_build.utils.manifest import APT_BASE_URL, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CACHE_DIR, HASH_DIR
 
