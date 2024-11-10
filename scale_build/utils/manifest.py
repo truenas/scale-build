@@ -5,7 +5,7 @@ import yaml
 
 from urllib.parse import urlparse
 
-from scale_build.config import APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
+from scale_build.config import APT_BASE_CUSTOM, APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
 from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
 
@@ -258,9 +258,15 @@ def validate_manifest():
 
 def get_apt_base_url():
     apt_repos = get_manifest()['apt-repos']
-    APT_BASE_URL = ""
+    apt_base_url = ""
+
+    # If the user provided their own location
+    if APT_BASE_CUSTOM:
+        return APT_BASE_CUSTOM
+
+    # Return either the CDN or the internal build url
     if APT_INTERNAL_BUILD:
-        APT_BASE_URL = f'{apt_repos["base-url-internal"]}'
+        apt_base_url = f'{apt_repos["base-url-internal"]}'
     else:
-        APT_BASE_URL = f'{apt_repos["base-url"]}'
-    return APT_BASE_URL
+        apt_base_url = f'{apt_repos["base-url"]}'
+    return apt_base_url
