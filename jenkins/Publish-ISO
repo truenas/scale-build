@@ -7,11 +7,16 @@ pipeline {
   stages {
     stage('Upload') {
       steps {
-        echo '*** Grabbing artifact from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
+        echo '*** Grabbing artifacts from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
         copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.sha256', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-fangtooth-nightly/ || true'
         sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 jenkins@staging.sys.ixsystems.net:/zdata/download.sys.truenas.net/truenas-scale-fangtooth-nightly/'
+        sh 'rm -rf upload/files'
+        copyArtifacts filter: '**/*.update', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
+        copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
+        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Fangtooth-Nightlies || true'
+        sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Fangtooth-Nightlies/'
         sh 'rm -rf upload/files'
       }
     }
