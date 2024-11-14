@@ -134,9 +134,8 @@ def make_iso_file():
         with tempfile.NamedTemporaryFile(dir=RELEASE_DIR) as efi_img:
             with tempfile.NamedTemporaryFile(suffix='.tar.gz') as f:
                 apt_repos = get_manifest()['apt-repos']
-                apt_base_url = get_apt_base_url()
                 r = requests.get(
-                    f'{apt_base_url}{apt_repos["url"]}dists/{apt_repos["distribution"]}'
+                    f'{get_apt_base_url()}{apt_repos["url"]}dists/{apt_repos["distribution"]}'
                     '/main/installer-amd64/current/images/cdrom/'
                     'debian-cd_info.tar.gz',
                     timeout=10,
