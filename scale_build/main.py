@@ -10,6 +10,7 @@ from .config import BRANCH_OVERRIDES
 from .upstream_package_updates import check_upstream_package_updates
 from .epoch import check_epoch
 from .exceptions import CallError
+from .extensions import build_extensions
 from .iso import build_iso
 from .package import build_packages
 from .preflight import preflight_check
@@ -62,6 +63,7 @@ def main():
     )
     subparsers.add_parser('update', help='Create TrueNAS Scale update image')
     subparsers.add_parser('iso', help='Create TrueNAS Scale iso installation file')
+    subparsers.add_parser('extensions', help='Create TrueNAS extensions files')
     branchout_parser = subparsers.add_parser('branchout', help='Checkout new branch for all packages')
     branchout_parser.add_argument(
         '--skip-push', '-sp', action='store_true', default=False,
@@ -90,6 +92,9 @@ def main():
     elif args.action == 'iso':
         validate()
         build_iso()
+    elif args.action == 'extensions':
+        validate()
+        build_extensions()
     elif args.action == 'clean':
         complete_cleanup()
     elif args.action == 'validate':
