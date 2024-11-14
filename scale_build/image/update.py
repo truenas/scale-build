@@ -7,7 +7,7 @@ import shutil
 import stat
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
-from scale_build.utils.manifest import get_manifest
+from scale_build.utils.manifest import get_apt_base_url, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
@@ -110,9 +110,11 @@ def install_rootfs_packages_impl():
 
 def get_apt_sources():
     apt_repos = get_manifest()['apt-repos']
-    apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+    apt_base_url = get_apt_base_url()
+    apt_sources = [f'deb {apt_base_url}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
     for repo in apt_repos['additional']:
-        apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
+        apt_sources.append(f'deb {apt_base_url}{repo["url"]} {repo["distribution"]} {repo["component"]}')
+
     return apt_sources
 
 
