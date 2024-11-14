@@ -337,7 +337,7 @@ sources:
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: stable/bluefin
+  branch: stable/cobia
   batch_priority: 0
   supports_ccache: true
   env:
