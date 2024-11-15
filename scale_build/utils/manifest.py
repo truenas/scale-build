@@ -5,7 +5,7 @@ import yaml
 
 from urllib.parse import urlparse
 
-from scale_build.config import APT_BASE_CUSTOM, APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
+from scale_build.config import SKIP_SOURCE_REPO_VALIDATION, TRAIN
 from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
 
@@ -77,8 +77,6 @@ MANIFEST_SCHEMA = {
         'code_name': {'type': 'string'},
         'debian_release': {'type': 'string'},
         'identity_file_path_default': {'type': 'string'},
-        'base-url': {'type': 'string'},
-        'base-url-internal': {'type': 'string'},
         'apt-repos': {
             'type': 'object',
             'properties': {
@@ -254,19 +252,3 @@ def validate_manifest():
             'accepts packages from github.com/truenas organization (To skip this for dev '
             'purposes, please set "SKIP_SOURCE_REPO_VALIDATION" in your environment).'
         )
-
-
-def get_apt_base_url():
-    apt_repos = get_manifest()['apt-repos']
-    apt_base_url = ""
-
-    # If the user provided their own location
-    if APT_BASE_CUSTOM:
-        return APT_BASE_CUSTOM
-
-    # Return either the CDN or the internal build url
-    if APT_INTERNAL_BUILD:
-        apt_base_url = f'{apt_repos["base-url-internal"]}'
-    else:
-        apt_base_url = f'{apt_repos["base-url"]}'
-    return apt_base_url
