@@ -110,7 +110,7 @@ def install_rootfs_packages_impl():
 
 def get_apt_sources():
     apt_repos = get_manifest()['apt-repos']
-    apt_base_url = get_apt_base_url()
+    apt_base_url = apt_repos['base-url']
     apt_sources = [f'deb {apt_base_url}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
     for repo in apt_repos['additional']:
         apt_sources.append(f'deb {apt_base_url}{repo["url"]} {repo["distribution"]} {repo["component"]}')
