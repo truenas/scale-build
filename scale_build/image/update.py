@@ -1,4 +1,3 @@
-import contextlib
 import glob
 import itertools
 import logging
@@ -7,7 +6,7 @@ import textwrap
 import shutil
 import stat
 
-from scale_build.config import APT_INTERNAL_BUILD, SIGNING_KEY, SIGNING_PASSWORD
+from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
 from scale_build.utils.manifest import get_apt_base_url, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
@@ -74,8 +73,7 @@ def sign_manifest(signing_key, signing_pass):
 
 def install_rootfs_packages():
     try:
-        with get_apt_sources():
-            install_rootfs_packages_impl()
+        install_rootfs_packages_impl()
     finally:
         umount_chroot_basedir()
 
@@ -104,31 +102,20 @@ def install_rootfs_packages_impl():
     # Do any pruning of rootfs
     clean_rootfs()
 
+    with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'), 'w') as f:
+        f.write('\n'.join(get_apt_sources()))
+
     post_rootfs_setup()
 
 
-@contextlib.contextmanager
 def get_apt_sources():
     apt_repos = get_manifest()['apt-repos']
-    with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'), 'w') as f:
-        apt_base_url = get_apt_base_url()
-        apt_sources = [f'deb {apt_base_url}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
-        for repo in apt_repos['additional']:
-            apt_sources.append(f'deb {apt_base_url}{repo["url"]} {repo["distribution"]} {repo["component"]}')
-        f.write('\n'.join(apt_sources))
-    yield
-    if APT_INTERNAL_BUILD:
-        # If we used our internal APT server, we don't want to ship
-        # the final image with it in the sources.list file so we'll
-        # rewrite it using our public APT server on the CDN.
-        with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'), 'w') as f:
-            apt_base_url = apt_repos["base-url"]
-            apt_sources = [
-                f'deb {apt_base_url}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}'
-            ]
-            for repo in apt_repos['additional']:
-                apt_sources.append(f'deb {apt_base_url}{repo["url"]} {repo["distribution"]} {repo["component"]}')
-            f.write('\n'.join(apt_sources))
+    apt_base_url = get_apt_base_url()
+    apt_sources = [f'deb {apt_base_url}{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+    for repo in apt_repos['additional']:
+        apt_sources.append(f'deb {apt_base_url}{repo["url"]} {repo["distribution"]} {repo["component"]}')
+
+    return apt_sources
 
 
 def should_rem_execute_bit(binary):
