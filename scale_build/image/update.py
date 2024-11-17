@@ -8,7 +8,7 @@ import stat
 import tempfile
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
-from scale_build.utils.manifest import get_manifest
+from scale_build.utils.manifest import get_manifest, get_apt_repos
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
@@ -110,7 +110,8 @@ def install_rootfs_packages_impl():
 
 
 def get_apt_sources():
-    apt_repos = get_manifest()['apt-repos']
+    # We want the final sources.list to be in the rootfs image
+    apt_repos = get_apt_repos(check_custom=False)
     apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
     for repo in apt_repos['additional']:
         apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')

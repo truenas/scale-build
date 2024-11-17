@@ -3,7 +3,7 @@ import os
 import shutil
 
 from scale_build.clean import clean_packages
-from scale_build.utils.manifest import get_manifest
+from scale_build.utils.manifest import get_manifest, get_apt_repos
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, REFERENCE_FILES, REFERENCE_FILES_DIR
 from scale_build.utils.run import run
 
@@ -34,7 +34,7 @@ class BootstrapDir(CacheMixin, HashMixin):
             ['debootstrap'] + self.deopts + [
                 '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
                 manifest['debian_release'],
-                self.chroot_basedir, manifest['apt-repos']['url']
+                self.chroot_basedir, get_apt_repos(check_custom=True)['url']
             ]
         )
 
@@ -45,7 +45,7 @@ class BootstrapDir(CacheMixin, HashMixin):
             return
 
         self.add_trusted_apt_key()
-        apt_repos = get_manifest()['apt-repos']
+        apt_repos = get_apt_repos(check_custom=True)
         self.debootstrap_debian()
         self.setup_mounts()
 
@@ -151,7 +151,7 @@ class RootfsBootstrapDir(BootstrapDir):
             ['debootstrap'] + self.deopts + [
                 '--foreign', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
                 manifest['debian_release'],
-                self.chroot_basedir, manifest['apt-repos']['url']
+                self.chroot_basedir, get_apt_repos(check_custom=True)['url']
             ]
         )
         for reference_file in REFERENCE_FILES:
