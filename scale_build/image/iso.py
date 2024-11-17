@@ -10,7 +10,7 @@ import json
 import requests
 
 from scale_build.exceptions import CallError
-from scale_build.utils.manifest import get_manifest
+from scale_build.utils.manifest import get_apt_repos, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import CD_DIR, CD_FILES_DIR, CHROOT_BASEDIR, CONF_GRUB, PKG_DIR, RELEASE_DIR, TMP_DIR
 from scale_build.config import TRUENAS_VENDOR
@@ -133,7 +133,7 @@ def make_iso_file():
         # Let's use pre-built Debian GRUB EFI image that the official Debian ISO installer uses.
         with tempfile.NamedTemporaryFile(dir=RELEASE_DIR) as efi_img:
             with tempfile.NamedTemporaryFile(suffix='.tar.gz') as f:
-                apt_repos = get_manifest()['apt-repos']
+                apt_repos = get_apt_repos(check_custom=True)
                 r = requests.get(
                     f'{apt_repos["url"]}dists/{apt_repos["distribution"]}/main/installer-amd64/current/images/cdrom/'
                     'debian-cd_info.tar.gz',
@@ -152,8 +152,9 @@ def make_iso_file():
             run_in_chroot([
                 'grub-mkrescue',
                 '-o', iso,
-                '--efi-boot-part', os.path.join(RELEASE_DIR,
-                                                os.path.relpath(efi_img.name, os.path.abspath(RELEASE_DIR))),
+                '--efi-boot-part', os.path.join(
+                    RELEASE_DIR, os.path.relpath(efi_img.name, os.path.abspath(RELEASE_DIR))
+                ),
                 CD_DIR,
             ])
 

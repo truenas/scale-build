@@ -8,23 +8,25 @@ identity_file_path_default: "~/.ssh/id_rsa"
 # into the build chroots, or the final system images.
 ############################################################################
 apt-repos:
-  url: https://apt.sys.truenas.net/fangtooth/nightlies/debian/
+  base-url: https://apt.sys.truenas.net/
+  base-url-internal: http://apt-mirror.tn.ixsystems.net/
+  url: fangtooth/nightlies/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-security/
+  - url: fangtooth/nightlies/debian-security/
     distribution: bookworm-security
     component: main
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-backports/
+  - url: fangtooth/nightlies/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free non-free-firmware"
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/debian-debug/
+  - url: fangtooth/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/yarn/
+  - url: fangtooth/nightlies/yarn/
     distribution: stable
     component: main
-  - url: https://apt.sys.truenas.net/fangtooth/nightlies/docker/
+  - url: fangtooth/nightlies/docker/
     distribution: bookworm
     component: stable
     key: keys/docker.gpg
