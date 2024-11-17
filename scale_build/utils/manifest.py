@@ -80,6 +80,8 @@ MANIFEST_SCHEMA = {
         'apt-repos': {
             'type': 'object',
             'properties': {
+                'base-url': {'type': 'string', 'pattern': '.*/$'},
+                'base-url-internal': {'type': 'string', 'pattern': '.*/$'},
                 'url': {'type': 'string'},
                 'distribution': {'type': 'string'},
                 'components': {'type': 'string'},
