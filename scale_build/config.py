@@ -29,6 +29,8 @@ def get_normalized_value(value, _type, default_value=None):
         return _type(default_value) if default_value else _type()
 
 
+APT_BASE_CUSTOM = get_env_variable('APT_BASE_CUSTOM', str)
+APT_INTERNAL_BUILD = get_env_variable('APT_INTERNAL_BUILD', bool, False)
 BUILD_TIME = int(time())
 BUILD_TIME_OBJ = datetime.fromtimestamp(BUILD_TIME)
 BUILDER_DIR = get_env_variable('BUILDER_DIR', str, './')

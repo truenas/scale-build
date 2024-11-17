@@ -1,3 +1,4 @@
+import copy
 import functools
 import jsonschema
 import re
@@ -5,7 +6,7 @@ import yaml
 
 from urllib.parse import urlparse
 
-from scale_build.config import SKIP_SOURCE_REPO_VALIDATION, TRAIN
+from scale_build.config import APT_BASE_CUSTOM, APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
 from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST
 
@@ -254,3 +255,29 @@ def validate_manifest():
             'accepts packages from github.com/truenas organization (To skip this for dev '
             'purposes, please set "SKIP_SOURCE_REPO_VALIDATION" in your environment).'
         )
+
+
+@functools.cache
+def get_apt_base_url(check_custom: bool) -> str:
+    apt_repos = get_manifest()['apt-repos']
+    if not check_custom:
+        return apt_repos['base-url']
+
+    if APT_BASE_CUSTOM:
+        if APT_BASE_CUSTOM.endswith('/') is False:
+            raise CallError('APT_BASE_CUSTOM must end with a trailing slash')
+
+        return APT_BASE_CUSTOM
+
+    return apt_repos['base-url-internal'] if APT_INTERNAL_BUILD else apt_repos['base-url']
+
+
+@functools.cache
+def get_apt_repos(check_custom: bool) -> dict:
+    apt_repos = copy.deepcopy(get_manifest()['apt-repos'])
+    base_url = get_apt_base_url(check_custom)
+    apt_repos['url'] = f'{base_url}{apt_repos["url"]}'
+    for repo in apt_repos['additional']:
+        repo['url'] = f'{base_url}{repo["url"]}'
+
+    return apt_repos
