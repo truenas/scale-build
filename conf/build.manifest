@@ -637,3 +637,9 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
+
+# Nvidia extensions versions
+############################################################################
+extensions:
+  nvidia:
+    current: "550.127.05"
