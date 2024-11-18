@@ -164,6 +164,21 @@ MANIFEST_SCHEMA = {
                 'required': ['name', 'branch', 'repo'],
             }
         },
+        'extensions': {
+            'type': 'object',
+            'properties': {
+                'nvidia': {
+                    'type': 'object',
+                    'properties': {
+                        'current': {'type': 'string'},
+                    },
+                    'required': ['current'],
+                    'additionalProperties': False,
+                },
+            },
+            'required': ['nvidia'],
+            'additionalProperties': False,
+        },
     },
     'required': [
         'code_name',
