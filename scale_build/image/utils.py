@@ -8,6 +8,7 @@ PACKAGE_PATH = os.path.join(CHROOT_BASEDIR, 'packages')
 
 
 def run_in_chroot(command, exception_message=None, **kwargs):
+    chroot = kwargs.pop('chroot', CHROOT_BASEDIR)
     return run(
-        ['chroot', CHROOT_BASEDIR] + command, exception_msg=exception_message, env={**APT_ENV, **os.environ}, **kwargs
+        ['chroot', chroot] + command, exception_msg=exception_message, env={**APT_ENV, **os.environ}, **kwargs
     )
