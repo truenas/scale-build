@@ -1,11 +1,11 @@
 from datetime import datetime
-import glob
 import json
 import os
 import shutil
 import subprocess
 
 from scale_build.exceptions import CallError
+from scale_build.utils.kernel import get_kernel_version
 from scale_build.utils.paths import BUILDER_DIR, CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
 
 
@@ -45,9 +45,7 @@ def build_manifest():
             'version': version,
             'size': size,
             'checksums': checksums,
-            'kernel_version': glob.glob(
-                os.path.join(CHROOT_BASEDIR, 'boot/vmlinuz-*')
-            )[1].split('/')[-1][len('vmlinuz-'):],
+            'kernel_version': get_kernel_version(CHROOT_BASEDIR),
         }))
 
     return version
