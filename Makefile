@@ -31,8 +31,6 @@ check_upstream_package_updates: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build check_upstream_package_updates
 iso: check
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build iso
-extensions: check
-	. ./venv-${COMMIT_HASH}/bin/activate && scale_build extensions
 packages: check
 ifeq ($(PACKAGES),"")
 	. ./venv-${COMMIT_HASH}/bin/activate && scale_build packages
