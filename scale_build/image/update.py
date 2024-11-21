@@ -8,6 +8,7 @@ import stat
 import tempfile
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
+from scale_build.extensions import build_extensions as do_build_extensions
 from scale_build.utils.manifest import get_manifest, get_apt_repos
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
@@ -103,6 +104,8 @@ def install_rootfs_packages_impl():
     # Do any pruning of rootfs
     clean_rootfs()
 
+    build_extensions()
+
     with open(os.path.join(CHROOT_BASEDIR, 'etc/apt/sources.list'), 'w') as f:
         f.write('\n'.join(get_apt_sources()))
 
@@ -183,26 +186,6 @@ def custom_rootfs_setup():
     shutil.rmtree(local_cacerts, ignore_errors=True)
     os.symlink("/var/local/ca-certificates", local_cacerts)
 
-    # Build a systemd-sysext extension that, upon loading, will make `/usr/bin/dpkg` working.
-    # It is necessary for `update-initramfs` to function properly.
-    sysext_extensions_dir = os.path.join(CHROOT_BASEDIR, "usr/share/truenas/sysext-extensions")
-    os.makedirs(sysext_extensions_dir, exist_ok=True)
-    with tempfile.TemporaryDirectory() as td:
-        os.makedirs(f"{td}/usr/bin")
-        shutil.copy2(f"{CHROOT_BASEDIR}/usr/bin/dpkg", f"{td}/usr/bin/dpkg")
-
-        os.makedirs(f"{td}/usr/local/bin")
-        with open(f"{td}/usr/local/bin/dpkg", "w") as f:
-            f.write("#!/bin/bash\n")
-            f.write("exec /usr/bin/dpkg \"$@\"")
-        os.chmod(f"{td}/usr/local/bin/dpkg", 0o755)
-
-        os.makedirs(f"{td}/usr/lib/extension-release.d")
-        with open(f"{td}/usr/lib/extension-release.d/extension-release.functioning-dpkg", "w") as f:
-            f.write("ID=_any\n")
-
-        run(["mksquashfs", td, f"{sysext_extensions_dir}/functioning-dpkg.raw"])
-
 
 def clean_rootfs():
     to_remove = get_manifest()['base-prune']
@@ -227,3 +210,30 @@ def clean_rootfs():
     ):
         shutil.rmtree(path)
         os.makedirs(path, exist_ok=True)
+
+
+def build_extensions():
+    # Build a systemd-sysext extension that, upon loading, will make `/usr/bin/dpkg` working.
+    # It is necessary for `update-initramfs` to function properly.
+    sysext_extensions_dir = os.path.join(CHROOT_BASEDIR, "usr/share/truenas/sysext-extensions")
+    os.makedirs(sysext_extensions_dir, exist_ok=True)
+    with tempfile.TemporaryDirectory() as td:
+        os.makedirs(f"{td}/usr/bin")
+        shutil.copy2(f"{CHROOT_BASEDIR}/usr/bin/dpkg", f"{td}/usr/bin/dpkg")
+
+        os.makedirs(f"{td}/usr/local/bin")
+        with open(f"{td}/usr/local/bin/dpkg", "w") as f:
+            f.write("#!/bin/bash\n")
+            f.write("exec /usr/bin/dpkg \"$@\"")
+        os.chmod(f"{td}/usr/local/bin/dpkg", 0o755)
+
+        os.makedirs(f"{td}/usr/lib/extension-release.d")
+        with open(f"{td}/usr/lib/extension-release.d/extension-release.functioning-dpkg", "w") as f:
+            f.write("ID=_any\n")
+
+        run(["mksquashfs", td, f"{sysext_extensions_dir}/functioning-dpkg.raw"])
+
+    with tempfile.NamedTemporaryFile(suffix=".squashfs") as tf:
+        tf.close()
+        run(["mksquashfs", CHROOT_BASEDIR, tf.name, "-one-file-system"])
+        do_build_extensions(tf.name, sysext_extensions_dir)
