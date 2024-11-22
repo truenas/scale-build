@@ -455,6 +455,8 @@ def main():
                         rsync.append("var/lib/libvirt/qemu/nvram")
                     if os.path.exists(f"{old_root}/var/lib/netdata"):
                         rsync.append("var/lib/netdata")
+                    if os.path.exists(f"{old_root}/var/lib/snmp"):
+                        rsync.append("var/lib/snmp")
                     if os.path.exists(f"{old_root}/var/lib/syslog-ng/syslog-ng.persist"):
                         rsync.append("var/lib/syslog-ng/syslog-ng.persist")
                     if "var/log" not in cloned_datasets:
