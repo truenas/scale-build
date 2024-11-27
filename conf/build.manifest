@@ -637,6 +637,15 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
+- name: python
+  repo: https://github.com/truenas/python.git
+  branch: master
+  deoptions: nocheck
+  generate_version: false
+  predepscmd:
+    - "apt install -y python3-docs-theme python3-sphinx texinfo wget"
+    - "wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tar.xz"
+    - "tar --strip-components=1 -xvf Python-3.11.9.tar.xz"
 
 # Nvidia extensions versions
 ############################################################################
