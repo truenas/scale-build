@@ -343,6 +343,8 @@ sources:
   env:
     EXTRAVERSION: "-production"
     PYTHON: "python3"
+  explicit_deps:
+   - python3
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev devscripts"
     # Install dependencies to build perf
@@ -637,7 +639,7 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: python
+- name: python3
   repo: https://github.com/truenas/python.git
   branch: master
   deoptions: nocheck
