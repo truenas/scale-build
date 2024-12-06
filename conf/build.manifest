@@ -466,6 +466,7 @@ sources:
     - "sh -x fetch.sh"
   explicit_deps:
     - openzfs
+    - python3
     - truenas_samba
     - truenas_sssd
 - name: avahi
