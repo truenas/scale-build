@@ -1,4 +1,5 @@
 import os
+import hashlib
 
 from contextlib import contextmanager
 from scale_build.utils.paths import RELEASE_DIR
@@ -114,9 +115,9 @@ def generate_mtree(target_root_dir, version):
     with chdir(target_root_dir):
         _do_mtree_impl(mtree_file_path, version)
 
-    mtree_file_checksum = run(['sha256sum', mtree_file_path], log=False).stdout.strip().split()[0]
-    with open(f'{mtree_file_path}.sha256', 'w') as f:
-        f.write(mtree_file_checksum)
-        f.flush()
+    with open(mtree_file_path, 'rb') as f:
+        with open(f'{mtree_file_path}.sha256', 'w') as sf:
+            sf.write(hashlib.file_digest(f, 'sha256').hexdigest())
+            sf.flush()
 
     return mtree_file_path

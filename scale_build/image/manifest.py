@@ -1,4 +1,5 @@
 from datetime import datetime
+import hashlib
 import json
 import os
 import shutil
@@ -34,10 +35,8 @@ def build_manifest():
     for root, dirs, files in os.walk(UPDATE_DIR):
         for file in files:
             abspath = os.path.join(root, file)
-            checksums[os.path.relpath(abspath, UPDATE_DIR)] = subprocess.run(
-                ['sha1sum', abspath],
-                check=True, stdout=subprocess.PIPE, encoding='utf-8', errors='ignore',
-            ).stdout.split()[0]
+            with open(abspath, 'rb') as f:
+                checksums[os.path.relpath(abspath, UPDATE_DIR)] = hashlib.file_digest(f, 'sha256').hexdigest()
 
     with open(os.path.join(UPDATE_DIR, 'manifest.json'), "w") as f:
         f.write(json.dumps({
