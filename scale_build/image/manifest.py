@@ -36,7 +36,7 @@ def build_manifest():
         for file in files:
             abspath = os.path.join(root, file)
             with open(abspath, 'rb') as f:
-                checksums[os.path.relpath(abspath, UPDATE_DIR)] = hashlib.file_digest(f, 'sha256').hexdigest()
+                checksums[os.path.relpath(abspath, UPDATE_DIR)] = hashlib.file_digest(f, 'sha1').hexdigest()
 
     with open(os.path.join(UPDATE_DIR, 'manifest.json'), "w") as f:
         f.write(json.dumps({
