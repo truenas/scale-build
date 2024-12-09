@@ -9,7 +9,7 @@ from tempfile import NamedTemporaryFile
 
 MTREE_FILE_NAME = 'rootfs.mtree'
 MTREE_UPDATE_FILE = f'{RELEASE_DIR}/{MTREE_FILE_NAME}'
-MTREE_DIRS = ['boot', 'etc', 'usr', 'opt', 'var']
+MTREE_DIRS = ['boot', 'etc', 'usr', 'opt', 'var', 'conf/audit_rules']
 
 # The following is list of default etc files to remove from our image before we
 # generate mtree file and then the squashfs filesystem. Generally we should put
