@@ -645,6 +645,7 @@ sources:
 - name: python3
   repo: https://github.com/truenas/python.git
   branch: master
+  batch_priority: 0
   deoptions: nocheck
   generate_version: false
   predepscmd:
