@@ -150,6 +150,8 @@ base-packages:
   # So until we can figure out how to mark packages as dependencies
   # without installing non-dependent packages, this will have to suffice
   install_recommends: false
+- name: truenas-audit-rules
+  install_recommends: false
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
@@ -651,6 +653,10 @@ sources:
     - "apt install -y python3-docs-theme python3-sphinx texinfo wget"
     - "wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tar.xz"
     - "tar --strip-components=1 -xvf Python-3.11.9.tar.xz"
+- name: truenas_audit_rules
+  repo: https://github.com/truenas/audit_rules.git
+  branch: master
+  generate_version: false
 
 # Nvidia extensions versions
 ############################################################################
