@@ -36,7 +36,7 @@ def build_rootfs_image():
     # Generate audit rules
     gencmd = os.path.join(CHROOT_BASEDIR, 'conf', 'audit_rules', 'privileged-rules.py')
     priv_rule_file = os.path.join(CHROOT_BASEDIR, 'conf', 'audit_rules', '31-privileged.rules')
-    run([gencmd, '--target_dir', CHROOT_BASEDIR, '--privilege_file', priv_rule_file])
+    run([gencmd, '--target_dir', CHROOT_BASEDIR, '--privilege_file', priv_rule_file, '--prefix', CHROOT_BASEDIR])
     # Remove the audit file generation script
     os.unlink(gencmd)
 
