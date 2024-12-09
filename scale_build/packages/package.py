@@ -22,6 +22,8 @@ from .utils import (
 
 logger = logging.getLogger(__name__)
 
+MANDATORY_EXPLICIT_DEPS = frozenset(['python3'])
+
 
 class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, CCacheMixin, GitPackageMixin, OverlayMixin):
     def __init__(
@@ -39,7 +41,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, CCacheMixin, G
         self.buildcmd = buildcmd or []
         self.build_constraints = build_constraints or []
         self.depscmd = depscmd or []
-        self.explicit_deps = set(explicit_deps or set())
+        self.explicit_deps = set(explicit_deps or set()) | MANDATORY_EXPLICIT_DEPS
         self.generate_version = generate_version
         self.predepscmd = predepscmd or []
         self.deps_path = deps_path
@@ -62,6 +64,9 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, CCacheMixin, G
         self.batch_priority = batch_priority
         self.env = env or {}
         self.debian_fork = debian_fork
+
+        if name in self.explicit_deps:
+            self.explicit_deps.remove(name)
 
     def __eq__(self, other):
         return other == self.name if isinstance(other, str) else self.name == other.name
