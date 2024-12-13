@@ -13,129 +13,163 @@ from .utils.run import run
 
 logger = logging.getLogger(__name__)
 
-BINARIES = ("apt", "apt-config", "apt-key", "dpkg")
-TEMPORARY_PACKAGES = ["gcc", "make", "pkg-config"]
-PERMANENT_PACKAGES = ["libvulkan1", "nvidia-container-toolkit", "vulkan-validationlayers"]
-HEADERS = {"User-Agent": "curl/7.88.1"}
-EXTENSIONS_CHROOT = os.path.join(TMPFS, "extensions_chroot")
-EXTENSIONS_CHROOT_BASE = os.path.join(TMPFS, "extensions_chroot_base")
-
 
 def build_extensions(rootfs_image, dst_dir):
-    for path in [EXTENSIONS_CHROOT, EXTENSIONS_CHROOT_BASE]:
-        if os.path.exists(path):
-            shutil.rmtree(path)
-        os.makedirs(path)
+    chroot = os.path.join(TMPFS, "extensions_chroot")
+    chroot_base = os.path.join(TMPFS, "extensions_chroot_base")
 
-    run(["unsquashfs", "-dest", EXTENSIONS_CHROOT, rootfs_image])
-    run(["unsquashfs", "-dest", EXTENSIONS_CHROOT_BASE, rootfs_image])
+    if os.path.exists(chroot_base):
+        shutil.rmtree(chroot_base)
+    os.makedirs(chroot_base)
+    run(["unsquashfs", "-dest", chroot_base, rootfs_image])
 
-    kernel_version = get_kernel_version(EXTENSIONS_CHROOT)
-
-    os.makedirs(os.path.join(EXTENSIONS_CHROOT, "proc"), exist_ok=True)
-    run(["mount", "proc", os.path.join(EXTENSIONS_CHROOT, "proc"), "-t", "proc"])
-    os.makedirs(os.path.join(EXTENSIONS_CHROOT, "sys"), exist_ok=True)
-    run(["mount", "sysfs", os.path.join(EXTENSIONS_CHROOT, "sys"), "-t", "sysfs"])
-    os.makedirs(os.path.join(EXTENSIONS_CHROOT, "packages"), exist_ok=True)
-    run(["mount", "--bind", PKG_DIR, os.path.join(EXTENSIONS_CHROOT, "packages")])
-    try:
-        shutil.copyfile("/etc/resolv.conf", f"{EXTENSIONS_CHROOT}/etc/resolv.conf")
-
-        for binary in BINARIES:
-            os.unlink(os.path.join(EXTENSIONS_CHROOT, f"usr/local/bin/{binary}"))
-            os.chmod(os.path.join(EXTENSIONS_CHROOT, f"usr/bin/{binary}"), 0o755)
-
-        add_nvidia_repository()
-        run_in_chroot(["apt", "update"], chroot=EXTENSIONS_CHROOT)
-        run_in_chroot(["apt", "-y", "install"] + TEMPORARY_PACKAGES + PERMANENT_PACKAGES, chroot=EXTENSIONS_CHROOT)
-
-        install_nvidia_driver(kernel_version)
-
-        run_in_chroot(["apt", "-y", "remove"] + TEMPORARY_PACKAGES, chroot=EXTENSIONS_CHROOT)
-        run_in_chroot(["apt", "-y", "autoremove"], chroot=EXTENSIONS_CHROOT)
-    finally:
-        run(["umount", os.path.join(EXTENSIONS_CHROOT, "packages")])
-        run(["umount", os.path.join(EXTENSIONS_CHROOT, "sys")])
-        run(["umount", os.path.join(EXTENSIONS_CHROOT, "proc")])
-
-    build_extension("nvidia", f"{dst_dir}/nvidia.raw")
+    for klass, name in [(DevToolsExtension, "dev-tools"), (NvidiaExtension, "nvidia")]:
+        klass(rootfs_image, chroot_base, chroot).build(name, f"{dst_dir}/{name}.raw")
 
 
-def add_nvidia_repository():
-    r = requests.get("https://nvidia.github.io/libnvidia-container/gpgkey")
-    r.raise_for_status()
+class Extension:
+    def __init__(self, base_image: str, chroot_base: str, chroot: str):
+        """
+        :param base_image: rootfs squashfs image path
+        :param chroot_base: a path where `base_image` is extracted
+            (it will be used to compare which files were modified and should be included in the extension image)
+        :param chroot: a path which will be used as chroot for extension install
+        """
+        self.base_image = base_image
+        self.chroot_base = chroot_base
+        self.chroot = chroot
 
-    with open(f"{EXTENSIONS_CHROOT}/key.gpg", "w") as f:
-        f.write(r.text)
+    def build(self, name, dst_path):
+        if os.path.exists(self.chroot):
+            shutil.rmtree(self.chroot)
+        os.makedirs(self.chroot)
 
-    run_in_chroot(["gpg", "-o", "/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg", "--dearmor", "/key.gpg"],
-                  chroot=EXTENSIONS_CHROOT)
+        run(["unsquashfs", "-dest", self.chroot, self.base_image])
 
-    with open(f"{EXTENSIONS_CHROOT}/etc/apt/sources.list.d/nvidia-container-toolkit.list", "w") as f:
-        f.write("deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] "
-                "https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /")
+        os.makedirs(os.path.join(self.chroot, "proc"), exist_ok=True)
+        run(["mount", "proc", os.path.join(self.chroot, "proc"), "-t", "proc"])
+        os.makedirs(os.path.join(self.chroot, "sys"), exist_ok=True)
+        run(["mount", "sysfs", os.path.join(self.chroot, "sys"), "-t", "sysfs"])
+        os.makedirs(os.path.join(self.chroot, "packages"), exist_ok=True)
+        run(["mount", "--bind", PKG_DIR, os.path.join(self.chroot, "packages")])
+        try:
+            shutil.copyfile("/etc/resolv.conf", f"{self.chroot}/etc/resolv.conf")
+
+            self.build_impl()
+        finally:
+            run(["umount", os.path.join(self.chroot, "packages")])
+            run(["umount", os.path.join(self.chroot, "sys")])
+            run(["umount", os.path.join(self.chroot, "proc")])
+
+        self.build_extension(name, dst_path)
+
+    def build_impl(self):
+        raise NotImplementedError
+
+    def build_extension(self, name, dst_path):
+        changed_files = [
+            os.path.relpath(filename, self.chroot)
+            for filename in map(
+                lambda filename: os.path.join(os.getcwd(), filename),
+                run(
+                    ["rsync", "-avn", "--out-format=%f", f"{self.chroot}/", f"{self.chroot_base}/"],
+                    log=False,
+                ).stdout.split("\n")
+            )
+            if os.path.abspath(filename).startswith(os.path.abspath(self.chroot))
+        ]
+
+        sysext_files = [f for f in changed_files if f.startswith("usr/") and not (f.startswith("usr/src/"))]
+
+        for root, dirs, files in os.walk(self.chroot, topdown=False):
+            for f in files:
+                path = os.path.relpath(os.path.abspath(os.path.join(root, f)), self.chroot)
+                if path not in sysext_files:
+                    os.unlink(os.path.join(root, f))
+
+            for d in dirs:
+                try:
+                    os.rmdir(os.path.join(root, d))
+                except NotADirectoryError:
+                    os.unlink(os.path.join(root, d))  # It's a symlink
+                except OSError as e:
+                    if e.errno == errno.ENOTEMPTY:
+                        pass
+                    else:
+                        raise
+
+        os.makedirs(f"{self.chroot}/usr/lib/extension-release.d", exist_ok=True)
+        with open(f"{self.chroot}/usr/lib/extension-release.d/extension-release.{name}", "w") as f:
+            f.write("ID=_any\n")
+
+        run(["mksquashfs", self.chroot, dst_path, "-comp", "xz"])
+
+    def run(self, cmd: list[str]):
+        run_in_chroot(cmd, chroot=self.chroot)
 
 
-def download_nvidia_driver():
-    prefix = "https://download.nvidia.com/XFree86/Linux-x86_64"
+class DevToolsExtension(Extension):
+    def build_impl(self):
+        # Make `install-dev-tools` think that this is not necessary
+        os.unlink(os.path.join(self.chroot, "usr/local/libexec/disable-rootfs-protection"))
 
-    version = get_manifest()["extensions"]["nvidia"]["current"]
-    filename = f"NVIDIA-Linux-x86_64-{version}-no-compat32.run"
-    result = f"{EXTENSIONS_CHROOT}/{filename}"
+        self.run(["install-dev-tools"])
 
-    with requests.get(f"{prefix}/{version}/{filename}", headers=HEADERS, stream=True, timeout=10) as r:
+
+class NvidiaExtension(Extension):
+    binaries = ("apt", "apt-config", "apt-key", "dpkg")
+    temporary_packages = ["gcc", "make", "pkg-config"]
+    permanent_packages = ["libvulkan1", "nvidia-container-toolkit", "vulkan-validationlayers"]
+    headers = {"User-Agent": "curl/7.88.1"}
+
+    def build_impl(self):
+        kernel_version = get_kernel_version(self.chroot)
+
+        for binary in self.binaries:
+            os.unlink(os.path.join(self.chroot, f"usr/local/bin/{binary}"))
+            os.chmod(os.path.join(self.chroot, f"usr/bin/{binary}"), 0o755)
+
+        self.add_nvidia_repository()
+        self.run(["apt", "update"])
+        self.run(["apt", "-y", "install"] + self.temporary_packages + self.permanent_packages)
+
+        self.install_nvidia_driver(kernel_version)
+
+        self.run(["apt", "-y", "remove"] + self.temporary_packages)
+        self.run(["apt", "-y", "autoremove"])
+
+    def add_nvidia_repository(self):
+        r = requests.get("https://nvidia.github.io/libnvidia-container/gpgkey")
         r.raise_for_status()
-        with open(result, "wb") as f:
-            shutil.copyfileobj(r.raw, f)
 
-    os.chmod(result, 0o755)
-    return result
+        with open(f"{self.chroot}/key.gpg", "w") as f:
+            f.write(r.text)
 
+        self.run(["gpg", "-o", "/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg", "--dearmor", "/key.gpg"])
 
-def install_nvidia_driver(kernel_version):
-    driver = download_nvidia_driver()
+        with open(f"{self.chroot}/etc/apt/sources.list.d/nvidia-container-toolkit.list", "w") as f:
+            f.write("deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] "
+                    "https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /")
 
-    run_in_chroot([f"/{os.path.basename(driver)}", "--skip-module-load", "--silent", f"--kernel-name={kernel_version}",
-                   "--allow-installation-with-running-driver", "--no-rebuild-initramfs"],
-                  chroot=EXTENSIONS_CHROOT)
+    def download_nvidia_driver(self):
+        prefix = "https://download.nvidia.com/XFree86/Linux-x86_64"
 
-    os.unlink(driver)
+        version = get_manifest()["extensions"]["nvidia"]["current"]
+        filename = f"NVIDIA-Linux-x86_64-{version}-no-compat32.run"
+        result = f"{self.chroot}/{filename}"
 
+        with requests.get(f"{prefix}/{version}/{filename}", headers=self.headers, stream=True, timeout=10) as r:
+            r.raise_for_status()
+            with open(result, "wb") as f:
+                shutil.copyfileobj(r.raw, f)
 
-def build_extension(name, dst_path):
-    changed_files = [
-        os.path.relpath(filename, EXTENSIONS_CHROOT)
-        for filename in map(
-            lambda filename: os.path.join(os.getcwd(), filename),
-            run(
-                ["rsync", "-avn", "--out-format=%f", f"{EXTENSIONS_CHROOT}/", f"{EXTENSIONS_CHROOT_BASE}/"],
-                log=False,
-            ).stdout.split("\n")
-        )
-        if os.path.abspath(filename).startswith(os.path.abspath(EXTENSIONS_CHROOT))
-    ]
+        os.chmod(result, 0o755)
+        return result
 
-    sysext_files = [f for f in changed_files if f.startswith("usr/") and not (f.startswith("usr/src/"))]
+    def install_nvidia_driver(self, kernel_version):
+        driver = self.download_nvidia_driver()
 
-    for root, dirs, files in os.walk(EXTENSIONS_CHROOT, topdown=False):
-        for f in files:
-            path = os.path.relpath(os.path.abspath(os.path.join(root, f)), EXTENSIONS_CHROOT)
-            if path not in sysext_files:
-                os.unlink(os.path.join(root, f))
+        self.run([f"/{os.path.basename(driver)}", "--skip-module-load", "--silent", f"--kernel-name={kernel_version}",
+                  "--allow-installation-with-running-driver", "--no-rebuild-initramfs"])
 
-        for d in dirs:
-            try:
-                os.rmdir(os.path.join(root, d))
-            except NotADirectoryError:
-                os.unlink(os.path.join(root, d))  # It's a symlink
-            except OSError as e:
-                if e.errno == errno.ENOTEMPTY:
-                    pass
-                else:
-                    raise
-
-    os.makedirs(f"{EXTENSIONS_CHROOT}/usr/lib/extension-release.d", exist_ok=True)
-    with open(f"{EXTENSIONS_CHROOT}/usr/lib/extension-release.d/extension-release.{name}", "w") as f:
-        f.write("ID=_any\n")
-
-    run(["mksquashfs", EXTENSIONS_CHROOT, dst_path, "-comp", "xz"])
+        os.unlink(driver)
