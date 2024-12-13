@@ -38,7 +38,7 @@ def build_update_image_impl():
         with LoggingContext('rootfs-packages', 'w'):
             setup_chroot_basedir(package_bootstrap_obj)
 
-            # These files will be overwritten so we should make sure that new build does not have any entities that
+            # These files will be overwritten, so we should make sure that new build does not have any entities that
             # are not in our reference files.
             for reference_file, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
                 if any(line.startswith('+') for line in diff):
