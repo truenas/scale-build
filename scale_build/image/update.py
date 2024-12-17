@@ -249,3 +249,9 @@ def build_extensions():
         tf.close()
         run(["mksquashfs", CHROOT_BASEDIR, tf.name, "-one-file-system"])
         do_build_extensions(tf.name, sysext_extensions_dir)
+
+    external_extesions_dir = os.path.join(RELEASE_DIR, "extensions")
+    os.makedirs(external_extesions_dir, exist_ok=True)
+    for external_extension in ["dev-tools.raw"]:
+        shutil.move(os.path.join(sysext_extensions_dir, external_extension),
+                    os.path.join(external_extesions_dir, external_extension))
