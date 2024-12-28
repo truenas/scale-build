@@ -10,7 +10,6 @@ setup(
     install_requires=[
         'coloredlogs',
         'toposort',
-        'psutil',
         'requests',
         'pyyaml'
     ],
