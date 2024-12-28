@@ -14,12 +14,11 @@ import subprocess
 import sys
 import tempfile
 
-import psutil
-
 from licenselib.license import ContractType, License
 
 from .dhs import TRUENAS_DATA_HIERARCHY
 from .fhs import TRUENAS_DATASETS
+from .utils import getmntinfo, get_pids
 
 logger = logging.getLogger(__name__)
 
@@ -185,23 +184,20 @@ def precheck(old_root):
                     pass
 
         processes = defaultdict(list)
-        for p in psutil.process_iter():
-            processes[p.name()].append(p.pid)
+        for p in get_pids():
+            processes[p.name].append(p)
         running_services = []
         for service, title, process_name, cmdline in services:
             if process_name in processes:
                 # If we report an enabled service, we don't want to report the same service running.
                 if title not in enabled_services:
-                    for pid in processes[process_name]:
+                    for proc in processes[process_name]:
                         if cmdline is not None:
-                            try:
-                                if cmdline not in psutil.Process(pid).cmdline():
-                                    continue
-                            except psutil.NoSuchProcess:
+                            if cmdline not in proc.cmdline.decode(errors="ignore"):
                                 continue
 
                         try:
-                            with open(f"/proc/{pid}/cgroup") as f:
+                            with open(f"/proc/{proc.pid}/cgroup") as f:
                                 cgroups = f.read().strip()
                         except FileNotFoundError:
                             cgroups = ""
@@ -276,10 +272,10 @@ def main():
 
     old_root_dataset = None
     if old_root is not None:
-        try:
-            old_root_dataset = next(p for p in psutil.disk_partitions() if p.mountpoint == old_root).device
-        except StopIteration:
-            pass
+        for i in getmntinfo():
+            if i.mountpoint == old_root:
+                old_root_dataset == i.mount_source
+                break
 
     write_progress(0, "Creating dataset")
     if input.get("dataset_name"):
