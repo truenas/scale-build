@@ -33,11 +33,10 @@ class MntEntry:
     mount_id: int
     parent_id: int
     device_id: DevIdEntry
-    maj_min: int
     root: str
     mountpoint: str
     mount_opts: list[str]
-    fstype: str
+    fs_type: str
     mount_source: str
     super_opts: list[str]
 
