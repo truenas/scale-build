@@ -653,7 +653,7 @@ sources:
     - "tar --strip-components=1 -xvf Python-3.11.9.tar.xz"
 - name: truenas_audit_rules
   repo: https://github.com/truenas/audit_rules.git
-  branch: master
+  branch: simplified-monitoring-script
   generate_version: false
 
 # Nvidia extensions versions
