@@ -40,6 +40,14 @@ def build_rootfs_image():
     # Remove the audit file generation script
     os.unlink(gencmd)
 
+    # Copy over audit plugins configuration
+    conf_plugins_dir = os.path.join(CHROOT_BASEDIR, 'conf', 'audit_plugins')
+    audit_plugins = os.path.join(CHROOT_BASEDIR, 'etc', 'audit', 'plugins.d')
+    for plugin in os.listdir(conf_plugins_dir):
+        src = os.path.join(conf_plugins_dir, plugin)
+        dst = os.path.join(audit_plugins, plugin)
+        shutil.copyfile(src, dst)
+
     # Generate mtree of relevant root filesystem directories
     mtree_file = generate_mtree(CHROOT_BASEDIR, version)
     shutil.copyfile(mtree_file, os.path.join(CHROOT_BASEDIR, 'conf', 'rootfs.mtree'))
