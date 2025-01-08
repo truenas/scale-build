@@ -232,10 +232,10 @@ def build_extensions():
 
         run(["mksquashfs", td, f"{sysext_extensions_dir}/functioning-dpkg.raw"])
 
-    with tempfile.NamedTemporaryFile(suffix=".squashfs") as tf:
-        tf.close()
-        run(["mksquashfs", CHROOT_BASEDIR, tf.name, "-one-file-system"])
-        do_build_extensions(tf.name, sysext_extensions_dir)
+    with tempfile.TemporaryDirectory() as td:
+        rootfs_image = f"{td}/rootfs.squashfs"
+        run(["mksquashfs", CHROOT_BASEDIR, rootfs_image, "-one-file-system"])
+        do_build_extensions(rootfs_image, sysext_extensions_dir)
 
     external_extesions_dir = os.path.join(RELEASE_DIR, "extensions")
     os.makedirs(external_extesions_dir, exist_ok=True)
