@@ -641,6 +641,15 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
+- name: util-linux
+  repo: https://github.com/truenas/util-linux
+  branch: master
+  debian_fork: true
+  predepscmd:
+    - "apt install -y wget xz-utils"
+    - "./pull.sh"
+  deoptions: nocheck
+  generate_version: false
 - name: python3
   repo: https://github.com/truenas/python.git
   branch: master
