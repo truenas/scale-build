@@ -633,7 +633,7 @@ sources:
   branch: release/24.10.2
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
-  branch: master
+  branch: release/24.10.2
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -642,7 +642,7 @@ sources:
   generate_version: false
 - name: python3
   repo: https://github.com/truenas/python.git
-  branch: master
+  branch: release/24.10.2
   deoptions: nocheck
   generate_version: false
   predepscmd:
