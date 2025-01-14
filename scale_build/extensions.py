@@ -1,4 +1,5 @@
 import errno
+import json
 import logging
 import os
 import shutil
@@ -103,6 +104,11 @@ class Extension:
             f.write("ID=_any\n")
 
         run(["mksquashfs", self.chroot, dst_path, "-comp", "xz"])
+
+        with open(f"{dst_path}.json", "w") as f:
+            json.dump({
+                "files": sysext_files,
+            }, f)
 
     def run(self, cmd: list[str]):
         run_in_chroot(cmd, chroot=self.chroot)
