@@ -152,7 +152,7 @@ class NvidiaExtension(Extension):
                     "https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /")
 
     def download_nvidia_driver(self):
-        prefix = "https://download.nvidia.com/XFree86/Linux-x86_64"
+        prefix = "https://us.download.nvidia.com/XFree86/Linux-x86_64"
 
         version = get_manifest()["extensions"]["nvidia"]["current"]
         filename = f"NVIDIA-Linux-x86_64-{version}-no-compat32.run"
