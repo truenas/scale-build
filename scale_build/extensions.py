@@ -120,7 +120,6 @@ class NvidiaExtension(Extension):
     binaries = ("apt", "apt-config", "apt-key", "dpkg")
     temporary_packages = ["gcc", "make", "pkg-config"]
     permanent_packages = ["libvulkan1", "nvidia-container-toolkit", "vulkan-validationlayers"]
-    headers = {"User-Agent": "curl/7.88.1"}
 
     def build_impl(self):
         kernel_version = get_kernel_version(self.chroot)
@@ -158,10 +157,7 @@ class NvidiaExtension(Extension):
         filename = f"NVIDIA-Linux-x86_64-{version}-no-compat32.run"
         result = f"{self.chroot}/{filename}"
 
-        with requests.get(f"{prefix}/{version}/{filename}", headers=self.headers, stream=True, timeout=10) as r:
-            r.raise_for_status()
-            with open(result, "wb") as f:
-                shutil.copyfileobj(r.raw, f)
+        self.run(["wget", "-c", "-O", f"/{filename}", f"{prefix}/{version}/{filename}"])
 
         os.chmod(result, 0o755)
         return result
