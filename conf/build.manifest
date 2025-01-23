@@ -142,6 +142,9 @@ base-packages:
 - name: lsscsi
   # requested by the support team (NAS-130189)
   install_recommends: false
+- name: usbutils
+  # lsusb seems useful/harmless, also requested by community on forums
+  install_recommends: false
 - name: git
   # middleware actually has a hard dependency on the git binary
   # however, if we specify this in the debian/control file, all
