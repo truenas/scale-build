@@ -332,14 +332,14 @@ iso-packages:
 sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   batch_priority: 0
   supports_ccache: true
   env:
@@ -387,11 +387,11 @@ sources:
         - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-truenas-production-amd64"
@@ -444,14 +444,14 @@ sources:
       generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: truenas_sssd
   repo: https://github.com/truenas/sssd
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils systemd-dev truenas-samba"
@@ -460,7 +460,7 @@ sources:
     - truenas_samba
 - name: truenas_ipaclient
   repo: https://github.com/truenas/freeipa
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   generate_version: false
   predepscmd:
     - "apt install -y pkg-config truenas-samba truenas-sssd"
@@ -472,19 +472,19 @@ sources:
     - truenas_sssd
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   explicit_deps:
     - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -501,7 +501,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   subpackages:
     - name: scst-dbg
       generate_version: false
@@ -524,7 +524,7 @@ sources:
         - kernel-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   predepscmd:
@@ -534,22 +534,22 @@ sources:
     - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -557,28 +557,28 @@ sources:
     - openzfs
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: ixhardware
   repo: https://github.com/truenas/ixhardware
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: apps_validation
   repo: https://github.com/truenas/apps_validation
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: py_cryptit
   repo: https://github.com/truenas/py-cryptit
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   subdir: debian
   subpackages:
     - name: middlewared
@@ -592,16 +592,16 @@ sources:
       subdir: src/freenas
 - name: truenas_api_client
   repo: https://github.com/truenas/api_client
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: truenas_verify
   repo: https://github.com/truenas/truenas_verify
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -612,7 +612,7 @@ sources:
   batch_priority: 150
 - name: parted
   repo: https://github.com/truenas/parted
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -621,20 +621,20 @@ sources:
   generate_version: false
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   deoptions: nocheck
   generate_version: false
 - name: restic
   repo: https://github.com/truenas/restic
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   deoptions: nocheck
   generate_version: false
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -643,7 +643,7 @@ sources:
   generate_version: false
 - name: util-linux
   repo: https://github.com/truenas/util-linux
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -652,7 +652,7 @@ sources:
   generate_version: false
 - name: python3
   repo: https://github.com/truenas/python.git
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   batch_priority: 0
   deoptions: nocheck
   generate_version: false
@@ -662,7 +662,7 @@ sources:
     - "tar --strip-components=1 -xvf Python-3.11.9.tar.xz"
 - name: truenas_audit_rules
   repo: https://github.com/truenas/audit_rules.git
-  branch: stable/fangtooth
+  branch: release/25.04-BETA.1
   generate_version: false
 
 # Nvidia extensions versions
