@@ -10,23 +10,23 @@ identity_file_path_default: "~/.ssh/id_rsa"
 apt-repos:
   base-url: https://apt.sys.truenas.net/
   base-url-internal: http://apt-mirror.tn.ixsystems.net/
-  url: fangtooth/nightlies/debian/
+  url: fangtooth/25.04-BETA.1/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: fangtooth/nightlies/debian-security/
+  - url: fangtooth/25.04-BETA.1/debian-security/
     distribution: bookworm-security
     component: main
-  - url: fangtooth/nightlies/debian-backports/
+  - url: fangtooth/25.04-BETA.1/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free non-free-firmware"
-  - url: fangtooth/nightlies/debian-debug/
+  - url: fangtooth/25.04-BETA.1/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: fangtooth/nightlies/yarn/
+  - url: fangtooth/25.04-BETA.1/yarn/
     distribution: stable
     component: main
-  - url: fangtooth/nightlies/docker/
+  - url: fangtooth/25.04-BETA.1/docker/
     distribution: bookworm
     component: stable
     key: keys/docker.gpg
