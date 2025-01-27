@@ -13,8 +13,8 @@ pipeline {
         echo '*** Grabbing artifact from Build - TrueNAS SCALE (Incremental) ***'
         copyArtifacts filter: '**/*.update', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Incremental)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Incremental)', selector: lastSuccessful(), target: 'upload/files'
-        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-goldeye-Nightlies || true'
-        sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-goldeye-Nightlies/'
+        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies || true'
+        sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'
         sh 'rm -rf upload/files'
       }
     }
