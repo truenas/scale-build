@@ -1,4 +1,5 @@
 import errno
+import functools
 import logging
 import os
 import shutil
@@ -23,8 +24,29 @@ def build_extensions(rootfs_image, dst_dir):
     os.makedirs(chroot_base)
     run(["unsquashfs", "-dest", chroot_base, rootfs_image])
 
-    for klass, name in [(DevToolsExtension, "dev-tools"), (NvidiaExtension, "nvidia")]:
-        klass(rootfs_image, chroot_base, chroot).build(name, f"{dst_dir}/{name}.raw")
+    kernel_version = get_kernel_version(chroot_base)
+
+    current_nvidia_version = get_manifest()["extensions"]["nvidia"]["current"]
+    for factory, name in [
+        (DevToolsExtension, "dev-tools"),
+        (functools.partial(NvidiaExtension, current_nvidia_version, "-no-compat32",
+                           ["--skip-module-load", "--silent", f"--kernel-name={kernel_version}",
+                            "--allow-installation-with-running-driver", "--no-rebuild-initramfs"]),
+         "nvidia"),
+        (functools.partial(NvidiaExtension, "71.86.15", "-pkg2", ["--silent"]), "nvidia-71xx"),
+        (functools.partial(NvidiaExtension, "96.43.23", "-pkg2", ["--silent"]), "nvidia-96xx"),
+        (functools.partial(NvidiaExtension, "173.14.39", "-pkg2", ["--silent"]), "nvidia-173xx"),
+        (functools.partial(NvidiaExtension, "304.137", "-no-compat32", ["--silent", f"--kernel-name={kernel_version}"]),
+         "nvidia-304xx"),
+        (functools.partial(NvidiaExtension, "340.108", "-no-compat32", ["--silent", f"--kernel-name={kernel_version}"]),
+         "nvidia-340xx"),
+        (functools.partial(NvidiaExtension, "390.157", "-no-compat32", ["--silent", f"--kernel-name={kernel_version}"]),
+         "nvidia-390xx"),
+        (functools.partial(NvidiaExtension, "470.256.02", "-no-compat32",
+                           ["--silent", f"--kernel-name={kernel_version}"]),
+         "nvidia-470xx"),
+    ]:
+        factory(rootfs_image, chroot_base, chroot).build(name, f"{dst_dir}/{name}.raw")
 
 
 class Extension:
@@ -121,9 +143,13 @@ class NvidiaExtension(Extension):
     temporary_packages = ["gcc", "make", "pkg-config"]
     permanent_packages = ["libvulkan1", "nvidia-container-toolkit", "vulkan-validationlayers"]
 
-    def build_impl(self):
-        kernel_version = get_kernel_version(self.chroot)
+    def __init__(self, version, suffix, options, *args, **kwargs):
+        self.version = version
+        self.suffix = suffix
+        self.options = options
+        super().__init__(*args, **kwargs)
 
+    def build_impl(self):
         for binary in self.binaries:
             os.unlink(os.path.join(self.chroot, f"usr/local/bin/{binary}"))
             os.chmod(os.path.join(self.chroot, f"usr/bin/{binary}"), 0o755)
@@ -132,7 +158,7 @@ class NvidiaExtension(Extension):
         self.run(["apt", "update"])
         self.run(["apt", "-y", "install"] + self.temporary_packages + self.permanent_packages)
 
-        self.install_nvidia_driver(kernel_version)
+        self.install_nvidia_driver()
 
         self.run(["apt", "-y", "remove"] + self.temporary_packages)
         self.run(["apt", "-y", "autoremove"])
@@ -153,19 +179,17 @@ class NvidiaExtension(Extension):
     def download_nvidia_driver(self):
         prefix = "https://us.download.nvidia.com/XFree86/Linux-x86_64"
 
-        version = get_manifest()["extensions"]["nvidia"]["current"]
-        filename = f"NVIDIA-Linux-x86_64-{version}-no-compat32.run"
+        filename = f"NVIDIA-Linux-x86_64-{self.version}{self.suffix}.run"
         result = f"{self.chroot}/{filename}"
 
-        self.run(["wget", "-c", "-O", f"/{filename}", f"{prefix}/{version}/{filename}"])
+        self.run(["wget", "-c", "-O", f"/{filename}", f"{prefix}/{self.version}/{filename}"])
 
         os.chmod(result, 0o755)
         return result
 
-    def install_nvidia_driver(self, kernel_version):
+    def install_nvidia_driver(self):
         driver = self.download_nvidia_driver()
 
-        self.run([f"/{os.path.basename(driver)}", "--skip-module-load", "--silent", f"--kernel-name={kernel_version}",
-                  "--allow-installation-with-running-driver", "--no-rebuild-initramfs"])
+        self.run([f"/{os.path.basename(driver)}"] + self.options)
 
         os.unlink(driver)
