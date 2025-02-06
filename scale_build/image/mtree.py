@@ -50,7 +50,7 @@ ETC_FILES_TO_REMOVE = [
 # The following is a list of tuples (files, mode).
 # Preemptively change the mode before generating the mtree.
 OBJS_TO_FIXUP = [
-    ('/var/lib/incus', 0o744)
+    ('var/lib/incus', 0o744)
 ]
 
 
