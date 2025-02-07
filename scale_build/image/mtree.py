@@ -17,6 +17,7 @@ MTREE_DIRS = ['boot', 'etc', 'usr', 'opt', 'var', 'conf/audit_rules']
 # eliminate files being flagged as changed rather than simply added to our
 # base install.
 ETC_FILES_TO_REMOVE = [
+    'etc/audit/rules.d/audit.rules',  # Not used by TrueNAS
     'etc/exports',
     'etc/ftpusers',
     'etc/idmapd.conf',
@@ -79,7 +80,10 @@ def _do_mtree_impl(mtree_file_path, version):
             '-f', f.name,
             '-c', '--format=mtree',
             '--exclude', './etc/aliases',
-            '--exclude', './etc/audit/audit.rules',  # This is managed and separately audited
+            '--exclude', './etc/audit/audit.rules',  # TrueNAS managed and audited
+            '--exclude', './etc/console-setup/cached_setup_*',
+            '--exclude', './etc/default/keyboard',
+            '--exclude', './etc/default/kdump-tools',
             '--exclude', './etc/fstab',
             '--exclude', './etc/group',
             '--exclude', './etc/machine-id',
@@ -97,7 +101,6 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/pam.d/sshd',
             '--exclude', './usr/lib/debug/*',
             '--exclude', './usr/lib/debug/*',
-            '--exclude', './usr/share/console-setup/cached-setup*',
             '--exclude', './var/cache',
             '--exclude', './var/trash',
             '--exclude', './var/spool/*',
