@@ -97,7 +97,7 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/pam.d/sshd',
             '--exclude', './usr/lib/debug/*',
             '--exclude', './usr/lib/debug/*',
-            '--exclude', './usr/share/console-setup/cached-setup*'
+            '--exclude', './usr/share/console-setup/cached-setup*',
             '--exclude', './var/cache',
             '--exclude', './var/trash',
             '--exclude', './var/spool/*',
