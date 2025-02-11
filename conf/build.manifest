@@ -342,7 +342,7 @@ sources:
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: stable/fangtooth
+  branch: NAS-132120_FT
   batch_priority: 0
   supports_ccache: true
   env:
@@ -666,6 +666,10 @@ sources:
 - name: truenas_audit_rules
   repo: https://github.com/truenas/audit_rules.git
   branch: stable/fangtooth
+  generate_version: false
+- name: nfs_utils
+  repo: https://github.com/truenas/nfs-utils.git
+  branch: bookworm
   generate_version: false
 
 # Nvidia extensions versions
