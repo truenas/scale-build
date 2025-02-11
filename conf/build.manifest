@@ -667,6 +667,10 @@ sources:
   repo: https://github.com/truenas/audit_rules.git
   branch: stable/fangtooth
   generate_version: false
+- name: nfs_utils
+  repo: https://github.com/truenas/nfs-utils.git
+  branch: stable/fangtooth
+  generate_version: false
 
 # Nvidia extensions versions
 ############################################################################
