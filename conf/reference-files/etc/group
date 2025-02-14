@@ -65,7 +65,6 @@ tcpdump:x:123:
 rdma:x:124:
 nut:x:126:
 ladvd:x:127:
-libvirt:x:128:
 nova:x:129:
 builtin_administrators:x:544:
 builtin_users:x:545:
@@ -75,7 +74,6 @@ webdav:x:666:
 truenas_readonly_administrators:x:951:
 truenas_sharing_administrators:x:952:
 docker:x:999:
-libvirt-qemu:x:986:libvirt-qemu
 haproxy:x:130:
 uuidd:x:131:
 i2c:x:132:
