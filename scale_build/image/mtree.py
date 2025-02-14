@@ -41,17 +41,19 @@ ETC_FILES_TO_REMOVE = [
     'etc/snmp/snmpd.conf',
     'etc/ssh/sshd_config',
     'etc/syslog-ng/syslog-ng.conf',
-    'etc/rc2.d/K01ssh',     # systemd removes these symlinks on ssh start
+    'etc/rc2.d/K01ssh',             # systemd removes these symlinks on ssh start
     'etc/rc3.d/K01ssh',
     'etc/rc4.d/K01ssh',
     'etc/rc5.d/K01ssh',
+    'etc/initramfs-tools/modules',  # These three are not used by systemd
+    'etc/modules',
+    'etc/default/zfs',              # see https://github.com/openzfs/zfs/issues/7635
 ]
 
 # Some files or directories get the permission mode changed on install.
 # The following is a list of tuples (files, mode).
 # Preemptively change the mode before generating the mtree.
 OBJS_TO_FIXUP = [
-    ('var/lib/incus', 0o744)
 ]
 
 
@@ -79,6 +81,7 @@ def _do_mtree_impl(mtree_file_path, version):
             '/usr/bin/bsdtar',
             '-f', f.name,
             '-c', '--format=mtree',
+            '--exclude', './boot/initrd.img*',
             '--exclude', './etc/aliases',
             '--exclude', './etc/audit/audit.rules',  # TrueNAS managed and audited
             '--exclude', './etc/console-setup/cached_setup_*',
