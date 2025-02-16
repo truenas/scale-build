@@ -175,7 +175,19 @@ def custom_rootfs_setup():
     with open(os.path.join(CHROOT_BASEDIR, 'etc/default/zfs'), 'a') as f:
         f.write('ZFS_INITRD_POST_MODPROBE_SLEEP=15')
 
-    run_in_chroot(['update-initramfs', '-k', 'all', '-u'])
+    for initrd in os.listdir(f"{CHROOT_BASEDIR}/boot"):
+        if initrd.startswith("initrd.img-") and "debug" in initrd:
+            os.unlink(f"{CHROOT_BASEDIR}/boot/{initrd}")
+
+    for kernel in os.listdir(f"{CHROOT_BASEDIR}/boot"):
+        if not kernel.startswith("vmlinuz-"):
+            continue
+
+        kernel_name = kernel.removeprefix("vmlinuz-")
+        if "debug" in kernel_name:
+            continue
+
+        run_in_chroot(['update-initramfs', '-k', kernel_name, '-u'])
 
     # Generate native systemd unit files for SysV services that lack ones to prevent systemd-sysv-generator warnings
     tmp_systemd = os.path.join(CHROOT_BASEDIR, 'tmp/systemd')
