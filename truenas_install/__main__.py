@@ -447,8 +447,6 @@ def main():
                     rsync.append("etc/machine-id")
                     if "home" not in cloned_datasets:
                         rsync.append("home")
-                    if os.path.exists(f"{old_root}/var/lib/libvirt/qemu/nvram"):
-                        rsync.append("var/lib/libvirt/qemu/nvram")
                     if os.path.exists(f"{old_root}/var/lib/netdata"):
                         rsync.append("var/lib/netdata")
                     if os.path.exists(f"{old_root}/var/lib/snmp"):
