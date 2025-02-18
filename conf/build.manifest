@@ -117,6 +117,12 @@ base-packages:
   install_recommends: true
 - name: qemu-guest-agent
   install_recommends: true
+- name: iscsi-scst
+  install_recommends: true
+- name: scst
+  install_recommends: true
+- name: scstadmin
+  install_recommends: true
 - name: scst-dbg
   install_recommends: true
 - name: squashfs-tools
