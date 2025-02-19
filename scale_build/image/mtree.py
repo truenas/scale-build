@@ -45,7 +45,7 @@ ETC_FILES_TO_REMOVE = [
     'etc/rc3.d/K01ssh',
     'etc/rc4.d/K01ssh',
     'etc/rc5.d/K01ssh',
-    'etc/initramfs-tools/modules',  # These three are not used by systemd
+    'etc/initramfs-tools/modules',  # These two are not used by systemd
     'etc/modules',
 ]
 
