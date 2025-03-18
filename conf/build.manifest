@@ -491,6 +491,9 @@ sources:
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
   branch: master
+- name: crypto_utils
+  repo: https://github.com/truenas/crypto_utils
+  branch: master
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
   branch: master
