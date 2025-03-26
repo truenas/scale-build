@@ -494,6 +494,9 @@ sources:
 - name: truenas_crypto_utils
   repo: https://github.com/truenas/truenas_crypto_utils
   branch: master
+- name: truenas_connect_utils
+  repo: https://github.com/truenas/truenas_connect_utils
+  branch: master
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
   branch: master
