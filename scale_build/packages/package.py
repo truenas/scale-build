@@ -31,6 +31,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, CCacheMixin, G
         generate_version=True, predepscmd=None, deps_path=None, subdir=None, deoptions=None, jobs=None,
         buildcmd=None, tmpfs=True, tmpfs_size=12, batch_priority=100, env=None, identity_file_path=None,
         build_constraints=None, debian_fork=False, source_name=None, depscmd=None, supports_ccache=False,
+        secret_env=None,
     ):
         self.name = name
         self.source_name = source_name or name
@@ -63,6 +64,7 @@ class Package(BootstrapMixin, BuildPackageMixin, BuildCleanMixin, CCacheMixin, G
         self.children = set()
         self.batch_priority = batch_priority
         self.env = env or {}
+        self.secret_env = secret_env or []
         self.debian_fork = debian_fork
 
         if name in self.explicit_deps:
