@@ -69,6 +69,7 @@ INDIVIDUAL_REPO_SCHEMA = {
         'jobs': {'type': 'integer'},
         'debian_fork': {'type': 'boolean'},
         'env': {'type': 'object', 'patternProperties': {'^.+$': {'type': 'string'}}},
+        'secret_env': {'type': 'array', 'items': {'type': 'string'}},
     },
     'additionalProperties': False,
 }
