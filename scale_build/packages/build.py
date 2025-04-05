@@ -7,7 +7,7 @@ from datetime import datetime
 from scale_build.config import BUILD_TIME, VERSION
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
-from scale_build.utils.manifest import get_truenas_train, get_release_code_name
+from scale_build.utils.manifest import get_truenas_train, get_release_code_name, get_secret_env
 from scale_build.utils.run import run
 from scale_build.utils.paths import PKG_DIR
 
@@ -58,6 +58,10 @@ class BuildPackageMixin:
             **APT_ENV,
             **self.env,
         }
+        secrets = get_secret_env()
+        for k in filter(lambda k: k in secrets, self.secrets_env):
+            env[k] = secrets[k]
+
         env.update(self.ccache_env(env))
         return env
 
