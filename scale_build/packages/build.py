@@ -60,7 +60,7 @@ class BuildPackageMixin:
             'RELEASE_VERSION': VERSION,
         }
         secrets = get_secret_env()
-        for k in filter(lambda k: k in secrets, self.secrets_env):
+        for k in filter(lambda k: k in secrets, self.secret_env):
             env[k] = secrets[k]
 
         env.update(self.ccache_env(env))
