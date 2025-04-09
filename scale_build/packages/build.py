@@ -57,6 +57,7 @@ class BuildPackageMixin:
             **os.environ,
             **APT_ENV,
             **self.env,
+            'RELEASE_VERSION': VERSION,
         }
         secrets = get_secret_env()
         for k in filter(lambda k: k in secrets, self.secrets_env):
