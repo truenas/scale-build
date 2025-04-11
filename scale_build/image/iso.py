@@ -32,9 +32,17 @@ def install_iso_packages():
 def install_iso_packages_impl():
     run_in_chroot(['apt', 'update'])
 
+    with open(f"{CHROOT_BASEDIR}/etc/resolv.conf") as f:
+        resolv_conf = f.read()
+
     # echo "/dev/disk/by-label/TRUENAS / iso9660 loop 0 0" > ${CHROOT_BASEDIR}/etc/fstab
     for package in get_manifest()['iso-packages']:
         run_in_chroot(['apt', 'install', '-y', package])
+
+    # Installing systemd-resolved breaks existing resolv.conf
+    os.unlink(f"{CHROOT_BASEDIR}/etc/resolv.conf")
+    with open(f"{CHROOT_BASEDIR}/etc/resolv.conf", "w") as f:
+        f.write(resolv_conf)
 
     # Inject vendor name into grub.cfg
     with open(CONF_GRUB, 'r') as f:
@@ -55,7 +63,7 @@ def make_iso_file():
     run(fr'chroot {CHROOT_BASEDIR} /bin/bash -c "echo -e \"root\nroot\" | passwd root"', shell=True)
 
     # Bring up network for the installer
-    run(f'chroot {CHROOT_BASEDIR} systemctl enable systemd-networkd', shell=True)
+    run(f'chroot {CHROOT_BASEDIR} systemctl enable systemd-networkd systemd-resolved', shell=True)
 
     # Create /etc/version
     with open(os.path.join(CHROOT_BASEDIR, 'etc/version'), 'w') as f:
