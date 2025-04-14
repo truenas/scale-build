@@ -329,6 +329,8 @@ iso-packages:
 - python3-truenas-installer
 - udhcpc
 - vim-tiny
+# Must be the last package as installing it breaks /etc/resolv.conf in chroot
+- systemd-resolved
 
 #
 # List of Git source repositories the build will checkout and perform a debian
