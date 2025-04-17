@@ -19,7 +19,7 @@ class BuildPackageMixin:
         run(
             f'chroot {self.dpkg_overlay} /bin/bash -c {shlex.quote(command)}', shell=True,
             exception_msg=exception_message,
-            env=self._get_build_env()
+            env=self._get_build_env() | self._get_chroot_env()
         )
 
     @property
@@ -171,9 +171,7 @@ class BuildPackageMixin:
             return self.buildcmd
         else:
             build_env = f'DEB_BUILD_OPTIONS={self.deoptions} ' if self.deoptions else ''
-            env_flags = [
-                f'-e{k}={shlex.quote(v)}' for k, v in self._get_chroot_env().items()
-            ]
+            env_flags = [f'-e{k}' for k in self._get_chroot_env()]
             return [f'{build_env} debuild {" ".join(env_flags + self.deflags)}']
 
     @property
