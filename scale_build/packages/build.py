@@ -1,13 +1,14 @@
 import contextlib
 import json
 import os
+import shlex
 import shutil
 
 from datetime import datetime
 from scale_build.config import BUILD_TIME, VERSION
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
-from scale_build.utils.manifest import get_truenas_train, get_release_code_name
+from scale_build.utils.manifest import get_truenas_train, get_release_code_name, get_secret_env
 from scale_build.utils.run import run
 from scale_build.utils.paths import PKG_DIR
 
@@ -16,8 +17,9 @@ class BuildPackageMixin:
 
     def run_in_chroot(self, command, exception_message=None):
         run(
-            f'chroot {self.dpkg_overlay} /bin/bash -c "{command}"', shell=True, exception_msg=exception_message,
-            env=self._get_build_env()
+            f'chroot {self.dpkg_overlay} /bin/bash -c {shlex.quote(command)}', shell=True,
+            exception_msg=exception_message,
+            env=self._get_build_env() | self._get_chroot_env()
         )
 
     @property
@@ -59,6 +61,15 @@ class BuildPackageMixin:
             **self.env,
         }
         env.update(self.ccache_env(env))
+        return env
+
+    def _get_chroot_env(self):
+        env = {
+            'RELEASE_VERSION': VERSION,
+        }
+        secrets = get_secret_env()
+        for k in filter(lambda k: k in secrets, self.secret_env):
+            env[k] = secrets[k]
         return env
 
     def _build_impl(self):
@@ -160,7 +171,8 @@ class BuildPackageMixin:
             return self.buildcmd
         else:
             build_env = f'DEB_BUILD_OPTIONS={self.deoptions} ' if self.deoptions else ''
-            return [f'{build_env} debuild {" ".join(self.deflags)}']
+            env_flags = [f'-e{k}' for k in self._get_chroot_env()]
+            return [f'{build_env} debuild {" ".join(env_flags + self.deflags)}']
 
     @property
     def debug_command(self):

@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 from scale_build.config import APT_BASE_CUSTOM, APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
 from scale_build.exceptions import CallError, MissingManifest
-from scale_build.utils.paths import MANIFEST
+from scale_build.utils.paths import MANIFEST, SECRETS_FILE
 
 
 BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.-]+\b')
@@ -69,6 +69,7 @@ INDIVIDUAL_REPO_SCHEMA = {
         'jobs': {'type': 'integer'},
         'debian_fork': {'type': 'boolean'},
         'env': {'type': 'object', 'patternProperties': {'^.+$': {'type': 'string'}}},
+        'secret_env': {'type': 'array', 'items': {'type': 'string'}},
     },
     'additionalProperties': False,
 }
@@ -198,6 +199,21 @@ MANIFEST_SCHEMA = {
 }
 
 
+@functools.cache
+def get_secret_env():
+    try:
+        with open(SECRETS_FILE, 'r') as f:
+            secrets = yaml.safe_load(f.read())
+        if not isinstance(secrets, dict):
+            raise CallError('A dictionary containing secrets is expected')
+    except yaml.YAMLError:
+        raise CallError('A valid yaml file is expected for secrets')
+    except FileNotFoundError:
+        return {}
+    else:
+        return secrets
+
+
 def get_manifest_str():
     try:
         with open(MANIFEST, 'r') as f:
@@ -244,6 +260,9 @@ def update_packages_branch(branch_name):
 
 
 def validate_manifest():
+    # We don't consume secrets here but when manifest is being validated, we would like to make sure
+    # if any secret file is present, it gets validated properly and then cached for consumption
+    get_secret_env()
     manifest = get_manifest()
     if SKIP_SOURCE_REPO_VALIDATION:
         return
