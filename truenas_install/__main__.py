@@ -1,24 +1,45 @@
 # -*- coding=utf-8 -*-
-from collections import defaultdict
-import contextlib
-from datetime import datetime
-import itertools
 import json
-import logging
-import os
 import platform
-import re
-import shutil
-import sqlite3
-import subprocess
 import sys
-import tempfile
 
-from licenselib.license import ContractType, License
 
-from .dhs import TRUENAS_DATA_HIERARCHY
-from .fhs import TRUENAS_DATASETS
-from .utils import getmntinfo, get_pids
+def write_error(error: str, raise_=False, prefix="Error: "):
+    sys.stdout.write(json.dumps({"error": prefix + error}) + "\n")
+    sys.stdout.flush()
+
+    if raise_:
+        raise Exception(error)
+
+
+if __name__ == "__main__":
+    if platform.system().upper() == "FREEBSD":
+        write_error(
+            "Migrating TrueNAS CORE to TrueNAS SCALE 24.10 (or later) using update file upload is not supported. "
+            "Please migrate with the latest 24.04 release update file or back up the TrueNAS configuration, perform a "
+            "fresh install, and restore from the configuration backup."
+        )
+        sys.exit(2)
+
+
+from collections import defaultdict  # noqa
+import contextlib  # noqa
+from datetime import datetime  # noqa
+import itertools  # noqa
+import logging  # noqa
+import os  # noqa
+import re  # noqa
+import shutil  # noqa
+import sqlite3  # noqa
+import subprocess  # noqa
+import sys  # noqa
+import tempfile  # noqa
+
+from licenselib.license import ContractType, License  # noqa
+
+from .dhs import TRUENAS_DATA_HIERARCHY  # noqa
+from .fhs import TRUENAS_DATASETS  # noqa
+from .utils import getmntinfo, get_pids  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -27,20 +48,10 @@ EFI_SYSTEM_PARTITION_GUID = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
 RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+]\s+(?P<extracted>[0-9]+)/(?P<total>[0-9]+)\s+(?P<progress>[0-9]+)%")
 run_kw = dict(check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", errors="ignore")
 
-IS_FREEBSD = platform.system().upper() == "FREEBSD"
-
 
 def write_progress(progress, message):
     sys.stdout.write(json.dumps({"progress": progress, "message": message}) + "\n")
     sys.stdout.flush()
-
-
-def write_error(error: str, raise_=False, prefix="Error: "):
-    sys.stdout.write(json.dumps({"error": error}) + "\n")
-    sys.stdout.flush()
-
-    if raise_:
-        raise Exception(error)
 
 
 def run_command(cmd, **kwargs):
@@ -237,14 +248,6 @@ def main():
     input = json.loads(sys.stdin.read())
 
     old_root = input.get("old_root", None)
-
-    if IS_FREEBSD:
-        write_error(
-            "Migrating TrueNAS CORE to TrueNAS SCALE 24.10 (or later) using update file upload is not supported. "
-            "Please migrate with the latest 24.04 release update file or back up the TrueNAS configuration, perform a "
-            "fresh install, and restore from the configuration backup."
-        )
-        sys.exit(2)
 
     if input.get("precheck"):
         if precheck_result := precheck(old_root):
