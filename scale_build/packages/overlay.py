@@ -12,6 +12,14 @@ class OverlayMixin:
         return f'{TMPFS}_{self.name}'
 
     @property
+    def host_shared_folder(self):
+        return '/etc/keys'
+
+    @property
+    def chroot_shared_folder_path(self):
+        return os.path.join(self.dpkg_overlay, 'mnt', 'shared')
+
+    @property
     def chroot_base_directory(self):
         return os.path.join(self.tmpfs_path, f'chroot_{self.name}')
 
@@ -36,7 +44,7 @@ class OverlayMixin:
         return os.path.join(self.dpkg_overlay, 'packages')
 
     def make_overlayfs(self):
-        for path in (self.chroot_overlay, self.dpkg_overlay, self.sources_overlay, self.workdir_overlay):
+        for path in (self.chroot_overlay, self.dpkg_overlay, self.sources_overlay, self.workdir_overlay, self.chroot_shared_folder_path):
             os.makedirs(path, exist_ok=True)
 
         for entry in [
@@ -50,6 +58,10 @@ class OverlayMixin:
             (
                 ['mount', '--bind', self.sources_overlay, self.source_in_chroot],
                 'Failed mount --bind /dpkg-src', self.source_in_chroot
+            ),
+            (
+                ['mount', '--bind', self.host_shared_folder, self.chroot_shared_folder_path],
+                'Failed to mount --bind shared host folder', self.chroot_shared_folder_path
             )
         ] + ([
             (['mount', '--bind', CCACHE_DIR, self.ccache_with_chroot_path],
@@ -71,6 +83,7 @@ class OverlayMixin:
             ['umount', '-f', self.dpkg_overlay],
             ['umount', '-R', '-f', self.dpkg_overlay],
             ['umount', '-R', '-f', self.tmpfs_path],
+            ['umount', '-f', self.chroot_shared_folder_path],
         ):
             run(command, check=False)
 

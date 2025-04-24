@@ -82,9 +82,19 @@ base-packages:
   install_recommends: true
 - name: firmware-realtek
   install_recommends: true
+- name: shim-unsigned
+  install_recommends: true
 - name: grub-pc-bin
   install_recommends: true
 - name: grub-efi-amd64-bin
+  install_recommends: true
+- name: grub-efi-amd64-signed
+  install_recommends: true
+- name: shim-signed-common
+  install_recommends: true
+- name: shim-helpers-amd64-signed
+  install_recommends: true
+- name: shim-signed
   install_recommends: true
 - name: htop
   install_recommends: true
@@ -350,7 +360,7 @@ sources:
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-6.12
+  branch: NAS-135054
   batch_priority: 0
   supports_ccache: true
   env:
@@ -361,7 +371,7 @@ sources:
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev devscripts"
     # Install dependencies to build perf
-    - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3 python3-setuptools python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-17-jdk libcapstone-dev llvm-dev"
+    - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3 python3-setuptools python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-17-jdk libcapstone-dev llvm-dev sbsigntool"
     # We remove git files because kernel makefile tries to interact with git for determining version
     # which results in misconfigured version due to our debian based changes
     - "rm -rf .git .gitattributes .gitignore"
@@ -375,6 +385,18 @@ sources:
   buildcmd:
     - "rm -rf .config.old"
     - "make -j$(nproc) bindeb-pkg"
+    - |
+      for deb in ../linux-image-*_amd64.deb; do
+        temp_dir=$(mktemp -d)
+        dpkg-deb -R "$deb" "$temp_dir"
+        vmlinuz_path=$(find "$temp_dir/boot" -name "vmlinuz-*" -print -quit 2>/dev/null)
+        if [ -n "$vmlinuz_path" ]; then
+          sbsign --key /mnt/shared/MOK.key --cert /mnt/shared/MOK.pem --output "$vmlinuz_path" "$vmlinuz_path"
+        fi
+        dpkg-deb -b "$temp_dir" "$deb"
+        rm -rf "$temp_dir"
+      done
+
   subpackages:
     - name: kernel-dbg
       batch_priority: 0
@@ -382,7 +404,7 @@ sources:
       env:
         EXTRAVERSION: "-debug"
       predepscmd:
-        - "apt install -y flex bison dwarves libssl-dev devscripts"
+        - "apt install -y flex bison dwarves libssl-dev devscripts sbsigntool"
         # We remove git files because kernel makefile tries to interact with git for determining version
         # which results in misconfigured version due to our debian based changes
         - "rm -rf .git .gitattributes .gitignore"
@@ -396,6 +418,18 @@ sources:
       buildcmd:
         - "rm -rf .config.old"
         - "make -j$(nproc) bindeb-pkg"
+        - |
+          for deb in ../linux-image-*_amd64.deb; do
+            temp_dir=$(mktemp -d)
+            dpkg-deb -R "$deb" "$temp_dir"
+            vmlinuz_path=$(find "$temp_dir/boot" -name "vmlinuz-*" -print -quit 2>/dev/null)
+            if [ -n "$vmlinuz_path" ]; then
+              sbsign --key /mnt/shared/MOK.key --cert /mnt/shared/MOK.pem --output "$vmlinuz_path" "$vmlinuz_path"
+            fi
+            dpkg-deb -b "$temp_dir" "$deb"
+            rm -rf "$temp_dir"
+          done
+
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
   branch: master
@@ -421,6 +455,15 @@ sources:
     - "dpkg-buildpackage -us -uc -b"
     - "rm ../openzfs-zfs-dkms*.deb ../openzfs-zfs-dracut*.deb"
     - "debian/rules override_dh_binary-modules"
+    - |
+      for deb in ../openzfs-zfs-modules-*_amd64.deb; do
+        temp_dir=$(mktemp -d)
+        dpkg-deb -R "$deb" "$temp_dir"
+        find "$temp_dir" -iname "*.ko" -exec /usr/src/linux-headers-truenas-production-amd64/scripts/sign-file sha256 /mnt/shared/MOK.key /mnt/shared/MOK.pem {} \;
+        dpkg-deb -b "$temp_dir" "$deb"
+        rm -rf "$temp_dir"
+      done
+
   explicit_deps:
     - kernel
     - kernel-dbg
@@ -448,6 +491,15 @@ sources:
         - "sh autogen.sh"
         - "./scripts/make_gitrev.sh"
         - "debian/rules override_dh_binary-modules"
+        - |
+          for deb in ../openzfs-zfs-modules-*_amd64.deb; do
+            temp_dir=$(mktemp -d)
+            dpkg-deb -R "$deb" "$temp_dir"
+            find "$temp_dir" -iname "*.ko" -exec /usr/src/linux-headers-truenas-debug-amd64/scripts/sign-file sha256 /mnt/shared/MOK.key /mnt/shared/MOK.pem {} \;
+            dpkg-deb -b "$temp_dir" "$deb"
+            rm -rf "$temp_dir"
+          done
+
       explicit_deps:
         - kernel
         - kernel-dbg
@@ -508,6 +560,8 @@ sources:
   env:
     KVER: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KDIR: "/lib/modules/$(KVER)/build"
+    KSRC: "/usr/src/linux-headers-truenas-production-amd64"
+    KOBJ: "$(KSRC)"
   prebuildcmd:
     - "sed -i s/^DEBIAN_REVISION=.*/DEBIAN_REVISION=~truenas+1/g Makefile"
     - "make debian/changelog"
@@ -515,6 +569,18 @@ sources:
     - "make 2perf"
     - "make scst-dist-gzip"
     - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
+    - "ls -l /usr/src"
+    - "ls -l ./dpkg"
+    - "ls -l ../"
+    - |
+      for deb in ../scst_*_amd64.deb; do
+        temp_dir=$(mktemp -d)
+        dpkg-deb -R "$deb" "$temp_dir"
+        find "$temp_dir" -iname "*.ko" -exec /usr/src/linux-headers-truenas-production-amd64/scripts/sign-file sha256 /mnt/shared/MOK.key /mnt/shared/MOK.pem {} \;
+        dpkg-deb -b "$temp_dir" "$deb"
+        rm -rf "$temp_dir"
+      done
+
   explicit_deps:
     - kernel
     - kernel-dbg
@@ -536,6 +602,17 @@ sources:
         - "make 2debug"
         - "make scst-dist-gzip"
         - "make dpkg DEBEMAIL=no-reply@ixsystems.com DEBFULLNAME=TrueNAS"
+        - "ls -l ./dpkg/"
+        - "ls -l ../"
+        - |
+          for deb in ../scst-dbg_*_amd64.deb; do
+            temp_dir=$(mktemp -d)
+            dpkg-deb -R "$deb" "$temp_dir"
+            find "$temp_dir" -iname "*.ko" -exec /usr/src/linux-headers-truenas-debug-amd64/scripts/sign-file sha256 /mnt/shared/MOK.key /mnt/shared/MOK.pem {} \;
+            dpkg-deb -b "$temp_dir" "$deb"
+            rm -rf "$temp_dir"
+          done
+
       explicit_deps:
         - kernel
         - kernel-dbg
@@ -617,9 +694,18 @@ sources:
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: master
+- name: shim-unsigned
+  repo: https://github.com/ixhamza/shim-unsigned
+  branch: NAS-135054
+  buildcmd:
+    - "DEB_BUILD_OPTIONS='reproducible=+fixfilepath' dpkg-buildpackage -uc -us -b"
+  explicit_deps:
+    - grub2
+  batch_priority: 149
+  generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: master
+  branch: NAS-135054
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -628,6 +714,40 @@ sources:
   generate_version: false
   jobs: 1
   batch_priority: 150
+- name: grub-efi-amd64-signed
+  repo: https://github.com/ixhamza/grub-efi-amd64-signed
+  branch: NAS-135054
+  predepscmd:
+    - "apt install -y sbsigntool tree"
+    - "cp /mnt/shared/MOK.{key,pem} debian/"
+  buildcmd:
+    - "dpkg-buildpackage -uc -us -b"
+  explicit_deps:
+    - grub2
+    - shim-signed
+  batch_priority: 155
+- name: shim-helpers-amd64-signed
+  repo: https://github.com/ixhamza/shim-helpers-amd64-signed
+  branch: NAS-135054
+  predepscmd:
+    - "apt install -y sbsigntool"
+  buildcmd:
+    - "dpkg-buildpackage -uc -us -b"
+  explicit_deps:
+    - grub2
+    - shim-unsigned
+  batch_priority: 153
+- name: shim-signed
+  repo: https://github.com/ixhamza/shim-signed
+  branch: NAS-135054
+  predepscmd:
+    - "apt install -y sbsigntool"
+  buildcmd:
+    - "dpkg-buildpackage -uc -us -b"
+  explicit_deps:
+    - shim-helpers-amd64-signed
+    - shim-unsigned
+  batch_priority: 154
 - name: parted
   repo: https://github.com/truenas/parted
   branch: master

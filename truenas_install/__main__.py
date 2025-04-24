@@ -610,15 +610,22 @@ def main():
                             run_command(grub_cmd)
 
                             run_command(["chroot", root, "mkdir", "-p", "/boot/efi/EFI/boot"])
-                            run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
+
+                            run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/shimx64.efi",
                                          "/boot/efi/EFI/boot/bootx64.efi"])
+
+                            run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/fbx64.efi",
+                                         "/boot/efi/EFI/boot/fbx64.efi"])
+
+                            run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/mmx64.efi",
+                                         "/boot/efi/EFI/boot/mmx64.efi"])
 
                             if os.path.exists("/sys/firmware/efi"):
                                 run_command(["chroot", root, "efibootmgr", "-c",
                                              "-d", f"/dev/{disk}",
                                              "-p", f"{efi_partition_number}",
                                              "-L", f"TrueNAS-{i}",
-                                             "-l", "/EFI/debian/grubx64.efi"])
+                                             "-l", "/EFI/debian/shimx64.efi"])
                         finally:
                             run_command(["chroot", root, "umount", "/boot/efi"])
             finally:
