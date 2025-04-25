@@ -42,6 +42,7 @@ GITHUB_TOKEN = get_env_variable('GITHUB_TOKEN', str)
 PACKAGE_IDENTITY_FILE_PATH_OVERRIDES = {}
 PARALLEL_BUILD = get_env_variable('PARALLEL_BUILDS', int, (max(cpu_count(), 8) / 4))
 PKG_DEBUG = get_env_variable('PKG_DEBUG', bool, 0)
+SECRET_ENV_VARS = {}
 SIGNING_KEY = get_env_variable('SIGNING_KEY', str)
 SIGNING_PASSWORD = get_env_variable('SIGNING_PASSWORD', str)
 SKIP_SOURCE_REPO_VALIDATION = get_env_variable('SKIP_SOURCE_REPO_VALIDATION', bool)
@@ -59,3 +60,5 @@ for k, v in environ.items():
         BRANCH_OVERRIDES[k[:-(len('_OVERRIDE'))]] = v
     elif k.endswith(IDENTITY_FILE_PATH_OVERRIDE_SUFFIX):
         PACKAGE_IDENTITY_FILE_PATH_OVERRIDES[k[:-(len(IDENTITY_FILE_PATH_OVERRIDE_SUFFIX))]] = v
+    elif k.startswith('SECRET_'):
+        SECRET_ENV_VARS[k[len('SECRET_'):]] = v

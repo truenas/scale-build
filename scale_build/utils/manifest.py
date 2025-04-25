@@ -6,7 +6,7 @@ import yaml
 
 from urllib.parse import urlparse
 
-from scale_build.config import APT_BASE_CUSTOM, APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN
+from scale_build.config import APT_BASE_CUSTOM, APT_INTERNAL_BUILD, SKIP_SOURCE_REPO_VALIDATION, TRAIN, SECRET_ENV_VARS
 from scale_build.exceptions import CallError, MissingManifest
 from scale_build.utils.paths import MANIFEST, SECRETS_FILE
 
@@ -209,9 +209,9 @@ def get_secret_env():
     except yaml.YAMLError:
         raise CallError('A valid yaml file is expected for secrets')
     except FileNotFoundError:
-        return {}
+        return {} | SECRET_ENV_VARS
     else:
-        return secrets
+        return secrets | SECRET_ENV_VARS
 
 
 def get_manifest_str():
