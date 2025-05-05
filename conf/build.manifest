@@ -198,7 +198,7 @@ build-epoch: 13
 ############################################################################
 apt_preferences:
 - Package: "*"
-  Pin: "release n=bookworm"
+  Pin: "release n=bookworm-backports"
   Pin-Priority: 900
 - Package: "*"
   Pin: "origin \"\""
@@ -208,12 +208,6 @@ apt_preferences:
   Pin-Priority: 1000
 - Package: "*curl*"
   Pin: "release n=bookworm-security"
-  Pin-Priority: 1000
-- Package: "*firmware*"
-  Pin: "release n=bookworm-backports"
-  Pin-Priority: 1000
-- Package: "golang*"
-  Pin: "release n=bookworm-backports"
   Pin-Priority: 1000
 - Package: "*libcrypto*"
   Pin: "origin \"\""
