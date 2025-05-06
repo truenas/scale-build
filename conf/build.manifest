@@ -620,7 +620,7 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-  jobs: 20
+  jobs: 40
   batch_priority: 150
 - name: parted
   repo: https://github.com/truenas/parted
