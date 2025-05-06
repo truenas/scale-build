@@ -18,6 +18,12 @@ pipeline {
     stage('Checkout') {
       steps {
         sh 'cd ${BDIR} && env FORCE_CLEANUP_WITH_EPOCH_CHANGE=y make checkout'
+        script {
+          withCredentials([string(credentialsId: 'ce73d801-9cb5-41ea-814e-a416fa193afe', variable: 'ID')]) {
+            sh 'cd conf && touch secrets.yaml'
+            writeFile(file: "conf/secrets.yaml", text: ID)
+          }
+        }
       }
     }
     stage('Packages') {
@@ -52,6 +58,9 @@ pipeline {
       sh 'cp -r ${BDIR}/logs/* artifacts/logs/'
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
       mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "rmesta@ixsystems.com,william@ixsystems.com";
+    }
+    always {
+      sh 'rm -rf conf/secrets.yaml'
     }
   }
 }
