@@ -13,7 +13,7 @@ class OverlayMixin:
 
     @property
     def host_shared_folder(self):
-        return '/etc/keys'
+        return '/etc/IT_keys'
 
     @property
     def chroot_shared_folder_path(self):
