@@ -10,23 +10,23 @@ identity_file_path_default: "~/.ssh/id_rsa"
 apt-repos:
   base-url: https://apt.sys.truenas.net/
   base-url-internal: http://apt-mirror.tn.ixsystems.net/
-  url: fangtooth/nightlies/debian/
+  url: goldeye/nightlies/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: fangtooth/nightlies/debian-security/
+  - url: goldeye/nightlies/debian-security/
     distribution: bookworm-security
     component: main
-  - url: fangtooth/nightlies/debian-backports/
+  - url: goldeye/nightlies/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free non-free-firmware"
-  - url: fangtooth/nightlies/debian-debug/
+  - url: goldeye/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: fangtooth/nightlies/yarn/
+  - url: goldeye/nightlies/yarn/
     distribution: stable
     component: main
-  - url: fangtooth/nightlies/docker/
+  - url: goldeye/nightlies/docker/
     distribution: bookworm
     component: stable
     key: keys/docker.gpg
@@ -198,7 +198,7 @@ build-epoch: 13
 ############################################################################
 apt_preferences:
 - Package: "*"
-  Pin: "release n=bookworm"
+  Pin: "release n=bookworm-backports"
   Pin-Priority: 900
 - Package: "*"
   Pin: "origin \"\""
@@ -208,12 +208,6 @@ apt_preferences:
   Pin-Priority: 1000
 - Package: "*curl*"
   Pin: "release n=bookworm-security"
-  Pin-Priority: 1000
-- Package: "*firmware*"
-  Pin: "release n=bookworm-backports"
-  Pin-Priority: 1000
-- Package: "golang*"
-  Pin: "release n=bookworm-backports"
   Pin-Priority: 1000
 - Package: "*libcrypto*"
   Pin: "origin \"\""
