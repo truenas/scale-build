@@ -37,6 +37,7 @@ ETC_FILES_TO_REMOVE = [
     'etc/nginx/nginx.conf',
     'etc/proftpd/proftpd.conf',
     'etc/proftpd/tls.conf',
+    'etc/security/limits.conf',
     'etc/snmp/snmpd.conf',
     'etc/ssh/sshd_config',
     'etc/subuid',
