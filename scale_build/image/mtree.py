@@ -39,6 +39,7 @@ ETC_FILES_TO_REMOVE = [
     'etc/proftpd/proftpd.conf',
     'etc/proftpd/tls.conf',
     'etc/smartd.conf',
+    'etc/security/limits.conf',
     'etc/snmp/snmpd.conf',
     'etc/ssh/sshd_config',
     'etc/subuid',
