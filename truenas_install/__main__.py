@@ -570,8 +570,16 @@ def main():
                 # We would like to configure fips bit as well here
                 write_progress(0.95, "Configuring FIPS")
                 run_command(["chroot", root, "/usr/bin/configure_fips"])
+                run_grub_install = old_root is None
+                if run_grub_install is False:
+                    # We will check if current BE has a different version of grub then the new/upcoming one
+                    # and if that is the case, we want to update ESP with newer grub binaries
+                    cp = run_command(["grub-install", "--version"])
+                    be_cp = run_command(["chroot", root, "grub-install", "--version"])
+                    # We expect something like "grub-install (GRUB) 2.12-1~bpo12+1"
+                    run_grub_install = cp.stdout.strip().split()[-1] != be_cp.stdout.strip().split()[-1]
 
-                if old_root is None:
+                if run_grub_install:
                     write_progress(0.96, "Installing GRUB")
 
                     if os.path.exists("/sys/firmware/efi"):
@@ -621,6 +629,8 @@ def main():
                                              "-l", "/EFI/debian/grubx64.efi"])
                         finally:
                             run_command(["chroot", root, "umount", "/boot/efi"])
+                else:
+                    write_progress(0.96, "No need to update grub in ESP")
             finally:
                 for cmd in reversed(undo):
                     run_command(cmd)
