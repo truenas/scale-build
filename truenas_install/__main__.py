@@ -4,6 +4,15 @@ import platform
 import sys
 
 
+LEGACY_TRUENAS_VERSION_ERR_MSG = (
+    "Migrating TrueNAS CORE to TrueNAS SCALE 24.10 (or later) using update file upload is not supported. "
+    "Please migrate with the latest 24.04 release update file or back up the TrueNAS configuration, perform a "
+    "fresh install, and restore from the configuration backup."
+)
+INSTALLER_PYTHON_MIN_VERSION_MINOR = 10
+version = sys.version_info
+
+
 def write_error(error: str, raise_=False, prefix="Error: "):
     sys.stdout.write(json.dumps({"error": prefix + error}) + "\n")
     sys.stdout.flush()
@@ -14,12 +23,11 @@ def write_error(error: str, raise_=False, prefix="Error: "):
 
 if __name__ == "__main__":
     if platform.system().upper() == "FREEBSD":
-        write_error(
-            "Migrating TrueNAS CORE to TrueNAS SCALE 24.10 (or later) using update file upload is not supported. "
-            "Please migrate with the latest 24.04 release update file or back up the TrueNAS configuration, perform a "
-            "fresh install, and restore from the configuration backup."
-        )
+        write_error(LEGACY_TRUENAS_VERSION_ERR_MSG)
         sys.exit(2)
+
+if version.major < 3 or version.minor < INSTALLER_PYTHON_MIN_VERSION_MINOR:
+    write_error(LEGACY_TRUENAS_VERSION_ERR_MSG, raise_=True)
 
 
 from collections import defaultdict  # noqa
