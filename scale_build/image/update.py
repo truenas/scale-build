@@ -7,7 +7,7 @@ import shutil
 import stat
 import tempfile
 
-from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
+from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD, UPDATE_PROFILE
 from scale_build.extensions import build_extensions as do_build_extensions
 from scale_build.utils.manifest import get_manifest, get_apt_repos
 from scale_build.utils.run import run
@@ -217,6 +217,9 @@ def custom_rootfs_setup():
     os.makedirs(os.path.join(CHROOT_BASEDIR, "usr/local/share"), exist_ok=True)
     shutil.rmtree(local_cacerts, ignore_errors=True)
     os.symlink("/var/local/ca-certificates", local_cacerts)
+
+    for db in ["/data/factory-v1.db", "/data/freenas-v1.db"]:
+        run_in_chroot(["sqlite3", db], input=f"UPDATE system_update SET upd_profile = '{UPDATE_PROFILE}';\n")
 
 
 def clean_rootfs():

@@ -19,6 +19,9 @@ def run(*args, **kwargs):
     shell = kwargs.pop('shell', False)
     log = kwargs.pop('log', True)
     env = kwargs.pop('env', None) or os.environ
+    input_ = kwargs.pop('input', None)
+    if input_ is not None:
+        kwargs['stdin'] = subprocess.PIPE
     if log:
         kwargs['stderr'] = subprocess.STDOUT
 
@@ -29,7 +32,7 @@ def run(*args, **kwargs):
         for line in map(str.rstrip, iter(proc.stdout.readline, '')):
             logger.debug(line)
 
-    stdout, stderr = proc.communicate()
+    stdout, stderr = proc.communicate(input=input_)
 
     cp = subprocess.CompletedProcess(args, proc.returncode, stdout=stdout, stderr=stderr)
     if check:
