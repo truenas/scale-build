@@ -447,6 +447,11 @@ sources:
         - kernel-dbg
         - openssl
       generate_version: false
+- name: truenas_pylibzfs
+  repo: https://github.com/truenas/truenas_pylibzfs
+  branch: master
+  explicit_deps:
+    - openzfs
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-21-stable
