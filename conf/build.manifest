@@ -105,6 +105,8 @@ base-packages:
   install_recommends: false
 - name: truenas-samba
   install_recommends: true
+- name: python3-truenas-pylibzfs
+  install_recommends: true
 - name: truenas-sssd
   install_recommends: true
 - name: truenas-ipaclient
