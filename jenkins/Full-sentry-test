@@ -59,7 +59,7 @@ pipeline {
 //         sh 'cp src/tmp/pkgdir/* artifacts/packages/'
 //       }
 //     }
-//   }
+  }
   post {
     success {
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
@@ -71,6 +71,6 @@ pipeline {
 //     }
 //     always {
 //       sh 'rm -f conf/secrets.yaml'
-    }
+    // }
   }
 }
