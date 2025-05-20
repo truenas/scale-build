@@ -23,12 +23,6 @@ pipeline {
     stage('Checkout') {
       steps {
         sh 'cd src && make checkout'
-        // script {
-        //   withCredentials([string(credentialsId: 'ce73d801-9cb5-41ea-814e-a416fa193afe', variable: 'ID')]) {
-        //     sh 'cd conf && touch secrets.yaml'
-        //     writeFile(file: "conf/secrets.yaml", text: ID)
-        //   }
-        // }
       }
     }
     stage('Packages') {
@@ -36,42 +30,38 @@ pipeline {
         script {
          withCredentials([string(credentialsId: 'f2c8ef55-e558-4ac6-bc7a-8aa5a69b8cfa', variable: 'ID')]) {
             sh "env SECRET_SENTRY_AUTH_TOKEN='${ID}'"
-            // sh "cd src && make packages"
+            sh "cd src && make packages"
           }
-          sh 'echo\$SECRET_SENTRY_AUTH_TOKEN '
         }
       }
     }
-//     stage('Update') {
-//       steps {
-//         sh 'cd src && make update'
-//       }
-//     }
-//     stage('ISO') {
-//       steps {
-//         sh 'cd src && make iso'
-//       }
-//     }
-//     stage('Artifact') {
-//       steps {
-//         sh 'rm -rf artifacts || true'
-//         sh 'mkdir -p artifacts/packages'
-//         sh 'mv src/tmp/release/* artifacts/'
-//         sh 'cp src/tmp/pkgdir/* artifacts/packages/'
-//       }
-//     }
+    stage('Update') {
+      steps {
+        sh 'cd src && make update'
+      }
+    }
+    stage('ISO') {
+      steps {
+        sh 'cd src && make iso'
+      }
+    }
+    stage('Artifact') {
+      steps {
+        sh 'rm -rf artifacts || true'
+        sh 'mkdir -p artifacts/packages'
+        sh 'mv src/tmp/release/* artifacts/'
+        sh 'cp src/tmp/pkgdir/* artifacts/packages/'
+      }
+    }
   }
   post {
     success {
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
       archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
     }
-//     failure {
-//       archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
-//       mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Nightly Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "rmesta@ixsystems.com,william@ixsystems.com";
-//     }
-//     always {
-//       sh 'rm -f conf/secrets.yaml'
-    // }
+    failure {
+      archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
+    //   mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Nightly Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "rmesta@ixsystems.com,william@ixsystems.com";
+    }
   }
 }
