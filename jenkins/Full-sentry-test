@@ -1,0 +1,75 @@
+pipeline {
+  agent {
+    node {
+      label 'SCALE-Build'
+    }
+  }
+  environment {
+    FIPS="1"
+  }
+  stages {
+    stage('SCM') {
+      steps {
+        dir('src') {
+          checkout scm
+        }
+      }
+    }
+    stage('Clean') {
+      steps {
+        sh 'cd src && make clean'
+      }
+    }
+    stage('Checkout') {
+      steps {
+        sh 'cd src && make checkout'
+        // script {
+        //   withCredentials([string(credentialsId: 'ce73d801-9cb5-41ea-814e-a416fa193afe', variable: 'ID')]) {
+        //     sh 'cd conf && touch secrets.yaml'
+        //     writeFile(file: "conf/secrets.yaml", text: ID)
+        //   }
+        // }
+      }
+    }
+    stage('Packages') {
+      steps {
+        script {
+         withCredentials([string(credentialsId: 'ce73d801-9cb5-41ea-814e-a416fa193afe', variable: 'ID')]) {
+            sh "env SENTRY_AUTH_TOKEN='${ID}' ; cd src && make packages"
+          }
+        }
+      }
+    }
+    stage('Update') {
+      steps {
+        sh 'cd src && make update'
+      }
+    }
+    stage('ISO') {
+      steps {
+        sh 'cd src && make iso'
+      }
+    }
+    stage('Artifact') {
+      steps {
+        sh 'rm -rf artifacts || true'
+        sh 'mkdir -p artifacts/packages'
+        sh 'mv src/tmp/release/* artifacts/'
+        sh 'cp src/tmp/pkgdir/* artifacts/packages/'
+      }
+    }
+  }
+  post {
+    success {
+      archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
+      archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
+    }
+    failure {
+      archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
+      mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Nightly Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "rmesta@ixsystems.com,william@ixsystems.com";
+    }
+    always {
+      sh 'rm -f conf/secrets.yaml'
+    }
+  }
+}
