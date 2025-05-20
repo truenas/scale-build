@@ -29,8 +29,7 @@ pipeline {
       steps {
         script {
          withCredentials([string(credentialsId: 'f2c8ef55-e558-4ac6-bc7a-8aa5a69b8cfa', variable: 'ID')]) {
-            sh "env SECRET_SENTRY_AUTH_TOKEN='${ID}'"
-            sh "cd src && make packages"
+            sh "env SECRET_SENTRY_AUTH_TOKEN='${ID}' ; cd src && make packages"
           }
         }
       }
