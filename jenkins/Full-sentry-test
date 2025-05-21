@@ -29,21 +29,21 @@ pipeline {
       steps {
         script {
          withCredentials([string(credentialsId: 'f2c8ef55-e558-4ac6-bc7a-8aa5a69b8cfa', variable: 'ID')]) {
-            sh "env SECRET_SENTRY_AUTH_TOKEN='${ID}' ; cd src && make packages"
+            sh "env SECRET_SENTRY_AUTH_TOKEN='${ID}' ; cd src && make packages PACKAGES='truenas_webui'"
           }
         }
       }
     }
-    stage('Update') {
-      steps {
-        sh 'cd src && make update'
-      }
-    }
-    stage('ISO') {
-      steps {
-        sh 'cd src && make iso'
-      }
-    }
+    // stage('Update') {
+    //   steps {
+    //     sh 'cd src && make update'
+    //   }
+    // }
+    // stage('ISO') {
+    //   steps {
+    //     sh 'cd src && make iso'
+    //   }
+    // }
     stage('Artifact') {
       steps {
         sh 'rm -rf artifacts || true'
@@ -54,13 +54,13 @@ pipeline {
     }
   }
   post {
-    success {
+    always {
+      archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
       archiveArtifacts artifacts: 'artifacts/**', fingerprint: false
-      archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
     }
-    failure {
-      archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
+    // failure {
+      // archiveArtifacts artifacts: 'src/logs/**', fingerprint: false
     //   mail bcc: '', body: "<b>Jenkins: TrueNAS SCALE Nightly Build Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "rmesta@ixsystems.com,william@ixsystems.com";
-    }
+    // }
   }
 }
