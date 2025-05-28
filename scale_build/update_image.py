@@ -40,7 +40,10 @@ def build_update_image_impl():
 
             # These files will be overwritten, so we should make sure that new build does not have any entities that
             # are not in our reference files.
-            for reference_file, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
+            for reference_file, diff in compare_reference_files(
+                cut_nonexistent_user_group_membership=True,
+                default_homedir='/var/empty'
+            ):
                 if any(line.startswith('+') for line in diff):
                     raise CallError(
                         f'Reference file {reference_file!r} has new lines in newly installed system.\n'

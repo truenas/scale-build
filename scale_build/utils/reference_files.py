@@ -6,7 +6,12 @@ from scale_build.exceptions import CallError
 from .paths import REFERENCE_FILES_DIR, REFERENCE_FILES, CHROOT_BASEDIR
 
 
-def compare_reference_files(cut_nonexistent_user_group_membership=False):
+def compare_reference_files(cut_nonexistent_user_group_membership: bool = False, default_homedir: str | None = None):
+    """Diff /conf/reference-files/etc/group|passwd with the respective files in chroot.
+
+    :param cut_nonexistent_user_group_membership:
+    :param default_homedir: A home directory to replace Debian's default `/nonexistent` before running the diff.
+    """
     for reference_file in REFERENCE_FILES:
         with open(os.path.join(REFERENCE_FILES_DIR, reference_file)) as f:
             reference = f.readlines()
@@ -28,6 +33,9 @@ def compare_reference_files(cut_nonexistent_user_group_membership=False):
 
         with open(os.path.join(CHROOT_BASEDIR, reference_file)) as f:
             real = f.readlines()
+
+        if default_homedir and reference_file == 'etc/passwd':
+            real = [line.replace('/nonexistent', default_homedir) for line in real]
 
         diff = list(difflib.unified_diff(reference, real))
 
