@@ -111,6 +111,8 @@ base-packages:
   install_recommends: true
 - name: truenas-ipaclient
   install_recommends: true
+- name: truenas-spdk
+  install_recommends: true
 - name: cifs-utils
   install_recommends: true
 - name: nfs4xdr-acl-tools
@@ -482,6 +484,16 @@ sources:
     - python3
     - truenas_samba
     - truenas_sssd
+- name: truenas_spdk
+  repo: https://github.com/truenas/truenas_spdk
+  branch: master
+  generate_version: false
+  predepscmd:
+    - "apt install -y rsync"
+    - "sh -x fetch.sh"
+    - "scripts/pkgdep.sh  --rdma"
+  explicit_deps:
+    - python3
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
