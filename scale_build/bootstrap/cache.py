@@ -56,7 +56,10 @@ class CacheMixin:
 
         if intact:
             self.restore_cache(self.chroot_basedir)
-            for reference_file, diff in compare_reference_files(cut_nonexistent_user_group_membership=True):
+            for reference_file, diff in compare_reference_files(
+                cut_nonexistent_user_group_membership=True,
+                default_homedir='/var/empty'
+            ):
                 if diff:
                     intact = False
                     self.logger.debug(

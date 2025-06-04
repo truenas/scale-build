@@ -64,7 +64,7 @@ def build_update_image_impl():
 
             install_rootfs_packages()
 
-            for reference_file, diff in compare_reference_files():
+            for reference_file, diff in compare_reference_files(default_homedir='/var/empty'):
                 if diff:
                     raise CallError(
                         f'Reference file {reference_file!r} changed.\n'
