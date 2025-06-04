@@ -343,6 +343,7 @@ sources:
   repo: https://github.com/truenas/openssl
   branch: master
   generate_version: false
+  batch_priority: 0
   predepscmd:
     - "apt install -y wget xz-utils"
     - "./pull.sh"
@@ -494,6 +495,8 @@ sources:
     - "scripts/pkgdep.sh  --rdma"
   explicit_deps:
     - python3
+    - kernel
+    - kernel-dbg
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
