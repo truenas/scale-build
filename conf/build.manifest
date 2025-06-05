@@ -303,6 +303,9 @@ additional-packages:
 - name: i2c-tools
   comment: requested by platform team (NAS-120155)
   install_recommends: true
+- name: mstflint
+  comment: requested by platform team (NAS-136153)
+  install_recommends: false
 - name: systemd-container
   comment: requested by community (NAS-123533)
   install_recommends: false
