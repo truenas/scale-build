@@ -82,6 +82,8 @@ base-packages:
   install_recommends: true
 - name: firmware-realtek
   install_recommends: true
+- name: shim-unsigned
+  install_recommends: true
 - name: grub-pc-bin
   install_recommends: true
 - name: grub-efi-amd64-bin
@@ -633,6 +635,15 @@ sources:
 - name: midcli
   repo: https://github.com/truenas/midcli
   branch: master
+- name: shim-unsigned
+  repo: https://github.com/truenas/shim-unsigned
+  branch: NAS-135054-ge
+  buildcmd:
+    - "dpkg-buildpackage -uc -us -b"
+  explicit_deps:
+    - grub2
+  batch_priority: 0
+  generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
   branch: master
