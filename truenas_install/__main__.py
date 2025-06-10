@@ -285,7 +285,7 @@ def main():
     if old_root is not None:
         for i in getmntinfo():
             if i.mountpoint == old_root:
-                old_root_dataset == i.mount_source
+                old_root_dataset = i.mount_source
                 break
 
     write_progress(0, "Creating dataset")
