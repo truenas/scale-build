@@ -35,7 +35,10 @@ pipeline {
 	  
 	    // Add new release entry to existing releases dictionary
 	    // Copy all manifest fields and add profile
-	    def releaseEntry = manifest.clone()
+	    def releaseEntry = [:]
+	    manifest.each { key, value ->
+	      releaseEntry[key] = value
+	    }
 	    releaseEntry.profile = 'DEVELOPER'
 	    existingReleases[manifest.version] = releaseEntry
 	  
