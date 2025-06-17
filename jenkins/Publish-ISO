@@ -17,7 +17,6 @@ pipeline {
         copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies || true'
         sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'
-        sh 'rm -rf upload/files'
       }
 	}
 	stage('Update Releases JSON') {
@@ -65,6 +64,7 @@ pipeline {
 			  
 			  // Upload updated releases.json
 			  sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'''
+			  sh 'rm -rf upload/files'
 			}
 		}
 	}		
