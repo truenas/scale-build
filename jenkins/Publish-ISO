@@ -24,7 +24,7 @@ pipeline {
 		  steps {
 			script {
 			  // Download existing releases.json if it exists
-			  sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/${TRUENAS_TRAIN}/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
+			  sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
 			  
 			  // Read manifest.json and extract information
 			  def manifestContent = readFile('upload/files/manifest.json')
@@ -64,7 +64,7 @@ pipeline {
 			  writeJSON file: 'upload/files/releases.json', json: existingReleases, pretty: 4
 			  
 			  // Upload updated releases.json
-			  sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/${TRUENAS_TRAIN}/'''
+			  sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'''
 			}
 		}
 	}		
