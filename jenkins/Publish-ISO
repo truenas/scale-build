@@ -42,10 +42,15 @@ pipeline {
 	    releaseEntry.profile = 'DEVELOPER'
 	    existingReleases[manifest.version] = releaseEntry
 	  
-	  // Keep only the last 30 entries (assuming chronological insertion order)
+	  // Keep only the last 30 entries by date
 	  if (existingReleases.size() > 30) {
-	    def entries = existingReleases.entrySet() as List
-	    def recentEntries = entries.drop(entries.size() - 30)
+	    // Sort entries by date and keep only the 30 most recent
+	    def sortedEntries = existingReleases.sort { a, b -> 
+	      Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", b.value.date).compareTo(
+		Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", a.value.date)
+	      )
+	    }
+	    def recentEntries = sortedEntries.take(30)
 	    existingReleases = [:]
 	    recentEntries.each { entry ->
 	      existingReleases[entry.key] = entry.value
