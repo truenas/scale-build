@@ -163,8 +163,72 @@ def post_rootfs_setup():
         os.chmod(pkg_mgmt_disabled_path, old_mode | executable_flag)
 
 
+def install_truenas_file_manager():
+    """Download and install truenas-file-manager if TRUENAS_WEBSHARE_PAT is set."""
+    pat = os.environ.get('TRUENAS_WEBSHARE_PAT')
+    if not pat:
+        logger.debug('TRUENAS_WEBSHARE_PAT not set, skipping truenas-file-manager installation')
+        return
+
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+    file_manager_config = external_packages.get('truenas-file-manager', {})
+
+    if not file_manager_config:
+        logger.warning('truenas-file-manager configuration not found in build.manifest')
+        return
+
+    version = file_manager_config.get('version', 'v0.0.1')
+    deb_version = file_manager_config.get('deb_version', '1.0.0-1')
+    arch = file_manager_config.get('arch', 'amd64')
+
+    # Construct the download URL
+    deb_filename = f'truenas-file-manager_{deb_version}_{arch}.deb'
+    download_url = f'https://github.com/iXsystems/truenas-file-manager/releases/download/{version}/{deb_filename}'
+
+    # Create a temporary directory for the download
+    with tempfile.TemporaryDirectory() as tmpdir:
+        deb_path = os.path.join(tmpdir, deb_filename)
+
+        logger.info(f'Downloading truenas-file-manager from {download_url}')
+
+        # Download the package using wget with the PAT for authentication
+        download_cmd = [
+            'wget',
+            '--header', f'Authorization: token {pat}',
+            '-O', deb_path,
+            download_url
+        ]
+
+        try:
+            run(download_cmd)
+        except Exception as e:
+            logger.error(f'Failed to download truenas-file-manager: {e}')
+            return
+
+        # Copy the package into the chroot
+        chroot_tmp_path = os.path.join(CHROOT_BASEDIR, 'tmp', deb_filename)
+        shutil.copy2(deb_path, chroot_tmp_path)
+
+        # Install the package in the chroot
+        logger.info('Installing truenas-file-manager package')
+        try:
+            run_in_chroot(['dpkg', '-i', f'/tmp/{deb_filename}'])
+            # Fix any dependency issues
+            run_in_chroot(['apt-get', 'install', '-f', '-y'])
+        except Exception as e:
+            logger.error(f'Failed to install truenas-file-manager: {e}')
+        finally:
+            # Clean up the package from chroot tmp
+            if os.path.exists(chroot_tmp_path):
+                os.unlink(chroot_tmp_path)
+
+
 def custom_rootfs_setup():
     # Any kind of custom mangling of the built rootfs image can exist here
+
+    # Install truenas-file-manager if PAT is provided
+    install_truenas_file_manager()
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
 
