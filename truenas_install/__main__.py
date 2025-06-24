@@ -502,6 +502,11 @@ def main():
                     # Copy all files from ISO's data to new root's data (only includes .vendor right now)
                     run_command(["cp", "-r", "/data/.", f"{root}/data/"])
 
+                    # This is fresh install, at this point we need to make sure smartmontools is enabled
+                    # because that is the case in database and we have smartd preset as disabled which means
+                    # that it won't auto-start despite database claiming it is enabled
+                    run_command(["chroot", root, "systemctl", "enable", "smartmontools"], check=False)
+
                 # We only want /data itself (without contents) and /data/subsystems to be 755
                 # whereas everything else should be 700
                 # Doing this here is important so that we cover both fresh install and upgrade case
