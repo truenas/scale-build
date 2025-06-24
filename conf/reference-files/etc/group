@@ -66,6 +66,7 @@ rdma:x:124:
 nut:x:126:
 ladvd:x:127:
 nova:x:129:
+truesearch:x:444:
 builtin_administrators:x:544:
 builtin_users:x:545:
 builtin_guests:x:546:
