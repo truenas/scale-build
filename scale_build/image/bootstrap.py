@@ -15,7 +15,7 @@ def setup_chroot_basedir(bootstrapdir_obj):
     if os.path.exists(CHROOT_BASEDIR):
         shutil.rmtree(CHROOT_BASEDIR)
     os.makedirs(TMPFS, exist_ok=True)
-    run(['mount', '-t', 'tmpfs', '-o', 'size=20G', 'tmpfs', TMPFS])
+    run(['mount', '-t', 'tmpfs', '-o', 'size=25G', 'tmpfs', TMPFS])
     bootstrapdir_obj.restore_cache(CHROOT_BASEDIR)
     run(['mount', 'proc', os.path.join(CHROOT_BASEDIR, 'proc'), '-t', 'proc'])
     run(['mount', 'sysfs', os.path.join(CHROOT_BASEDIR, 'sys'), '-t', 'sysfs'])
