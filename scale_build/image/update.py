@@ -173,7 +173,6 @@ def install_truenas_file_manager():
         logger.warning('truenas-file-manager configuration not found in build.manifest')
         return
 
-    version = file_manager_config.get('version', 'v0.0.1')
     deb_version = file_manager_config.get('deb_version', '1.0.0-1')
     arch = file_manager_config.get('arch', 'amd64')
 
