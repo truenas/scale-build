@@ -164,12 +164,7 @@ def post_rootfs_setup():
 
 
 def install_truenas_file_manager():
-    """Download and install truenas-file-manager if TRUENAS_WEBSHARE_PAT is set."""
-    pat = os.environ.get('TRUENAS_WEBSHARE_PAT')
-    if not pat:
-        logger.debug('TRUENAS_WEBSHARE_PAT not set, skipping truenas-file-manager installation')
-        return
-
+    """Download and install truenas-file-manager from assets.sys.truenas.net."""
     manifest = get_manifest()
     external_packages = manifest.get('external-packages', {})
     file_manager_config = external_packages.get('truenas-file-manager', {})
@@ -184,7 +179,7 @@ def install_truenas_file_manager():
 
     # Construct the download URL
     deb_filename = f'truenas-file-manager_{deb_version}_{arch}.deb'
-    download_url = f'https://github.com/iXsystems/truenas-file-manager/releases/download/{version}/{deb_filename}'
+    download_url = f'https://assets.sys.truenas.net/debian-packages/{deb_filename}'
 
     # Create a temporary directory for the download
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -192,10 +187,9 @@ def install_truenas_file_manager():
 
         logger.info(f'Downloading truenas-file-manager from {download_url}')
 
-        # Download the package using wget with the PAT for authentication
+        # Download the package using wget
         download_cmd = [
             'wget',
-            '--header', f'Authorization: token {pat}',
             '-O', deb_path,
             download_url
         ]
