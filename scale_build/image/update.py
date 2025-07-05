@@ -163,8 +163,143 @@ def post_rootfs_setup():
         os.chmod(pkg_mgmt_disabled_path, old_mode | executable_flag)
 
 
+def download_and_install_deb_package(package_name, download_url, deb_filename, post_install_commands=None):
+    """
+    Download and install a .deb package from a URL.
+
+    Args:
+        package_name: Name of the package for logging
+        download_url: Full URL to download the package from
+        deb_filename: Filename of the .deb package
+        post_install_commands: Optional list of additional commands to run in chroot after installation
+    """
+    # Create a temporary directory for the download
+    with tempfile.TemporaryDirectory() as tmpdir:
+        deb_path = os.path.join(tmpdir, deb_filename)
+
+        logger.info(f'Downloading {package_name} from {download_url}')
+
+        # Download the package using curl
+        download_cmd = [
+            'curl',
+            '-L',  # Follow redirects
+            '-o', deb_path,
+            download_url
+        ]
+
+        try:
+            run(download_cmd)
+        except Exception as e:
+            logger.error(f'Failed to download {package_name}: {e}')
+            raise RuntimeError(f'Failed to download {package_name} from {download_url}: {e}')
+
+        # Verify the downloaded file exists and has content
+        if not os.path.exists(deb_path) or os.path.getsize(deb_path) == 0:
+            raise RuntimeError(f'Downloaded {package_name} package is missing or empty: {deb_path}')
+
+        # Copy the package into the chroot
+        chroot_tmp_path = os.path.join(CHROOT_BASEDIR, 'tmp', deb_filename)
+        shutil.copy2(deb_path, chroot_tmp_path)
+
+        # Install the package in the chroot
+        logger.info(f'Installing {package_name} package')
+        try:
+            run_in_chroot(['dpkg', '-i', f'/tmp/{deb_filename}'])
+            # Fix any dependency issues
+            run_in_chroot(['apt-get', 'install', '-f', '-y'])
+
+            # Run any additional post-install commands
+            if post_install_commands:
+                for cmd in post_install_commands:
+                    run_in_chroot(cmd)
+
+            logger.info(f'Successfully installed {package_name} package')
+        except Exception as e:
+            logger.error(f'Failed to install {package_name}: {e}')
+            raise RuntimeError(f'Failed to install {package_name} package: {e}')
+        finally:
+            # Clean up the package from chroot tmp
+            if os.path.exists(chroot_tmp_path):
+                os.unlink(chroot_tmp_path)
+
+
+def install_truenas_file_manager():
+    """Download and install truenas-file-manager from assets.sys.truenas.net."""
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+    file_manager_config = external_packages.get('truenas-file-manager', {})
+
+    if not file_manager_config:
+        logger.warning('truenas-file-manager configuration not found in build.manifest')
+        return
+
+    deb_version = file_manager_config.get('deb_version', '1.0.0-1')
+    arch = file_manager_config.get('arch', 'amd64')
+
+    # Construct the download URL
+    deb_filename = f'truenas-file-manager_{deb_version}_{arch}.deb'
+    download_url = f'https://assets.sys.truenas.net/debian-packages/{deb_filename}'
+
+    # Use the shared download and install function
+    download_and_install_deb_package('truenas-file-manager', download_url, deb_filename)
+
+
+def install_truesearch():
+    """Download and install truesearch from assets.sys.truenas.net."""
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+    truesearch_config = external_packages.get('truesearch', {})
+
+    if not truesearch_config:
+        logger.warning('truesearch configuration not found in build.manifest')
+        return
+
+    deb_version = truesearch_config.get('deb_version', '1.0.0-1')
+    arch = truesearch_config.get('arch', 'amd64')
+
+    # Construct the download URL
+    deb_filename = f'truesearch_{deb_version}_{arch}.deb'
+    download_url = f'https://assets.sys.truenas.net/debian-packages/{deb_filename}'
+
+    # Use the shared download and install function
+    download_and_install_deb_package('truesearch', download_url, deb_filename)
+
+
+def install_caddy():
+    """Download and install Caddy from GitHub releases."""
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+    caddy_config = external_packages.get('caddy', {})
+
+    if not caddy_config:
+        logger.warning('caddy configuration not found in build.manifest')
+        return
+
+    deb_version = caddy_config.get('deb_version', '2.10.0')
+    arch = caddy_config.get('arch', 'amd64')
+
+    # Construct the download URL - Caddy is hosted on GitHub releases
+    deb_filename = f'caddy_{deb_version}_linux_{arch}.deb'
+    download_url = f'https://github.com/caddyserver/caddy/releases/download/v{deb_version}/{deb_filename}'
+
+    # Use the shared download and install function with post-install command
+    post_install_commands = [
+        ['systemctl', 'disable', 'caddy']  # Disable built-in systemd service
+    ]
+    download_and_install_deb_package('Caddy', download_url, deb_filename, post_install_commands)
+
+
 def custom_rootfs_setup():
     # Any kind of custom mangling of the built rootfs image can exist here
+
+    # Install truenas-file-manager if PAT is provided
+    install_truenas_file_manager()
+
+    # Install truesearch package
+    install_truesearch()
+
+    # Install Caddy web server
+    install_caddy()
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
 
