@@ -163,8 +163,138 @@ def post_rootfs_setup():
         os.chmod(pkg_mgmt_disabled_path, old_mode | executable_flag)
 
 
+def install_truenas_file_manager():
+    """Download and install truenas-file-manager from assets.sys.truenas.net."""
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+    file_manager_config = external_packages.get('truenas-file-manager', {})
+
+    if not file_manager_config:
+        logger.warning('truenas-file-manager configuration not found in build.manifest')
+        return
+
+    deb_version = file_manager_config.get('deb_version', '1.0.0-1')
+    arch = file_manager_config.get('arch', 'amd64')
+
+    # Construct the download URL
+    deb_filename = f'truenas-file-manager_{deb_version}_{arch}.deb'
+    download_url = f'https://assets.sys.truenas.net/debian-packages/{deb_filename}'
+
+    # Create a temporary directory for the download
+    with tempfile.TemporaryDirectory() as tmpdir:
+        deb_path = os.path.join(tmpdir, deb_filename)
+
+        logger.info(f'Downloading truenas-file-manager from {download_url}')
+
+        # Download the package using wget
+        download_cmd = [
+            'wget',
+            '-O', deb_path,
+            download_url
+        ]
+
+        try:
+            run(download_cmd)
+        except Exception as e:
+            logger.error(f'Failed to download truenas-file-manager: {e}')
+            raise RuntimeError(f'Failed to download truenas-file-manager from {download_url}: {e}')
+
+        # Verify the downloaded file exists and has content
+        if not os.path.exists(deb_path) or os.path.getsize(deb_path) == 0:
+            raise RuntimeError(f'Downloaded truenas-file-manager package is missing or empty: {deb_path}')
+
+        # Copy the package into the chroot
+        chroot_tmp_path = os.path.join(CHROOT_BASEDIR, 'tmp', deb_filename)
+        shutil.copy2(deb_path, chroot_tmp_path)
+
+        # Install the package in the chroot
+        logger.info('Installing truenas-file-manager package')
+        try:
+            run_in_chroot(['dpkg', '-i', f'/tmp/{deb_filename}'])
+            # Fix any dependency issues
+            run_in_chroot(['apt-get', 'install', '-f', '-y'])
+
+            # Verify the package was installed successfully
+            result = run_in_chroot(['dpkg', '-l', 'truenas-file-manager'], check=False)
+            if result.returncode != 0 or 'ii  truenas-file-manager' not in result.stdout:
+                raise RuntimeError('truenas-file-manager package was not installed successfully')
+
+            logger.info('Successfully installed truenas-file-manager package')
+        except Exception as e:
+            logger.error(f'Failed to install truenas-file-manager: {e}')
+            raise RuntimeError(f'Failed to install truenas-file-manager package: {e}')
+        finally:
+            # Clean up the package from chroot tmp
+            if os.path.exists(chroot_tmp_path):
+                os.unlink(chroot_tmp_path)
+
+
+def install_truesearch():
+    """Download and install truesearch from assets.sys.truenas.net."""
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+    truesearch_config = external_packages.get('truesearch', {})
+    if not truesearch_config:
+        logger.warning('truesearch configuration not found in build.manifest')
+        return
+    deb_version = truesearch_config.get('deb_version', '1.0.0-1')
+    arch = truesearch_config.get('arch', 'amd64')
+    # Construct the download URL
+    deb_filename = f'truesearch_{deb_version}_{arch}.deb'
+    download_url = f'https://assets.sys.truenas.net/debian-packages/{deb_filename}'
+    # Create a temporary directory for the download
+    with tempfile.TemporaryDirectory() as tmpdir:
+        deb_path = os.path.join(tmpdir, deb_filename)
+        logger.info(f'Downloading truesearch from {download_url}')
+        # Download the package using wget
+        download_cmd = [
+            'wget',
+            '-O', deb_path,
+            download_url
+        ]
+        try:
+            run(download_cmd)
+        except Exception as e:
+            logger.error(f'Failed to download truesearch: {e}')
+            raise RuntimeError(f'Failed to download truesearch from {download_url}: {e}')
+
+        # Verify the downloaded file exists and has content
+        if not os.path.exists(deb_path) or os.path.getsize(deb_path) == 0:
+            raise RuntimeError(f'Downloaded truesearch package is missing or empty: {deb_path}')
+
+        # Copy the package into the chroot
+        chroot_tmp_path = os.path.join(CHROOT_BASEDIR, 'tmp', deb_filename)
+        shutil.copy2(deb_path, chroot_tmp_path)
+        # Install the package in the chroot
+        logger.info('Installing truesearch package')
+        try:
+            run_in_chroot(['dpkg', '-i', f'/tmp/{deb_filename}'])
+            # Fix any dependency issues
+            run_in_chroot(['apt-get', 'install', '-f', '-y'])
+
+            # Verify the package was installed successfully
+            result = run_in_chroot(['dpkg', '-l', 'truesearch'], check=False)
+            if result.returncode != 0 or 'ii  truesearch' not in result.stdout:
+                raise RuntimeError('truesearch package was not installed successfully')
+
+            logger.info('Successfully installed truesearch package')
+        except Exception as e:
+            logger.error(f'Failed to install truesearch: {e}')
+            raise RuntimeError(f'Failed to install truesearch package: {e}')
+        finally:
+            # Clean up the package from chroot tmp
+            if os.path.exists(chroot_tmp_path):
+                os.unlink(chroot_tmp_path)
+
+
 def custom_rootfs_setup():
     # Any kind of custom mangling of the built rootfs image can exist here
+
+    # Install truenas-file-manager if PAT is provided
+    install_truenas_file_manager()
+
+    # Install truesearch package
+    install_truesearch()
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
 
