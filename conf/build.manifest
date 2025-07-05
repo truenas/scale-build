@@ -711,3 +711,16 @@ sources:
 extensions:
   nvidia:
     current: "570.172.08"
+
+# External packages from GitHub releases
+############################################################################
+external-packages:
+  truenas-file-manager:
+    deb_version: "0.2.7"
+    arch: "amd64"
+  truesearch:
+    deb_version: "0.0.4"
+    arch: "amd64"
+  caddy:
+    deb_version: "2.10.0"
+    arch: "amd64"
