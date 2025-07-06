@@ -222,6 +222,9 @@ apt_preferences:
 - Package: "*libssl*"
   Pin: "origin \"\""
   Pin-Priority: 1050
+- Package: "*libvirt*"
+  Pin: "release n=bookworm-backports"
+  Pin-Priority: 1000
 - Package: "*node*"
   Pin: "release n=bookworm-security"
   Pin-Priority: 1000
