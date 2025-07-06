@@ -716,5 +716,5 @@ extensions:
 ############################################################################
 external-packages:
   truenas-file-manager:
-    deb_version: "0.0.8"
+    deb_version: "0.0.9"
     arch: "amd64"
