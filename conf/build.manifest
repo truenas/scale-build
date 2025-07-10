@@ -442,7 +442,7 @@ sources:
       generate_version: false
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: release/24.10.2.3
+  branch: disable-lsa-openpolicy3
   generate_version: false
   batch_priority: 0
   explicit_deps:
