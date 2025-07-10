@@ -256,6 +256,7 @@ def main():
     input = json.loads(sys.stdin.read())
 
     old_root = input.get("old_root", None)
+    is_fresh_install = old_root is None
 
     if input.get("precheck"):
         if precheck_result := precheck(old_root):
@@ -672,6 +673,7 @@ def main():
         raise
 
     configure_system_for_zectl(pool_name)
+    write_progress(1.0, f"{'Installation' if is_fresh_install else 'Upgrade'} completed successfully")
 
 
 if __name__ == "__main__":
