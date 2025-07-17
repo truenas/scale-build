@@ -5,7 +5,7 @@ import shlex
 import shutil
 
 from datetime import datetime
-from scale_build.config import BUILD_TIME, VERSION
+from scale_build.config import BUILD_TIME, VERSION, TRUENAS_EXPERIMENTAL
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
 from scale_build.utils.manifest import get_truenas_train, get_release_code_name, get_secret_env
@@ -92,6 +92,7 @@ class BuildPackageMixin:
                     'train': get_truenas_train(),
                     'codename': get_release_code_name(),
                     'version': VERSION,
+                    'experimental': TRUENAS_EXPERIMENTAL,
                 }))
             os.makedirs(os.path.join(self.package_source_with_chroot, 'etc'), exist_ok=True)
             with open(os.path.join(self.package_source_with_chroot, 'etc/version'), 'w') as f:
