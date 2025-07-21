@@ -28,7 +28,7 @@ pipeline {
     }
     stage('Packages') {
       steps {
-        sh 'cd ${BDIR} && make packages'
+        sh 'cd ${BDIR} && env TRUENAS_EXPERIMENTAL=n make packages'
       }
     }
     stage('Update') {

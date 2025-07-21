@@ -33,7 +33,7 @@ pipeline {
     }
     stage('Packages') {
       steps {
-        sh 'cd src && make packages'
+        sh 'cd src && env TRUENAS_EXPERIMENTAL=n make packages'
       }
     }
     stage('Update') {
