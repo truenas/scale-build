@@ -11,6 +11,11 @@ pipeline {
     stage('Upload') {
       steps {
         echo '*** Grabbing artifacts from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
+        copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
+        copyArtifacts filter: '**/*.sha256', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
+        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-goldeye-nightly/ || true'
+        sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 jenkins@staging.sys.ixsystems.net:/zdata/download.sys.truenas.net/truenas-scale-goldeye-nightly/'
+        sh 'rm -rf upload/files'
         copyArtifacts filter: '**/*.update', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.md', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files', optional: true
@@ -46,7 +51,19 @@ pipeline {
                 # Copy markdown file with new name
                 cp upload/files/release-notes.md "upload/files/${RELEASE_NOTES_NAME}"
                 echo "Uploading release notes as: ${RELEASE_NOTES_NAME}"
+                
+                # Verify the file exists locally before upload
+                echo "Checking if release notes file exists locally..."
+                ls -la "upload/files/${RELEASE_NOTES_NAME}"
+                
+                # Upload the file
                 scp "upload/files/${RELEASE_NOTES_NAME}" jenkins@staging.sys.ixsystems.net:/zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/
+                
+                # Verify the upload succeeded
+                echo "Verifying release notes file on remote server..."
+                ssh jenkins@staging.sys.ixsystems.net "ls -la /zdata/dev-update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/${RELEASE_NOTES_NAME}"
+              else
+                echo "ERROR: No update file found to derive release notes filename"
               fi
             '''
           } else {
