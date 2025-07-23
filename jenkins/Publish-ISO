@@ -4,18 +4,8 @@ pipeline {
       label 'SCALE-Build'
     }
   }
-  parameters {
-    booleanParam(
-      name: 'SKIP_BUILD_UPLOAD',
-      defaultValue: false,
-      description: 'Skip uploading build artifacts (ISO, update files) - useful when only updating releases.json'
-    )
-  }
   stages {
     stage('Upload') {
-      when {
-        expression { !params.SKIP_BUILD_UPLOAD }
-      }
       steps {
         echo '*** Grabbing artifacts from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
         copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
@@ -32,12 +22,6 @@ pipeline {
     stage('Update Releases JSON') {
       steps {
         script {
-          // If we skipped upload, we need to get the manifest.json from the build
-          if (params.SKIP_BUILD_UPLOAD) {
-            sh 'mkdir -p upload/files'
-            copyArtifacts filter: '**/manifest.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
-          }
-          
           // Download existing releases.json if it exists
           sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
           
