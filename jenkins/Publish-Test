@@ -146,8 +146,31 @@ pipeline {
             echo "  - ${build.version} (date: ${build.date})"
           }
           
-          // Write updated releases.json
-          writeJSON file: 'upload/files/releases.json', json: existingReleases, pretty: 4
+          // Create sorted list of releases for ordered JSON output
+          def orderedReleases = []
+          existingReleases.each { version, data ->
+            orderedReleases.add([version: version, data: data, dateStr: data.date])
+          }
+          
+          // Sort releases from oldest to newest
+          for (int i = 0; i < orderedReleases.size() - 1; i++) {
+            for (int j = 0; j < orderedReleases.size() - i - 1; j++) {
+              if (orderedReleases[j].dateStr > orderedReleases[j + 1].dateStr) {
+                def temp = orderedReleases[j]
+                orderedReleases[j] = orderedReleases[j + 1]
+                orderedReleases[j + 1] = temp
+              }
+            }
+          }
+          
+          // Build ordered JSON manually to preserve order
+          def orderedJson = [:]
+          orderedReleases.each { entry ->
+            orderedJson[entry.version] = entry.data
+          }
+          
+          // Write updated releases.json with preserved order
+          writeJSON file: 'upload/files/releases.json', json: orderedJson, pretty: 4
           
           // Verify the file was written
           sh 'ls -la upload/files/releases.json'
