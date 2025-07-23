@@ -18,53 +18,62 @@ pipeline {
         sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies || true'
         sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'
       }
-	}
-	stage('Update Releases JSON') {
-	  steps {
-	    script {
-	    // Download existing releases.json if it exists
-	    sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
-	  
-	    // Read manifest.json and extract information
-	    def manifestContent = readFile('upload/files/manifest.json')
-	    def manifest = readJSON text: manifestContent
-	  
-	    // Read existing releases.json
-	    def existingReleasesContent = readFile('upload/files/releases.json')
-	    def existingReleases = readJSON text: existingReleasesContent
-	  
-	    // Add new release entry to existing releases dictionary
-	    // Copy all manifest fields and add profile
-	    def releaseEntry = [:]
-	    manifest.each { key, value ->
-	      releaseEntry[key] = value
-	    }
-	    releaseEntry.profile = 'DEVELOPER'
-	    existingReleases[manifest.version] = releaseEntry
-	  
-	  // Keep only the last 30 entries by date
-	  if (existingReleases.size() > 30) {
-	    // Sort entries by date and keep only the 30 most recent
-	    def sortedEntries = existingReleases.sort { a, b -> 
-	      Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", b.value.date).compareTo(
-		Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", a.value.date)
-	      )
-	    }
-	    def recentEntries = sortedEntries.take(30)
-	    existingReleases = [:]
-	    recentEntries.each { entry ->
-	      existingReleases[entry.key] = entry.value
-	    }
-	  }
-	  
-	  // Write updated releases.json
-	  writeJSON file: 'upload/files/releases.json', json: existingReleases, pretty: 4
-	  
-	  // Upload updated releases.json
-	  sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'''
-	  sh 'rm -rf upload/files'
-	}
-       }
-     }		
+    }
+    stage('Update Releases JSON') {
+      steps {
+        script {
+          // Download existing releases.json if it exists
+          sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
+          
+          // Read manifest.json and extract information
+          def manifestContent = readFile('upload/files/manifest.json')
+          def manifest = readJSON text: manifestContent
+          
+          // Read existing releases.json
+          def existingReleasesContent = readFile('upload/files/releases.json')
+          def existingReleases = readJSON text: existingReleasesContent
+          
+          // Add new release entry to existing releases dictionary
+          // Copy all manifest fields and add profile
+          def releaseEntry = [:]
+          manifest.each { key, value ->
+            releaseEntry[key] = value
+          }
+          releaseEntry.profile = 'DEVELOPER'
+          existingReleases[manifest.version] = releaseEntry
+          
+          // Keep only the last 30 entries by date
+          if (existingReleases.size() > 30) {
+            // Convert to list of entries, sort by date, and keep only the 30 most recent
+            def entries = []
+            existingReleases.each { key, value ->
+              entries.add([key: key, value: value])
+            }
+            
+            // Sort using pipeline-safe comparison
+            entries = entries.sort { a, b ->
+              // Simple string comparison of ISO 8601 dates works correctly
+              return b.value.date.compareTo(a.value.date)
+            }
+            
+            // Keep only the most recent 30 entries
+            def recentEntries = entries.take(30)
+            
+            // Rebuild the map
+            existingReleases = [:]
+            recentEntries.each { entry ->
+              existingReleases[entry.key] = entry.value
+            }
+          }
+          
+          // Write updated releases.json
+          writeJSON file: 'upload/files/releases.json', json: existingReleases, pretty: 4
+          
+          // Upload updated releases.json
+          sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'''
+          sh 'rm -rf upload/files'
+        }
+      }
+    }
   }
 }
