@@ -60,27 +60,33 @@ pipeline {
           
           // Keep only the last 30 entries by date
           if (existingReleases.size() > 30) {
-            // Convert to list of entries for sorting
-            def entries = []
-            existingReleases.each { key, value ->
-              entries.add([key: key, value: value, date: value.date])
+            // Convert map to list of entries with dates
+            def entriesList = []
+            existingReleases.each { version, data ->
+              entriesList.add([version: version, data: data, dateStr: data.date])
             }
             
-            // Sort by date using Collections.sort (CPS-safe)
-            Collections.sort(entries, new Comparator() {
-              int compare(a, b) {
-                // Reverse order - newest first
-                return b.date.compareTo(a.date)
+            // Manual bubble sort (Jenkins-safe, no closures or comparators)
+            for (int i = 0; i < entriesList.size() - 1; i++) {
+              for (int j = 0; j < entriesList.size() - i - 1; j++) {
+                // Compare dates as strings (ISO 8601 format is lexicographically sortable)
+                if (entriesList[j].dateStr < entriesList[j + 1].dateStr) {
+                  // Swap entries
+                  def temp = entriesList[j]
+                  entriesList[j] = entriesList[j + 1]
+                  entriesList[j + 1] = temp
+                }
               }
-            })
+            }
             
-            // Keep only the most recent 30 entries using subList
-            def recentEntries = entries.size() > 30 ? entries.subList(0, 30) : entries
+            // Keep only the first 30 entries
+            def maxEntries = Math.min(30, entriesList.size())
+            def recentEntries = entriesList[0..(maxEntries - 1)]
             
-            // Rebuild the map
+            // Rebuild the releases map
             existingReleases = [:]
             recentEntries.each { entry ->
-              existingReleases[entry.key] = entry.value
+              existingReleases[entry.version] = entry.data
             }
           }
           
