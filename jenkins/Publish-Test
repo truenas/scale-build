@@ -15,7 +15,29 @@ pipeline {
         sh 'rm -rf upload/files'
         copyArtifacts filter: '**/*.update', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
+        copyArtifacts filter: '**/*.md', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files', optional: true
         sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies || true'
+        
+        // Upload release notes if they exist
+        sh '''
+          if [ -f upload/files/release-notes.md ]; then
+            # Get the update file name to derive the release notes filename
+            UPDATE_FILE=$(ls upload/files/TrueNAS-SCALE-*.update | head -n1)
+            if [ -n "$UPDATE_FILE" ]; then
+              # Extract just the filename without path and extension
+              BASE_NAME=$(basename "$UPDATE_FILE" .update)
+              # Create release notes with .release-notes.txt extension
+              RELEASE_NOTES_NAME="${BASE_NAME}.release-notes.txt"
+              # Copy markdown file with new name
+              cp upload/files/release-notes.md "upload/files/${RELEASE_NOTES_NAME}"
+              echo "Uploading release notes as: ${RELEASE_NOTES_NAME}"
+              scp "upload/files/${RELEASE_NOTES_NAME}" jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/
+            fi
+          else
+            echo "No release-notes.md file found, skipping release notes upload"
+          fi
+        '''
+        
         sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'
       }
     }
