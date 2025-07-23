@@ -126,8 +126,23 @@ pipeline {
           // Write updated releases.json
           writeJSON file: 'upload/files/releases.json', json: existingReleases, pretty: 4
           
+          // Verify the file was written
+          sh 'ls -la upload/files/releases.json'
+          echo "releases.json file size: "
+          sh 'wc -c upload/files/releases.json'
+          
+          // Show first few lines of the file for verification
+          echo "First 10 lines of releases.json:"
+          sh 'head -10 upload/files/releases.json'
+          
           // Upload updated releases.json
+          echo "Uploading releases.json to staging server..."
           sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'''
+          
+          // Verify upload succeeded
+          echo "Verifying remote file..."
+          sh '''ssh jenkins@staging.sys.ixsystems.net "ls -la /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json"'''
+          
           sh 'rm -rf upload/files'
         }
       }
