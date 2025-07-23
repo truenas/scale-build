@@ -60,20 +60,22 @@ pipeline {
           
           // Keep only the last 30 entries by date
           if (existingReleases.size() > 30) {
-            // Convert to list of entries, sort by date, and keep only the 30 most recent
+            // Convert to list of entries for sorting
             def entries = []
             existingReleases.each { key, value ->
-              entries.add([key: key, value: value])
+              entries.add([key: key, value: value, date: value.date])
             }
             
-            // Sort using pipeline-safe comparison
-            entries = entries.sort { a, b ->
-              // Simple string comparison of ISO 8601 dates works correctly
-              return b.value.date.compareTo(a.value.date)
-            }
+            // Sort by date using Collections.sort (CPS-safe)
+            Collections.sort(entries, new Comparator() {
+              int compare(a, b) {
+                // Reverse order - newest first
+                return b.date.compareTo(a.date)
+              }
+            })
             
-            // Keep only the most recent 30 entries
-            def recentEntries = entries.take(30)
+            // Keep only the most recent 30 entries using subList
+            def recentEntries = entries.size() > 30 ? entries.subList(0, 30) : entries
             
             // Rebuild the map
             existingReleases = [:]
