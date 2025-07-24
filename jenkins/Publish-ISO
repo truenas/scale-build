@@ -71,7 +71,7 @@ pipeline {
             def recentEntries = entriesList[startIndex..(entriesList.size() - 1)]
             
             echo "Total builds before cleanup: ${entriesList.size()}"
-            echo "Keeping the ${maxEntries} most recent builds"
+            echo "Keeping the 30 most recent builds"
             
             // Log which builds are being removed
             if (entriesList.size() > 30) {
