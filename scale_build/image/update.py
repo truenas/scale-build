@@ -216,7 +216,11 @@ def install_truenas_file_manager():
 
             # Verify the package was installed successfully
             result = run_in_chroot(['dpkg', '-l', 'truenas-file-manager'], check=False)
-            if result.returncode != 0 or 'ii  truenas-file-manager' not in result.stdout:
+            # Check if package is installed (ii status) with flexible spacing
+            if result.returncode != 0 or not any(
+                line.startswith('ii') and 'truenas-file-manager' in line
+                for line in result.stdout.splitlines()
+            ):
                 raise RuntimeError('truenas-file-manager package was not installed successfully')
 
             logger.info('Successfully installed truenas-file-manager package')
@@ -274,7 +278,11 @@ def install_truesearch():
 
             # Verify the package was installed successfully
             result = run_in_chroot(['dpkg', '-l', 'truesearch'], check=False)
-            if result.returncode != 0 or 'ii  truesearch' not in result.stdout:
+            # Check if package is installed (ii status) with flexible spacing
+            if result.returncode != 0 or not any(
+                line.startswith('ii') and 'truesearch' in line
+                for line in result.stdout.splitlines()
+            ):
                 raise RuntimeError('truesearch package was not installed successfully')
 
             logger.info('Successfully installed truesearch package')
