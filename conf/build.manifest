@@ -344,7 +344,7 @@ iso-packages:
 sources:
 - name: openssl
   repo: https://github.com/truenas/openssl
-  branch: master
+  branch: stable/goldeye
   generate_version: false
   batch_priority: 0
   predepscmd:
@@ -352,7 +352,7 @@ sources:
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-6.12
+  branch: stable/goldeye
   batch_priority: 0
   supports_ccache: true
   env:
@@ -400,11 +400,11 @@ sources:
         - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: master
+  branch: stable/goldeye
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: truenas/zfs-2.3-release
+  branch: stable/goldeye
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-truenas-production-amd64"
@@ -457,19 +457,19 @@ sources:
       generate_version: false
 - name: truenas_pylibzfs
   repo: https://github.com/truenas/truenas_pylibzfs
-  branch: master
+  branch: stable/goldeye
   explicit_deps:
     - openzfs
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: SCALE-v4-22-stable
+  branch: stable/goldeye
   generate_version: false
   batch_priority: 0
   explicit_deps:
     - openzfs
 - name: truenas_sssd
   repo: https://github.com/truenas/sssd
-  branch: truenas/2.9
+  branch: stable/goldeye
   generate_version: false
   predepscmd:
     - "apt install -y wget xz-utils systemd-dev truenas-samba"
@@ -478,7 +478,7 @@ sources:
     - truenas_samba
 - name: truenas_ipaclient
   repo: https://github.com/truenas/freeipa
-  branch: main
+  branch: stable/goldeye
   generate_version: false
   predepscmd:
     - "apt install -y pkg-config truenas-samba truenas-sssd"
@@ -490,7 +490,7 @@ sources:
     - truenas_sssd
 - name: truenas_spdk
   repo: https://github.com/truenas/truenas_spdk
-  branch: master
+  branch: stable/goldeye
   generate_version: false
   predepscmd:
     - "apt install -y rsync"
@@ -502,25 +502,25 @@ sources:
     - kernel-dbg
 - name: avahi
   repo: https://github.com/truenas/avahi
-  branch: SCALE-v0.8
+  branch: stable/goldeye
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: master
+  branch: stable/goldeye
   explicit_deps:
     - openzfs
 - name: zettarepl
   repo: https://github.com/truenas/zettarepl
-  branch: master
+  branch: stable/goldeye
 - name: truenas_crypto_utils
   repo: https://github.com/truenas/truenas_crypto_utils
-  branch: master
+  branch: stable/goldeye
 - name: truenas_connect_utils
   repo: https://github.com/truenas/truenas_connect_utils
-  branch: master
+  branch: stable/goldeye
 - name: truenas_installer
   repo: https://github.com/truenas/truenas-installer
-  branch: master
+  branch: stable/goldeye
 - name: scst
   repo: https://github.com/truenas/scst
   generate_version: false
@@ -537,7 +537,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-  branch: truenas-3.10.0-pre
+  branch: stable/goldeye
   subpackages:
     - name: scst-dbg
       generate_version: false
@@ -560,7 +560,7 @@ sources:
         - kernel-dbg
 - name: truenas_binaries
   repo: https://github.com/truenas/binaries
-  branch: master
+  branch: stable/goldeye
 - name: truenas_webui
   repo: https://github.com/truenas/webui
   predepscmd:
@@ -570,23 +570,23 @@ sources:
     - "yarn install --network-timeout 100000"
     - "tar cvzf node_files.tgz node_modules/"
     - "rm -rf node_modules"
-  branch: master
+  branch: stable/goldeye
   secret_env: ["SENTRY_AUTH_TOKEN"]
 - name: sedutil
   repo: https://github.com/truenas/sedutil
-  branch: master
+  branch: stable/goldeye
 - name: python_netsnmpagent
   repo: https://github.com/truenas/python-netsnmpagent
-  branch: truenas/0.6.1
+  branch: stable/goldeye
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: master
+  branch: stable/goldeye
 - name: licenselib
   repo: https://github.com/truenas/licenselib
-  branch: master
+  branch: stable/goldeye
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: master
+  branch: stable/goldeye
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -594,28 +594,28 @@ sources:
     - openzfs
 - name: ixdiagnose
   repo: https://github.com/truenas/ixdiagnose
-  branch: master
+  branch: stable/goldeye
 - name: ixhardware
   repo: https://github.com/truenas/ixhardware
-  branch: master
+  branch: stable/goldeye
 - name: apps_validation
   repo: https://github.com/truenas/apps_validation
-  branch: master
+  branch: stable/goldeye
 - name: py_cryptit
   repo: https://github.com/truenas/py-cryptit
-  branch: master
+  branch: stable/goldeye
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
-  branch: master
+  branch: stable/goldeye
 - name: py_fenced
   repo: https://github.com/truenas/py-fenced
-  branch: master
+  branch: stable/goldeye
 - name: py_nvme
   repo: https://github.com/truenas/py-nvme
-  branch: master
+  branch: stable/goldeye
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: stable/goldeye
   subdir: debian
   subpackages:
     - name: middlewared
@@ -629,16 +629,16 @@ sources:
       subdir: src/freenas
 - name: truenas_api_client
   repo: https://github.com/truenas/api_client
-  branch: master
+  branch: stable/goldeye
 - name: truenas_verify
   repo: https://github.com/truenas/truenas_verify
-  branch: master
+  branch: stable/goldeye
 - name: midcli
   repo: https://github.com/truenas/midcli
-  branch: master
+  branch: stable/goldeye
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: master
+  branch: stable/goldeye
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -649,7 +649,7 @@ sources:
   batch_priority: 150
 - name: parted
   repo: https://github.com/truenas/parted
-  branch: master
+  branch: stable/goldeye
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -658,20 +658,20 @@ sources:
   generate_version: false
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: master
+  branch: stable/goldeye
   deoptions: nocheck
   generate_version: false
 - name: restic
   repo: https://github.com/truenas/restic
-  branch: master
+  branch: stable/goldeye
   deoptions: nocheck
   generate_version: false
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
-  branch: master
+  branch: stable/goldeye
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
-  branch: master
+  branch: stable/goldeye
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -680,7 +680,7 @@ sources:
   generate_version: false
 - name: util-linux
   repo: https://github.com/truenas/util-linux
-  branch: master
+  branch: stable/goldeye
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -689,7 +689,7 @@ sources:
   generate_version: false
 - name: python3
   repo: https://github.com/truenas/python.git
-  branch: master
+  branch: stable/goldeye
   batch_priority: 0
   deoptions: nocheck
   generate_version: false
@@ -699,11 +699,11 @@ sources:
     - "tar --strip-components=1 -xvf Python-3.11.9.tar.xz"
 - name: truenas_audit_rules
   repo: https://github.com/truenas/audit_rules.git
-  branch: master
+  branch: stable/goldeye
   generate_version: false
 - name: nfs_utils
   repo: https://github.com/truenas/nfs-utils.git
-  branch: bookworm
+  branch: stable/goldeye
   generate_version: false
 
 # Nvidia extensions versions
