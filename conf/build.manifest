@@ -1,5 +1,5 @@
 ---
-code_name: "Goldeye"
+code_name: "Halfmoon"
 debian_release: "bookworm"
 identity_file_path_default: "~/.ssh/id_rsa"
 #
