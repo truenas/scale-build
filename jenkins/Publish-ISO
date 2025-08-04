@@ -10,20 +10,20 @@ pipeline {
         echo '*** Grabbing artifacts from Build - TrueNAS SCALE (Full - Nightly ISO) ***'
         copyArtifacts filter: '**/*.iso', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.sha256', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
-        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-goldeye-nightly/ || true'
-        sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 jenkins@staging.sys.ixsystems.net:/zdata/download.sys.truenas.net/truenas-scale-goldeye-nightly/'
+        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/download.sys.truenas.net/truenas-scale-halfmoon-nightly/ || true'
+        sh 'scp upload/files/TrueNAS-SCALE*.iso upload/files/TrueNAS-SCALE*.iso.sha256 jenkins@staging.sys.ixsystems.net:/zdata/download.sys.truenas.net/truenas-scale-halfmoon-nightly/'
         sh 'rm -rf upload/files'
         copyArtifacts filter: '**/*.update', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
         copyArtifacts filter: '**/*.json', fingerprintArtifacts: true, flatten: true, projectName: 'Build - TrueNAS SCALE (Full - Nightly ISO)', selector: lastSuccessful(), target: 'upload/files'
-        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies || true'
-        sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'
+        sh 'ssh jenkins@staging.sys.ixsystems.net mkdir -p /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies || true'
+        sh 'scp upload/files/manifest.json upload/files/TrueNAS-SCALE-*.update jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/'
       }
     }
     stage('Update Releases JSON') {
       steps {
         script {
           // Download existing releases.json if it exists
-          sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
+          sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
           
           // Read manifest.json and extract information
           def manifestContent = readFile('upload/files/manifest.json')
@@ -145,11 +145,11 @@ pipeline {
           
           // Upload updated releases.json
           echo "Uploading releases.json to staging server..."
-          sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/'''
+          sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/'''
           
           // Verify upload succeeded
           echo "Verifying remote file..."
-          sh '''ssh jenkins@staging.sys.ixsystems.net "ls -la /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Goldeye-Nightlies/releases.json"'''
+          sh '''ssh jenkins@staging.sys.ixsystems.net "ls -la /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/releases.json"'''
           
           sh 'rm -rf upload/files'
         }
