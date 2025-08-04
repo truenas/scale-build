@@ -165,7 +165,16 @@ class NvidiaExtension(Extension):
     def install_nvidia_driver(self, kernel_version):
         driver = self.download_nvidia_driver()
 
-        self.run([f"/{os.path.basename(driver)}", "--skip-module-load", "--silent", f"--kernel-name={kernel_version}",
-                  "--allow-installation-with-running-driver", "--no-rebuild-initramfs"])
+        self.run(
+            [
+                f"/{os.path.basename(driver)}",
+                "--skip-module-load",
+                "--silent",
+                f"--kernel-name={kernel_version}",
+                "--allow-installation-with-running-driver",
+                "--no-rebuild-initramfs",
+                "--kernel-module-type=open"
+            ]
+        )
 
         os.unlink(driver)

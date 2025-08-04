@@ -145,6 +145,7 @@ pipeline {
           
           // Upload updated releases.json
           echo "Uploading releases.json to staging server..."
+
           sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/'''
           
           // Verify upload succeeded
