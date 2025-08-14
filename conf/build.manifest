@@ -579,7 +579,7 @@ sources:
   branch: release/24.10.2.4
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: release/24.10.2.4
+  branch: release/24.10.2.5
   subdir: debian
   subpackages:
     - name: middlewared
