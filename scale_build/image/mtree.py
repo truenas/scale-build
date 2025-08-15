@@ -35,6 +35,8 @@ ETC_FILES_TO_REMOVE = [
     'etc/netdata/netdata.conf',
     'etc/nfs.conf',
     'etc/nginx/nginx.conf',
+    'etc/nvme/hostid',
+    'etc/nvme/hostnqn',
     'etc/proftpd/proftpd.conf',
     'etc/proftpd/tls.conf',
     'etc/security/limits.conf',
