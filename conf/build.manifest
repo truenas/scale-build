@@ -703,7 +703,7 @@ sources:
   generate_version: false
 - name: nfs_utils
   repo: https://github.com/truenas/nfs-utils.git
-  branch: bookworm
+  branch: trixie
   generate_version: false
 
 # Nvidia extensions versions
