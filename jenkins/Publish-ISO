@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           // Download existing releases.json if it exists
-          sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
+          sh '''scp jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-GoldEye-Nightlies/releases.json upload/files/releases.json || echo "{}" > upload/files/releases.json'''
           
           // Read manifest.json and extract information
           def manifestContent = readFile('upload/files/manifest.json')
@@ -146,11 +146,11 @@ pipeline {
           // Upload updated releases.json
           echo "Uploading releases.json to staging server..."
 
-          sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/'''
+          sh '''scp upload/files/releases.json jenkins@staging.sys.ixsystems.net:/zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-GoldEye-Nightlies/'''
           
           // Verify upload succeeded
           echo "Verifying remote file..."
-          sh '''ssh jenkins@staging.sys.ixsystems.net "ls -la /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-Halfmoon-Nightlies/releases.json"'''
+          sh '''ssh jenkins@staging.sys.ixsystems.net "ls -la /zdata/update.sys.truenas.net/scale/TrueNAS-SCALE-GoldEye-Nightlies/releases.json"'''
           
           sh 'rm -rf upload/files'
         }
