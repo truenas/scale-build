@@ -158,10 +158,6 @@ TRUENAS_DATASETS = [
         'snap': True
     },
     {
-        'name':  'var/lib/incus',
-        'options': ['NOSETUID', 'NOACL', 'NOATIME', 'DEV'],
-    },
-    {
         'name':  'var/log',
         'options': ['NOSUID', 'NOEXEC', 'NOACL', 'NOATIME'],
         'clone': True,
