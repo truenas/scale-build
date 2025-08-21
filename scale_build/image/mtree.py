@@ -101,6 +101,8 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/nfs.conf.d',
             '--exclude', './etc/nut',
             '--exclude', './etc/dhcp/dhclient.conf',
+            '--exclude', './etc/libvirt',
+            '--exclude', './etc/default/libvirt-guests',
             '--exclude', './etc/pam.d/common-account',
             '--exclude', './etc/pam.d/common-auth',
             '--exclude', './etc/pam.d/common-password',
