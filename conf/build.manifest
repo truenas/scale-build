@@ -10,23 +10,23 @@ identity_file_path_default: "~/.ssh/id_rsa"
 apt-repos:
   base-url: https://apt.sys.truenas.net/
   base-url-internal: http://apt-mirror.tn.ixsystems.net/
-  url: goldeye/nightlies/debian/
+  url: halfmoon/nightlies/debian/
   distribution: bookworm
   components: main
   additional:
-  - url: goldeye/nightlies/debian-security/
+  - url: halfmoon/nightlies/debian-security/
     distribution: bookworm-security
     component: main
-  - url: goldeye/nightlies/debian-backports/
+  - url: halfmoon/nightlies/debian-backports/
     distribution: bookworm-backports
     component: "main contrib non-free non-free-firmware"
-  - url: goldeye/nightlies/debian-debug/
+  - url: halfmoon/nightlies/debian-debug/
     distribution: bookworm-debug
     component: main
-  - url: goldeye/nightlies/yarn/
+  - url: halfmoon/nightlies/yarn/
     distribution: stable
     component: main
-  - url: goldeye/nightlies/docker/
+  - url: halfmoon/nightlies/docker/
     distribution: bookworm
     component: stable
     key: keys/docker.gpg
