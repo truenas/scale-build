@@ -36,7 +36,7 @@ apt-repos:
 # NOTE: Installed in the order listed
 ############################################################################
 base-packages:
-- name: libssl3
+- name: libssl3t64
   install_recommends: true
 - name: openssl-provider-fips
   install_recommends: true
