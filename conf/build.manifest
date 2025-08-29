@@ -678,15 +678,6 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: util-linux
-  repo: https://github.com/truenas/util-linux
-  branch: master
-  debian_fork: true
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
-  deoptions: nocheck
-  generate_version: false
 - name: truenas_audit_rules
   repo: https://github.com/truenas/audit_rules.git
   branch: master
