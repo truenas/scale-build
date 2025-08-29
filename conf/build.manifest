@@ -1,6 +1,6 @@
 ---
 code_name: "Halfmoon"
-debian_release: "bookworm"
+debian_release: "trixie"
 identity_file_path_default: "~/.ssh/id_rsa"
 #
 # List of apt repositories that are used and setup inside the build environment
@@ -11,23 +11,23 @@ apt-repos:
   base-url: https://apt.sys.truenas.net/
   base-url-internal: http://apt-mirror.tn.ixsystems.net/
   url: halfmoon/nightlies/debian/
-  distribution: bookworm
+  distribution: trixie
   components: main
   additional:
   - url: halfmoon/nightlies/debian-security/
-    distribution: bookworm-security
+    distribution: trixie-security
     component: main
   - url: halfmoon/nightlies/debian-backports/
-    distribution: bookworm-backports
+    distribution: trixie-backports
     component: "main contrib non-free non-free-firmware"
   - url: halfmoon/nightlies/debian-debug/
-    distribution: bookworm-debug
+    distribution: trixie-debug
     component: main
   - url: halfmoon/nightlies/yarn/
     distribution: stable
     component: main
   - url: halfmoon/nightlies/docker/
-    distribution: bookworm
+    distribution: trixie
     component: stable
     key: keys/docker.gpg
 
@@ -208,7 +208,7 @@ build-epoch: 13
 ############################################################################
 apt_preferences:
 - Package: "*"
-  Pin: "release n=bookworm-backports"
+  Pin: "release n=trixie"
   Pin-Priority: 900
 - Package: "*"
   Pin: "origin \"\""
@@ -217,7 +217,7 @@ apt_preferences:
   Pin: "version 525.89*"
   Pin-Priority: 1000
 - Package: "*curl*"
-  Pin: "release n=bookworm-security"
+  Pin: "release n=trixie-security"
   Pin-Priority: 1000
 - Package: "*libcrypto*"
   Pin: "origin \"\""
@@ -229,22 +229,22 @@ apt_preferences:
   Pin: "origin \"\""
   Pin-Priority: 1050
 - Package: "*node*"
-  Pin: "release n=bookworm-security"
+  Pin: "release n=trixie-security"
   Pin-Priority: 1000
 - Package: "*policykit*"
-  Pin: "release n=bookworm-security"
+  Pin: "release n=trixie-security"
   Pin-Priority: 1000
 - Package: "*polkit*"
-  Pin: "release n=bookworm-security"
+  Pin: "release n=trixie-security"
   Pin-Priority: 1000
 - Package: "*ssh*"
-  Pin: "release n=bookworm-security"
+  Pin: "release n=trixie-security"
   Pin-Priority: 1000
 - Package: "*ssl*"
   Pin: "origin \"\""
   Pin-Priority: 1050
 - Package: "*tls*"
-  Pin: "release n=bookworm-security"
+  Pin: "release n=trixie-security"
   Pin-Priority: 1000
 - Package: "*zfs*"
   Pin: "version 2.1.*"
