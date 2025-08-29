@@ -38,7 +38,7 @@ apt-repos:
 base-packages:
 - name: libssl3
   install_recommends: true
-- name: openssl
+- name: openssl-provider-fips
   install_recommends: true
 - name: dosfstools
   install_recommends: true
@@ -348,14 +348,6 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
-- name: openssl
-  repo: https://github.com/truenas/openssl
-  branch: master
-  generate_version: false
-  batch_priority: 0
-  predepscmd:
-    - "apt install -y wget xz-utils"
-    - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
   branch: truenas/linux-6.12
@@ -430,7 +422,6 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
-    - openssl
   generate_version: false
   subpackages:
     - name: openzfs-dbg
@@ -457,7 +448,6 @@ sources:
       explicit_deps:
         - kernel
         - kernel-dbg
-        - openssl
       generate_version: false
 - name: truenas_pylibzfs
   repo: https://github.com/truenas/truenas_pylibzfs
