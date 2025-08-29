@@ -367,7 +367,7 @@ sources:
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev devscripts"
     # Install dependencies to build perf
-    - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3 python3-setuptools python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-17-jdk libcapstone-dev llvm-dev"
+    - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3 python3-setuptools python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-21-jdk libcapstone-dev llvm-dev"
     # We remove git files because kernel makefile tries to interact with git for determining version
     # which results in misconfigured version due to our debian based changes
     - "rm -rf .git .gitattributes .gitignore"
