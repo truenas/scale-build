@@ -51,6 +51,7 @@ from .utils import getmntinfo, get_pids  # noqa
 
 logger = logging.getLogger(__name__)
 
+BIOS_BOOT_PARTITION_GUID = "21686148-6449-6E6F-744E-656564454649"
 EFI_SYSTEM_PARTITION_GUID = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
 
 RE_UNSQUASHFS_PROGRESS = re.compile(r"\[.+]\s+(?P<extracted>[0-9]+)/(?P<total>[0-9]+)\s+(?P<progress>[0-9]+)%")
@@ -606,11 +607,35 @@ def main():
 
                     os.makedirs(f"{root}/boot/efi", exist_ok=True)
                     for i, disk in enumerate(disks):
-                        efi_partition_number = 2
+                        if old_root is None:
+                            # Fresh installation - we know the layout
+                            efi_partition_number = 2
+                            run_command([
+                                "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                            ])
+                        else:
+                            try:
+                                has_bios_partition = get_partition_guid(disk, 1) == BIOS_BOOT_PARTITION_GUID
+                            except Exception:
+                                has_bios_partition = False
 
-                        run_command([
-                            "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
-                        ])
+                            if has_bios_partition:
+                                run_command([
+                                    "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                                ])
+
+                            # EFI partition: position 2 (SCALE) or 1 (Core migrations)
+                            efi_partition_number = None
+                            for part_num in [2, 1]:
+                                try:
+                                    if get_partition_guid(disk, part_num) == EFI_SYSTEM_PARTITION_GUID:
+                                        efi_partition_number = part_num
+                                        break
+                                except Exception:
+                                    pass
+
+                            if efi_partition_number is None:
+                                continue
 
                         if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
                             continue
