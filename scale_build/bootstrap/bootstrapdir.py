@@ -35,8 +35,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         binary_keyring = '/tmp/truenas-binary.gpg'
 
         # Convert ASCII-armored key to binary format for debootstrap
-        with open(keyring_path, 'r') as f:
-            run(['gpg', '--dearmor', '-o', binary_keyring], input=f.read().encode())
+        run(['sh', '-c', f'gpg --dearmor < {keyring_path} > {binary_keyring}'])
 
         run(
             ['debootstrap'] + self.deopts + [
@@ -170,8 +169,7 @@ class RootfsBootstrapDir(BootstrapDir):
         binary_keyring = '/tmp/truenas-binary.gpg'
 
         # Convert ASCII-armored key to binary format for debootstrap
-        with open(keyring_path, 'r') as f:
-            run(['gpg', '--dearmor', '-o', binary_keyring], input=f.read().encode())
+        run(['sh', '-c', f'gpg --dearmor < {keyring_path} > {binary_keyring}'])
 
         run(
             ['debootstrap'] + self.deopts + [
