@@ -364,8 +364,6 @@ sources:
   env:
     EXTRAVERSION: "-production"
     PYTHON: "python3"
-  explicit_deps:
-   - python3
   predepscmd:
     - "apt install -y flex bison dwarves libssl-dev devscripts"
     # Install dependencies to build perf
@@ -497,7 +495,6 @@ sources:
     - "sh -x fetch.sh"
   explicit_deps:
     - openzfs
-    - python3
     - truenas_samba
     - truenas_sssd
 - name: truenas_spdk
@@ -509,7 +506,6 @@ sources:
     - "sh -x fetch.sh"
     - "scripts/pkgdep.sh  --rdma"
   explicit_deps:
-    - python3
     - kernel
     - kernel-dbg
 - name: avahi
@@ -701,16 +697,6 @@ sources:
     - "./pull.sh"
   deoptions: nocheck
   generate_version: false
-- name: python3
-  repo: https://github.com/truenas/python.git
-  branch: master
-  batch_priority: 0
-  deoptions: nocheck
-  generate_version: false
-  predepscmd:
-    - "apt install -y python3-docs-theme python3-sphinx texinfo wget"
-    - "wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tar.xz"
-    - "tar --strip-components=1 -xvf Python-3.11.9.tar.xz"
 - name: truenas_audit_rules
   repo: https://github.com/truenas/audit_rules.git
   branch: master
