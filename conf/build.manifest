@@ -491,6 +491,8 @@ sources:
   repo: https://github.com/truenas/truenas_spdk
   branch: master
   generate_version: false
+  env:
+    PIP_BREAK_SYSTEM_PACKAGES: "1"
   predepscmd:
     - "apt install -y rsync"
     - "sh -x fetch.sh"
