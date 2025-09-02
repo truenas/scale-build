@@ -615,7 +615,7 @@ sources:
   branch: stable/goldeye
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: stable/goldeye
+  branch: NAS-137334
   subdir: debian
   subpackages:
     - name: middlewared
