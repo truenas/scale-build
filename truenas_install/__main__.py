@@ -607,6 +607,7 @@ def main():
 
                     os.makedirs(f"{root}/boot/efi", exist_ok=True)
                     for i, disk in enumerate(disks):
+                        partition_1_guid = None
                         if old_root is None:
                             # Fresh installation - we know the layout
                             efi_partition_number = 2
@@ -614,7 +615,6 @@ def main():
                                 "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
                             ])
                         else:
-                            partition_1_guid = None
                             try:
                                 partition_1_guid = get_partition_guid(disk, 1)
                             except Exception:
