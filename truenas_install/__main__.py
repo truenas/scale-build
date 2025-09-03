@@ -620,27 +620,27 @@ def main():
                             except Exception:
                                 pass
 
-                        if partition_1_guid == BIOS_BOOT_PARTITION_GUID:
-                            run_command([
-                                "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
-                            ])
+                            if partition_1_guid == BIOS_BOOT_PARTITION_GUID:
+                                run_command([
+                                    "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                                ])
 
-                        # EFI partition: position 2 (SCALE) or 1 (Core migrations)
-                        efi_partition_number = None
-                        if partition_1_guid == EFI_SYSTEM_PARTITION_GUID:
-                            efi_partition_number = 1
-                        else:
-                            try:
-                                if get_partition_guid(disk, 2) == EFI_SYSTEM_PARTITION_GUID:
-                                    efi_partition_number = 2
-                            except Exception:
-                                pass
+                            # EFI partition: position 2 (SCALE) or 1 (Core migrations)
+                            efi_partition_number = None
+                            if partition_1_guid == EFI_SYSTEM_PARTITION_GUID:
+                                efi_partition_number = 1
+                            else:
+                                try:
+                                    if get_partition_guid(disk, 2) == EFI_SYSTEM_PARTITION_GUID:
+                                        efi_partition_number = 2
+                                except Exception:
+                                    pass
 
-                        if efi_partition_number is None:
-                            continue
+                            if efi_partition_number is None:
+                                continue
 
-                        if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
-                            continue
+                            if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
+                                continue
 
                         partition = get_partition(disk, efi_partition_number)
                         run_command(["chroot", root, "mkdosfs", "-F", "32", "-s", "1", "-n", "EFI", partition])
