@@ -607,7 +607,6 @@ def main():
 
                     os.makedirs(f"{root}/boot/efi", exist_ok=True)
                     for i, disk in enumerate(disks):
-                        partition_1_guid = None
                         if old_root is None:
                             # Fresh installation - we know the layout
                             efi_partition_number = 2
@@ -615,29 +614,30 @@ def main():
                                 "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
                             ])
                         else:
+                            partition_1_guid = None
                             try:
                                 partition_1_guid = get_partition_guid(disk, 1)
                             except Exception:
                                 pass
 
-                        if partition_1_guid == BIOS_BOOT_PARTITION_GUID:
-                            run_command([
-                                "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
-                            ])
+                            if partition_1_guid == BIOS_BOOT_PARTITION_GUID:
+                                run_command([
+                                    "chroot", root, "grub-install", "--target=i386-pc", f"/dev/{disk}"
+                                ])
 
-                        # EFI partition: position 2 (SCALE) or 1 (Core migrations)
-                        efi_partition_number = None
-                        if partition_1_guid == EFI_SYSTEM_PARTITION_GUID:
-                            efi_partition_number = 1
-                        else:
-                            try:
-                                if get_partition_guid(disk, 2) == EFI_SYSTEM_PARTITION_GUID:
-                                    efi_partition_number = 2
-                            except Exception:
-                                pass
+                            # EFI partition: position 2 (SCALE) or 1 (Core migrations)
+                            efi_partition_number = None
+                            if partition_1_guid == EFI_SYSTEM_PARTITION_GUID:
+                                efi_partition_number = 1
+                            else:
+                                try:
+                                    if get_partition_guid(disk, 2) == EFI_SYSTEM_PARTITION_GUID:
+                                        efi_partition_number = 2
+                                except Exception:
+                                    pass
 
-                        if efi_partition_number is None:
-                            continue
+                            if efi_partition_number is None:
+                                continue
 
                         if get_partition_guid(disk, efi_partition_number) != EFI_SYSTEM_PARTITION_GUID:
                             continue
