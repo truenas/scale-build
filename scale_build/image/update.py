@@ -313,26 +313,6 @@ def custom_rootfs_setup():
 
         run_in_chroot(['update-initramfs', '-k', kernel_name, '-u'])
 
-    # Generate native systemd unit files for SysV services that lack ones to prevent systemd-sysv-generator warnings
-    tmp_systemd = os.path.join(CHROOT_BASEDIR, 'tmp/systemd')
-    os.makedirs(tmp_systemd)
-    run_in_chroot([
-        '/usr/lib/systemd/system-generators/systemd-sysv-generator', '/tmp/systemd', '/tmp/systemd', '/tmp/systemd'
-    ])
-    for unit_file in filter(lambda f: f.endswith('.service'), os.listdir(tmp_systemd)):
-        with open(os.path.join(tmp_systemd, unit_file), 'a') as f:
-            f.write(textwrap.dedent('''\
-                [Install]
-                WantedBy=multi-user.target
-            '''))
-
-    for f in os.listdir(os.path.join(tmp_systemd, 'multi-user.target.wants')):
-        file_path = os.path.join(tmp_systemd, f)
-        if os.path.isfile(file_path) and not os.path.islink(file_path):
-            os.unlink(file_path)
-
-    run_in_chroot(['rsync', '-av', '/tmp/systemd/', '/usr/lib/systemd/system/'])
-    shutil.rmtree(tmp_systemd)
     run_in_chroot(['depmod'], check=False)
 
     # /usr will be readonly, and so we want the ca-certificates directory to
