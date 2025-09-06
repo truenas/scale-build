@@ -288,9 +288,9 @@ additional-packages:
 - name: ndctl
   comment: requested by community (NAS-108490)
   install_recommends: true
-- name: ipmctl
-  comment: requested by community (NAS-108490)
-  install_recommends: true
+# - name: ipmctl
+#  comment: requested by community (NAS-108490)
+#  install_recommends: true
 - name: acpica-tools
   comment: requested by platform team (NAS-118432)
   install_recommends: true
