@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scale_build"
+version = "1.0.0"
+description = "A build framework for TrueNAS SCALE"
+license = {text = "BSD"}
+requires-python = ">=3.8"
+dependencies = [
+    "coloredlogs",
+    "toposort",
+    "requests",
+    "pyyaml"
+]
+
+[project.scripts]
+scale_build = "scale_build.main:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]

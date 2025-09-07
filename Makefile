@@ -18,7 +18,7 @@ ifneq ($(REPO_CHANGED),0)
 	@${PYTHON} -m venv venv-${COMMIT_HASH} || { echo "Failed to create virutal environment"; exit 1; }
 	@{ . ./venv-${COMMIT_HASH}/bin/activate && \
 		python3 -m pip install -r requirements.txt >/dev/null 2>&1 && \
-		python3 setup.py install >/dev/null 2>&1; } || { echo "Failed to install scale-build"; exit 1; }
+		pip install . >/dev/null 2>&1; } || { echo "Failed to install scale-build"; exit 1; }
 endif
 
 all: checkout packages update iso
