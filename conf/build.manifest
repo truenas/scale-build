@@ -396,7 +396,7 @@ sources:
         - "make -j$(nproc) bindeb-pkg"
 - name: nfs4xdr_acl_tools
   repo: https://github.com/truenas/nfs4xdr-acl-tools
-  branch: master
+  branch: NAS-137225
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
@@ -462,7 +462,7 @@ sources:
   branch: master
 - name: truenas_samba
   repo: https://github.com/truenas/samba
-  branch: SCALE-v4-22-stable
+  branch: NAS-137225
   generate_version: false
   batch_priority: 0
   explicit_deps:
@@ -478,7 +478,7 @@ sources:
     - truenas_samba
 - name: truenas_ipaclient
   repo: https://github.com/truenas/freeipa
-  branch: main
+  branch: NAS-137225
   generate_version: false
   predepscmd:
     - "apt install -y pkg-config truenas-samba truenas-sssd"
@@ -507,7 +507,7 @@ sources:
   generate_version: false
 - name: py_libzfs
   repo: https://github.com/truenas/py-libzfs
-  branch: master
+  branch: NAS-137225
   explicit_deps:
     - openzfs
 - name: zettarepl
@@ -582,13 +582,13 @@ sources:
   branch: truenas/0.6.1
 - name: python_truenas_requirements
   repo: https://github.com/truenas/python-truenas-requirements
-  branch: master
+  branch: NAS-137225
 - name: licenselib
   repo: https://github.com/truenas/licenselib
   branch: master
 - name: zectl
   repo: https://github.com/truenas/zectl
-  branch: master
+  branch: NAS-137225
   predepscmd:
     - "cp -a packaging/debian ."
   deps_path: packaging/debian
@@ -602,10 +602,10 @@ sources:
   branch: master
 - name: apps_validation
   repo: https://github.com/truenas/apps_validation
-  branch: master
+  branch: NAS-137225
 - name: py_cryptit
   repo: https://github.com/truenas/py-cryptit
-  branch: master
+  branch: NAS-137225
 - name: py_sgio
   repo: https://github.com/truenas/py-sgio
   branch: master
@@ -617,7 +617,7 @@ sources:
   branch: master
 - name: truenas
   repo: https://github.com/truenas/middleware
-  branch: master
+  branch: NAS-137225
   subdir: debian
   subpackages:
     - name: middlewared
@@ -641,7 +641,7 @@ sources:
   branch: master
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: master
+  branch: NAS-137225
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -671,7 +671,7 @@ sources:
   generate_version: false
 - name: py_sg3
   repo: https://github.com/truenas/py-sg3
-  branch: master
+  branch: NAS-137225
 - name: smartmontools
   repo: https://github.com/truenas/smartmontools
   branch: master
