@@ -107,6 +107,8 @@ base-packages:
   install_recommends: true
 - name: python3-truenas-pylibzfs
   install_recommends: true
+- name: python3-truenas-pykeyring
+  install_recommends: true
 - name: truenas-sssd
   install_recommends: true
 - name: truenas-ipaclient
@@ -460,6 +462,9 @@ sources:
   branch: master
   explicit_deps:
     - openzfs
+- name: truenas_pykeyring
+  repo: https://github.com/truenas/truenas_pykeyring
+  branch: master
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-22-stable
