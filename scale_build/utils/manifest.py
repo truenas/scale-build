@@ -253,7 +253,16 @@ def update_packages_branch(branch_name):
     # We would like to update branches but if we use python module, we would lose the comments which is not desired
     # Let's please use regex and find a better way to do this in the future
     manifest_str = get_manifest_str()
-    updated_str = BRANCH_REGEX.sub(fr'\1{branch_name}', manifest_str)
+
+    # First update the default_branch anchor definition
+    default_branch_pattern = re.compile(r'(default_branch:\s*&default_branch\s+)\S+')
+    updated_str = default_branch_pattern.sub(fr'\1{branch_name}', manifest_str)
+
+    # Then update any branch references that don't use the anchor (i.e., not *default_branch)
+    # This regex matches "branch: <value>" where <value> is not "*default_branch"
+    # We need to ensure we're only matching actual branch: lines, not default_branch:
+    non_anchor_branch_pattern = re.compile(r'^(\s*branch:\s+)(?!\*default_branch\b)(\S+)', re.MULTILINE)
+    updated_str = non_anchor_branch_pattern.sub(fr'\1{branch_name}', updated_str)
 
     with open(MANIFEST, 'w') as f:
         f.write(updated_str)
