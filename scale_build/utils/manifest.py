@@ -12,6 +12,8 @@ from scale_build.utils.paths import MANIFEST, SECRETS_FILE
 
 
 BRANCH_REGEX = re.compile(r'(branch\s*:\s*)\b[\w/\.-]+\b')
+DEFAULT_BRANCH_PATTERN = re.compile(r'(default_branch:\s*&default_branch\s+)\S+')
+NON_ANCHOR_BRANCH_PATTERN = re.compile(r'^(\s*branch:\s+)(?!\*default_branch\b)(\S+)', re.MULTILINE)
 SSH_SOURCE_REGEX = re.compile(r'^[\w]+@(\w.+):(\w.+)')
 
 INDIVIDUAL_REPO_SCHEMA = {
@@ -255,14 +257,12 @@ def update_packages_branch(branch_name):
     manifest_str = get_manifest_str()
 
     # First update the default_branch anchor definition
-    default_branch_pattern = re.compile(r'(default_branch:\s*&default_branch\s+)\S+')
-    updated_str = default_branch_pattern.sub(fr'\1{branch_name}', manifest_str)
+    updated_str = DEFAULT_BRANCH_PATTERN.sub(fr'\1{branch_name}', manifest_str)
 
     # Then update any branch references that don't use the anchor (i.e., not *default_branch)
     # This regex matches "branch: <value>" where <value> is not "*default_branch"
     # We need to ensure we're only matching actual branch: lines, not default_branch:
-    non_anchor_branch_pattern = re.compile(r'^(\s*branch:\s+)(?!\*default_branch\b)(\S+)', re.MULTILINE)
-    updated_str = non_anchor_branch_pattern.sub(fr'\1{branch_name}', updated_str)
+    updated_str = NON_ANCHOR_BRANCH_PATTERN.sub(fr'\1{branch_name}', updated_str)
 
     with open(MANIFEST, 'w') as f:
         f.write(updated_str)
