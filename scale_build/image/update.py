@@ -2,6 +2,7 @@ import glob
 import itertools
 import logging
 import os
+import platform
 import textwrap
 import shutil
 import stat
@@ -163,8 +164,131 @@ def post_rootfs_setup():
         os.chmod(pkg_mgmt_disabled_path, old_mode | executable_flag)
 
 
+def download_and_install_deb_package(package_name, download_url, deb_filename, post_install_commands=None):
+    """
+    Download and install a .deb package from a URL.
+
+    Args:
+        package_name: Name of the package for logging
+        download_url: Full URL to download the package from
+        deb_filename: Filename of the .deb package
+        post_install_commands: Optional list of additional commands to run in chroot after installation
+    """
+    # Create a temporary directory for the download
+    with tempfile.TemporaryDirectory() as tmpdir:
+        deb_path = os.path.join(tmpdir, deb_filename)
+
+        logger.info(f'Downloading {package_name} from {download_url}')
+
+        # Download the package using curl
+        download_cmd = [
+            'curl',
+            '-L',  # Follow redirects
+            '-o', deb_path,
+            download_url
+        ]
+
+        try:
+            run(download_cmd)
+        except Exception as e:
+            logger.error(f'Failed to download {package_name}: {e}')
+            raise RuntimeError(f'Failed to download {package_name} from {download_url}: {e}')
+
+        # Verify the downloaded file exists and has content
+        if not os.path.exists(deb_path) or os.path.getsize(deb_path) == 0:
+            raise RuntimeError(f'Downloaded {package_name} package is missing or empty: {deb_path}')
+
+        # Copy the package into the chroot
+        chroot_tmp_path = os.path.join(CHROOT_BASEDIR, 'tmp', deb_filename)
+        shutil.copy2(deb_path, chroot_tmp_path)
+
+        # Install the package in the chroot
+        logger.info(f'Installing {package_name} package')
+        try:
+            run_in_chroot(['dpkg', '-i', f'/tmp/{deb_filename}'])
+            # Fix any dependency issues
+            run_in_chroot(['apt-get', 'install', '-f', '-y'])
+
+            # Run any additional post-install commands
+            if post_install_commands:
+                for cmd in post_install_commands:
+                    run_in_chroot(cmd)
+
+            logger.info(f'Successfully installed {package_name} package')
+        except Exception as e:
+            logger.error(f'Failed to install {package_name}: {e}')
+            raise RuntimeError(f'Failed to install {package_name} package: {e}')
+        finally:
+            # Clean up the package from chroot tmp
+            if os.path.exists(chroot_tmp_path):
+                os.unlink(chroot_tmp_path)
+
+
+def get_debian_arch():
+    """Get the Debian architecture name based on the current platform."""
+    machine = platform.machine().lower()
+
+    # Map platform.machine() output to Debian architecture names
+    arch_map = {
+        'x86_64': 'amd64',
+        'amd64': 'amd64',
+        'aarch64': 'arm64',
+        'arm64': 'arm64',
+    }
+
+    return arch_map.get(machine, 'amd64')  # Default to amd64
+
+
+def install_external_packages():
+    """Download and install all external packages defined in build.manifest."""
+    manifest = get_manifest()
+    external_packages = manifest.get('external-packages', {})
+
+    if not external_packages:
+        logger.info('No external packages defined in build.manifest')
+        return
+
+    for package_name, package_config in external_packages.items():
+        logger.info(f'Installing external package: {package_name}')
+
+        # Extract configuration with validation
+        if 'deb_version' not in package_config:
+            logger.error(f'{package_name}: deb_version is required in build.manifest')
+            continue
+
+        if 'url_template' not in package_config:
+            logger.error(f'{package_name}: url_template is required in build.manifest')
+            continue
+
+        deb_version = package_config['deb_version']
+        arch = get_debian_arch()
+        url_template = package_config['url_template']
+        post_install_commands = package_config.get('post_install_commands', [])
+
+        # Format the URL template with the package configuration
+        download_url = url_template.format(
+            package=package_name,
+            version=deb_version,
+            arch=arch
+        )
+
+        # Extract filename from URL for caching
+        deb_filename = download_url.split('/')[-1]
+
+        # Install the package
+        download_and_install_deb_package(
+            package_name,
+            download_url,
+            deb_filename,
+            post_install_commands
+        )
+
+
 def custom_rootfs_setup():
     # Any kind of custom mangling of the built rootfs image can exist here
+
+    # Install all external packages defined in build.manifest
+    install_external_packages()
 
     os.makedirs(os.path.join(CHROOT_BASEDIR, 'boot/grub'), exist_ok=True)
 

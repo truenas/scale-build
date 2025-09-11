@@ -23,7 +23,7 @@ tape:x:26:
 sudo:x:27:
 audio:x:29:
 dip:x:30:
-www-data:x:33:
+www-data:x:33:caddy
 backup:x:34:
 operator:x:37:
 list:x:38:
@@ -67,6 +67,8 @@ nut:x:126:
 ladvd:x:127:
 libvirt:x:128:
 nova:x:129:
+truesearch:x:444:
+webshare:x:445:
 builtin_administrators:x:544:
 builtin_users:x:545:
 builtin_guests:x:546:
@@ -90,3 +92,4 @@ netdata:x:997:
 sssd:x:122:
 incus:x:996:
 incus-admin:x:995:
+caddy:x:994:
