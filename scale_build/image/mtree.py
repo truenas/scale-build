@@ -33,7 +33,6 @@ ETC_FILES_TO_REMOVE = [
     'etc/chrony/chrony.conf',
     'etc/default/rpcbind',
     # 'etc/netdata/netdata.conf',  # Commented out - netdata removed from Trixie build
-    'etc/nfs.conf',
     'etc/nginx/nginx.conf',
     'etc/nvme/hostid',
     'etc/nvme/hostnqn',
