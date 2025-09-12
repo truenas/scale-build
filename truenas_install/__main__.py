@@ -534,6 +534,7 @@ def main():
                 undo.append(["umount", f"{root}/proc"])
 
                 run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
+                undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
                 undo.append(["umount", f"{root}/sys"])
 
                 run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
