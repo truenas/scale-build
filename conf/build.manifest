@@ -109,6 +109,10 @@ base-packages:
   install_recommends: true
 - name: python3-truenas-pykeyring
   install_recommends: true
+- name: python3-truenas-pwenc
+  install_recommends: true
+- name: libtruenas-pwenc1
+  install_recommends: true
 - name: truenas-sssd
   install_recommends: true
 - name: truenas-ipaclient
@@ -465,6 +469,9 @@ sources:
 - name: truenas_pykeyring
   repo: https://github.com/truenas/truenas_pykeyring
   branch: master
+- name: truenas_pwenc
+  repo: https://github.com/truenas/truenas_pwenc
+  branch: master
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-22-stable
@@ -628,6 +635,7 @@ sources:
       explicit_deps:
         - truenas_samba
         - truenas_sssd
+        - truenas_pwenc
       subdir: src/middlewared
     - name: middlewared-docs
       subdir: src/middlewared_docs
