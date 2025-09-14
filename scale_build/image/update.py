@@ -3,7 +3,6 @@ import itertools
 import logging
 import os
 import platform
-import textwrap
 import shutil
 import stat
 import tempfile
@@ -136,9 +135,28 @@ def install_rootfs_packages_impl():
 def get_apt_sources():
     # We want the final sources.list to be in the rootfs image
     apt_repos = get_apt_repos(check_custom=False)
-    apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+
+    # Main repository with TrueNAS key
+    apt_sources = [
+        'deb [signed-by=/etc/apt/keyrings/truenas-archive.gpg] '
+        f'{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}'
+    ]
+
+    # Add additional repos
     for repo in apt_repos['additional']:
-        apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
+        if repo.get('key'):
+            # Repo with specific key
+            key_name = os.path.basename(repo['key'])
+            apt_sources.append(
+                f'deb [signed-by=/etc/apt/keyrings/{key_name}] '
+                f'{repo["url"]} {repo["distribution"]} {repo["component"]}'
+            )
+        else:
+            # Repo without specific key - uses TrueNAS key
+            apt_sources.append(
+                f'deb [signed-by=/etc/apt/keyrings/truenas-archive.gpg] '
+                f'{repo["url"]} {repo["distribution"]} {repo["component"]}'
+            )
     return apt_sources
 
 
