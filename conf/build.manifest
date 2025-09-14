@@ -26,6 +26,9 @@ apt-repos:
   - url: halfmoon/nightlies/yarn/
     distribution: stable
     component: main
+  - url: halfmoon/nightlies/netdata
+    distribution: trixie
+    component: main
   - url: halfmoon/nightlies/docker/
     distribution: trixie
     component: stable
