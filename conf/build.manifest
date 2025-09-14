@@ -86,6 +86,8 @@ base-packages:
   install_recommends: true
 - name: grub-efi-amd64-bin
   install_recommends: true
+- name: grub2-common
+  install_recommends: true
 - name: htop
   install_recommends: true
 - name: incus
