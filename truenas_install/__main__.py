@@ -534,8 +534,8 @@ def main():
                 undo.append(["umount", f"{root}/proc"])
 
                 run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
-                undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
                 undo.append(["umount", f"{root}/sys"])
+                undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
 
                 run_command(["mount", "-t", "zfs", f"{pool_name}/grub", f"{root}/boot/grub"])
                 undo.append(["umount", f"{root}/boot/grub"])
@@ -596,9 +596,6 @@ def main():
                     write_progress(0.96, "Installing GRUB")
 
                     if os.path.exists("/sys/firmware/efi"):
-                        run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
-                        undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
-
                         # Clean up dumps from NVRAM to prevent
                         # "failed to register the EFI boot entry: No space left on device"
                         for item in os.listdir("/sys/firmware/efi/efivars"):
