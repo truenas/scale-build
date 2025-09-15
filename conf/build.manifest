@@ -569,6 +569,8 @@ sources:
   branch: master
 - name: truenas_webui
   repo: https://github.com/truenas/webui
+  env:
+    COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
   predepscmd:
     - "apt -y install wget"
   prebuildcmd:
