@@ -11,7 +11,7 @@ mail:x:8:
 news:x:9:
 uucp:x:10:
 man:x:12:
-proxy:x:13:
+proxy:x:13:netdata
 ftp:x:14:
 kmem:x:15:
 dialout:x:20:nut
@@ -39,7 +39,7 @@ staff:x:50:
 games:x:60:
 users:x:100:
 nogroup:x:65534:
-nobody:x:65534:
+nobody:x:65534:netdata
 systemd-timesync:x:101:
 systemd-journal:x:102:
 systemd-network:x:103:
@@ -74,9 +74,9 @@ apps:x:568:
 webdav:x:666:
 truenas_readonly_administrators:x:951:
 truenas_sharing_administrators:x:952:
-docker:x:999:
+docker:x:999:netdata
 libvirt-qemu:x:986:libvirt-qemu
-haproxy:x:130:
+haproxy:x:130:netdata
 uuidd:x:131:
 i2c:x:132:
 sgx:x:133:
