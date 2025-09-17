@@ -503,9 +503,9 @@ sources:
 #    - "apt install -y rsync"
 #    - "sh -x fetch.sh"
 #    - "scripts/pkgdep.sh  --rdma"
-  explicit_deps:
-    - kernel
-    - kernel-dbg
+#  explicit_deps:
+#    - kernel
+#    - kernel-dbg
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
