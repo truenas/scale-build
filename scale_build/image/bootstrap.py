@@ -24,9 +24,6 @@ def setup_chroot_basedir(bootstrapdir_obj):
 
 
 def umount_tmpfs_and_clean_chroot_dir():
-    # Must unmount sys and proc before removing directory
-    # Otherwise sysfs virtual files like warn_count cannot be deleted
-    umount_chroot_basedir()
     if os.path.exists(CHROOT_BASEDIR):
         shutil.rmtree(CHROOT_BASEDIR)
     run(['umount', '-f', TMPFS], check=False, log=False)
@@ -44,5 +41,5 @@ def umount_chroot_basedir():
 
 
 def clean_mounts():
-    # umount_tmpfs_and_clean_chroot_dir now handles unmounting internally
+    umount_chroot_basedir()
     umount_tmpfs_and_clean_chroot_dir()
