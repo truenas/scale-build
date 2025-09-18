@@ -95,8 +95,6 @@ base-packages:
   install_recommends: true
 - name: incus
   install_recommends: false
-- name: isc-dhcp-client
-  install_recommends: true
 - name: incus-agent
   # agent is required to get proper events in websockets and run commands on VMs
   install_recommends: false
