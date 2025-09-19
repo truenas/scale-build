@@ -128,7 +128,7 @@ def make_iso_file():
         run_in_chroot(['apt-get', 'update'], check=False)
         run_in_chroot([
             'apt-get', 'install', '-y', 'grub-common', 'grub2-common', 'grub-efi-amd64-bin',
-            'grub-efi-amd64-signed', 'grub-pc-bin', 'mtools', 'xorriso'
+            'grub-pc-bin', 'mtools', 'xorriso'
         ])
 
         # Debian GRUB EFI searches for GRUB config in a different place

@@ -32,7 +32,7 @@ ETC_FILES_TO_REMOVE = [
     'etc/avahi/services/nut.service',
     'etc/chrony/chrony.conf',
     'etc/default/rpcbind',
-    'etc/netdata/netdata.conf',
+    # 'etc/netdata/netdata.conf',  # FIXME: please fix this once aligned with newer netdata packages
     'etc/nginx/nginx.conf',
     'etc/nvme/hostid',
     'etc/nvme/hostnqn',

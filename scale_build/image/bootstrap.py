@@ -33,6 +33,8 @@ def umount_chroot_basedir():
     for command in (
         ['umount', '-f', PACKAGE_PATH],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'proc')],
+        # Need to unmount efivarfs before sys (automatically mounted under sys)
+        ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys/firmware/efi/efivars')],
         ['umount', '-f', os.path.join(CHROOT_BASEDIR, 'sys')],
     ):
         run(command, check=False, log=False)

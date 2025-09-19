@@ -3,7 +3,6 @@ import itertools
 import logging
 import os
 import platform
-import textwrap
 import shutil
 import stat
 import tempfile
@@ -136,9 +135,28 @@ def install_rootfs_packages_impl():
 def get_apt_sources():
     # We want the final sources.list to be in the rootfs image
     apt_repos = get_apt_repos(check_custom=False)
-    apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+
+    # Main repository with TrueNAS key
+    apt_sources = [
+        'deb [signed-by=/etc/apt/keyrings/truenas-archive.gpg] '
+        f'{apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}'
+    ]
+
+    # Add additional repos
     for repo in apt_repos['additional']:
-        apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
+        if repo.get('key'):
+            # Repo with specific key
+            key_name = os.path.basename(repo['key'])
+            apt_sources.append(
+                f'deb [signed-by=/etc/apt/keyrings/{key_name}] '
+                f'{repo["url"]} {repo["distribution"]} {repo["component"]}'
+            )
+        else:
+            # Repo without specific key - uses TrueNAS key
+            apt_sources.append(
+                f'deb [signed-by=/etc/apt/keyrings/truenas-archive.gpg] '
+                f'{repo["url"]} {repo["distribution"]} {repo["component"]}'
+            )
     return apt_sources
 
 
@@ -313,26 +331,6 @@ def custom_rootfs_setup():
 
         run_in_chroot(['update-initramfs', '-k', kernel_name, '-u'])
 
-    # Generate native systemd unit files for SysV services that lack ones to prevent systemd-sysv-generator warnings
-    tmp_systemd = os.path.join(CHROOT_BASEDIR, 'tmp/systemd')
-    os.makedirs(tmp_systemd)
-    run_in_chroot([
-        '/usr/lib/systemd/system-generators/systemd-sysv-generator', '/tmp/systemd', '/tmp/systemd', '/tmp/systemd'
-    ])
-    for unit_file in filter(lambda f: f.endswith('.service'), os.listdir(tmp_systemd)):
-        with open(os.path.join(tmp_systemd, unit_file), 'a') as f:
-            f.write(textwrap.dedent('''\
-                [Install]
-                WantedBy=multi-user.target
-            '''))
-
-    for f in os.listdir(os.path.join(tmp_systemd, 'multi-user.target.wants')):
-        file_path = os.path.join(tmp_systemd, f)
-        if os.path.isfile(file_path) and not os.path.islink(file_path):
-            os.unlink(file_path)
-
-    run_in_chroot(['rsync', '-av', '/tmp/systemd/', '/usr/lib/systemd/system/'])
-    shutil.rmtree(tmp_systemd)
     run_in_chroot(['depmod'], check=False)
 
     # /usr will be readonly, and so we want the ca-certificates directory to

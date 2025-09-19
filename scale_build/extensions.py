@@ -117,7 +117,7 @@ class DevToolsExtension(Extension):
 
 
 class NvidiaExtension(Extension):
-    binaries = ("apt", "apt-config", "apt-key", "dpkg")
+    binaries = ("apt", "apt-config", "dpkg")
     temporary_packages = ["gcc", "make", "pkg-config"]
     permanent_packages = ["libvulkan1", "nvidia-container-toolkit", "vulkan-validationlayers"]
 
