@@ -365,7 +365,7 @@ iso-packages:
 sources:
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: NAS-135054
+  branch: NAS-135054-truenas-cert
   batch_priority: 0
   supports_ccache: true
   env:
@@ -724,17 +724,15 @@ sources:
   repo: https://github.com/truenas/midcli
   branch: master
 - name: shim-unsigned
-  repo: https://github.com/ixhamza/shim-unsigned
-  branch: NAS-135054
+  repo: https://github.com/truenas/shim-unsigned
+  branch: NAS-135054-trixie
   buildcmd:
     - "DEB_BUILD_OPTIONS='reproducible=+fixfilepath' dpkg-buildpackage -uc -us -b"
-  explicit_deps:
-    - grub2
   batch_priority: 149
   generate_version: false
 - name: grub2
   repo: https://github.com/truenas/grub2
-  branch: NAS-135054-3
+  branch: master
   debian_fork: true
   predepscmd:
     - "apt install -y wget xz-utils"
@@ -744,8 +742,8 @@ sources:
   jobs: 1
   batch_priority: 150
 - name: grub-efi-amd64-signed
-  repo: https://github.com/ixhamza/grub-efi-amd64-signed
-  branch: NAS-135054
+  repo: https://github.com/truenas/grub-efi-amd64-signed
+  branch: NAS-135054-trixie
   predepscmd:
     - "apt install -y sbsigntool tree"
     - "cp /mnt/shared/Rolling.key debian/"
@@ -757,8 +755,8 @@ sources:
     - shim-signed
   batch_priority: 155
 - name: shim-helpers-amd64-signed
-  repo: https://github.com/ixhamza/shim-helpers-amd64-signed
-  branch: NAS-135054
+  repo: https://github.com/truenas/shim-helpers-amd64-signed
+  branch: NAS-135054-trixie
   predepscmd:
     - "apt install -y sbsigntool"
   buildcmd:
@@ -768,8 +766,8 @@ sources:
     - shim-unsigned
   batch_priority: 153
 - name: shim-signed
-  repo: https://github.com/ixhamza/shim-signed
-  branch: NAS-135054
+  repo: https://github.com/truenas/shim-signed
+  branch: NAS-135054-trixie
   predepscmd:
     - "apt install -y sbsigntool"
   buildcmd:
