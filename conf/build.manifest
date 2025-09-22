@@ -39,9 +39,9 @@ apt-repos:
 # NOTE: Installed in the order listed
 ############################################################################
 base-packages:
-- name: libssl3t64
+- name: openssl
   install_recommends: true
-- name: openssl-provider-fips
+- name: truenas-openssl-provider-fips
   install_recommends: true
 - name: dosfstools
   install_recommends: true
@@ -353,6 +353,11 @@ iso-packages:
 # to be built
 ############################################################################
 sources:
+- name: truenas-openssl-provider-fips
+  repo: https://github.com/truenas/openssl-fips
+  branch: master
+  predepscmd:
+    - "apt install -y wget xz-utils"
 - name: kernel
   repo: https://github.com/truenas/linux
   branch: truenas/linux-6.12
