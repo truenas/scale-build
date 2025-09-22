@@ -454,6 +454,9 @@ sources:
         - kernel
         - kernel-dbg
       generate_version: false
+- name: truenas_pylibvirt
+  repo: https://github.com/truenas/truenas_pylibvirt
+  branch: master
 - name: truenas_pylibzfs
   repo: https://github.com/truenas/truenas_pylibzfs
   branch: master
