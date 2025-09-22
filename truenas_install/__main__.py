@@ -597,7 +597,16 @@ def main():
                     write_progress(0.96, "Installing GRUB")
 
                     if os.path.exists("/sys/firmware/efi"):
-                        run_command(["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"])
+                        cmd = ["mount", "-t", "efivarfs", "efivarfs", f"{root}/sys/firmware/efi/efivars"]
+                        try:
+                            subprocess.run(cmd, **run_kw)
+                        except subprocess.CalledProcessError as e:
+                            if e.returncode == 32 and "efivarfs already mounted on" in e.stderr:
+                                pass
+                            else:
+                                write_error(f"Command {cmd} failed with exit code {e.returncode}: {e.stderr}")
+                                raise
+
                         # Clean up dumps from NVRAM to prevent
                         # "failed to register the EFI boot entry: No space left on device"
                         for item in os.listdir("/sys/firmware/efi/efivars"):
