@@ -32,7 +32,7 @@ class BootstrapDir(CacheMixin, HashMixin):
         manifest = get_manifest()
         run(
             ['debootstrap'] + self.deopts + [
-                '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
+                '--keyring', '/etc/apt/keyrings/truenas.gpg',
                 manifest['debian_release'],
                 self.chroot_basedir, get_apt_repos(check_custom=True)['url']
             ]
@@ -50,6 +50,12 @@ class BootstrapDir(CacheMixin, HashMixin):
         self.setup_mounts()
 
         self.logger.debug('Updating apt preferences')
+
+        # Create keyrings directory for modern apt key management
+        keyrings_dir = os.path.join(self.chroot_basedir, 'etc/apt/keyrings')
+        os.makedirs(keyrings_dir, exist_ok=True)
+        shutil.copy(os.path.join(BUILDER_DIR, 'keys/truenas.gpg'), os.path.join(keyrings_dir, 'truenas.gpg'))
+
         apt_path = os.path.join(self.chroot_basedir, 'etc/apt')
         apt_sources_path = os.path.join(apt_path, 'sources.list')
         # Set bullseye repo as the priority
@@ -57,25 +63,27 @@ class BootstrapDir(CacheMixin, HashMixin):
             f.write(get_apt_preferences())
 
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
-        # We need to have gnupg installed before adding apt mirrors because apt-key needs it
-        run(['chroot', self.chroot_basedir, 'apt', 'install', '-y', 'gnupg'])
 
         # Save the correct repo in sources.list
-        apt_sources = [f'deb {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
+        apt_sources = [f'deb [signed-by=/etc/apt/keyrings/truenas.gpg] {apt_repos["url"]} {apt_repos["distribution"]} {apt_repos["components"]}']
 
         # Add additional repos
         for repo in apt_repos['additional']:
             self.logger.debug('Adding additional repo: %r', repo['url'])
             if repo.get('key'):
-                shutil.copy(os.path.join(BUILDER_DIR, repo['key']), os.path.join(self.chroot_basedir, 'apt.key'))
-                run(['chroot', self.chroot_basedir, 'apt-key', 'add', '/apt.key'])
-                os.unlink(os.path.join(self.chroot_basedir, 'apt.key'))
-
-            apt_sources.append(f'deb {repo["url"]} {repo["distribution"]} {repo["component"]}')
+                # Use modern keyring approach instead of deprecated apt-key
+                key_name = os.path.basename(repo['key']).replace('.gpg', '')
+                shutil.copy(os.path.join(BUILDER_DIR, repo['key']), os.path.join(keyrings_dir, f'{key_name}.gpg'))
+                apt_sources.append(f'deb [signed-by=/etc/apt/keyrings/{key_name}.gpg] {repo["url"]} {repo["distribution"]} {repo["component"]}')
+            else:
+                apt_sources.append(f'deb [signed-by=/etc/apt/keyrings/truenas.gpg] {repo["url"]} {repo["distribution"]} {repo["component"]}')
 
         with open(apt_sources_path, 'w') as f:
             f.write('\n'.join(apt_sources))
 
+        self.logger.debug('apt sources')
+        self.logger.debug('\n'.join(apt_sources))
+        
         # Update apt
         run(['chroot', self.chroot_basedir, 'apt', 'update'])
         # Upgrade apt so that packages which were pulled in by debootstrap i.e libssl, they also
@@ -101,10 +109,10 @@ class BootstrapDir(CacheMixin, HashMixin):
         pass
 
     def add_trusted_apt_key(self):
-        run([
-            'apt-key', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg', 'add',
-            os.path.join(BUILDER_DIR, 'keys/truenas.gpg')
-        ])
+        # Use modern keyring approach instead of deprecated apt-key
+        keyring_path = '/etc/apt/keyrings/truenas.gpg'
+        os.makedirs('/etc/apt/keyrings', exist_ok=True)
+        shutil.copy(os.path.join(BUILDER_DIR, 'keys/truenas.gpg'), keyring_path)
 
     @property
     def extra_packages_to_install(self):
@@ -149,7 +157,7 @@ class RootfsBootstrapDir(BootstrapDir):
         manifest = get_manifest()
         run(
             ['debootstrap'] + self.deopts + [
-                '--foreign', '--keyring', '/etc/apt/trusted.gpg.d/debian-archive-truenas-automatic.gpg',
+                '--foreign', '--keyring', '/etc/apt/keyrings/truenas.gpg',
                 manifest['debian_release'],
                 self.chroot_basedir, get_apt_repos(check_custom=True)['url']
             ]
