@@ -12,7 +12,7 @@ Found an issue in the build for SCALE? Please report it on our [Jira bugtracker]
 
 ## Requirements
 
- - Debian 10 or later (VM or Bare-Metal)
+ - Supported version of Debian
  - Python 3.11 or later
  - 20GB of RAM
  - At least 15GB of free disk space
