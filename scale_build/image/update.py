@@ -3,6 +3,7 @@ import itertools
 import logging
 import os
 import platform
+import requests
 import shutil
 import stat
 import tempfile
@@ -198,17 +199,18 @@ def download_and_install_deb_package(package_name, download_url, deb_filename, p
 
         logger.info(f'Downloading {package_name} from {download_url}')
 
-        # Download the package using curl
-        download_cmd = [
-            'curl',
-            '-L',  # Follow redirects
-            '-o', deb_path,
-            download_url
-        ]
-
+        # Download the package using requests
         try:
-            run(download_cmd)
-        except Exception as e:
+            response = requests.get(download_url, stream=True, timeout=60, allow_redirects=True)
+            response.raise_for_status()
+
+            # Write the content to file in chunks to handle large files efficiently
+            with open(deb_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:  # Filter out keep-alive chunks
+                        f.write(chunk)
+
+        except requests.exceptions.RequestException as e:
             logger.error(f'Failed to download {package_name}: {e}')
             raise RuntimeError(f'Failed to download {package_name} from {download_url}: {e}')
 
