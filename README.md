@@ -12,7 +12,8 @@ Found an issue in the build for SCALE? Please report it on our [Jira bugtracker]
 
 ## Requirements
 
- - Debian 10 or later (VM or Bare-Metal)
+ - Supported version of Debian
+ - Python 3.11 or later
  - 20GB of RAM
  - At least 15GB of free disk space
 
@@ -32,6 +33,8 @@ In addition to the host, you will want to pre-install the following packages:
 ``` % sudo apt install build-essential debootstrap git python3-pip python3-venv squashfs-tools unzip libjson-perl rsync libarchive-tools```
 
 ## Usage
+
+The build system automatically manages a Python virtual environment to ensure build consistency. It detects changes in the git repository hash and automatically recreates the virtual environment when needed, ensuring that the build tools are always in sync with the current codebase.
 
 After the pre-requistes are installed, simply run "make" (as root or sudo) to perform a complete build which performs the following steps:
 

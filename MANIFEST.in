@@ -1,0 +1,4 @@
+include scripts/parse_deps.pl
+include README.md
+include LICENSE
+include requirements.txt
