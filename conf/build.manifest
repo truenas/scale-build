@@ -118,6 +118,10 @@ base-packages:
   install_recommends: true
 - name: libtruenas-pwenc1
   install_recommends: true
+- name: python3-truenas-scram
+  install_recommends: true
+- name: libtruenas-scram1
+  install_recommends: true
 - name: truenas-sssd
   install_recommends: true
 - name: truenas-ipaclient
@@ -474,6 +478,9 @@ sources:
   branch: master
 - name: truenas_pwenc
   repo: https://github.com/truenas/truenas_pwenc
+  branch: master
+- name: truenas_scram
+  repo: https://github.com/truenas/truenas_scram
   branch: master
 - name: truenas_samba
   repo: https://github.com/truenas/samba
