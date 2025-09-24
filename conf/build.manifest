@@ -116,6 +116,8 @@ base-packages:
   install_recommends: true
 - name: python3-truenas-pwenc
   install_recommends: true
+- name: python3-truenas-pyscstadmin
+  install_recommends: true
 - name: libtruenas-pwenc1
   install_recommends: true
 - name: python3-truenas-scram
@@ -489,6 +491,11 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
+- name: truenas_pyscstadmin
+  repo: https://github.com/truenas/truenas_pyscstadmin
+  branch: master
+  buildcmd:
+    - "dpkg-buildpackage -us -uc -b"
 - name: truenas_sssd
   repo: https://github.com/truenas/sssd
   branch: truenas/2.9
@@ -649,6 +656,7 @@ sources:
         - truenas_samba
         - truenas_sssd
         - truenas_pwenc
+        - truenas_pyscstadmin
       subdir: src/middlewared
     - name: middlewared-docs
       subdir: src/middlewared_docs
