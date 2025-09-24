@@ -176,6 +176,8 @@ base-packages:
   install_recommends: false
 - name: truenas-audit-rules
   install_recommends: false
+- name: restic
+  install_recommends: false
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
@@ -676,11 +678,6 @@ sources:
   generate_version: false
 - name: rclone
   repo: https://github.com/truenas/rclone
-  branch: master
-  deoptions: nocheck
-  generate_version: false
-- name: restic
-  repo: https://github.com/truenas/restic
   branch: master
   deoptions: nocheck
   generate_version: false
