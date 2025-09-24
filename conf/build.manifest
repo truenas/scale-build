@@ -177,7 +177,7 @@ base-packages:
 - name: truenas-audit-rules
   install_recommends: false
 - name: restic
-  install_recommends: true
+  install_recommends: false
 
 #
 # Packages which are removed from the base TrueNAS SCALE System by default
