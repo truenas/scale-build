@@ -128,8 +128,8 @@ base-packages:
   install_recommends: true
 - name: truenas-ipaclient
   install_recommends: true
-# - name: truenas-spdk
-#  install_recommends: true
+- name: truenas-spdk
+  install_recommends: true
 - name: cifs-utils
   install_recommends: true
 - name: nfs4xdr-acl-tools
@@ -516,20 +516,19 @@ sources:
     - openzfs
     - truenas_samba
     - truenas_sssd
-# spdk does not support debian trixie now on upstream side for now
-# - name: truenas_spdk
-#  repo: https://github.com/truenas/truenas_spdk
-#  branch: master
-#  generate_version: false
-#  env:
-#    PIP_BREAK_SYSTEM_PACKAGES: "1"
-#  predepscmd:
-#    - "apt install -y rsync"
-#    - "sh -x fetch.sh"
-#    - "scripts/pkgdep.sh  --rdma"
-#  explicit_deps:
-#    - kernel
-#    - kernel-dbg
+- name: truenas_spdk
+  repo: https://github.com/truenas/truenas_spdk
+  branch: master
+  generate_version: false
+  env:
+    PIP_BREAK_SYSTEM_PACKAGES: "1"
+  predepscmd:
+    - "apt install -y rsync"
+    - "sh -x fetch.sh"
+    - "scripts/pkgdep.sh  --rdma"
+  explicit_deps:
+    - kernel
+    - kernel-dbg
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
