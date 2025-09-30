@@ -8,7 +8,7 @@ from datetime import datetime
 from scale_build.config import BUILD_TIME, VERSION
 from scale_build.exceptions import CallError
 from scale_build.utils.environment import APT_ENV
-from scale_build.utils.manifest import get_truenas_train, get_release_code_name, get_secret_env
+from scale_build.utils.manifest import get_truenas_train, get_release_code_name, get_secret_env, get_manifest
 from scale_build.utils.run import run
 from scale_build.utils.paths import PKG_DIR
 
@@ -108,9 +108,11 @@ class BuildPackageMixin:
         if self.generate_version:
             generate_version_flags = f' -v {datetime.today().strftime("%Y%m%d%H%M%S")}~truenas+1 '
 
+        debian_release = get_manifest()['debian_release']
+        distribution = f'{debian_release}-truenas-unstable'
         self.run_in_chroot(
             f'cd {self.package_source} && dch -b -M {generate_version_flags}--force-distribution '
-            '--distribution bullseye-truenas-unstable \'Tagged from truenas-build\'',
+            f'--distribution {distribution} \'Tagged from truenas-build\'',
             'Failed dch changelog'
         )
 
