@@ -99,6 +99,7 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/sudoers',
             '--exclude', './etc/nfs.conf',
             '--exclude', './etc/nut',
+            '--exclude', './etc/dhcpcd.conf',
             '--exclude', './etc/dhcp/dhclient.conf',
             '--exclude', './etc/libvirt',
             '--exclude', './etc/default/libvirt-guests',
