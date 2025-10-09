@@ -470,6 +470,9 @@ sources:
 - name: truenas_pylibvirt
   repo: https://github.com/truenas/truenas_pylibvirt
   branch: master
+- name: truenas_pynetif
+  repo: https://github.com/truenas/truenas_pynetif
+  branch: master
 - name: truenas_pylibzfs
   repo: https://github.com/truenas/truenas_pylibzfs
   branch: master
