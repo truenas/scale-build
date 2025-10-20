@@ -478,6 +478,13 @@ def main():
                                 if log.startswith(("failover.log", "fenced.log", "middlewared.log")):
                                     rsync.append(f"var/log/{log}")
 
+                    for ovmf_file in (
+                        "OVMF_CODE.fd", "OVMF_VARS.fd", "OVMF_CODE.secboot.fd", "OVMF_CODE.ms.fd", "OVMF_VARS.ms.fd",
+                    ):
+                        ovmf_path = f"{old_root}/usr/share/OVMF/{ovmf_file}"
+                        if os.path.exists(ovmf_path):
+                            rsync.append(ovmf_path)
+
                     run_command([
                         "rsync", "-aRx",
                     ] + sum([
