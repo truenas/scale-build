@@ -23,7 +23,8 @@ def build_extensions(rootfs_image, dst_dir):
     os.makedirs(chroot_base)
     run(["unsquashfs", "-dest", chroot_base, rootfs_image])
 
-    for klass, name in [(DevToolsExtension, "dev-tools"), (NvidiaExtension, "nvidia")]:
+    # Temporarily disable NVIDIA extension for kernel 6.18 testing
+    for klass, name in [(DevToolsExtension, "dev-tools")]:  # (NvidiaExtension, "nvidia") disabled
         klass(rootfs_image, chroot_base, chroot).build(name, f"{dst_dir}/{name}.raw")
 
 
