@@ -723,7 +723,7 @@ sources:
 ############################################################################
 extensions:
   nvidia:
-    current: "570.172.08"
+    current: "570.195.03"  # Updated from 570.172.08 for kernel 6.18 support
 
 # External packages from various sources (GitHub releases, assets.sys.truenas.net)
 ############################################################################
