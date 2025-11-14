@@ -723,7 +723,7 @@ sources:
 ############################################################################
 extensions:
   nvidia:
-    current: "570.172.08"
+    current: "580.105.08"
 
 # External packages from various sources (GitHub releases, assets.sys.truenas.net)
 ############################################################################
