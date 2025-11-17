@@ -374,7 +374,7 @@ sources:
     - "apt install -y wget xz-utils"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-6.12
+  branch: NAS-137494
   batch_priority: 0
   supports_ccache: true
   env:
@@ -424,7 +424,7 @@ sources:
 - name: openzfs
   repo: https://github.com/truenas/zfs
   batch_priority: 0
-  branch: truenas/zfs-2.4-release
+  branch: NAS-137494
   env:
     KVERS: "$(shell apt info linux-headers-truenas-production-amd64 | awk '/Source:/ { print $$2}' | sed 's/linux-//')"
     KSRC: "/usr/src/linux-headers-truenas-production-amd64"
