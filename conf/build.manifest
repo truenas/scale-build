@@ -124,6 +124,12 @@ base-packages:
   install_recommends: true
 - name: libtruenas-scram1
   install_recommends: true
+- name: python3-truenas-pypam
+  install_recommends: true
+- name: python3-truenas-pam-utils
+  install_recommends: true
+- name: libpam-truenas
+  install_recommends: true
 - name: truenas-sssd
   install_recommends: true
 - name: truenas-ipaclient
@@ -486,6 +492,15 @@ sources:
   branch: master
 - name: truenas_scram
   repo: https://github.com/truenas/truenas_scram
+  branch: master
+- name: truenas_pypam
+  repo: https://github.com/truenas/truenas_pypam
+  branch: master
+- name: pam_truenas
+  repo: https://github.com/truenas/pam_truenas
+  explicit_deps:
+    - truenas_pwenc
+    - truenas_scram
   branch: master
 - name: truenas_samba
   repo: https://github.com/truenas/samba
