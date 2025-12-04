@@ -26,6 +26,7 @@ ETC_FILES_TO_REMOVE = [
     'etc/krb5.conf',
     'etc/mailname',
     'etc/motd',
+    'etc/nfs.conf.d',
     'etc/nscd.conf',
     'etc/resolv.conf',
     'etc/avahi/avahi-daemon.conf',
