@@ -749,3 +749,8 @@ external-packages:
     url_template: "https://github.com/caddyserver/caddy/releases/download/v{version}/caddy_{version}_linux_{arch}.deb"
     post_install_commands:
       - ["systemctl", "disable", "caddy"]
+  ransomwared:
+    deb_version: "0.0.1"
+    url_template: "https://assets.sys.truenas.net/debian-packages/{package}_{version}_{arch}.deb"
+    post_install_commands:
+      - ["systemctl", "disable", "ransomwared"]
