@@ -1,5 +1,6 @@
 import os
 import hashlib
+import shutil
 
 from contextlib import contextmanager
 from scale_build.utils.paths import RELEASE_DIR
@@ -26,7 +27,6 @@ ETC_FILES_TO_REMOVE = [
     'etc/krb5.conf',
     'etc/mailname',
     'etc/motd',
-    'etc/nfs.conf.d',
     'etc/nscd.conf',
     'etc/resolv.conf',
     'etc/avahi/avahi-daemon.conf',
@@ -51,6 +51,14 @@ ETC_FILES_TO_REMOVE = [
     'etc/rc5.d/K01ssh',
     'etc/initramfs-tools/modules',  # These two are not used by systemd
     'etc/modules',
+]
+
+# The following is a list of directories to remove from our image before we
+# generate the mtree file. These are directories that dynamically get removed
+# during normal TrueNAS operation and should be removed to avoid tripping up
+# the verification.
+DIRS_TO_REMOVE = [
+    'etc/nfs.conf.d',
 ]
 
 # Some files or directories get the permission mode changed on install.
@@ -139,6 +147,15 @@ def generate_mtree(target_root_dir, version):
     for file in ETC_FILES_TO_REMOVE:
         try:
             os.unlink(os.path.join(target_root_dir, file))
+        except FileNotFoundError:
+            # We want to avoid failing the build if the object is
+            # aleady removed.  Possibly time to update the list.
+            pass
+
+    # Same for directories
+    for dir in DIRS_TO_REMOVE:
+        try:
+            shutil.rmtree(os.path.join(target_root_dir, dir))
         except FileNotFoundError:
             # We want to avoid failing the build if the object is
             # aleady removed.  Possibly time to update the list.
