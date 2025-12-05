@@ -12,12 +12,12 @@ MTREE_FILE_NAME = 'rootfs.mtree'
 MTREE_UPDATE_FILE = f'{RELEASE_DIR}/{MTREE_FILE_NAME}'
 MTREE_DIRS = ['boot', 'etc', 'usr', 'opt', 'var', 'conf/audit_rules']
 
-# The following is list of default etc files to remove from our image before we
-# generate mtree file and then the squashfs filesystem. Generally we should put
-# files that are generated via middleware and not required for first boot to
-# eliminate files being flagged as changed rather than simply added to our
-# base install.
-ETC_FILES_TO_REMOVE = [
+# The following is list of default etc files and dirs to remove from our image
+# before we generate mtree file and then the squashfs filesystem. Generally
+# we should put files that are generated via middleware and not required for
+# first boot to eliminate files being flagged as changed rather than simply
+# added to our base install.
+ETC_OBJS_TO_REMOVE = [
     'etc/audit/rules.d/audit.rules',  # Not used by TrueNAS
     'etc/exports',
     'etc/ftpusers',
@@ -27,6 +27,7 @@ ETC_FILES_TO_REMOVE = [
     'etc/krb5.conf',
     'etc/mailname',
     'etc/motd',
+    'etc/nfs.conf.d',
     'etc/nscd.conf',
     'etc/resolv.conf',
     'etc/avahi/avahi-daemon.conf',
@@ -51,14 +52,6 @@ ETC_FILES_TO_REMOVE = [
     'etc/rc5.d/K01ssh',
     'etc/initramfs-tools/modules',  # These two are not used by systemd
     'etc/modules',
-]
-
-# The following is a list of directories to remove from our image before we
-# generate the mtree file. These are directories that dynamically get removed
-# during normal TrueNAS operation and should be removed to avoid tripping up
-# the verification.
-DIRS_TO_REMOVE = [
-    'etc/nfs.conf.d',
 ]
 
 # Some files or directories get the permission mode changed on install.
@@ -144,22 +137,23 @@ def generate_mtree(target_root_dir, version):
     # There are various default files distributed by packages that
     # we replace when we etc.generate. If they're not required for
     # first boot, then remove from update file.
-    for file in ETC_FILES_TO_REMOVE:
+    for obj in ETC_OBJS_TO_REMOVE:
+        obj = os.path.join(target_root_dir, obj)
+
         try:
-            os.unlink(os.path.join(target_root_dir, file))
+            os.unlink(obj)
         except FileNotFoundError:
             # We want to avoid failing the build if the object is
             # aleady removed.  Possibly time to update the list.
             pass
 
-    # Same for directories
-    for dir in DIRS_TO_REMOVE:
-        try:
-            shutil.rmtree(os.path.join(target_root_dir, dir))
-        except FileNotFoundError:
-            # We want to avoid failing the build if the object is
-            # aleady removed.  Possibly time to update the list.
-            pass
+        except Exception:
+            # Possibly a directory
+            try:
+                shutil.rmtree(obj)
+            except FileNotFoundError:
+                # avoid failing
+                pass
 
     # Some files and/or directories get their permission mode changed
     # after install.  We preemptively make those mode changes here
