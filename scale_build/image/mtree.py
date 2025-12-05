@@ -137,7 +137,12 @@ def generate_mtree(target_root_dir, version):
     # we replace when we etc.generate. If they're not required for
     # first boot, then remove from update file.
     for file in ETC_FILES_TO_REMOVE:
-        os.unlink(os.path.join(target_root_dir, file))
+        try:
+            os.unlink(os.path.join(target_root_dir, file))
+        except FileNotFoundError:
+            # We want to avoid failing the build if the object is
+            # aleady removed.  Possibly time to update the list.
+            pass
 
     # Some files and/or directories get their permission mode changed
     # after install.  We preemptively make those mode changes here
