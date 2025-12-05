@@ -1,5 +1,6 @@
 import os
 import hashlib
+import shutil
 
 from contextlib import contextmanager
 from scale_build.utils.paths import RELEASE_DIR
@@ -11,12 +12,12 @@ MTREE_FILE_NAME = 'rootfs.mtree'
 MTREE_UPDATE_FILE = f'{RELEASE_DIR}/{MTREE_FILE_NAME}'
 MTREE_DIRS = ['boot', 'etc', 'usr', 'opt', 'var', 'conf/audit_rules']
 
-# The following is list of default etc files to remove from our image before we
-# generate mtree file and then the squashfs filesystem. Generally we should put
-# files that are generated via middleware and not required for first boot to
-# eliminate files being flagged as changed rather than simply added to our
-# base install.
-ETC_FILES_TO_REMOVE = [
+# The following is list of default etc files and dirs to remove from our image
+# before we generate mtree file and then the squashfs filesystem. Generally
+# we should put files that are generated via middleware and not required for
+# first boot to eliminate files being flagged as changed rather than simply
+# added to our base install.
+ETC_OBJS_TO_REMOVE = [
     'etc/audit/rules.d/audit.rules',  # Not used by TrueNAS
     'etc/exports',
     'etc/ftpusers',
@@ -136,13 +137,17 @@ def generate_mtree(target_root_dir, version):
     # There are various default files distributed by packages that
     # we replace when we etc.generate. If they're not required for
     # first boot, then remove from update file.
-    for file in ETC_FILES_TO_REMOVE:
+    for obj in ETC_OBJS_TO_REMOVE:
+        obj = os.path.join(target_root_dir, obj)
+
         try:
-            os.unlink(os.path.join(target_root_dir, file))
+            os.unlink(obj)
         except FileNotFoundError:
             # We want to avoid failing the build if the object is
             # aleady removed.  Possibly time to update the list.
             pass
+        except IsADirectoryError:
+            shutil.rmtree(obj)
 
     # Some files and/or directories get their permission mode changed
     # after install.  We preemptively make those mode changes here
