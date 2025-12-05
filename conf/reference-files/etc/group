@@ -68,7 +68,7 @@ ladvd:x:127:
 libvirt:x:128:
 nova:x:129:
 truesearch:x:444:
-webshare:x:445:
+truenas_webshare:x:445:
 builtin_administrators:x:544:
 builtin_users:x:545:
 builtin_guests:x:546:
