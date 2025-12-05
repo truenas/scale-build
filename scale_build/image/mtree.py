@@ -146,13 +146,8 @@ def generate_mtree(target_root_dir, version):
             # We want to avoid failing the build if the object is
             # aleady removed.  Possibly time to update the list.
             pass
-
         except IsADirectoryError:
-            try:
-                shutil.rmtree(obj)
-            except FileNotFoundError:
-                # Directory already removed.
-                pass
+            shutil.rmtree(obj)
 
     # Some files and/or directories get their permission mode changed
     # after install.  We preemptively make those mode changes here
