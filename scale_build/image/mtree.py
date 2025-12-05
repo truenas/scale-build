@@ -147,12 +147,11 @@ def generate_mtree(target_root_dir, version):
             # aleady removed.  Possibly time to update the list.
             pass
 
-        except Exception:
-            # Possibly a directory
+        except IsADirectoryError:
             try:
                 shutil.rmtree(obj)
             except FileNotFoundError:
-                # avoid failing
+                # Directory already removed.
                 pass
 
     # Some files and/or directories get their permission mode changed
