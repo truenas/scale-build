@@ -34,7 +34,7 @@ ETC_OBJS_TO_REMOVE = [
     'etc/avahi/services/nut.service',
     'etc/chrony/chrony.conf',
     'etc/default/rpcbind',
-    # 'etc/netdata/netdata.conf',  # FIXME: please fix this once aligned with newer netdata packages
+    'etc/netdata/netdata.conf',
     'etc/nginx/nginx.conf',
     'etc/nvme/hostid',
     'etc/nvme/hostnqn',
