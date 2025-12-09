@@ -369,14 +369,14 @@ sources:
     - "apt install -y wget xz-utils"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: truenas/linux-6.12
+  branch: truenas/linux-6.18
   batch_priority: 0
   supports_ccache: true
   env:
     EXTRAVERSION: "-production"
     PYTHON: "python3"
   predepscmd:
-    - "apt install -y flex bison dwarves libssl-dev devscripts"
+    - "apt install -y flex bison dwarves libssl-dev devscripts zstd"
     # Install dependencies to build perf
     - "apt install -y libelf-dev libdw-dev systemtap-sdt-dev libunwind-dev libslang2-dev libperl-dev binutils-dev libiberty-dev python3 python3-setuptools python3-dev liblzma-dev libzstd-dev libcap-dev libnuma-dev libbabeltrace-dev openjdk-21-jdk libcapstone-dev llvm-dev"
     # We remove git files because kernel makefile tries to interact with git for determining version
@@ -399,7 +399,7 @@ sources:
       env:
         EXTRAVERSION: "-debug"
       predepscmd:
-        - "apt install -y flex bison dwarves libssl-dev devscripts"
+        - "apt install -y flex bison dwarves libssl-dev devscripts zstd"
         # We remove git files because kernel makefile tries to interact with git for determining version
         # which results in misconfigured version due to our debian based changes
         - "rm -rf .git .gitattributes .gitignore"
@@ -733,7 +733,7 @@ sources:
 ############################################################################
 extensions:
   nvidia:
-    current: "580.105.08"
+    current: "590.44.01"
 
 # External packages from various sources (GitHub releases, assets.sys.truenas.net)
 ############################################################################
