@@ -7,6 +7,7 @@ import requests
 import shutil
 import stat
 import tempfile
+import time
 
 from scale_build.config import SIGNING_KEY, SIGNING_PASSWORD
 from scale_build.extensions import build_extensions as do_build_extensions
@@ -200,19 +201,24 @@ def download_and_install_deb_package(package_name, download_url, deb_filename, p
         logger.info(f'Downloading {package_name} from {download_url}')
 
         # Download the package using requests
-        try:
-            response = requests.get(download_url, stream=True, timeout=60, allow_redirects=True)
-            response.raise_for_status()
+        for retry in itertools.count(1):
+            try:
+                response = requests.get(download_url, stream=True, timeout=60, allow_redirects=True)
+                response.raise_for_status()
 
-            # Write the content to file in chunks to handle large files efficiently
-            with open(deb_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:  # Filter out keep-alive chunks
-                        f.write(chunk)
+                # Write the content to file in chunks to handle large files efficiently
+                with open(deb_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:  # Filter out keep-alive chunks
+                            f.write(chunk)
 
-        except requests.exceptions.RequestException as e:
-            logger.error(f'Failed to download {package_name}: {e}')
-            raise RuntimeError(f'Failed to download {package_name} from {download_url}: {e}')
+                break
+            except requests.exceptions.RequestException as e:
+                logger.error(f'Failed to download {package_name}: {e}')
+                if retry >= 5:
+                    raise RuntimeError(f'Failed to download {package_name} from {download_url}: {e}') from None
+                else:
+                    time.sleep(10)
 
         # Verify the downloaded file exists and has content
         if not os.path.exists(deb_path) or os.path.getsize(deb_path) == 0:
