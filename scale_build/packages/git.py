@@ -68,6 +68,7 @@ class GitPackageMixin:
                     '--branch', branch,
                     '--single-branch',
                     '--no-tags',
+                    '--depth', '1',
                     self.origin,
                     self.source_path
                 ],
