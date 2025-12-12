@@ -201,7 +201,7 @@ def download_and_install_deb_package(package_name, download_url, deb_filename, p
         logger.info(f'Downloading {package_name} from {download_url}')
 
         # Download the package using requests
-        for retry in itertools.count(1):
+        for retry in range(5):
             try:
                 response = requests.get(download_url, stream=True, timeout=60, allow_redirects=True)
                 response.raise_for_status()
@@ -215,7 +215,7 @@ def download_and_install_deb_package(package_name, download_url, deb_filename, p
                 break
             except requests.exceptions.RequestException as e:
                 logger.error(f'Failed to download {package_name}: {e}')
-                if retry >= 5:
+                if retry == 4:
                     raise RuntimeError(f'Failed to download {package_name} from {download_url}: {e}') from None
                 else:
                     time.sleep(10)
