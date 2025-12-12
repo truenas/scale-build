@@ -63,8 +63,14 @@ class GitPackageMixin:
             )
         else:
             cmds = (
-                ['clone', '--recurse', self.origin, self.source_path],
-                ['-C', self.source_path, 'checkout', branch],
+                [
+                    'clone',
+                    '--branch', branch,
+                    '--single-branch',
+                    '--no-tags',
+                    self.origin,
+                    self.source_path
+                ],
             )
 
         # We're doing retries here because at the time of writing this the iX network
