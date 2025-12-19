@@ -87,11 +87,11 @@ def _do_mtree_impl(mtree_file_path, version):
             '-c', '--format=mtree',
             '--exclude', './boot/initrd.img*',
             '--exclude', './etc/aliases',
-            '--exclude', './etc/audit/audit.rules',  # TrueNAS managed and audited
+            '--exclude', './etc/audit/audit.rules',         # TrueNAS managed and audited
             '--exclude', './etc/console-setup/cached_setup_*',
             '--exclude', './etc/default/keyboard',
             '--exclude', './etc/default/kdump-tools',
-            '--exclude', './etc/default/zfs',        # Modifed in usr/local/bin/truenas-initrd.py
+            '--exclude', './etc/default/zfs',               # Modifed by truenas-initrd.py
             '--exclude', './etc/fstab',
             '--exclude', './etc/group',
             '--exclude', './etc/machine-id',
@@ -105,20 +105,24 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/dhcp/dhclient.conf',
             '--exclude', './etc/libvirt',
             '--exclude', './etc/default/libvirt-guests',
+            '--exclude', './etc/ssl/openssl.cnf',           # Modified by configure_fips.py
             '--exclude', './etc/pam.d/common-account',
             '--exclude', './etc/pam.d/common-auth',
             '--exclude', './etc/pam.d/common-password',
             '--exclude', './etc/pam.d/common-session',
             '--exclude', './etc/pam.d/common-session-noninteractive',
             '--exclude', './etc/pam.d/sshd',
+            '--exclude', './etc/rc?\\.d',
+            '--exclude', './etc/ssl/certs/ca-certificates.crt',
             '--exclude', './usr/lib/debug/*',
-            '--exclude', './usr/lib/debug/*',
+            '--exclude', './usr/lib/ssl/fipsmodule.cnf',    # Modified by configure_fips.py
             '--exclude', './var/cache',
             '--exclude', './var/trash',
             '--exclude', './var/spool/*',
             '--exclude', './var/log/*',
             '--exclude', './var/lib/dbus/machine-id',
             '--exclude', './var/lib/certmonger/cas/*',
+            '--exclude', './var/lib/certmonger/local/*',
             '--exclude', './var/lib/smartmontools/*',
             '--options', '!all,mode,uid,gid,type,link,size,sha256',
         ]
