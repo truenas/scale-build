@@ -113,7 +113,7 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/rc?\\.d',
             '--exclude', './etc/ssl/certs/ca-certificates.crt',
             '--exclude', './usr/lib/debug/*',
-            '--exclude', './usr/lib/ssl/fipsmodule.cnf',    # Modified by configure_fips.py
+            '--exclude', './var/lib/ssl/fipsmodule.cnf',    # Modified by configure_fips.py
             '--exclude', './var/cache',
             '--exclude', './var/trash',
             '--exclude', './var/spool/*',
