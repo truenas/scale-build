@@ -739,10 +739,10 @@ extensions:
 ############################################################################
 external-packages:
   truenas-file-manager:
-    deb_version: "0.3.2"
+    deb_version: "0.3.3"
     url_template: "https://assets.sys.truenas.net/debian-packages/{package}_{version}_{arch}.deb"
   truesearch:
-    deb_version: "0.0.6"
+    deb_version: "0.0.7"
     url_template: "https://assets.sys.truenas.net/debian-packages/{package}_{version}_{arch}.deb"
   caddy:
     deb_version: "2.10.0"
