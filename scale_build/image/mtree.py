@@ -104,6 +104,7 @@ def _do_mtree_impl(mtree_file_path, version):
             '--exclude', './etc/libvirt',
             '--exclude', './etc/default/libvirt-guests',
             '--exclude', './etc/ssl/openssl.cnf',           # Modified by configure_fips.py
+            '--exclude', './etc/netdata/netdata.conf',
             '--exclude', './etc/pam.d/common-account',
             '--exclude', './etc/pam.d/common-auth',
             '--exclude', './etc/pam.d/common-password',
