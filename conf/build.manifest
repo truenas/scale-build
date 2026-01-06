@@ -109,6 +109,8 @@ base-packages:
   install_recommends: true
 - name: python3-truenas-pykeyring
   install_recommends: true
+- name: python3-truenas-pyos
+  install_recommends: true
 - name: python3-truenas-pwenc
   install_recommends: true
 - name: python3-truenas-pyscstadmin
@@ -481,6 +483,9 @@ sources:
     - openzfs
 - name: truenas_pykeyring
   repo: https://github.com/truenas/truenas_pykeyring
+  branch: master
+- name: truenas_pyos
+  repo: https://github.com/truenas/truenas_pyos
   branch: master
 - name: truenas_pwenc
   repo: https://github.com/truenas/truenas_pwenc
