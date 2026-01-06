@@ -487,6 +487,8 @@ sources:
 - name: truenas_pyos
   repo: https://github.com/truenas/truenas_pyos
   branch: master
+  explicit_deps:
+    - kernel
 - name: truenas_pwenc
   repo: https://github.com/truenas/truenas_pwenc
   branch: master
