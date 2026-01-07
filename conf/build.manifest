@@ -337,7 +337,7 @@ sources:
     - "./pull.sh"
 - name: kernel
   repo: https://github.com/truenas/linux
-  branch: release/24.10.2.4
+  branch: NAS-139155
   batch_priority: 0
   supports_ccache: true
   env:
