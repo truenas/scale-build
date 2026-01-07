@@ -487,6 +487,8 @@ sources:
 - name: truenas_pyos
   repo: https://github.com/truenas/truenas_pyos
   branch: master
+  predepscmd:
+    - "apt install -y linux-truenas-production-libc-dev"
   explicit_deps:
     - kernel
 - name: truenas_pwenc
