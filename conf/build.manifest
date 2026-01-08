@@ -507,8 +507,8 @@ sources:
     - truenas_scram
   branch: master
 - name: liburing
-  repo: https://github.com/axboe/liburing.git
-  branch: liburing-2.13
+  repo: https://github.com/truenas/liburing.git
+  branch: truenas/2.13
   explicit_deps:
     - kernel
   predepscmd:
