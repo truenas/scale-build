@@ -506,6 +506,13 @@ sources:
     - truenas_pwenc
     - truenas_scram
   branch: master
+- name: liburing
+  repo: https://github.com/axboe/liburing.git
+  branch: liburing-2.13
+  explicit_deps:
+    - kernel
+  predepscmd:
+    - "apt install -y linux-truenas-production-libc-dev"
 - name: truenas_samba
   repo: https://github.com/truenas/samba
   branch: SCALE-v4-23-stable
@@ -513,6 +520,9 @@ sources:
   batch_priority: 0
   explicit_deps:
     - openzfs
+    - liburing
+  predepscmd:
+    - "apt install -y linux-truenas-production-libc-dev"
 - name: truenas_pyscstadmin
   repo: https://github.com/truenas/truenas_pyscstadmin
   branch: master
