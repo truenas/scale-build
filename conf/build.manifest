@@ -677,6 +677,7 @@ sources:
         - truenas_samba
         - truenas_sssd
         - truenas_pwenc
+        - truenas_pyos
         - truenas_pyscstadmin
       subdir: src/middlewared
     - name: middlewared-docs
