@@ -561,6 +561,7 @@ sources:
   explicit_deps:
     - kernel
     - kernel-dbg
+    - liburing
 - name: avahi
   repo: https://github.com/truenas/avahi
   branch: SCALE-v0.8
