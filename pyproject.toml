@@ -22,6 +22,7 @@ scale_build = "scale_build.main:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["scale_build*", "truenas_install*"]
+exclude = ["tmp*", "sources*", "logs*", "build*", "dist*"]
 
 [tool.setuptools]
 include-package-data = true
