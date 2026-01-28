@@ -675,6 +675,7 @@ sources:
     - name: middlewared
       explicit_deps:
         - truenas_samba
+        - truenas_scram
         - truenas_sssd
         - truenas_pwenc
         - truenas_pyos
