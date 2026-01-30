@@ -337,6 +337,9 @@ additional-packages:
 - name: p7zip-rar
   comment: requested by community (NAS-131306) https://forums.truenas.com/t/accepted-add-unrar-7zip-to-truenas-scale/10075
   install_recommends: false
+- name: bc
+  comment: requested by community (https://forums.truenas.com/t/include-bc-in-scale/8933)
+  install_recommends: false
 
 #
 # List of additional packages installed into TrueNAS SCALE ISO file
