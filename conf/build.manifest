@@ -548,6 +548,7 @@ sources:
     - "apt install -y rsync"
     - "sh -x fetch.sh"
     - "scripts/pkgdep.sh  --rdma"
+  deps_path: debian
   explicit_deps:
     - kernel
     - kernel-dbg
