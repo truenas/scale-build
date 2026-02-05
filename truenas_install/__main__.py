@@ -659,7 +659,9 @@ def main():
                             run_command(["chroot", root, "cp", "/boot/efi/EFI/debian/grubx64.efi",
                                          "/boot/efi/EFI/boot/bootx64.efi"])
 
-                            if os.path.exists("/sys/firmware/efi"):
+                            if os.path.exists("/sys/firmware/efi") and old_root is None:
+                                # Only create boot entry on fresh install.
+                                # On upgrades, the entry already exists from the original installation.
                                 run_command(["chroot", root, "efibootmgr", "-c",
                                              "-d", f"/dev/{disk}",
                                              "-p", f"{efi_partition_number}",
