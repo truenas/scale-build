@@ -9,7 +9,7 @@ identity_file_path_default: "~/.ssh/id_rsa"
 ############################################################################
 apt-repos:
   base-url: https://apt.sys.truenas.net/
-  base-url-internal: http://apt-mirror.tn.ixsystems.net/
+  #base-url-internal: http://apt-mirror.tn.ixsystems.net/
   url: goldeye/25.10.2/debian/
   distribution: bookworm
   components: main

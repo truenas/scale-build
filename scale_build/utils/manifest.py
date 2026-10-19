@@ -83,7 +83,7 @@ MANIFEST_SCHEMA = {
             'type': 'object',
             'properties': {
                 'base-url': {'type': 'string', 'pattern': '.*/$'},
-                'base-url-internal': {'type': 'string', 'pattern': '.*/$'},
+                'base-url-internal': {'type': ['string', 'null'], 'pattern': '^$|.*/$'},
                 'url': {'type': 'string'},
                 'distribution': {'type': 'string'},
                 'components': {'type': 'string'},
@@ -303,7 +303,12 @@ def get_apt_base_url(check_custom: bool) -> str:
 
         return APT_BASE_CUSTOM
 
-    return apt_repos['base-url-internal'] if APT_INTERNAL_BUILD else apt_repos['base-url']
+    # The internal mirror is optional: if the manifest has no (or an empty) base-url-internal, fall back to the
+    # public base-url even when APT_INTERNAL_BUILD is set.
+    if APT_INTERNAL_BUILD and apt_repos.get('base-url-internal'):
+        return apt_repos['base-url-internal']
+
+    return apt_repos['base-url']
 
 
 @functools.cache
