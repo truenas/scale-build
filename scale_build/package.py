@@ -14,6 +14,7 @@ from .packages.order import get_initialized_packages, get_to_build_packages
 from .utils.logger import LoggingContext
 from .utils.paths import LOG_DIR, PKG_DIR, PKG_LOG_DIR
 from .utils.run import interactive_run, run
+from .vendored_packages import add_vendored_packages
 
 
 logger = logging.getLogger(__name__)
@@ -110,6 +111,7 @@ def _build_packages_impl(desired_packages=None):
 
     with LoggingContext('build_packages', 'w'):
         PackageBootstrapDir().setup()
+        add_vendored_packages()
 
     logger.debug('Successfully setup bootstrap directory')
 

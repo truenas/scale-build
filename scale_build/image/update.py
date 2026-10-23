@@ -12,6 +12,7 @@ from scale_build.extensions import build_extensions as do_build_extensions
 from scale_build.utils.manifest import get_manifest, get_apt_repos
 from scale_build.utils.run import run
 from scale_build.utils.paths import CHROOT_BASEDIR, RELEASE_DIR, UPDATE_DIR
+from scale_build.vendored_packages import verify_vendored_packages
 
 from .bootstrap import umount_chroot_basedir
 from .manifest import build_manifest, build_release_manifest, get_version, update_file_path, update_file_checksum_path
@@ -117,6 +118,8 @@ def install_rootfs_packages_impl():
 
         logger.debug(log_message)
         run_in_chroot(install_cmd)
+
+    verify_vendored_packages()
 
     # Do any custom rootfs setup
     custom_rootfs_setup()

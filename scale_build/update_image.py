@@ -11,6 +11,7 @@ from .image.update import install_rootfs_packages, build_rootfs_image
 from .utils.logger import LoggingContext
 from .utils.paths import CHROOT_BASEDIR, LOG_DIR, REFERENCE_FILES, REFERENCE_FILES_DIR, RELEASE_DIR
 from .utils.reference_files import compare_reference_files
+from .vendored_packages import add_vendored_packages
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,7 @@ def build_update_image_impl():
     with LoggingContext('rootfs-bootstrap', 'w'):
         package_bootstrap_obj = RootfsBootstrapDir()
         package_bootstrap_obj.setup()
+        add_vendored_packages()
 
     logger.debug('Installing TrueNAS rootfs package [UPDATE] (%s/rootfs-packages.log)', LOG_DIR)
     try:

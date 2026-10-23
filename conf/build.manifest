@@ -40,6 +40,8 @@ base-packages:
   install_recommends: true
 - name: openssl
   install_recommends: true
+- name: ca-certificates
+  install_recommends: true
 - name: dosfstools
   install_recommends: true
 - name: linux-truenas-production-libc-dev
