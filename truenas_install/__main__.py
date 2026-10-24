@@ -47,6 +47,7 @@ from licenselib.license import ContractType, License  # noqa
 
 from .dhs import TRUENAS_DATA_HIERARCHY  # noqa
 from .fhs import TRUENAS_DATASETS  # noqa
+from .hexos_identity import initialize_hexos_identity  # noqa
 from .utils import getmntinfo, get_pids  # noqa
 
 logger = logging.getLogger(__name__)
@@ -535,6 +536,12 @@ def main():
 
                 run_command(["mount", "-t", "sysfs", "none", f"{root}/sys"])
                 undo.append(["umount", f"{root}/sys"])
+
+                try:
+                    initialize_hexos_identity(root, is_fresh_install, run_command)
+                except (OSError, ValueError, TypeError, RuntimeError) as error:
+                    write_error(f"Unable to initialize HexOS installation identity: {error}")
+                    raise
                 if os.path.exists("/sys/firmware/efi"):
                     undo.append(["umount", f"{root}/sys/firmware/efi/efivars"])
 
